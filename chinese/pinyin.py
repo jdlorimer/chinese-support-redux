@@ -14,14 +14,41 @@ from anki.utils import stripHTML, isWin, isMac
 from anki.hooks import addHook
 
 hanziFields = ['Chinese', 'Mandarin', 'Hanzi', u'汉字', u'漢字', 'Expression']
-pinynFields = ['Reading', 'Pinyin']
-tonesFields = ['tones']
+pinyinFields = ['Reading', 'Pinyin']
+tonesFields = ['Tones']
 
 
 modelName = 'chinese'
 toneClasses =  {
     1 : 'tone1', 2 : 'tone2', 3 : 'tone3', 4 : 'tone4', 5 : 'tone5'
     }
+
+
+
+def isHanCharacter(uchar):
+    if uchar >= u'\u4e00' and uchar <= u'\u9fff':
+        # The code from the JapaneseSupport plugin compares
+        # ord(character) to a number. We compare one character with
+        # another. Don't know which method is 'better'. (And we skip
+        # u'\u2e00' to u'\u4dff', i guess the kana are somwhere in
+        # there.)
+        return True
+    return False
+
+
+def getHanCharacters(text):
+    ret = u''
+    # Maybe we got utf-8
+    try:
+        utext = unicode(text, 'utf-8')
+    except TypeError:
+        utext = text # Hope text is already unicode. If we put in
+        # a number or something, we'll fail in one of the
+        # next lines. EAFP
+    for c in utext:
+        if isHanCharacter(c):
+            ret += c
+    return ret
 
 class Pinyinizer(object):
     
@@ -34,7 +61,6 @@ class Pinyinizer(object):
     def getPinyinData(self, hanzi):
         # There are fifty ways to^H^H for this to blow up.
         pinyin = self.hanzilookup.getReadingForCharacter(hanzi, 'Pinyin')[0]
-        print pinyin
         toneNumber = self._toneNumber(pinyin)
         wrapedPinyin = u'<span class="pinyin {tone}">{pinyin}</span>'\
             .format(tone=toneClasses[toneNumber], pinyin=pinyin)
@@ -45,7 +71,6 @@ class Pinyinizer(object):
         # than being EAFP. At least for now.
         numberedPinyin = self.factory.convert(pinyin, 'Pinyin', 'Pinyin',\
                                                   targetOptions=self.numOp)
-        print numberedPinyin
         return int(numberedPinyin[-1:])
 
 
@@ -60,7 +85,7 @@ def onFocusLost(flag, n, fidx):
     pinyinField = None
     tonesField = None
     # japanese model?
-    if modelTag not in n.model()['name'].lower():
+    if modelName not in n.model()['name'].lower():
         return flag
     # Look for hanzi, pinyin and tone fields.
     for c, name in enumerate(mw.col.models.fieldNames(n.model())):
@@ -81,12 +106,11 @@ def onFocusLost(flag, n, fidx):
     # pinyin field already filled?
     if n[pinyinField]:
         return flag
-    # event coming from src field?
+    # event coming from hanzi field?
     if fidx != hanziIndex:
         return flag
     # grab hanzi
-    hanzi = mw.col.media.strip(n[src])
-    # Reduce to hanzi here. TODO.
+    hanzi = getHanCharacters(mw.col.media.strip(n[hanziField]))
     if not hanzi:
         return flag
     # update field
@@ -96,7 +120,7 @@ def onFocusLost(flag, n, fidx):
         for h in hanzi:
             p, w, t = pinyinize.getPinyinData(h)
             wrapedPinyin += w
-            tones += t
+            tones += unicode(t)
     except:
         return flag
     n[pinyinField] = wrapedPinyin
