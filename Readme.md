@@ -1,7 +1,7 @@
 chinese-support-addon
 =====================
 
-Addon for Anki2 that may do some of the things that batterseapower’s pinyin-toolkit did for Anki2
+Addon for Anki2 that may one day do some of the things that batterseapower’s pinyin-toolkit did for Anki1
 
 Please do not expect too much from this. This is pretty much a hobby project. (I don’t even learn Chinese.) If anyone wants to do real work, ey is welcome to fork this or to send pull requests.
 
