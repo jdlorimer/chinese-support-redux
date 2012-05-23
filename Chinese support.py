@@ -6,13 +6,7 @@
 A Plugin for the Anki2 Spaced Repition learning system,
 <http://ankisrs.net/>
 
-    Inspired by 
-    Mandarin-Chinese Pinyin Toolkit
-    Copyright (C) 2009 Nicholas Cook & Max Bolingbroke
-
-
-    Written by Roland Sieker, <ospalh@gmail.com>
-    © 2012 
+   Copyright © 2012 by Roland Sieker, <ospalh@gmail.com>
 
    Using parts of the Japanese plugin,
    written by Damien Elms.
