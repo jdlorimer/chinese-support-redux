@@ -16,7 +16,7 @@ def addChineseModel(col):
     mm.addField(m, fm)
     fm = mm.newField(_("Meaning"))
     mm.addField(m, fm)
-    fm = mm.newField(_("Pinyin"))
+    fm = mm.newField(_("Ruby"))
     mm.addField(m, fm)
     t = mm.newTemplate(_("Recognition"))
     t['qfmt'] = "<div class=chinese>{{Hanzi}}</div>"

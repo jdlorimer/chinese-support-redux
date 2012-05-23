@@ -14,7 +14,7 @@ from anki.utils import stripHTML, isWin, isMac
 from anki.hooks import addHook
 
 hanziFields = ['Chinese', 'Mandarin', 'Hanzi', u'汉字', u'漢字', 'Expression']
-pinyinFields = ['Reading', 'Pinyin']
+rubyFields = ['Reading', 'Ruby', 'Pinyin']
 tonesFields = ['Tones']
 
 
@@ -62,13 +62,12 @@ class Pinyinizer(object):
         # There are fifty ways to^H^H for this to blow up.
         pinyin = self.hanzilookup.getReadingForCharacter(hanzi, 'Pinyin')[0]
         toneNumber = self._toneNumber(pinyin)
-        wrapedPinyin = u'<span class="pinyin {tone}">{pinyin}</span>'\
-            .format(tone=toneClasses[toneNumber], pinyin=pinyin)
-        return pinyin, wrapedPinyin, toneNumber
+        ruby = u'{hanzi}[<span class="pinyin {tone}">{pinyin}</span>]'\
+            .format(hanzi=hanzi, tone=toneClasses[toneNumber], pinyin=pinyin)
+        return pinyin, ruby, toneNumber
 
     def _toneNumber(self, pinyin):
-        # The whole thing is rather assumes everything works rather
-        # than being EAFP. At least for now.
+        # Another fifty ways to blow up.
         numberedPinyin = self.factory.convert(pinyin, 'Pinyin', 'Pinyin',\
                                                   targetOptions=self.numOp)
         return int(numberedPinyin[-1:])
@@ -82,29 +81,29 @@ pinyinize = Pinyinizer()
 def onFocusLost(flag, n, fidx):
     from aqt import mw
     hanziField = None
-    pinyinField = None
+    rubyField = None
     tonesField = None
     # japanese model?
     if modelName not in n.model()['name'].lower():
         return flag
-    # Look for hanzi, pinyin and tone fields.
+    # Look for hanzi, ruby and tone fields.
     for c, name in enumerate(mw.col.models.fieldNames(n.model())):
         for f in hanziFields:
             if name == f:
                 hanziField = f
                 hanziIndex = c
-        for f in pinyinFields:
+        for f in rubyFields:
             if name == f:
-                pinyinField = f
+                rubyField = f
         for f in tonesFields:
             if name == f:
                 tonesField = f
-    # We really want hanzi and pinyin fields. (It’s OK if we have no
+    # We really want hanzi and ruby fields. (It’s OK if we have no
     # tones field.)
-    if not hanziField or not pinyinField:
+    if not hanziField or not rubyField:
         return flag
-    # pinyin field already filled?
-    if n[pinyinField]:
+    # ruby field already filled?
+    if n[rubyField]:
         return flag
     # event coming from hanzi field?
     if fidx != hanziIndex:
@@ -114,16 +113,16 @@ def onFocusLost(flag, n, fidx):
     if not hanzi:
         return flag
     # update field
-    wrapedPinyin = u''
+    ruby = u''
     tones = u''
     try:
         for h in hanzi:
-            p, w, t = pinyinize.getPinyinData(h)
-            wrapedPinyin += w
+            p, r, t = pinyinize.getPinyinData(h)
+            ruby += r
             tones += unicode(t)
     except:
         return flag
-    n[pinyinField] = wrapedPinyin
+    n[rubyField] = ruby
     # Check if we have a tones field
     if tonesField:
         # But clobber what is alread there
