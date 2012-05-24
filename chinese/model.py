@@ -18,16 +18,18 @@ def addChineseModel(col):
     mm.addField(m, fm)
     fm = mm.newField(_("Ruby"))
     mm.addField(m, fm)
+    fm = mm.newField(_("Tones"))
+    mm.addField(m, fm)
     t = mm.newTemplate(_("Recognition"))
     t['qfmt'] = "<div class=chinese>{{Hanzi}}</div>"
     t['afmt'] = """{{FrontSide}}<hr id=answer>\
-<div class=chinese>{{ruby:Ruby}}</div>\
+<div class=chinese>{{furigana:Ruby}}</div>\
 <div>{{Meaning}}</div>"""
     mm.addTemplate(m, t)
     t = mm.newTemplate(_("Recall"))
     t['qfmt'] = "<div>{{Meaning}}</div>"
     t['afmt'] = """{{FrontSide}}<hr id=answer>\
-<div class=chinese>{{ruby:Ruby}}</div>"""
+<div class=chinese>{{furigana:Ruby}}</div>"""
     mm.addTemplate(m, t)
     # css
     m['css'] += u"""\
@@ -35,7 +37,13 @@ def addChineseModel(col):
 .win .chinese { font-family: "MS Mincho", "ＭＳ 明朝"; }
 .mac .chinese { font-family: "Hiragino Mincho Pro", "ヒラギノ明朝 Pro"; }
 .linux .chinese { font-family: "Kochi Mincho", "東風明朝"; }
-.mobile .chinese { font-family: "Hiragino Mincho ProN"; }"""
+.mobile .chinese { font-family: "Hiragino Mincho ProN"; }
+.tone1 {color: red;}
+.tone2 {color: orange;}
+.tone3 {color: green;}
+.tone4 {color: blue;}
+.tone5 {color: black;}
+"""
     # recognition card
     mm.add(m)
     return m

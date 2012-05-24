@@ -36,20 +36,6 @@ def isHanCharacter(uchar):
     return False
 
 
-def getHanCharacters(text):
-    ret = u''
-    # Maybe we got utf-8
-    try:
-        utext = unicode(text, 'utf-8')
-    except TypeError:
-        utext = text # Hope text is already unicode. If we put in
-        # a number or something, we'll fail in one of the
-        # next lines. EAFP
-    for c in utext:
-        if isHanCharacter(c):
-            ret += c
-    return ret
-
 class Pinyinizer(object):
     
     def __init__(self):
@@ -62,7 +48,14 @@ class Pinyinizer(object):
         # There are fifty ways to^H^H for this to blow up.
         pinyin = self.hanzilookup.getReadingForCharacter(hanzi, 'Pinyin')[0]
         toneNumber = self._toneNumber(pinyin)
-        ruby = u'{hanzi}[<span class="pinyin {tone}">{pinyin}</span>]'\
+        # Carfully craft the ruby format string so the build-in
+        # furigana &c. templates can parse this and the colorization
+        # can still work. The space between the outer span and the
+        # hanzi is important.
+        #                   ... that one ->|<- ...
+        ruby = u'<span class="ruby {tone}"> {hanzi}'\
+            '[<span class="pinyin {tone}">{pinyin}</span>]'\
+            '</span>'\
             .format(hanzi=hanzi, tone=toneClasses[toneNumber], pinyin=pinyin)
         return pinyin, ruby, toneNumber
 
@@ -109,19 +102,23 @@ def onFocusLost(flag, n, fidx):
     if fidx != hanziIndex:
         return flag
     # grab hanzi
-    hanzi = getHanCharacters(mw.col.media.strip(n[hanziField]))
+    hanzi = mw.col.media.strip(n[hanziField])
     if not hanzi:
         return flag
     # update field
     ruby = u''
     tones = u''
-    try:
-        for h in hanzi:
-            p, r, t = pinyinize.getPinyinData(h)
-            ruby += r
-            tones += unicode(t)
-    except:
-        return flag
+    for h in hanzi:
+        r = h
+        t = u' '
+        if isHanCharacter(h):
+            try:
+                p, r, t = pinyinize.getPinyinData(h)
+                t = unicode(t)
+            except:
+                pass
+        ruby += r
+        tones += t
     n[rubyField] = ruby
     # Check if we have a tones field
     if tonesField:
