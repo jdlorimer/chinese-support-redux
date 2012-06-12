@@ -1,0 +1,3 @@
+[submodule "chinese/cjklib"]
+	path = chinese/cjklib
+	url = git@github.com:ospalh/cjklib
