@@ -3,7 +3,14 @@
 #
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/copyleft/agpl.html
 
-from dehashilator import Dehashilator
+
+import sys
+import os
+
+sys.path.append(os.path.join('.', 'cjklib'))
+# Either the system cjklib or our own.
+import cjklib
 
 from pinyin import Pinyinizer, is_han_character, on_focus_lost
+
 __version__ = '0.0a2'
