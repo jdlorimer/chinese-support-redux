@@ -9,12 +9,11 @@
 # License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
 #
 
+import sys
+import os
+from anki.utils import stripHTML
+from anki.db import *
 
-# Either the system cjklib or our own.
-from cjklib import reading, characterlookup
-
-
-from anki.utils import stripHTML, isWin, isMac
 
 hanzi_fields = ['Chinese', 'Mandarin', 'Hanzi', u'汉字', u'漢字', 'Expression']
 ruby_fields = ['Reading', 'Ruby', 'Pinyin']
@@ -22,6 +21,10 @@ tones_fields = ['Tones']
 
 
 model_name = 'chinese'
+
+#type = "cantonese"
+type = "mandarin"
+
 tone_classes =  {
     1 : 'tone1', 2 : 'tone2', 3 : 'tone3', 4 : 'tone4', 5 : 'tone5'
     }
@@ -39,16 +42,41 @@ def is_han_character(uchar):
     return False
 
 
+class UnihanController(object):
+    """Class to get pinyin for a character.
+
+    These are some remnants of the unihan reading extractor from
+    Damien Elmes' chinese plugin.
+    """
+    
+    def __init__(self, target):
+        if sys.platform.startswith("win32"):
+           base = unicode(os.path.dirname(os.path.abspath(__file__)),
+                          "mbcs")
+        else:
+           base = os.path.dirname(os.path.abspath(__file__))
+        self.db = DB(os.path.abspath(os.path.join(base, "unihan.db")))
+        self.type = target
+
+    def reading(self, hanzi):
+        """Get pinyin for a single character"""
+        n = ord(hanzi)
+        return self.db.execute("select %s from unihan where id = :id"
+                               % self.type, id=n)
+
+
 class Pinyinizer(object):
     
     def __init__(self):
-        self.factory = reading.ReadingFactory()
-        self.num_op = {'toneMarkType': 'numbers'}
-        self.hanzilookup = characterlookup.CharacterLookup('C')
+        self.unihan = UnihanController(type)
+
 
     def get_pinyin_data(self, hanzi):
         # There are fifty ways to^H^H for this to blow up.
-        pinyin = self.hanzilookup.getReadingForCharacter(hanzi, 'Pinyin')[0]
+
+        pinyin = self.unihan.reading(hanzi)
+        for p in pinyin:
+            print 'pinyin: ', p
         tone_number = self._tone_number(pinyin)
         # Carfully craft the ruby format string so the build-in
         # furigana &c. templates can parse this and the colorization
@@ -63,9 +91,7 @@ class Pinyinizer(object):
 
     def _tone_number(self, pinyin):
         # Another fifty ways to blow up.
-        numbered_pinyin = self.factory.convert(pinyin, 'Pinyin', 'Pinyin',\
-                                                  targetOptions=self.num_op)
-        return int(numbered_Pinyin[-1:])
+        return int(pinyin[-1:])
 
 
 pinyinize = Pinyinizer()
