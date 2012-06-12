@@ -40,10 +40,10 @@ class Pinyinizer(object):
     def __init__(self):
         from cjklib import reading, characterlookup
         self.factory = reading.ReadingFactory()
-        self.numOp = {'toneMarkType': 'numbers'}
+        self.num_op = {'toneMarkType': 'numbers'}
         self.hanzilookup = characterlookup.CharacterLookup('C')
 
-    def getPinyinData(self, hanzi):
+    def get_pinyin_data(self, hanzi):
         # There are fifty ways to^H^H for this to blow up.
         pinyin = self.hanzilookup.getReadingForCharacter(hanzi, 'Pinyin')[0]
         tone_number = self._tone_number(pinyin)
@@ -60,9 +60,9 @@ class Pinyinizer(object):
 
     def _tone_number(self, pinyin):
         # Another fifty ways to blow up.
-        numberedPinyin = self.factory.convert(pinyin, 'Pinyin', 'Pinyin',\
-                                                  targetOptions=self.numOp)
-        return int(numberedPinyin[-1:])
+        numbered_pinyin = self.factory.convert(pinyin, 'Pinyin', 'Pinyin',\
+                                                  targetOptions=self.num_op)
+        return int(numbered_Pinyin[-1:])
 
 
 pinyinize = Pinyinizer()
@@ -112,7 +112,7 @@ def on_focus_lost(flag, n, fidx):
         t = u' '
         if is_han_character(h):
             try:
-                p, r, t = pinyinize.getPinyinData(h)
+                p, r, t = pinyinize.get_pinyin_data(h)
                 t = unicode(t)
             except:
                 pass
