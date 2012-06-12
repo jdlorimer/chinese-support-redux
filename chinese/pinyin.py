@@ -9,6 +9,8 @@
 # License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
 #
 
+from cjklib import reading, characterlookup
+
 
 from anki.utils import stripHTML, isWin, isMac
 
@@ -38,7 +40,6 @@ def is_han_character(uchar):
 class Pinyinizer(object):
     
     def __init__(self):
-        from cjklib import reading, characterlookup
         self.factory = reading.ReadingFactory()
         self.num_op = {'toneMarkType': 'numbers'}
         self.hanzilookup = characterlookup.CharacterLookup('C')
