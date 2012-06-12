@@ -1,3 +1,9 @@
 # -*- coding: utf-8 ; mode: python -*-
 # © 2012: Roland Sieker <ospalh@gmail.com>
-# License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
+#
+# License: GNU AGPL, version 3 or later; http://www.gnu.org/copyleft/agpl.html
+
+from dehashilator import Dehashilator
+
+from pinyin import Pinyinizer, is_han_character, on_focus_lost
+__version__ = '0.0a2'

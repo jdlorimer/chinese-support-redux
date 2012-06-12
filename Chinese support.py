@@ -25,8 +25,13 @@ A Plugin for the Anki2 Spaced Repition learning system,
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
+
+from anki.hooks import addHook
+
 import chinese.model
 import chinese.templates
-import chinese.pinyin
 import chinese.lookup
 
+from chinese import on_focus_lost
+
+addHook('editFocusLost', on_focus_lost)
