@@ -9,13 +9,7 @@
 # License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
 #
 
-import os
-import sys
-from aqt import mw
 
-sys.path.append(os.path.join(mw.pm.addonFolder(), 'chinese', 'cjklib'))
-
-print 'appended ', os.path.join(mw.pm.addonFolder(), 'chinese', 'cjklib')
 # Either the system cjklib or our own.
 from cjklib import reading, characterlookup
 

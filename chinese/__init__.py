@@ -6,6 +6,9 @@
 
 import sys
 import os
+from aqt import mw
+
+sys.path.append(os.path.join(mw.pm.addonFolder(), 'chinese', 'cjklib'))
 
 from pinyin import Pinyinizer, is_han_character, on_focus_lost
 
