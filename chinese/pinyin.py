@@ -35,8 +35,8 @@ tones_fields = ['Tones']
 
 model_name = 'chinese'
 
-type = "cantonese"
-#type = "mandarin"
+# type = "cantonese"
+type = "mandarin"
 
 tone_classes =  {
     1 : 'tone1', 2 : 'tone2', 3 : 'tone3', 4 : 'tone4', 5 : 'tone5',
