@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# 
+#
 # Copyright © 2012 Roland Sieker <ospalh@gmail.com>
 # Original: Damien Elmes <anki@ichi2.net> (as japanese/model.py)
 # License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
@@ -7,6 +7,7 @@
 # Standard Chinese model.
 #
 
+import re
 import anki.stdmodels
 from trim import trim
 
@@ -39,6 +40,11 @@ def addChineseModel(col):
                      """)
     mm.addTemplate(m, t)
     # css
+
+    # Get rid of Arial. I mean, Really‽ Arial‽ Why not Times New
+    # Roman‽ Comic sans‽ Whatever is used when no font is specified,
+    # it can't be that much uglier.
+    m['css'] = re.sub(' font-family: arial;\n', '', m['css'])
     m['css'] += trim(u"""
                       .chinese { font-size: 30px }
                       .win .chinese { font-family: "MS Mincho", "ＭＳ 明朝"; }
