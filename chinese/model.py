@@ -40,10 +40,8 @@ def addChineseModel(col):
                      """)
     mm.addTemplate(m, t)
     # css
-
-    # Get rid of Arial. I mean, Really‽ Arial‽ Why not Times New
-    # Roman‽ Comic sans‽ Whatever is used when no font is specified,
-    # it can't be that much uglier.
+    # Get rid of Arial. Without setting any font, a system standard
+    # should be used, which should be more to the taste of the user..
     m['css'] = re.sub(' font-family: arial;\n', '', m['css'])
     m['css'] += trim(u"""
                       .chinese { font-size: 30px }
