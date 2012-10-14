@@ -1,66 +1,125 @@
 # -*- coding: utf-8 -*-
-#
+# 
+# Copyright © 2012 Thomas Tempe <thomas.tempe@alysse.org>
 # Copyright © 2012 Roland Sieker <ospalh@gmail.com>
+#
 # Original: Damien Elmes <anki@ichi2.net> (as japanese/model.py)
 # License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
 #
 # Standard Chinese model.
 #
 
-import re
+import string
+
 import anki.stdmodels
-from trim import trim
+from Chinese_support import model_name
+
+# List of fields
+######################################################################
+
+fields_list = ["Hanzi1", _("Meaning"), _("Notes and pictures"), "Hanzi2", "Hanzi3", "Hanzi4", "Hanzi5", "Hanzi6"] 
+
+# Card templates
+######################################################################
+
+recognition_front = string.Template(u'''
+{{#Hanzi$num}}
+<div class=tags>{{Deck}} {{#Tags}} -- {{/Tags}}{{Tags}}</div>
+
+<div class=question>
+<span class=chinese>{{ruby_bottom_text:Hanzi$num}}</span>
+</div>
+
+{{/Hanzi$num}}
+''')
+
+recall_front = string.Template(u'''
+{{#Hanzi$num}}
+<div class=tags>{{Deck}} {{#Tags}} -- {{/Tags}}{{Tags}}</div>
+
+<div class=question>
+{{Meaning}}<br>
+<span class=chinese>
+{{hanzi_silhouette:Hanzi$num}}</span>
+</div>
+
+<div class=hint>{{hint_pinyin:Hanzi$num}}</div>
+<div class=context>{{hanzi_context:Hanzi$num}}</div>
+{{#Notes and pictures}}<div class=note>{{Notes and pictures}}</div>{{/Notes and pictures}}
+
+{{/Hanzi$num}}
+''')
+
+card_back = string.Template(u'''
+<div class=tags>{{Deck}} {{#Tags}} -- {{/Tags}}{{Tags}}</div>
+<div class=question>
+{{Meaning}}
+<span class=chinese>
+{{ruby:Hanzi$num}}</span>
+</div>
+
+<div class=meaning>{{Meaning}}</div>
+<div class=chinese>
+{{ruby:Hanzi1}}
+{{#Hanzi2}} / {{/Hanzi2}}{{ruby:Hanzi2}}
+{{#Hanzi3}} / {{/Hanzi3}}{{ruby:Hanzi3}}
+{{#Hanzi4}} / {{/Hanzi4}}{{ruby:Hanzi4}}
+{{#Hanzi5}} / {{/Hanzi5}}{{ruby:Hanzi5}}
+{{#Hanzi6}} / {{/Hanzi6}}{{ruby:Hanzi6}}
+</div>
+{{#Notes and pictures}}<div class=note>{{Notes and pictures}}</div>{{/Notes and pictures}}
+''')
+
+# CSS styling
+######################################################################
+
+css_style = u'''
+.card {
+ font-family: arial;
+ font-size: 20px;
+ text-align: center;
+ color: black;
+ background-color: white;
+}
+.chinese { font-size: 30px }
+.win .chinese { font-family: "MS Mincho", "ＭＳ 明朝"; }
+.mac .chinese { }
+.linux .chinese { font-family: "Kochi Mincho", "東風明朝"; }
+.mobile .chinese { font-family: "Hiragino Mincho ProN"; }
+.question {background-color:PapayaWhip;border-style:dotted;border-width:1pt;margin-top:15pt;margin-bottom:30pt;padding-top:15px;padding-bottom:15px;}
+.tags {color:gray;text-align:right;font-size:10pt;}
+.note {color:gray;font-size:12pt;margin-top:20pt;}
+.hint {font-size:12pt;}
+.tone1 {color: red;}
+.tone2 {color: orange;}
+.tone3 {color: green;}
+.tone4 {color: blue;}
+.tone5 {color: gray;}
+'''
+
+# Add model to Anki
+######################################################################
 
 def addChineseModel(col):
     mm = col.models
-    m = mm.new(_("Chinese"))
-    fm = mm.newField(_("Hanzi"))
-    mm.addField(m, fm)
-    fm = mm.newField(_("Meaning"))
-    mm.addField(m, fm)
-    fm = mm.newField(_("Ruby"))
-    mm.addField(m, fm)
-    fm = mm.newField(_("Tones"))
-    mm.addField(m, fm)
-    t = mm.newTemplate(_("Recognition"))
-    t['qfmt'] = "<div class=chinese>{{Hanzi}}</div>"
-    t['afmt'] = trim("""
-                     {{FrontSide}}
-                     <hr id=answer>
-                     <div class=chinese>{{furigana:Ruby}}</div>
-                     <div>{{Meaning}}</div>
-                     """)
-    mm.addTemplate(m, t)
-    t = mm.newTemplate(_("Recall"))
-    t['qfmt'] = "<div>{{Meaning}}</div>"
-    t['afmt'] = trim("""
-                     {{FrontSide}}
-                     <hr id=answer>
-                     <div class=chinese>{{furigana:Ruby}}</div>
-                     """)
-    mm.addTemplate(m, t)
-    # css
-    # Get rid of Arial. Without setting any font, a system standard
-    # should be used, which should be more to the taste of the user..
-    m['css'] = re.sub(' font-family: arial;\n', '', m['css'])
-    m['css'] += trim(u"""
-                      .chinese { font-size: 30px }
-                      .win .chinese { font-family: "MS Mincho", "ＭＳ 明朝"; }
-                      .mac .chinese { font-family: "Hiragino Mincho Pro", "ヒラギノ明朝 Pro"; }
-                      .linux .chinese { font-family: "Kochi Mincho", "東風明朝"; }
-                      .mobile .chinese { font-family: "Hiragino Mincho ProN"; }
-                      .tone1 {color: red;}
-                      .tone2 {color: orange;}
-                      .tone3 {color: green;}
-                      .tone4 {color: blue;}
-                      .tone5 {color: black;}
-                      .tone6 {}
-                      .tone7 {}
-                      .tone8 {}
-                      .tone9 {}
-                      """)
-    # recognition card
+    m = mm.new(model_name)
+    # Add fields
+    for f in fields_list:
+        fm = mm.newField(f)
+        mm.addField(m, fm)
+    for n in range(1, 2):
+        t = mm.newTemplate(u"Recognition"+str(n))
+        t['qfmt'] = recognition_front.substitute(num=str(n))
+        t['afmt'] = card_back.substitute(num=str(n))
+        mm.addTemplate(m, t)
+        t = mm.newTemplate(u"Recall"+str(n))
+        t['qfmt'] = recall_front.substitute(num=str(n))
+        t['afmt'] = card_back.substitute(num=str(n))
+        mm.addTemplate(m, t)
+
+    m['css'] += css_style
     mm.add(m)
+    # recognition card
     return m
 
-anki.stdmodels.models.append((_("Chinese"), addChineseModel))
+anki.stdmodels.models.append((model_name, addChineseModel))
