@@ -17,7 +17,7 @@ from Chinese_support import model_name
 # List of fields
 ######################################################################
 
-fields_list = ["Hanzi1", _("Meaning"), _("Notes and pictures"), "Hanzi2", "Hanzi3", "Hanzi4", "Hanzi5", "Hanzi6"] 
+fields_list = ["Hanzi1", _("Meaning"), _("Notes and pictures"), _("Measure word"), "Hanzi2", "Hanzi3", "Hanzi4"]
 
 # Card templates
 ######################################################################
@@ -53,7 +53,7 @@ recall_front = string.Template(u'''
 card_back = string.Template(u'''
 <div class=tags>{{Deck}} {{#Tags}} -- {{/Tags}}{{Tags}}</div>
 <div class=question>
-{{Meaning}}
+<div class=meaning>{{Meaning}}</div>
 <span class=chinese>
 {{ruby:Hanzi$num}}</span>
 </div>
@@ -64,8 +64,6 @@ card_back = string.Template(u'''
 {{#Hanzi2}} / {{/Hanzi2}}{{ruby:Hanzi2}}
 {{#Hanzi3}} / {{/Hanzi3}}{{ruby:Hanzi3}}
 {{#Hanzi4}} / {{/Hanzi4}}{{ruby:Hanzi4}}
-{{#Hanzi5}} / {{/Hanzi5}}{{ruby:Hanzi5}}
-{{#Hanzi6}} / {{/Hanzi6}}{{ruby:Hanzi6}}
 </div>
 {{#Notes and pictures}}<div class=note>{{Notes and pictures}}</div>{{/Notes and pictures}}
 ''')
@@ -107,7 +105,7 @@ def addChineseModel(col):
     for f in fields_list:
         fm = mm.newField(f)
         mm.addField(m, fm)
-    for n in range(1, 2):
+    for n in range(1, 5):
         t = mm.newTemplate(u"Recognition"+str(n))
         t['qfmt'] = recognition_front.substitute(num=str(n))
         t['afmt'] = card_back.substitute(num=str(n))

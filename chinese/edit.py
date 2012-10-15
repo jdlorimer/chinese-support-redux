@@ -35,6 +35,11 @@ def on_focus_lost(flag, fields_data, focus_field):
     field_names = mw.col.models.fieldNames(fields_data.model())
     focus_field_name = field_names[focus_field]
 
+    #Are we editing a Chinese-support-addon note?
+    #If not, we'd better not modify anything automatically.
+    if not (fields_data.model()['name'] in Chinese_support.possible_note_type_names):
+        return flag
+
     #did we just loose focus on a Hanzi field?
     def match_updated_field(possible_name):
         return re.match(possible_name, focus_field_name, re.I)

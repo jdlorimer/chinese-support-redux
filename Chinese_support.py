@@ -29,16 +29,12 @@ A Plugin for the Anki2 Spaced Repition learning system,
 # WARNING
 ########################################################################
 #
-# This add-on is still in development. 
+# This add-on is still in development. It's full of got missing
+# features and bugs. You should not use it yet other than for testing
+# purposes.
 #
-# *Don't use it* on your actual learning deck. It will mess up your
-# cards and make your life miserable. No kidding.
-# Oh, and back up your data before trying things out.
-#
-# If you're learning Chinese, it's best to wait and check back in a
-# few weeks before switching to Anki2.
-#
-# Also, see the Configuration section below.
+# To protect you from accidentally messing your exiting deck, it only
+# works if you've named your note type "Chinese word".
 
 
 # Getting started
@@ -47,7 +43,7 @@ A Plugin for the Anki2 Spaced Repition learning system,
 # Run Anki2, then click on the "Add" button, to add a new word.
 # 
 # On the top of the "Add" window, click on the "Type" button, then on
-# "Manage". Add a new node type based on model "Chinese", select
+# "Manage". Add a new node type based on model "Chinese word", select
 # it for your new card, and validate.
 # 
 # In the "Add note" window, you should now see a list of fields that
@@ -150,16 +146,21 @@ A Plugin for the Anki2 Spaced Repition learning system,
 
 language = "mandarin"
 
+# To avoid messing up anki 1 decks with similarly-named fields,
+# restrict edition features only to notes whose name is listed below
+# (exact match, case-sensitive)
+
+possible_note_type_names = [ u'Chinese word']
 
 # The beginning of the name of fields that contain Chinese characters.
 # Those fields will be expanded to include transcription in ruby notation.
-# Modify the list to adapt to an existing deck.
+# Modify the list to adapt to an existing deck. (list of regexp)
 
 possible_hanzi_field_names = [ u'Hanzi', u'汉字' ]
 
 # The beginning of the name of fields that contain translation.
 # The 1st of those will receive results from automatic translation.
-# Modify the list to adapt to an existing deck.
+# Modify the list to adapt to an existing deck. (list of regexp)
 
 possible_meaning_field_names = [ u'Meaning' ]
 
@@ -167,7 +168,7 @@ possible_meaning_field_names = [ u'Meaning' ]
 # True : yes
 # False : no translation
 
-use_network_translation = True
+use_network_translation = False #this feature does not work yet
 
 # Destination language
 # The language to translate into.
@@ -230,8 +231,8 @@ translation_language='en'
 # End of configuration section
 ###########################################################################
 
-model_name = 'Chinese word'
 
+model_name = 'Chinese word'
 
 #import chinese.model
 import chinese.templates.ruby ; chinese.templates.ruby.install()
