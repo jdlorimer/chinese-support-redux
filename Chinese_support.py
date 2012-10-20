@@ -30,12 +30,12 @@ A Plugin for the Anki2 Spaced Repition learning system,
 ########################################################################
 #
 # This add-on is still in development. It's full of got missing
-# features and bugs. You should not use it yet other than for testing
-# purposes.
+# features and bugs. Moreover, cards created with this version may
+# stop working with the next release of this plug-in.
 #
-# To protect you from accidentally messing your exiting deck, it only
-# works if you've named your note type "Chinese word".
-
+# You should not use it other than for testing.
+# Please wait a few weeks before using Anki2 to learn Chinese.
+# 
 
 # Getting started
 ########################################################################
@@ -150,8 +150,6 @@ language = "mandarin"
 # restrict edition features only to notes whose name is listed below
 # (exact match, case-sensitive)
 
-possible_note_type_names = [ u'Chinese word']
-
 # The beginning of the name of fields that contain Chinese characters.
 # Those fields will be expanded to include transcription in ruby notation.
 # Modify the list to adapt to an existing deck. (list of regexp)
@@ -232,7 +230,8 @@ translation_language='en'
 ###########################################################################
 
 
-model_name = 'Chinese word'
+model_name_word = 'Chinese'
+model_type_word = 'Chinese support add-ond, word, version.1'
 
 #import chinese.model
 import chinese.templates.ruby ; chinese.templates.ruby.install()

@@ -12,7 +12,7 @@
 import string
 
 import anki.stdmodels
-from Chinese_support import model_name
+from Chinese_support import model_name_word, model_type_word
 
 # List of fields
 ######################################################################
@@ -95,12 +95,12 @@ css_style = u'''
 .tone5 {color: gray;}
 '''
 
-# Add model to Anki
+# Add model for chinese word to Anki
 ######################################################################
 
 def addChineseModel(col):
     mm = col.models
-    m = mm.new(model_name)
+    m = mm.new(model_name_word)
     # Add fields
     for f in fields_list:
         fm = mm.newField(f)
@@ -116,8 +116,9 @@ def addChineseModel(col):
         mm.addTemplate(m, t)
 
     m['css'] += css_style
+    m['type'] = model_type_word
     mm.add(m)
     # recognition card
     return m
 
-anki.stdmodels.models.append((model_name, addChineseModel))
+anki.stdmodels.models.append((model_name_word, addChineseModel))

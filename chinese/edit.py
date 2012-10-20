@@ -37,7 +37,7 @@ def on_focus_lost(flag, fields_data, focus_field):
 
     #Are we editing a Chinese-support-addon note?
     #If not, we'd better not modify anything automatically.
-    if not (fields_data.model()['name'] in Chinese_support.possible_note_type_names):
+    if fields_data.model()['type'] != Chinese_support.model_type_word:
         return flag
 
     #did we just loose focus on a Hanzi field?
