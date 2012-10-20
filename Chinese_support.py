@@ -154,13 +154,13 @@ language = "mandarin"
 # Those fields will be expanded to include transcription in ruby notation.
 # Modify the list to adapt to an existing deck. (list of regexp)
 
-possible_hanzi_field_names = [ u'Hanzi', u'汉字' ]
+possible_hanzi_field_names = [ u'Hanzi', u'汉字', _(u'Hanzi')]
 
 # The beginning of the name of fields that contain translation.
 # The 1st of those will receive results from automatic translation.
 # Modify the list to adapt to an existing deck. (list of regexp)
 
-possible_meaning_field_names = [ u'Meaning' ]
+possible_meaning_field_names = [ u'Meaning', _(u'Meaning') ]
 
 # Enable automatic transaltion with Google Translate ?
 # True : yes
@@ -230,7 +230,7 @@ translation_language='en'
 ###########################################################################
 
 
-model_name_word = 'Chinese'
+model_name_word = _('Chinese word')
 model_type_word = 'Chinese support add-ond, word, version.1'
 
 #import chinese.model
