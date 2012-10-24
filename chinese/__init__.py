@@ -6,4 +6,4 @@
 
 #from pinyin import Pinyinizer, is_han_character, on_focus_lost
 
-__version__ = '0.2.0'
+__version__ = '0.3.0'

@@ -37,7 +37,10 @@ def on_focus_lost(flag, fields_data, focus_field):
 
     #Are we editing a Chinese-support-addon note?
     #If not, we'd better not modify anything automatically.
-    if fields_data.model()['type'] != Chinese_support.model_type_word:
+    try:
+        if fields_data.model()['addon'] != Chinese_support.model_type_word:
+            return flag
+    except:
         return flag
 
     #did we just loose focus on a Hanzi field?
@@ -68,8 +71,7 @@ def on_focus_lost(flag, fields_data, focus_field):
 
     if meaning_field_name <> "" and 0 == len(fields_data[meaning_field_name]):
         #We found a "meaning" field, and it's not empty:
-        #fields_data[meaning_field_name] = translate.translate(updated_hanzi_field)
-        pass
+        fields_data[meaning_field_name] = translate.translate(updated_hanzi_field)
     return True
 
 addHook('editFocusLost', on_focus_lost)

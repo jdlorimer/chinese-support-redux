@@ -15,28 +15,112 @@
 #Except as contained in this notice, the name of a copyright holder shall not be used in advertising or otherwise to promote the sale, use or other dealings in these Data Files or Software without prior written authorization of the copyright holder.
 
 
-import re
+import re, os
 
 from aqt import mw
-
+from aqt.utils import showInfo, askUser, showWarning
 import Chinese_support
-#from xgoogle.translate import Translator, TranslationError
+import dict_setting
+import cjklib.dictionary
 
 
 # Automatic translation
 ##########################################################################
-def translate_xgoogle(chinese):
-    try: 
-        translate = Translator().translate
-        return translate(chinese, lang_from="zh", lang_to=Chinese_support.translation_language)
-    except TranslationError, e:
-        print e
+
+cjkdict = None
+
+
+def try_dict():
+    pass
+
+
+def translate_cjklib(chinese):
+    global cjkdict
+    if None == cjkdict:
+        #No CJKlib dictionary set
         return ""
+
+    r = ''
+    for dd in cjkdict.getForHeadword(chinese):
+        r += dd[3]+"/"
+    r = re.sub(r"(.)/+(.)", r"\1<br>\2", r)
+    r = re.sub(r"/", r"", r)
+    return r
 
 def translate(chinese):
     chinese = re.sub(r'<.*?>', '', chinese)
     chinese = re.sub(r'\[.*?\]', '', chinese)
-    translation = ""
-    #Does not work... 
-    #translation = translate_xgoogle(chinese)
+    translation = translate_cjklib(chinese)
     return translation
+
+def init_dict(dict_name):
+    global cjkdict
+    if "CEDICT"==dict_name:
+        cjkdict=cjklib.dictionary.CEDICT()
+    elif "HanDeDict"==dict_name:
+        cjkdict=cjklib.dictionary.HanDeDict()
+    elif "CFDICT"== dict_name:
+        cjkdict=cjklib.dictionary.CFDICT()
+
+        
+def set_dict(dict_name):
+    #First, try it out
+    #If it fails, offer the user to install dict, and only change setting after installation.
+    
+    try:
+        init_dict(dict_name)
+    except ValueError:
+        if askUser(_("This dictionary will be downloaded from the Internet now.<br>This will take a few minutes<br>Do you want to continue?")):
+            install_dict(dict_name)
+            dict_name="None"
+
+    dict_setting.dict_name = dict_name
+    fd=open( os.path.join(Chinese_support.addon_dir, "chinese", "dict_setting.py"), "w")
+    fd.write("#Name of dictionary to perform lookup from\n")
+    fd.write("#This file is generated from the plugin menu\n")
+    fd.write("dict_name='"+dict_setting.dict_name+"'\n")
+    fd.close()
+
+
+
+from PyQt4 import QtCore, QtGui
+from PyQt4.QtCore import SIGNAL, QObject
+
+class installerThread(QtCore.QThread):
+    def __init__(self, dict):
+        self.dict = dict
+        QtCore.QThread.__init__(self)
+
+    def run(self):
+        from cjklib.dictionary.install import DictionaryInstaller
+        try:
+            installer = DictionaryInstaller()
+            installer.install(self.dict, local=True)
+        except IOError:
+            self.emit(SIGNAL('install_failed'))
+        self.emit(SIGNAL('install_finished'))
+
+        
+def install_failed():
+    showWarning(_("There was an error during dictionary download.<br>Please try again later."))
+
+def install_finished():
+    mw.progress.finish()
+    showInfo(_("Download complete.<br>Please restart Anki and re-select your dictionary."))
+t = None
+
+def install_dict(dict):
+    global t
+    mw.progress.start(immediate=True)
+    t = installerThread(dict)
+    QObject.connect(t, SIGNAL('install_finished'), install_finished, QtCore.Qt.QueuedConnection)
+    QObject.connect(t, SIGNAL('install_failed'), install_failed, QtCore.Qt.QueuedConnection)
+    t.start()
+
+#    try:
+#        installer = DictionaryInstaller()
+#        installer.install(dict, local=True)
+#    except IOError:
+#        showWarning(_("There was an error during dictionary download.<br>Please try again later."))
+#    mw.progress.finish()
+
