@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# This file is part of cjklib.
+# This file is part of cjklib 0.3.2.
 #
 # cjklib is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Lesser General Public License as published by
