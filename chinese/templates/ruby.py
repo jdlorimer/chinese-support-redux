@@ -21,6 +21,11 @@ from anki.template.furigana import noSound
 
 r = r' ?([^ >]+?)\[(.+?)\]'
 ruby_re = r'<ruby><rb>\1</rb><rt>\2</rt></ruby>'
+html_comments_re = r'<!--.*?-->'
+
+def remove_comments(txt):
+    #Remove HTML comments.
+    return re.sub(html_comments_re, '', txt)
 
 def ruby(txt, *args):
     return re.sub(r, noSound(ruby_re), txt)
@@ -32,10 +37,10 @@ def ruby_bottom(txt, *args):
     return re.sub(r, noSound(r'\1'), txt)
 
 def ruby_top_text(txt, *args):
-    return stripHTML(re.sub(r, noSound(r'\2 '), txt))
+    return stripHTML(re.sub(r, noSound(r'\2 '), remove_comments(txt)))
 
 def ruby_bottom_text(txt, *args):
-    return stripHTML(re.sub(r, noSound(r'\1'), txt))
+    return stripHTML(re.sub(r, noSound(r'\1'), remove_comments(txt)))
 
 def sound(txt, *args):
     return re.sub(r'(\[sound:[^]]+\])', r'\1', txt)

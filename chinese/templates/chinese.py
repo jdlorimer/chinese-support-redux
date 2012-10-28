@@ -34,7 +34,7 @@ def pinyin_no_tones(txt, *args):
     '''Returns only the pinyin, with tone information removed, whether
     it is in the form 'nǐ' or 'ni2'.
     '''
-    txt = stripHTML(re.sub(r, noSound(r'\2'), txt))
+    txt = ruby_top_text(txt)
     for a, b in tone_info:
         print "Suppression " + a +" -> " + b
         txt = re.sub(a, b, txt)

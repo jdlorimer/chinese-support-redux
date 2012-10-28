@@ -27,6 +27,7 @@ import json
 
 from aqt import mw
 import Chinese_support
+import templates.ruby
 
 # To get the tone numbers from mandarin readings. Values taken from
 # wikipedia. Not in this dict is taken as tone 5.
@@ -127,13 +128,13 @@ def update_hanzi_field(flag, fields_data, hanzi_field):
 
     hanzi_string = fields_data[hanzi_field]
         
-    #Strip former HTML tone marking
+    #Strip former HTML tone marking and comments
     hanzi_string = re.sub(r'<span class="tone[0-9]">(.*?)</span>', r'\1', hanzi_string)
     hanzi_string = re.sub(r'&nbsp;', '', hanzi_string)
-
+    hanzi_string = re.sub(r'<!--.*?-->', '', hanzi_string)
     #Replace Chinese typography with its ASCII counterpart
-    hanzi_string = re.sub(u'［', u'[', hanzi_string)
-    hanzi_string = re.sub(u'］', u']', hanzi_string)
+    hanzi_string = re.sub(u'[［【]', u'[', hanzi_string)
+    hanzi_string = re.sub(u'[］】]', u']', hanzi_string)
     
     #insert [pinyin] after each chinese character not followed by a '['
     #In case there are multiple pinyin transcriptions, give them all to let the user decide
@@ -160,6 +161,10 @@ def update_hanzi_field(flag, fields_data, hanzi_field):
         return u'<span class="tone{t}">{r}</span>'.format(t=pinyinize.get_tone_number(p.group(2)), r=p.group())
 
     hanzi_string = re.sub(u'([\u4e00-\u9fff]\[\s*)([a-zɑ̄āĀáɑ́ǎɑ̌ÁǍàɑ̀ÀēĒéÉěĚèÈīĪíÍǐǏìÌōŌóÓǒǑòÒūŪúÚǔǓùÙǖǕǘǗǚǙǜǛ]+[0-9]?)([^]]*\])', add_color_to_pinyin_sub, hanzi_string, flags=re.IGNORECASE)
+
+    # Add the full hanzi in HTML comment at the end of the field,
+    # to make it searcheable in Anki's "browse" window.
+    hanzi_string += "<!--" +templates.ruby.ruby_bottom_text(hanzi_string)+"-->"
 
     #Return new string
     return hanzi_string
