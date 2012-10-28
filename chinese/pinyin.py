@@ -20,6 +20,9 @@
 
 #Except as contained in this notice, the name of a copyright holder shall not be used in advertising or otherwise to promote the sale, use or other dealings in these Data Files or Software without prior written authorization of the copyright holder.
 
+#Not : in this file, the word "Pinyin" has been used extensively and
+#abusively to represent any form of transcription.
+
 
 import os
 import re
@@ -28,6 +31,8 @@ import json
 from aqt import mw
 import Chinese_support
 import templates.ruby
+import dict_setting
+from cjklib import characterlookup
 
 # To get the tone numbers from mandarin readings. Values taken from
 # wikipedia. Not in this dict is taken as tone 5.
@@ -51,49 +56,51 @@ vowel_decorations = [
 { u'a':u'a', u'e':u'e', u'i':u'i', u'o':u'o', u'u':u'u', u'ü':u'ü', u'v':u'ü'},
 ]
 
-
 def is_han_character(uchar):
     return uchar >= u'\u4e00' and uchar <= u'\u9fff'
 
 
-class Pinyinizer(object):
+# Guess pinyin info from CJKlib
+##########################################################################
+
+characterLookup = characterlookup.CharacterLookup('C')
+#One of TCJKV. I don't know what difference it makes
+
+def get_character_pinyin(hanzi):
+    def concat(a, b):
+        return a+' '+b
+    return reduce(concat, characterLookup.getReadingForCharacter(hanzi, dict_setting.transcription))
+
+# Guess tone number from pinyin
+##########################################################################
+
+def get_tone_number(pinyin):
+    """Return a string containing a tone number.
     
-    def __init__(self):
-        # N.B. This assumes that type is either 'cantonese' or
-        # 'mandarin'.
-        readings_file_name = os.path.join(mw.pm.addonFolder(), 'chinese', 'dictionaries', Chinese_support.language + '_readings.json')
-        self.readings = json.load(open(readings_file_name))
-            
-    def get_pinyin(self, hanzi):
-        #Return all pinyin readings, separated by spaces
-        return self.readings[hanzi]
+    Return a tone number, either derived
+    from the end of the pinyin string or determined
+    depending on the first "decorated" vowel we find.
+    
+    """
+    if re.match(r".*[0－9]$", pinyin[-1:]):
+        return int(pinyin[-1:])
+    elif re.match(u".*[¹²³⁴]$", pinyin[-1:]):
+        return u" ¹²³⁴".index(pinyin[-1:])
+    else:
+        for c in pinyin:
+            try:
+                return vowel_tone_dict[c]
+            except KeyError:
+                continue
+        return 5
 
-    def get_tone_number(self, pinyin):
-        """Return a string containing a tone number.
-
-        Return a tone number, depending on the language, either derived
-        from the end of the pinyin string or determined
-        depending on the first "decorated" vowel we find.
-
-        """
-        if re.match(r".*[0－9]$", pinyin[-1:]):
-            return int(pinyin[-1:])
-        else:
-            for c in pinyin:
-                try:
-                    return vowel_tone_dict[c]
-                except KeyError:
-                    continue
-            return 5
-                
-pinyinize = Pinyinizer()
 
 
 # Decorate Pinyin with accent on vowel, if Mandarin
 ##########################################################################
 
 def decorate_pinyin(pinyin):
-    if not 'mandarin'== Chinese_support.language:
+    if not 'Pinyin'== dict_setting.transcription:
         #Tone marking is only applicable for mandarin pinyin, not for other transcriptions
         return pinyin
     if re.match("\s*[a-z]*[aeiouüÜv][a-z]*[1-5]$", pinyin, flags=re.IGNORECASE):
@@ -139,12 +146,13 @@ def update_hanzi_field(flag, fields_data, hanzi_field):
     #insert [pinyin] after each chinese character not followed by a '['
     #In case there are multiple pinyin transcriptions, give them all to let the user decide
     def insert_pinyin_sub(p):
-            return p.group(1)+'['+pinyinize.get_pinyin(p.group(1))+']'+p.group(2)
+            return p.group(1)+'['+get_character_pinyin(p.group(1))+']'+p.group(2)
+            #return p.group(1)+'['+pinyinize.get_pinyin(p.group(1))+']'+p.group(2)
     hanzi_string = re.sub(u'([\u4e00-\u9fff])(\[sound:)', r'\1 \2', hanzi_string)
     hanzi_string = re.sub(u'([\u4e00-\u9fff])([^[])', insert_pinyin_sub, hanzi_string+' ')[:-1]
     hanzi_string = re.sub(u'([\u4e00-\u9fff])([^[])', insert_pinyin_sub, hanzi_string+' ')[:-1]
 
-    # Replace pinyin in the format "[ma2]" with "[má]", if we're in mandarin mode.
+    # Replace pinyin in the format "[ma2]" with "[má]", if we're in Pinyin mode.
     # Handle multiple pinyin gracefully, eg : "到[dao3 dao4]"
     def decorate_pinyin_sub(p):
         r = p.group(1)+decorate_pinyin(p.group(2))
@@ -152,15 +160,15 @@ def update_hanzi_field(flag, fields_data, hanzi_field):
             if i:
                 r += " " + decorate_pinyin(i)
         return r+']'
-    if "mandarin" == Chinese_support.language:
+    if "Pinyin" == dict_setting.transcription :
         hanzi_string = re.sub(u'([\u4e00-\u9fff]\[)\s*([a-zɑ̄āĀáɑ́ǎɑ̌ÁǍàɑ̀ÀēĒéÉěĚèÈīĪíÍǐǏìÌōŌóÓǒǑòÒūŪúÚǔǓùÙǖǕǘǗǚǙǜǛ]+[0-9]?)((\s+[a-zɑ̄āĀáɑ́ǎɑ̌ÁǍàɑ̀ÀēĒéÉěĚèÈīĪíÍǐǏìÌōŌóÓǒǑòÒūŪúÚǔǓùÙǖǕǘǗǚǙǜǛ]+[0-9]?)*)\s*\]', decorate_pinyin_sub, hanzi_string, flags=re.IGNORECASE)
 
     # Detect each occurence of something like "吗[mǎ]" or "吗[ma3]"， and add HTML tone info.
     # Use only the first pinyin transcription, in case there are more than one.
     def add_color_to_pinyin_sub(p):
-        return u'<span class="tone{t}">{r}</span>'.format(t=pinyinize.get_tone_number(p.group(2)), r=p.group())
+        return u'<span class="tone{t}">{r}</span>'.format(t=get_tone_number(p.group(2)), r=p.group())
 
-    hanzi_string = re.sub(u'([\u4e00-\u9fff]\[\s*)([a-zɑ̄āĀáɑ́ǎɑ̌ÁǍàɑ̀ÀēĒéÉěĚèÈīĪíÍǐǏìÌōŌóÓǒǑòÒūŪúÚǔǓùÙǖǕǘǗǚǙǜǛ]+[0-9]?)([^]]*\])', add_color_to_pinyin_sub, hanzi_string, flags=re.IGNORECASE)
+    hanzi_string = re.sub(u'([\u4e00-\u9fff]\[\s*)([a-zɑ̄āĀáɑ́ǎɑ̌ÁǍàɑ̀ÀēĒéÉěĚèÈīĪíÍǐǏìÌōŌóÓǒǑòÒūŪúÚǔǓùÙǖǕǘǗǚǙǜǛ]+[0-9¹²³⁴]?)([^]]*\])', add_color_to_pinyin_sub, hanzi_string, flags=re.IGNORECASE)
 
     # Add the full hanzi in HTML comment at the end of the field,
     # to make it searcheable in Anki's "browse" window.

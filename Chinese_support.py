@@ -34,7 +34,6 @@ import os, sys
 from aqt import mw
 from aqt.utils import isWin
 
-language = "mandarin"
 possible_hanzi_field_names = [ u'Hanzi', u'汉字', _(u'Hanzi')]
 possible_meaning_field_names = [ u'Meaning', _(u'Meaning') ]
 possible_preview_field_names = [ u'Preview', _(u'Preview') ]
@@ -66,13 +65,15 @@ try:
             chinese.translate.set_dict("None", second_run="True")
             chinese.ui.suggest_setup_plugin()
 except:
+    chinese.dict_setting.transcription="Pinyin"
     chinese.translate.set_dict("None", second_run="True")
-    chinese.dict_setting.second_run=False
+    chinese.dict_setting.second_run="False"
     chinese.ui.suggest_setup_plugin()
 
 #If it's the second time, suggest to select a dictionary
-if chinese.dict_setting.second_run and "None"==chinese.dict_setting.dict_name:
-    chinese.translate.set_dict("None")
+if chinese.dict_setting.second_run<>"False" and "None"==chinese.dict_setting.dict_name:
+    chinese.dict_setting.second_run = "False"
+    chinese.translate.save_settings()
     chinese.ui.suggest_setup_dict()
 
 chinese.translate.init_dict(chinese.dict_setting.dict_name)

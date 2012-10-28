@@ -65,10 +65,10 @@ def init_dict(dict_name):
         cjkdict=cjklib.dictionary.CFDICT()
 
         
-def set_dict(dict_name, second_run="None"):
+def set_dict(dict_name, second_run=False):
     #First, try out the designated dictionary, then save.
     #If it fails, offer the user to install dict
-    
+
     try:
         init_dict(dict_name)
     except ValueError:
@@ -76,14 +76,19 @@ def set_dict(dict_name, second_run="None"):
             install_dict(dict_name)
         else:
             dict_name="None"
-
     dict_setting.dict_name = dict_name
+    if second_run:
+        dict_setting.second_run=second_run
+    save_settings()
+
+def save_settings():
     fd=open( os.path.join(Chinese_support.addon_dir, "chinese", "dict_setting.py"), "w")
-    fd.write("#Name of dictionary to perform lookup from\n")
+    fd.write("#Chinese Support Add-on settings\n")
     fd.write("#This file is generated from the plugin menu\n")
     fd.write("dict_name='"+dict_setting.dict_name+"'\n")
+    fd.write("transcription='"+dict_setting.transcription+"'\n")
     fd.write("first_run=False\n")
-    fd.write("second_run="+second_run+"\n")
+    fd.write("second_run='"+dict_setting.second_run+"'\n")
     fd.close()
 
 

@@ -58,6 +58,30 @@ def set_dict_CFDICT():
     translate.set_dict("CFDICT")
     update_dict_action_checkboxes()
 
+def set_transcription_Pinyin():
+    dict_setting.transcription="Pinyin"
+    translate.save_settings()
+    update_dict_action_checkboxes()
+
+def set_transcription_WadeGiles():
+    dict_setting.transcription="WadeGiles"
+    translate.save_settings()
+    update_dict_action_checkboxes()
+
+def set_transcription_CantoneseYale():
+    dict_setting.transcription="CantoneseYale"
+    translate.save_settings()
+    update_dict_action_checkboxes()
+
+def set_transcription_Jyutping():
+    dict_setting.transcription="Jyutping"
+    translate.save_settings()
+    update_dict_action_checkboxes()
+
+dict_setting.ui_actions = {}
+dictionaries = [ "None", "CEDICT", "HanDeDict", "CFDICT"]
+transcriptions = ["Pinyin", "WadeGiles", "CantoneseYale", "Jyutping"]
+
 def add_action(title, to, funct, checkable=False):
     action = QAction(_(title), mw)
     if checkable:
@@ -66,31 +90,33 @@ def add_action(title, to, funct, checkable=False):
     to.addAction(action)
     return action
 
-dict_setting.dict_action_None=None
-dict_setting.dict_action_CEDICT=None
-dict_setting.dict_action_HanDeDict=None
-dict_setting.dict_action_CFDICT=None
-
 def update_dict_action_checkboxes():
-    dict_setting.dict_action_None.setChecked("None"==dict_setting.dict_name)
-    dict_setting.dict_action_CEDICT.setChecked("CEDICT"==dict_setting.dict_name)
-    dict_setting.dict_action_HanDeDict.setChecked("HanDeDict"==dict_setting.dict_name)
-    dict_setting.dict_action_CFDICT.setChecked("CFDICT"==dict_setting.dict_name)
-
+    for d in dictionaries:
+        dict_setting.ui_actions[d].setChecked(d==dict_setting.dict_name)
+    for t in transcriptions:
+        dict_setting.ui_actions[t].setChecked(t==dict_setting.transcription)
 
 def myRebuildAddonsMenu(self):
     for m in self._menus:
         if "Chinese_support"==m.title():
             sm=m.addMenu(_("Set dictionary"))
-            dict_setting.dict_action_None=add_action(_("None"), sm, set_dict_None, True)
-            dict_setting.dict_action_CEDICT=add_action(_("English"), sm, set_dict_CEDICT, True)
-            dict_setting.dict_action_HanDeDict=add_action(_("Deutsch"), sm, set_dict_HanDeDict, True)
-            dict_setting.dict_action_CFDICT=add_action(_("Francais"), sm, set_dict_CFDICT, True)
+            dict_setting.ui_actions["None"]=add_action(_("None"), sm, set_dict_None, True)
+            dict_setting.ui_actions["CEDICT"]=add_action(_("English"), sm, set_dict_CEDICT, True)
+            dict_setting.ui_actions["HanDeDict"]=add_action(_("German"), sm, set_dict_HanDeDict, True)
+            dict_setting.ui_actions["CFDICT"]=add_action(_("French"), sm, set_dict_CFDICT, True)
+
+            sm=m.addMenu(_("Set transcription"))
+            dict_setting.ui_actions["Pinyin"]=add_action("Pinyin", sm, set_transcription_Pinyin, True)
+            dict_setting.ui_actions["WadeGiles"]=add_action("WadeGiles", sm, set_transcription_WadeGiles, True)
+            dict_setting.ui_actions["CantoneseYale"]=add_action("CantoneseYale", sm, set_transcription_CantoneseYale, True)
+            dict_setting.ui_actions["Jyutping"]=add_action("Jyutping", sm, set_transcription_Jyutping, True)
+
             update_dict_action_checkboxes()
             add_action(_("Setup instructions"), m, setup_plugin)
             add_action(_("Help"), m, help_plugin)
             add_action(_("About..."), m, about_plugin)
             m.setTitle(_("Chinese support"))
             break
+
 
 aqt.addons.AddonManager.rebuildAddonsMenu = wrap(aqt.addons.AddonManager.rebuildAddonsMenu, myRebuildAddonsMenu)
