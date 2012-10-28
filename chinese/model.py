@@ -17,7 +17,7 @@ from Chinese_support import model_name_word, model_type_word
 # List of fields
 ######################################################################
 
-fields_list = [_(u"Hanzi")+u'1', _(u"Meaning"), _(u"Notes and pictures"), _(u"Measure word"), _(u"Hanzi")+u'2',_(u"Hanzi")+u'3',_(u"Hanzi")+u'4']
+fields_list = [_(u"Hanzi")+u'1', _(u"Preview"), _(u"Meaning"), _(u"Notes and pictures"), _(u"Hanzi")+u'2',_(u"Hanzi")+u'3',_(u"Hanzi")+u'4']
 
 # Card templates
 ######################################################################

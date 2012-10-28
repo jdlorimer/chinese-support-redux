@@ -37,6 +37,7 @@ from aqt.utils import isWin
 language = "mandarin"
 possible_hanzi_field_names = [ u'Hanzi', u'汉字', _(u'Hanzi')]
 possible_meaning_field_names = [ u'Meaning', _(u'Meaning') ]
+possible_preview_field_names = [ u'Preview', _(u'Preview') ]
 model_name_word = _('Chinese word')
 model_type_word = 'Chinese support add-ond, word, version.1'
 
