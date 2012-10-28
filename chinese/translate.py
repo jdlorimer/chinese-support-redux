@@ -65,9 +65,9 @@ def init_dict(dict_name):
         cjkdict=cjklib.dictionary.CFDICT()
 
         
-def set_dict(dict_name):
-    #First, try it out
-    #If it fails, offer the user to install dict, and only change setting after installation.
+def set_dict(dict_name, second_run="None"):
+    #First, try out the designated dictionary, then save.
+    #If it fails, offer the user to install dict
     
     try:
         init_dict(dict_name)
@@ -82,6 +82,8 @@ def set_dict(dict_name):
     fd.write("#Name of dictionary to perform lookup from\n")
     fd.write("#This file is generated from the plugin menu\n")
     fd.write("dict_name='"+dict_setting.dict_name+"'\n")
+    fd.write("first_run=False\n")
+    fd.write("second_run="+second_run+"\n")
     fd.close()
 
 

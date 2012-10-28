@@ -17,13 +17,22 @@
 
 from aqt import mw
 from aqt.qt import *
-from aqt.utils import showInfo, openLink
+from aqt.utils import showInfo, openLink, askUser
 import aqt.addons 
 from anki.hooks import wrap
 import __init__
 import translate
 import dict_setting
 
+def suggest_setup_dict():
+    if askUser(_("You don't seem to have configured a dictionary yet for Chinese Support Add-on.<br>Would you like to learn more about this feature?")):
+        openLink("https://github.com/ttempe/chinese-support-addon/wiki/Dictionary-Setup-Instructions")   
+
+def suggest_setup_plugin():
+    if askUser(_("Thank you for installing the Chinese Support Add-on<br>Before using it, you will need to create a new note type.<br>Would you like to learn how?")):
+        openLink("https://github.com/ttempe/chinese-support-addon/wiki/Setup-Instructions")
+
+            
 def setup_plugin():
     openLink("https://github.com/ttempe/chinese-support-addon/wiki/Setup-Instructions")
 
@@ -48,10 +57,6 @@ def set_dict_HanDeDict():
 def set_dict_CFDICT():
     translate.set_dict("CFDICT")
     update_dict_action_checkboxes()
-
-def plop():
-    pass
-
 
 def add_action(title, to, funct, checkable=False):
     action = QAction(_(title), mw)
