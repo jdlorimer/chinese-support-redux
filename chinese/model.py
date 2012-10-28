@@ -43,7 +43,7 @@ recall_front = string.Template(u'''
 {{hanzi_silhouette:Hanzi$num}}</span>
 </div>
 
-<div class=hint>{{hint_pinyin:Hanzi$num}}</div>
+<div class=hint>{{hint_transcription:Hanzi$num}}</div>
 <div class=context>{{hanzi_context:Hanzi$num}}</div>
 {{#Notes and pictures}}<div class=note>{{Notes and pictures}}</div>{{/Notes and pictures}}
 

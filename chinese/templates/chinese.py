@@ -30,8 +30,8 @@ tone_info= [
 
 
 
-def pinyin_no_tones(txt, *args):
-    '''Returns only the pinyin, with tone information removed, whether
+def transcription_no_tones(txt, *args):
+    '''Returns only the transcription, with tone information removed, whether
     it is in the form 'nǐ' or 'ni2'.
     '''
     txt = ruby_top_text(txt)
@@ -39,6 +39,7 @@ def pinyin_no_tones(txt, *args):
         print "Suppression " + a +" -> " + b
         txt = re.sub(a, b, txt)
     txt = re.sub(r'(\[\s*[a-z]+?)[0-9]', r'\1 ', txt, flags=re.IGNORECASE)
+    txt = re.sub(r'¹²³⁴', r' ', txt)
     print "After : " +txt
     return txt
 
@@ -77,15 +78,15 @@ def hanzi_context(txt, extra, context, tag, fullname):
     context_string = re.sub("  ", " ", context_string)
     return context_string
 
-def hint_pinyin(txt, extra, context, tag, fullname):
-    return hint(ruby_top(txt), extra, context, 'Pinyin', fullname)
+def hint_transcription(txt, extra, context, tag, fullname):
+    return hint(ruby_top(txt), extra, context, 'Transcription', fullname)
 
-def hint_pinyin_no_tones(txt, extra, context, tag, fullname):
-    return hint(pinyin_no_tones(txt), extra, context, 'Pinyin', fullname)
+def hint_transcription_no_tones(txt, extra, context, tag, fullname):
+    return hint(transcription_no_tones(txt), extra, context, 'Transcription', fullname)
 
 def install():
-    addHook('fmod_pinyin_no_tones', pinyin_no_tones)
+    addHook('fmod_transcription_no_tones', transcription_no_tones)
     addHook('fmod_hanzi_silhouette', hanzi_silhouette)
     addHook('fmod_hanzi_context', hanzi_context)
-    addHook('fmod_hint_pinyin', hint_pinyin)
-    addHook('fmod_hint_pinyin_no_tones', hint_pinyin_no_tones)
+    addHook('fmod_hint_transcription', hint_transcription)
+    addHook('fmod_hint_transcription_no_tones', hint_transcription_no_tones)
