@@ -31,7 +31,7 @@ import translate
 
 def on_focus_lost(flag, fields_data, focus_field):
     from aqt import mw
-
+  
     field_names = mw.col.models.fieldNames(fields_data.model())
     focus_field_name = field_names[focus_field]
 
@@ -42,21 +42,22 @@ def on_focus_lost(flag, fields_data, focus_field):
             return flag
     except:
         return flag
-
     #did we just loose focus on a Hanzi field?
     def match_updated_field(possible_name):
         return re.match(possible_name, focus_field_name, re.I)
     if not(filter(match_updated_field, Chinese_support.possible_hanzi_field_names)):
         #We lost focus on a non-hanzi field.
         return flag
-
     #Recompute and update the hanzi field
-    updated_hanzi_field = pinyin.update_hanzi_field(flag, fields_data, focus_field_name)
-    if fields_data[focus_field_name] <> updated_hanzi_field:
-        fields_data[focus_field_name] = updated_hanzi_field
-    else:
-        return flag
-    
+    if len(fields_data[focus_field_name])>0:
+        updated_hanzi_field = pinyin.update_hanzi_field(flag, fields_data, focus_field_name)
+        if fields_data[focus_field_name] <> updated_hanzi_field:
+            #Debugging: 
+            #This should not be run if you exit an unmodified Hanzi field 
+            #print "Updating field from ", fields_data[focus_field_name]," to ", updated_hanzi_field
+            fields_data[focus_field_name] = updated_hanzi_field
+        else:
+            return flag
     #Look fo the 'meaning' field
     meaning_field_name = None
     def match_meaning_field(possible_name):
@@ -69,9 +70,14 @@ def on_focus_lost(flag, fields_data, focus_field):
         if meaning_field_name:
             break
 
-    if meaning_field_name <> "" and 0 == len(fields_data[meaning_field_name]):
-        #We found a "meaning" field, and it's not empty:
-        fields_data[meaning_field_name] = translate.translate(updated_hanzi_field)
+    if meaning_field_name:
+        #We found a "meaning" field, 
+        if 0 == len(fields_data[focus_field_name]):
+            #the Hanzi field is empty -> erase the meaning
+            fields_data[meaning_field_name] = ""
+        elif 0 == len(fields_data[meaning_field_name]):
+            #the meaning is empty, but not the hanzi -> translate
+            fields_data[meaning_field_name] = translate.translate(updated_hanzi_field)
     return True
 
 addHook('editFocusLost', on_focus_lost)
