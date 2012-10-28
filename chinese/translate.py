@@ -16,6 +16,8 @@
 
 
 import re, os
+from PyQt4 import QtCore, QtGui
+from PyQt4.QtCore import SIGNAL, QObject
 
 from aqt import mw
 from aqt.utils import showInfo, askUser, showWarning
@@ -72,6 +74,7 @@ def set_dict(dict_name):
     except ValueError:
         if askUser(_("This dictionary will be downloaded from the Internet now.<br>This will take a few minutes<br>Do you want to continue?")):
             install_dict(dict_name)
+        else:
             dict_name="None"
 
     dict_setting.dict_name = dict_name
@@ -81,10 +84,6 @@ def set_dict(dict_name):
     fd.write("dict_name='"+dict_setting.dict_name+"'\n")
     fd.close()
 
-
-
-from PyQt4 import QtCore, QtGui
-from PyQt4.QtCore import SIGNAL, QObject
 
 class installerThread(QtCore.QThread):
     def __init__(self, dict):
@@ -103,6 +102,8 @@ class installerThread(QtCore.QThread):
         
 def install_failed():
     showWarning(_("There was an error during dictionary download.<br>Please try again later."))
+    dict_name="None"
+
 
 def install_finished():
     mw.progress.finish()
@@ -117,10 +118,4 @@ def install_dict(dict):
     QObject.connect(t, SIGNAL('install_failed'), install_failed, QtCore.Qt.QueuedConnection)
     t.start()
 
-#    try:
-#        installer = DictionaryInstaller()
-#        installer.install(dict, local=True)
-#    except IOError:
-#        showWarning(_("There was an error during dictionary download.<br>Please try again later."))
-#    mw.progress.finish()
 
