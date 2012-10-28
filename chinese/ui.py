@@ -76,7 +76,6 @@ def update_dict_action_checkboxes():
 def myRebuildAddonsMenu(self):
     for m in self._menus:
         if "Chinese_support"==m.title():
-            #m.removeAction(m._menus[0].menuAction())
             sm=m.addMenu(_("Set dictionary"))
             dict_setting.dict_action_None=add_action(_("None"), sm, set_dict_None, True)
             dict_setting.dict_action_CEDICT=add_action(_("English"), sm, set_dict_CEDICT, True)
