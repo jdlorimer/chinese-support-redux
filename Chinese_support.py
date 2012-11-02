@@ -27,7 +27,7 @@ A Plugin for the Anki2 Spaced Repition learning system,
 """
 
 # You should not have to edit this file for normal usage.
-# Config options are in the add-on menu.
+# All config options are in the add-on menu.
 
 
 import os, sys
@@ -44,13 +44,14 @@ model_type_word = 'Chinese support add-ond, word, version.1'
 addon_dir = mw.pm.addonFolder()
 if isWin:
     addon_dir = addon_dir.encode(sys.getfilesystemencoding())
-sys.path.insert(0, os.path.join(addon_dir, "chinese") )
+sys.path.append(os.path.join(addon_dir, "chinese") )
 #Import a few modules from the full Python distribution, 
 #which don't come with Anki on Windows or MacOS but are needed for cjklib
 sys.path.append( os.path.join(addon_dir, "chinese", "python-2.7-modules") )
 
 import chinese.templates.ruby ; chinese.templates.ruby.install()
 import chinese.templates.chinese ; chinese.templates.chinese.install()
+#import chinese.templates.chinese_simp_trad ; chinese.templates.chinese_simp_trad.install()
 import chinese.edit
 import chinese.model
 import chinese.ui
@@ -71,10 +72,11 @@ except:
     chinese.ui.suggest_setup_plugin()
 
 #If it's the second time, suggest to select a dictionary
-if chinese.dict_setting.second_run<>"False" and "None"==chinese.dict_setting.dict_name:
+if chinese.dict_setting.second_run<>"False":
     chinese.dict_setting.second_run = "False"
     chinese.translate.save_settings()
-    chinese.ui.suggest_setup_dict()
+    if "None"==chinese.dict_setting.dict_name:
+        chinese.ui.suggest_setup_dict()
 
 chinese.translate.init_dict(chinese.dict_setting.dict_name)
     
