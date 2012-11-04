@@ -25,84 +25,33 @@ import Chinese_support
 import pinyin
 import translate
 import templates.ruby
+import edit_behavior
 
 # Focus lost hook
 ##########################################################################
 
 def on_focus_lost(flag, fields_data, focus_field):
-    from aqt import mw
-  
     field_names = mw.col.models.fieldNames(fields_data.model())
-    focus_field_name = field_names[focus_field]
-
-    #Are we editing a Chinese-support-addon note?
-    #If not, we'd better not modify anything automatically.
+    updated_field = field_names[focus_field]
+    efields = dict(fields_data) #user-edited fields
     try:
-        if fields_data.model()['addon'] != Chinese_support.model_type_word:
-            return flag
+        model_type = fields_data.model()['addon']
     except:
-        return flag
+        model_type = ""
+    model_name = fields_data.model()['name']
 
-    #did we just loose focus on a Hanzi field?
-    def match_field_name(possible_name):
-        return re.match(possible_name, focus_field_name, re.I)
-    if not(filter(match_field_name, Chinese_support.possible_hanzi_field_names)):
-        #We lost focus on a non-hanzi field.
-        return flag
+    edit_behavior.update_fields(efields, updated_field, model_name, model_type)
 
-    #Recompute and update the hanzi field
-    if len(fields_data[focus_field_name])>0:
-        updated_hanzi_field = pinyin.update_hanzi_field(flag, fields_data, focus_field_name)
-        if fields_data[focus_field_name] <> updated_hanzi_field:
-            #Debugging: 
-            #This should not be run if you exit an unmodified Hanzi field 
-            #print "Updating field from ", fields_data[focus_field_name]," to ", updated_hanzi_field
-            fields_data[focus_field_name] = updated_hanzi_field
-        else:
-            return flag
-
-    #Was this the first Hanzi field?
-    for f in field_names:
-        if filter(match_field_name, Chinese_support.possible_hanzi_field_names):
-            if f == focus_field_name:
-                #We're on the 1st Hanzi field. Continue
-                break
-            else:
-                return True
-
-    #Look fo the 'meaning' field
-    meaning_field_name = None
-    for f in field_names:
-        for m in Chinese_support.possible_meaning_field_names:
-            if re.match(m, f, re.I):
-                meaning_field_name = f
-                break
-        if meaning_field_name:
-            break
-
-    #Update 'meaning' field
-    if meaning_field_name:
-        if 0 == len(fields_data[focus_field_name]):
-            #the Hanzi field is empty -> erase the meaning
-            fields_data[meaning_field_name] = ""
-        elif 0 == len(fields_data[meaning_field_name]):
-            #the meaning is empty, but not the hanzi -> translate
-            fields_data[meaning_field_name] = translate.translate(fields_data[focus_field_name])
-
-    #Update the 'preview' field
-    for m in Chinese_support.possible_preview_field_names:
-        for f in field_names:
-            if re.match(m, f, re.I):
-                fields_data[f] = templates.ruby.ruby_bottom_text(fields_data[focus_field_name]) 
-                break
-
-
-
-
-
-
-
-    return True
+    for k in field_names:
+        if efields[k] <> fields_data[k]:
+            fields_data[k] = efields[k]
+            flag = True
+    
+    if flag:
+        print "Left field ", updated_field, "(polluted)" 
+    else:
+        print "Left field ", updated_field, "(clean)" 
+    return flag
 
 addHook('editFocusLost', on_focus_lost)
 
