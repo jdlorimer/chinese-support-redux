@@ -6,18 +6,15 @@
 # Original: Damien Elmes <anki@ichi2.net> (as japanese/model.py)
 # License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
 #
-# Standard Chinese model.
-#
 
 import string
 
 import anki.stdmodels
-from Chinese_support import model_name_word, model_type_word
 
 # List of fields
 ######################################################################
 
-fields_list = [_(u"Hanzi")+u'1', _(u"Preview"), _(u"Meaning"), _(u"Notes and pictures"), _(u"Hanzi")+u'2',_(u"Hanzi")+u'3',_(u"Hanzi")+u'4']
+fields_list = ["Hanzi", "Meaning", "Hanzi2", "Hanzi3", "Hanzi4", "Notes and pictures"]
 
 # Card templates
 ######################################################################
@@ -58,7 +55,6 @@ card_back = string.Template(u'''
 {{ruby:Hanzi$num}}</span>
 </div>
 
-<div class=meaning>{{Meaning}}</div>
 <div class=chinese>
 {{ruby:Hanzi1}}
 {{#Hanzi2}} / {{/Hanzi2}}{{ruby:Hanzi2}}
@@ -98,27 +94,27 @@ css_style = u'''
 # Add model for chinese word to Anki
 ######################################################################
 
-def addChineseModel(col):
+def add_model_ruby_synonyms(col):
     mm = col.models
-    m = mm.new(model_name_word)
+    m = mm.new("Chinese Ruby with synonyms")
     # Add fields
     for f in fields_list:
         fm = mm.newField(f)
         mm.addField(m, fm)
-    for n in range(1, 5):
-        t = mm.newTemplate(u"Recognition"+str(n))
-        t['qfmt'] = recognition_front.substitute(num=str(n))
-        t['afmt'] = card_back.substitute(num=str(n))
+    for n in ["", "2", "3", "4"]:
+        t = mm.newTemplate(u"Recognition"+n)
+        t['qfmt'] = recognition_front.substitute(num=n)
+        t['afmt'] = card_back.substitute(num=n)
         mm.addTemplate(m, t)
-        t = mm.newTemplate(u"Recall"+str(n))
-        t['qfmt'] = recall_front.substitute(num=str(n))
-        t['afmt'] = card_back.substitute(num=str(n))
+        t = mm.newTemplate(u"Recall"+n)
+        t['qfmt'] = recall_front.substitute(num=n)
+        t['afmt'] = card_back.substitute(num=n)
         mm.addTemplate(m, t)
 
     m['css'] += css_style
-    m['addon'] = model_type_word
+    m['addon'] = "Chinese Ruby"
     mm.add(m)
     # recognition card
     return m
 
-anki.stdmodels.models.append((model_name_word, addChineseModel))
+anki.stdmodels.models.append(("Chinese Ruby with synonyms", add_model_ruby_synonyms))

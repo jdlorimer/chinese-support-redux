@@ -30,19 +30,16 @@ A Plugin for the Anki2 Spaced Repition learning system,
 # All config options are in the add-on menu.
 
 
-import os, sys
+import os, sys, os.path
 from aqt import mw
 from aqt.utils import isWin
 
-
-model_name_word = _('Chinese word')
-model_type_word = 'Chinese support add-ond, word, version.1'
 
 #Add local copy of sqlalchemy to Python path, for cjklib to work.
 addon_dir = mw.pm.addonFolder()
 if isWin:
     addon_dir = addon_dir.encode(sys.getfilesystemencoding())
-sys.path.append(os.path.join(addon_dir, "chinese") )
+sys.path.insert(0, os.path.join(addon_dir, "chinese") )
 #Import a few modules from the full Python distribution, 
 #which don't come with Anki on Windows or MacOS but are needed for cjklib
 sys.path.append( os.path.join(addon_dir, "chinese", "python-2.7-modules") )
@@ -50,9 +47,8 @@ sys.path.append( os.path.join(addon_dir, "chinese", "python-2.7-modules") )
 #Create edit_behavior.py
 edit_behavior_filename = os.path.join(addon_dir, "chinese", "edit_behavior.py")
 edit_behavior_model = os.path.join(addon_dir, "chinese", "edit_behavior_model.py")
-try:
-    import chinese.edit_behavior
-except:
+
+if not os.path.exists(edit_behavior_filename):
     open(edit_behavior_filename, "w").write(open(edit_behavior_model).read())
     import chinese.edit_behavior
 
@@ -61,7 +57,9 @@ import chinese.templates.ruby ; chinese.templates.ruby.install()
 import chinese.templates.chinese ; chinese.templates.chinese.install()
 #import chinese.templates.chinese_simp_trad ; chinese.templates.chinese_simp_trad.install()
 import chinese.edit
-import chinese.model
+import chinese.model_compatibility
+import chinese.model_ruby
+import chinese.model_ruby_synonyms
 import chinese.ui
 import chinese.dict_setting
 import chinese.translate
