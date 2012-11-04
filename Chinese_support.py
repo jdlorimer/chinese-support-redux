@@ -34,9 +34,7 @@ import os, sys
 from aqt import mw
 from aqt.utils import isWin
 
-possible_hanzi_field_names = [ u'Hanzi', u'汉字', _(u'Hanzi')]
-possible_meaning_field_names = [ u'Meaning', _(u'Meaning') ]
-possible_preview_field_names = [ u'Preview', _(u'Preview') ]
+
 model_name_word = _('Chinese word')
 model_type_word = 'Chinese support add-ond, word, version.1'
 
@@ -48,6 +46,16 @@ sys.path.append(os.path.join(addon_dir, "chinese") )
 #Import a few modules from the full Python distribution, 
 #which don't come with Anki on Windows or MacOS but are needed for cjklib
 sys.path.append( os.path.join(addon_dir, "chinese", "python-2.7-modules") )
+
+#Create edit_behavior.py
+edit_behavior_filename = os.path.join(addon_dir, "chinese", "edit_behavior.py")
+edit_behavior_model = os.path.join(addon_dir, "chinese", "edit_behavior_model.py")
+try:
+    import chinese.edit_behavior
+except:
+    open(edit_behavior_filename, "w").write(open(edit_behavior_model).read())
+    import chinese.edit_behavior
+
 
 import chinese.templates.ruby ; chinese.templates.ruby.install()
 import chinese.templates.chinese ; chinese.templates.chinese.install()

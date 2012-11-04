@@ -23,6 +23,8 @@ from anki.hooks import wrap
 import __init__
 import translate
 import dict_setting
+import Chinese_support
+import edit_behavior
 
 def suggest_setup_dict():
     if askUser(_("You don't seem to have configured a dictionary yet for Chinese Support Add-on.<br>Would you like to learn more about this feature?")):
@@ -87,6 +89,24 @@ dict_setting.ui_actions = {}
 dictionaries = [ "None", "CEDICT", "HanDeDict", "CFDICT"]
 transcriptions = ["Pinyin", "WadeGiles", "CantoneseYale", "Jyutping", "Bopomofo"]
 
+edit_window = None
+
+def edit_logic_ok():
+    open(Chinese_support.edit_behavior_filename, "w").write(edit_window.text.toPlainText().encode("utf8"))
+    reload(edit_behavior)
+
+def edit_logic():
+    d = QDialog(mw)
+    global edit_window
+    edit_window = aqt.forms.editaddon.Ui_Dialog()
+    edit_window.setupUi(d)
+    d.setWindowTitle(_("Configure behavior of note edit dialog box"))
+    print "Filename " , Chinese_support.edit_behavior_filename
+    edit_window.text.setPlainText(unicode(open(Chinese_support.edit_behavior_filename).read(), "utf8"))
+    d.connect(edit_window.buttonBox, SIGNAL("accepted()"), edit_logic_ok)
+    d.exec_()
+
+
 def add_action(title, to, funct, checkable=False):
     action = QAction(_(title), mw)
     if checkable:
@@ -118,6 +138,8 @@ def myRebuildAddonsMenu(self):
             dict_setting.ui_actions["Bopomofo"]=add_action("Bopomofo", sm, set_transcription_Bopomofo, True)
 
             update_dict_action_checkboxes()
+            add_action(_("Editor Behavior"), m, edit_logic)
+
             add_action(_("Setup instructions"), m, setup_plugin)
             add_action(_("Help"), m, help_plugin)
             add_action(_("About..."), m, about_plugin)
