@@ -78,9 +78,14 @@ def set_transcription_Jyutping():
     translate.save_settings()
     update_dict_action_checkboxes()
 
+def set_transcription_Bopomofo():
+    dict_setting.transcription="Bopomofo"
+    translate.save_settings()
+    update_dict_action_checkboxes()
+
 dict_setting.ui_actions = {}
 dictionaries = [ "None", "CEDICT", "HanDeDict", "CFDICT"]
-transcriptions = ["Pinyin", "WadeGiles", "CantoneseYale", "Jyutping"]
+transcriptions = ["Pinyin", "WadeGiles", "CantoneseYale", "Jyutping", "Bopomofo"]
 
 def add_action(title, to, funct, checkable=False):
     action = QAction(_(title), mw)
@@ -110,6 +115,7 @@ def myRebuildAddonsMenu(self):
             dict_setting.ui_actions["WadeGiles"]=add_action("WadeGiles", sm, set_transcription_WadeGiles, True)
             dict_setting.ui_actions["CantoneseYale"]=add_action("CantoneseYale", sm, set_transcription_CantoneseYale, True)
             dict_setting.ui_actions["Jyutping"]=add_action("Jyutping", sm, set_transcription_Jyutping, True)
+            dict_setting.ui_actions["Bopomofo"]=add_action("Bopomofo", sm, set_transcription_Bopomofo, True)
 
             update_dict_action_checkboxes()
             add_action(_("Setup instructions"), m, setup_plugin)
