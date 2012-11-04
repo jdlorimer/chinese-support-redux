@@ -26,9 +26,7 @@
 
 import os
 import re
-import json
 
-from aqt import mw
 import Chinese_support
 import templates.ruby
 import dict_setting
@@ -147,7 +145,6 @@ def update_hanzi_field(flag, fields_data, hanzi_field):
     #In case there are multiple pinyin transcriptions, give them all to let the user decide
     def insert_pinyin_sub(p):
             return p.group(1)+'['+get_character_pinyin(p.group(1))+']'+p.group(2)
-            #return p.group(1)+'['+pinyinize.get_pinyin(p.group(1))+']'+p.group(2)
     hanzi_string = re.sub(u'([\u4e00-\u9fff])(\[sound:)', r'\1 \2', hanzi_string)
     hanzi_string = re.sub(u'([\u4e00-\u9fff])([^[])', insert_pinyin_sub, hanzi_string+' ')[:-1]
     hanzi_string = re.sub(u'([\u4e00-\u9fff])([^[])', insert_pinyin_sub, hanzi_string+' ')[:-1]
