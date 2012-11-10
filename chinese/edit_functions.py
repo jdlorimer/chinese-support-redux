@@ -281,8 +281,12 @@ def set_all(fields, dico, to):
 
 
 def no_sound(text):
-    u'''
-    Remove the [sound:xxx.mp3] tag.
+    u''' 
+    Removes the [sound:xxx.mp3] tag that's added by Anki when you record
+    sound into a field.  
+
+    If you don't remove it before taking data from one field to another,
+    it will likely be duplicated, and the sound will play twice.
     '''
     return re.sub(r'\[sound:.*?]', '', text)
 

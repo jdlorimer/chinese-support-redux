@@ -101,7 +101,6 @@ def edit_logic():
     edit_window = aqt.forms.editaddon.Ui_Dialog()
     edit_window.setupUi(d)
     d.setWindowTitle(_("Configure behavior of note edit dialog box"))
-    print "Filename " , Chinese_support.edit_behavior_filename
     edit_window.text.setPlainText(unicode(open(Chinese_support.edit_behavior_filename).read(), "utf8"))
     d.connect(edit_window.buttonBox, SIGNAL("accepted()"), edit_logic_ok)
     d.exec_()

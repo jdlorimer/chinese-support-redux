@@ -2,7 +2,7 @@
 #
 # Copyright © 2012 Thomas TEMPÉ, <thomas.tempe@alysse.org>
 # Copyright © 2012 Roland Sieker, <ospalh@gmail.com>
-# 
+#
 # License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
 #
 #COPYRIGHT AND PERMISSION NOTICE
@@ -48,7 +48,7 @@ def on_focus_lost(flag, fields_data, focus_field):
 #        print "Left field ", updated_field, "(polluted)" 
 #    else:
 #        print "Left field ", updated_field, "(clean)" 
+
     return flag
 
 addHook('editFocusLost', on_focus_lost)
-
