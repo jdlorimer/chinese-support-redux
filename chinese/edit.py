@@ -2,7 +2,7 @@
 #
 # Copyright © 2012 Thomas TEMPÉ, <thomas.tempe@alysse.org>
 # Copyright © 2012 Roland Sieker, <ospalh@gmail.com>
-# 
+#
 # License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
 #
 #COPYRIGHT AND PERMISSION NOTICE
@@ -22,7 +22,6 @@ from aqt import mw
 from anki.hooks import addHook
 
 import Chinese_support
-import pinyin
 import translate
 import templates.ruby
 import edit_behavior
@@ -46,12 +45,11 @@ def on_focus_lost(flag, fields_data, focus_field):
         if efields[k] <> fields_data[k]:
             fields_data[k] = efields[k]
             flag = True
-    
+
     if flag:
-        print "Left field ", updated_field, "(polluted)" 
+        print "Left field ", updated_field, "(polluted)"
     else:
-        print "Left field ", updated_field, "(clean)" 
+        print "Left field ", updated_field, "(clean)"
     return flag
 
 addHook('editFocusLost', on_focus_lost)
-
