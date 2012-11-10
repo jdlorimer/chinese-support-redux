@@ -89,8 +89,8 @@ def ruby(text, transcription=None, only_one=False, try_dict_first=True):
 
     If not specified, use the transcription type set in the menubar (eg pinyin).
 
-    if try_dict_first, looks up sequences of characters in the words dictionary
-    to supply a better transcription.
+    if try_dict_first, looks up sequences of characters in the
+    selected words dictionary to supply a better transcription.
 
     If not specified, insert all possible pinyin words for characters not found
     in words dictionary.
@@ -129,7 +129,6 @@ def ruby(text, transcription=None, only_one=False, try_dict_first=True):
     text += '%'
     if try_dict_first and transcription in ["Pinyin", "Bopomofo"]:
         text = re.sub(u'([\u4e00-\u9fff]+)([^[])', insert_multiple_pinyin_sub, text)
-    print "Text1", text
     text = re.sub(u'([\u4e00-\u9fff])([^[])', insert_pinyin_sub, text)
     text = re.sub(u'([\u4e00-\u9fff])([^[])', insert_pinyin_sub, text)
     text = text[:-1]
@@ -164,7 +163,7 @@ def transcribe(text, transcription=None, only_one=True, try_dict_first=True):
     Eg : 你 becomes nǐ (transcription="Pinyin", only_one=True)
 
     if try_tict_first is set and transcription is Pinyin or Bopomofo, 
-    then first try to lookup word in dictionary. 
+    then first try to lookup word in the selected dictionary. 
     If it fails, or if there were multiple possible transcriptions, then 
     look up each character one by one. 
 
@@ -280,6 +279,12 @@ def set_all(fields, dico, to):
         if f in dico:
             dico[f] = to
 
+
+def no_sound(text):
+    u'''
+    Remove the [sound:xxx.mp3] tag.
+    '''
+    return re.sub(r'\[sound:.*?]', '', text)
 
 # Extra support functions and parameters
 ##################################################################
