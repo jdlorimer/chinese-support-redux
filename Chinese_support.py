@@ -48,8 +48,6 @@ sys.path.append( os.path.join(addon_dir, "chinese", "python-2.7-modules") )
 #python install, about having 2 different versions of sqlalchemy
 try:
     i = sys.path.index('/usr/lib/python2.7/dist-packages')
-    print "index", i
-    print ""
     sys.path.pop(i)
 except:
     pass
