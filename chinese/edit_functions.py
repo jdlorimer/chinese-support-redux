@@ -82,14 +82,18 @@ def no_accents(text):
     u'Eg: ní becomes ni2.'
     return re.sub(r'([a-z]*)(['+accents+'])([a-z]*)', desaccentuate_pinyin_sub, text, flags=re.I)
 
-def ruby(text, transcription=None, only_one=False):
+def ruby(text, transcription=None, only_one=False, try_dict_first=True):
     u'''Convert hanzi to ruby notation, eg: '你' becomes '你[nǐ]'.
     This can in turn be used with the {{Ruby:fieldname}} card template,
     to generate beautiful ruby-annotated cards.
 
     If not specified, use the transcription type set in the menubar (eg pinyin).
 
-    If not specified, insert all possible pinyin words.
+    if try_dict_first, looks up sequences of characters in the words dictionary
+    to supply a better transcription.
+
+    If not specified, insert all possible pinyin words for characters not found
+    in words dictionary.
     '''
     if transcription == None:
         transcription = dict_setting.transcription
@@ -101,9 +105,31 @@ def ruby(text, transcription=None, only_one=False):
     text = no_color(text)
     #Make sure sound tag isn't confused with Hanzi
     text = re.sub(u'([\u4e00-\u9fff])(\[sound:)', r'\1 \2', text)
+
+    def insert_multiple_pinyin_sub(p):
+        hanzi=p.group(1)
+        transc = translate_module.transcribe_cjklib(hanzi)
+        if not transc:
+            return p.group()
+        transc = transc.split(" ")
+        ret = ""
+        hanzi = p.group(1)
+        while len(hanzi):
+            if "Pinyin" == transcription:            
+                ret += hanzi[0] + "["+transc.pop(0)+"]"
+            elif "Bopomofo" == transcription:
+                ret += hanzi[0] + "["
+                ret += bopomofo_module.bopomofo(no_accents(transc.pop(0)))+"]"
+            hanzi = hanzi[1:]
+        return ret+p.group(2)
+    
     def insert_pinyin_sub(p):
         return p.group(1)+'['+get_character_transcription(p.group(1), transcription, only_one)+']'+p.group(2)
-    text += ' '
+
+    text += '%'
+    if try_dict_first and transcription in ["Pinyin", "Bopomofo"]:
+        text = re.sub(u'([\u4e00-\u9fff]+)([^[])', insert_multiple_pinyin_sub, text)
+    print "Text1", text
     text = re.sub(u'([\u4e00-\u9fff])([^[])', insert_pinyin_sub, text)
     text = re.sub(u'([\u4e00-\u9fff])([^[])', insert_pinyin_sub, text)
     text = text[:-1]
@@ -165,15 +191,15 @@ def transcribe(text, transcription=None, only_one=True, try_dict_first=True):
         else:
             return p.group()
 
+    def trans_sub(p):
+        return " " + get_character_transcription(p.group(), transcription, only_one) + " "
+
     if transcription == None:
         transcription = dict_setting.transcription
             
     if try_dict_first and transcription in ["Pinyin", "Bopomofo"]:
         text = re.sub(u'\s?([\u4e00-\u9fff]+)\s?', trans_word_sub, text)
 
-    
-    def trans_sub(p):
-        return " " + get_character_transcription(p.group(), transcription, only_one) + " "
     text = re.sub(u'\s?[\u4e00-\u9fff]\s?', trans_sub, text)
     if " " == text[-1:]:
         text=text[:-1]
