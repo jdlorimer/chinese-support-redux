@@ -9,13 +9,15 @@
 # You can read about all available functions at:
 # https://github.com/ttempe/chinese-support-addon/wiki/Edit-behavior
 # Also, see the Python tutorial at http://docs.python.org/2/tutorial
+
 from edit_functions import *
 
 anki1_model_names = ["Chinese", "chinese", "Mandarin Vocab"]
 Hanzi_fields      = ["Expression", "Hanzi", "Chinese",  u"汉字", u"中文"]
 Color_fields      = ["Color", "Colour", "Colored Hanzi", u"彩色"]
 Reading_fields    = ["Reading", "Pinyin", "PY", u"拼音"]
-Meaning_fields    = ["Meaning", "Definition", "English", "German", "French", u"意思", u"翻译", u"英语", u"法语", u"德语"]
+Meaning_fields    = ["Meaning", "Definition", "English", "German", "French",\
+u"意思", u"翻译", u"英语", u"法语", u"德语", u"法文", u"英文", u"德文"]
 
 
 def update_fields(field, updated_field, model_name, model_type):
@@ -42,16 +44,25 @@ def update_fields(field, updated_field, model_name, model_type):
     #Anki1 compatibility.
     elif model_name in anki1_model_names \
             or model_type =="Chinese (compatibility)":   
+        #Fields to update after the Hanzi field has been modified:
         if updated_field in Hanzi_fields:
             #Update Meaning field only if empty
             if get_any(Meaning_fields, field)  == "" :
                 set_all(Meaning_fields, field, \
                             to = translate(field[updated_field]))
+            #Erase Meaning field if the updated field was emptied
+            elif field[updated_field]=="":
+                set_all(Meaning_fields, field, to="")
+            #Update Reading field with default transcription (Pinyin?)
             set_all(Reading_fields, field, \
                         to = colorize( transcribe( field[updated_field] ) ) )
+            #Update Color field from the Hanzi field, 
+            #Take the tone info from the Transcription field
             set_all(Color_fields, field, \
                     to = colorize_fuse( field[updated_field], \
                                no_color(get_any(Reading_fields, field) ) ) )
+
+        #If the transcription was modified, update the Color field
         elif updated_field in Reading_fields:
             field[updated_field] = \
                 colorize( accentuate_pinyin( field[updated_field] ) )
