@@ -22,9 +22,6 @@ from aqt import mw
 from anki.hooks import addHook
 
 import Chinese_support
-import pinyin
-import translate
-import templates.ruby
 import edit_behavior
 
 # Focus lost hook
@@ -47,10 +44,10 @@ def on_focus_lost(flag, fields_data, focus_field):
             fields_data[k] = efields[k]
             flag = True
     
-    if flag:
-        print "Left field ", updated_field, "(polluted)" 
-    else:
-        print "Left field ", updated_field, "(clean)" 
+#    if flag:
+#        print "Left field ", updated_field, "(polluted)" 
+#    else:
+#        print "Left field ", updated_field, "(clean)" 
     return flag
 
 addHook('editFocusLost', on_focus_lost)
