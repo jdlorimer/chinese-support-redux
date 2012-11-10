@@ -18,7 +18,7 @@ Color_fields         = ["Color", "Colour", "Colored Hanzi", u"彩色"]
 Transcription_fields = ["Reading", "Pinyin", "PY", u"拼音"]
 Meaning_fields       = ["Meaning", "Definition", "English", "German", \
 "French", u"意思", u"翻译", u"英语", u"法语", u"德语", u"法文", u"英文", u"德文"]
-
+Audio_fields         = ["Audio", "Sound", "Spoken", u"声音"]
 
 def update_fields(field, updated_field, model_name, model_type):
     #1st case : the new Ruby-based model
@@ -67,6 +67,12 @@ def update_fields(field, updated_field, model_name, model_type):
             t = no_sound( no_color(get_any(Transcription_fields, field) ) )
             c = colorize_fuse( h, t )
             set_all(Color_fields, field, to = c )
+
+            #Update Audio field from Hanzi field
+            #(only if field actually exists, as it implies downloading 
+            #a soundfile from Internet)
+            if has_field(dico, Audio_fields):
+                set_all(Audio_fields, field, to = audio(field[updated_field]) )
 
         #If the transcription was modified, update the Color field
         elif updated_field in Transcription_fields:

@@ -20,7 +20,7 @@ from cjklib import characterlookup
 import dict_setting
 import translate as translate_module
 import bopomofo as bopomofo_module
-
+import downloadaudio.google_tts
 
 
 # Essential Edit functions
@@ -258,7 +258,20 @@ def mean_word(text):
     return "(Mean Word generation : not available yet.)"
 
 def audio(text):
-    return "(Audio feature : not available yet.)"
+    '''
+    Returns audio tag for a given Hanzi string.
+    Warning, as the audio is obtained from Google TTS, it may not be the
+    same as your transcription field.
+    '''
+    text = no_color(no_sound(text))
+    if "" == text:
+        return ""
+    try:
+        return "[sound:"+downloadaudio.google_tts.get_word_from_google(text)+"]"
+    except:
+        print "Failed to download audio"
+        return ""
+
 
 def get_any(fields, dico):
     u'''Get the 1st valid field from a list
@@ -279,6 +292,14 @@ def set_all(fields, dico, to):
         if f in dico:
             dico[f] = to
 
+def has_field(fields, dico):
+    u'''
+    Check if one of the named fields exists in the field list
+    '''
+    for f in dico:
+        if f in fields:
+            return true
+    return false
 
 def no_sound(text):
     u''' 
@@ -289,6 +310,8 @@ def no_sound(text):
     it will likely be duplicated, and the sound will play twice.
     '''
     return re.sub(r'\[sound:.*?]', '', text)
+
+    
 
 # Extra support functions and parameters
 ##################################################################
