@@ -36,6 +36,28 @@ def try_dict():
     pass
 
 
+def transcribe_cjklib(chinese):
+    '''Lookup word in current dictionary.
+    If a single transcription exists, return it. Else return None.
+    '''
+    global cjkdict
+    if None == cjkdict:
+        #No CJKlib dictionary set
+        return None
+    if 1==len(chinese):
+        #Don't use this method if only one character
+        return None
+    result_set = cjkdict.getForHeadword(chinese)
+    ts = None
+    for result in result_set:
+        t = result[2]
+        if ts and ts <> t:
+            #Don't return a transcription if multiple exist
+            return None
+        ts=t
+    return ts
+    
+
 def translate_cjklib(chinese):
     global cjkdict
     if None == cjkdict:
@@ -48,6 +70,7 @@ def translate_cjklib(chinese):
     r = re.sub(r"(.)/+(.)", r"\1<br>\2", r)
     r = re.sub(r"/", r"", r)
     return r
+    
 
 def translate(chinese):
     chinese = re.sub(r'<.*?>', '', chinese)

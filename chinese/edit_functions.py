@@ -132,9 +132,15 @@ def hanzi(text):
     text = re.sub(r'([^\u4e00-\u9fff])\[[^[]+?\]\s*$', r'\1', text)
     return text
 
-def transcribe(text, transcription=None, only_one=True):
-    u'''Converts to specified transcription.
+def transcribe(text, transcription=None, only_one=True, try_dict_first=True):
+    u'''
+    Converts to specified transcription.
     Eg : 你 becomes nǐ (transcription="Pinyin", only_one=True)
+
+    if try_tict_first is set and transcription is Pinyin or Bopomofo, 
+    then first try to lookup word in dictionary. 
+    If it fails, or if there were multiple possible transcriptions, then 
+    look up each character one by one. 
 
     For possible transcription choices, please see the Anki drop-down menu.
     Tools->Add-ons->Chinese support->Set transcription
@@ -146,6 +152,26 @@ def transcribe(text, transcription=None, only_one=True):
     Eg : '了' becomes 'le liǎo' (transcription="Pinyin", only_one=False).
     '''
 
+    def trans_word_sub(p):
+        r = translate_module.transcribe_cjklib(p.group(1))
+        if r:
+            if "Pinyin" == transcription:
+                return " " + r + " "
+            elif "Bopomofo" == transcription:
+                bopo = ""
+                for c in no_accents(r).split(" "):
+                    bopo += bopomofo_module.bopomofo(c)
+                return bopo
+        else:
+            return p.group()
+
+    if transcription == None:
+        transcription = dict_setting.transcription
+            
+    if try_dict_first and transcription in ["Pinyin", "Bopomofo"]:
+        text = re.sub(u'\s?([\u4e00-\u9fff]+)\s?', trans_word_sub, text)
+
+    
     def trans_sub(p):
         return " " + get_character_transcription(p.group(), transcription, only_one) + " "
     text = re.sub(u'\s?[\u4e00-\u9fff]\s?', trans_sub, text)
@@ -155,10 +181,15 @@ def transcribe(text, transcription=None, only_one=True):
         text=text[1:]
     return text
 
+
+
 def translate(text, from_lang="zh", to_lang=None, max_nb_lines=None):
     u'''Translate to a diferent language. 
     Eg: '你好' becomes 'Hello'
     Only installed dictionaries can be used.
+
+    If the text is made of words taken from the dictionary, than use them directly.
+    Otherwise, 
 
     to_lang possible values : en (English), de (German), fr (French)
     if to_lang is unspecified, the default language will be used.
@@ -187,15 +218,12 @@ def colorize_fuse(hanzi, pinyin):
     pinyin = re.sub(r"^\s*", "", pinyin)
     pinyin = re.sub(r"\s*$", "", pinyin)
     pinyin = re.split("\s+", pinyin)
-    print "Pinyin: ", pinyin
-    print "Hanzi: ", hanzi
     def colorize_fuse_sub(p):
         try:
             return u'<span class="tone{t}">{r}</span>'.format(t=get_tone_number(pinyin.pop(0)), r=p.group())
         except :
             return p.group()
     text = re.sub(u'[\u4e00-\u9fff]', colorize_fuse_sub, hanzi)
-    print "Fused: ", text
     return text
 
 def pinyin(text):
