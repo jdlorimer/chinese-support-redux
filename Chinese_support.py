@@ -44,7 +44,17 @@ sys.path.insert(0, os.path.join(addon_dir, "chinese") )
 #which don't come with Anki on Windows or MacOS but are needed for cjklib
 sys.path.append( os.path.join(addon_dir, "chinese", "python-2.7-modules") )
 
-#print sys.path
+#Quick-and-dirty trick to remove cjklib warning on a Linux with a full
+#python install, about having 2 different versions of sqlalchemy
+try:
+    i = sys.path.index('/usr/lib/python2.7/dist-packages')
+    print "index", i
+    print ""
+    sys.path.pop(i)
+except:
+    pass
+
+
 #Create edit_behavior.py
 edit_behavior_filename = os.path.join(addon_dir, "chinese", "edit_behavior.py")
 edit_behavior_model = os.path.join(addon_dir, "chinese", "edit_behavior_model.py")
