@@ -305,7 +305,7 @@ def set_all(fields, dico, to):
         if f in dico:
             dico[f] = to
 
-def has_field(fields, dico):
+def has_field(dico, fields):
     u'''
     Check if one of the named fields exists in the field list
     '''

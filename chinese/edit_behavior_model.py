@@ -62,10 +62,11 @@ def update_fields(field, updated_field, model_name, model_type):
                 t = colorize( transcribe( no_sound( field[updated_field] ) ) )
                 set_all(Transcription_fields, field, to = t )
 
-            #Erase meaning and transcription if the updated field was emptied
+            #Erase other fields if the updated field was emptied
             if field[updated_field]=="":
                 set_all(Meaning_fields, field, to="")
                 set_all(Transcription_fields, field, to="")
+                set_all(Sound_fields, field, to="")
 
 
             #Update Color field from the Hanzi field, 
@@ -75,10 +76,11 @@ def update_fields(field, updated_field, model_name, model_type):
             c = colorize_fuse( h, t )
             set_all(Color_fields, field, to = c )
 
-            #Update Sound field from Hanzi field
+            #Update Sound field from Hanzi field if non-empty
             #(only if field actually exists, as it implies downloading 
             #a soundfile from Internet)
-            if has_field(field, Sound_fields):
+            if has_field(Sound_fields, field) and \
+                    get_any(Sound_fields, field)=="":
                 set_all(Sound_fields, field, to = sound(field[updated_field]))
 
         #If the transcription was modified, update the Color field
