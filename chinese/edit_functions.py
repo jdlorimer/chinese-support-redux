@@ -17,10 +17,10 @@
 import re
 
 from cjklib import characterlookup
-import dict_setting
+from config import chinese_support_config
 import translate as translate_module
 import bopomofo as bopomofo_module
-import downloadaudio.google_tts
+import google_tts
 
 
 # Essential Edit functions
@@ -40,6 +40,8 @@ def colorize(text, ruby_whole=False):
     since it cannot choose the correct color in the case of 
     多音字 (characters with multiple pronunciations).'''
     text = no_color(text)
+    (text, sound_tags) = extract_sound_tags(text)
+
     if has_ruby(text): #Treat like ruby
         if ruby_whole:
             def colorize_ruby_sub(p):
@@ -52,6 +54,7 @@ def colorize(text, ruby_whole=False):
         text = re.sub(u'([\u4e00-\u9fff])', colorize_hanzi_sub, text)
     else:
         text = re.sub(u'([a-z'+accents+u']+1?[0-9¹²³⁴]?)', colorize_pinyin_sub, text, flags=re.I)
+    text = text+sound_tags
     return text
 
 def no_color(text):
@@ -71,7 +74,7 @@ def accentuate_pinyin(text, force=False):
     unless force=True.
     Nota : also removes coloring. If you want color, please add it last.
    '''
-    if not 'Pinyin'== dict_setting.transcription and not force:
+    if not 'Pinyin'== chinese_support_config.options['transcription'] and not force:
         return text
     text = no_color(text)
     text = re.sub(r'[vV]', 'ü', text, count=1)
@@ -96,7 +99,7 @@ def ruby(text, transcription=None, only_one=False, try_dict_first=True):
     in words dictionary.
     '''
     if transcription == None:
-        transcription = dict_setting.transcription
+        transcription = chinese_support_config.options['transcription']
 
     #Replace Chinese typography with its ASCII counterpart
     text = re.sub(u'[［【]', u'[', text)
@@ -133,7 +136,7 @@ def ruby(text, transcription=None, only_one=False, try_dict_first=True):
     text = re.sub(u'([\u4e00-\u9fff])([^[])', insert_pinyin_sub, text)
     text = re.sub(u'([\u4e00-\u9fff])([^[])', insert_pinyin_sub, text)
     text = text[:-1]
-    text = text+sound(text)
+    text += sound(text)
     return text
 
 def no_tone(text):
@@ -196,7 +199,7 @@ def transcribe(text, transcription=None, only_one=True, try_dict_first=True):
         return " " + get_character_transcription(p.group(), transcription, only_one) + " "
 
     if transcription == None:
-        transcription = dict_setting.transcription
+        transcription = chinese_support_config.options['transcription']
             
     if try_dict_first and transcription in ["Pinyin", "Bopomofo"]:
         text = re.sub(u'\s?([\u4e00-\u9fff]+)\s?', trans_word_sub, text)
@@ -278,7 +281,7 @@ def sound(text):
     if "" == text:
         return ""
     try:
-        return "[sound:"+downloadaudio.google_tts.get_word_from_google(text)+"]"
+        return "[sound:"+google_tts.get_word_from_google(text)+"]"
     except:
         return ""
 
@@ -362,6 +365,15 @@ characterLookup = characterlookup.CharacterLookup('C')
 bopomofo_notes = {
  u"ˊ":"2", u"ˇ":"3",u"ˋ":"4", u"˙":"5"}
 
+def extract_sound_tags(text):
+    sound_tags = re.findall(r"\[sound:.*?\]", text)
+    if [] == sound_tags:
+        sound_tags=""
+    else:
+        sound_tags = reduce(lambda a,b:a+b, sound_tags)
+    nosound = re.sub(r"\[sound:.*?\]", r"", text)
+    return nosound, sound_tags
+
 
 def get_tone_number(pinyin):
     if re.match(r".+1[0-9]$", pinyin):
@@ -413,7 +425,7 @@ def has_hanzi(text):
 
 def get_character_transcription(hanzi, transcription=None, only_one=False):
     if transcription == None:
-        transcription = dict_setting.transcription
+        transcription = chinese_support_config.options['transcription']
     if "Bopomofo" == transcription:
         transcription="Pinyin"
         bopomofo=True

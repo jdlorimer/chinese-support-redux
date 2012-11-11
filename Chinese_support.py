@@ -64,34 +64,12 @@ if not os.path.exists(edit_behavior_filename):
 
 import chinese.templates.ruby ; chinese.templates.ruby.install()
 import chinese.templates.chinese ; chinese.templates.chinese.install()
-#import chinese.templates.chinese_simp_trad ; chinese.templates.chinese_simp_trad.install()
+
+from chinese.config import chinese_support_config
 import chinese.edit
-import chinese.model_compatibility
-import chinese.model_ruby
-import chinese.model_ruby_synonyms
+import chinese.models.compatibility
+import chinese.models.ruby
+import chinese.models.ruby_synonyms
 import chinese.ui
-import chinese.dict_setting
-import chinese.translate
 
-
-#If we're running for the 1st time or config is invalid,
-#show the setup instructions
-try:
-    if chinese.dict_setting.first_run:
-            chinese.translate.set_dict("None", second_run="True")
-            chinese.ui.suggest_setup_plugin()
-except:
-    chinese.dict_setting.transcription="Pinyin"
-    chinese.translate.set_dict("None", second_run="True")
-    chinese.dict_setting.second_run="False"
-    chinese.ui.suggest_setup_plugin()
-
-#If it's the second time, suggest to select a dictionary
-if chinese.dict_setting.second_run<>"False":
-    chinese.dict_setting.second_run = "False"
-    chinese.translate.save_settings()
-    if "None"==chinese.dict_setting.dict_name:
-        chinese.ui.suggest_setup_dict()
-
-chinese.translate.init_dict(chinese.dict_setting.dict_name)
     

@@ -8,6 +8,7 @@
 #
 
 import anki.stdmodels
+from css import style
 
 # List of fields
 ######################################################################
@@ -17,25 +18,26 @@ fields_list = ["Hanzi",  "Meaning", "Notes and pictures"]
 # Card templates
 ######################################################################
 
-recognition_front = u'''
+recognition_front = u'''\
 <div class=tags>{{Deck}} {{#Tags}} -- {{/Tags}}{{Tags}}</div>
-
 <div class=question>
 <span class=chinese>{{ruby_bottom_text:Hanzi}}</span>
 </div>
 '''
 
-recall_front = u'''
+recall_front = u'''\
 <div class=tags>{{Deck}} {{#Tags}} -- {{/Tags}}{{Tags}}</div>
 
 <div class=question>
-{{Meaning}}<br>
-<span class=chinese>
-{{hanzi_silhouette:Hanzi}}</span>
+<div {{Meaning}}</div>
+<div class=chinese>{{hanzi_silhouette:Hanzi}}</div>
 </div>
 
 <div class=hint>{{hint_transcription:Hanzi}}</div>
-{{#Notes and pictures}}<div class=note>{{Notes and pictures}}</div>{{/Notes and pictures}}
+
+{{#Notes and pictures}}
+<div class=note>{{Notes and pictures}}</div>
+{{/Notes and pictures}}
 '''
 
 card_back = u'''
@@ -46,34 +48,11 @@ card_back = u'''
 {{ruby:Hanzi}}</span>
 </div>
 
-{{#Notes and pictures}}<div class=note>{{Notes and pictures}}</div>{{/Notes and pictures}}
-'''
+{{#Notes and pictures}}
+<div class=note>{{Notes and pictures}}</div>
+{{/Notes and pictures}}
 
-# CSS styling
-######################################################################
-
-css_style = u'''
-.card {
- font-family: arial;
- font-size: 20px;
- text-align: center;
- color: black;
- background-color: white;
-}
-.chinese { font-size: 30px }
-.win .chinese { font-family: "MS Mincho", "ＭＳ 明朝"; }
-.mac .chinese { }
-.linux .chinese { font-family: "Kochi Mincho", "東風明朝"; }
-.mobile .chinese { font-family: "Hiragino Mincho ProN"; }
-.question {background-color:PapayaWhip;border-style:dotted;border-width:1pt;margin-top:15pt;margin-bottom:30pt;padding-top:15px;padding-bottom:15px;}
-.tags {color:gray;text-align:right;font-size:10pt;}
-.note {color:gray;font-size:12pt;margin-top:20pt;}
-.hint {font-size:12pt;}
-.tone1 {color: red;}
-.tone2 {color: orange;}
-.tone3 {color: green;}
-.tone4 {color: blue;}
-.tone5 {color: gray;}
+<!-- {{sound:Hanzi}} -->
 '''
 
 # Add model for chinese word to Anki
@@ -95,7 +74,7 @@ def add_model_ruby(col):
     t['afmt'] = card_back
     mm.addTemplate(m, t)
 
-    m['css'] += css_style
+    m['css'] += style
     m['addon'] = 'Chinese Ruby'
     mm.add(m)
     # recognition card

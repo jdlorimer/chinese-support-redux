@@ -25,8 +25,10 @@ def update_fields(field, updated_field, model_name, model_type):
     if model_type == "Chinese Ruby":
         if updated_field == "Hanzi":
             field["Hanzi"] = colorize(ruby(accentuate_pinyin(field["Hanzi"])))
-            field["Preview"] = hanzi( no_color( no_sound( field["Hanzi"] ) ) )
-            field["Meaning"] = translate( field["Hanzi"] )
+            if field["Hanzi"] == "":
+                field["Meaning"] = ""
+            elif field["Meaning"] == "":
+                field["Meaning"] = translate( field["Hanzi"] )
         if updated_field == "Hanzi2":
             field["Hanzi2"] = \
                 colorize( ruby( accentuate_pinyin( field["Hanzi2"] ) ) )

@@ -22,19 +22,17 @@ from PyQt4.QtCore import SIGNAL, QObject
 from aqt import mw
 from aqt.utils import showInfo, askUser, showWarning
 import Chinese_support
-import dict_setting
 import cjklib.dictionary
+from chinese.config import chinese_support_config
+import ui
 
 
 # Automatic translation
 ##########################################################################
 
 cjkdict = None
-
-
-def try_dict():
-    pass
-
+installing_dict=None
+reverting_dict=None
 
 def transcribe_cjklib(chinese):
     '''Lookup word in current dictionary.
@@ -88,31 +86,27 @@ def init_dict(dict_name):
         cjkdict=cjklib.dictionary.CFDICT()
 
         
-def set_dict(dict_name, second_run=False):
+def set_dict(dict_name):
     #First, try out the designated dictionary, then save.
     #If it fails, offer the user to install dict
+    global installing_dict
+    global reverting_dict
 
     try:
         init_dict(dict_name)
+        chinese_support_config.set_option('dictionary', dict_name)
+        return True
     except ValueError:
-        if askUser(_("This dictionary will be downloaded from the Internet now.<br>This will take a few minutes<br>Do you want to continue?")):
-            install_dict(dict_name)
-        else:
-            dict_name="None"
-    dict_setting.dict_name = dict_name
-    if second_run:
-        dict_setting.second_run=second_run
-    save_settings()
-
-def save_settings():
-    fd=open( os.path.join(Chinese_support.addon_dir, "chinese", "dict_setting.py"), "w")
-    fd.write("#Chinese Support Add-on settings\n")
-    fd.write("#This file is generated from the plugin menu\n")
-    fd.write("dict_name='"+dict_setting.dict_name+"'\n")
-    fd.write("transcription='"+dict_setting.transcription+"'\n")
-    fd.write("first_run=False\n")
-    fd.write("second_run='"+dict_setting.second_run+"'\n")
-    fd.close()
+        try:
+            if askUser(_("This dictionary will be downloaded from the Internet now.<br>This will take a few minutes<br>Do you want to continue?")):
+                reverting_dict = chinese_support_config.options['dictionary']
+                installing_dict = dict_name
+                install_dict(dict_name)
+                
+        except:
+            pass
+    return False
+        
 
 
 class installerThread(QtCore.QThread):
@@ -131,13 +125,19 @@ class installerThread(QtCore.QThread):
 
         
 def install_failed():
+    installing_dict = None
+    chinese_support_config.set_option('dictionary', reverting_dict)
     showWarning(_("There was an error during dictionary download.<br>Please try again later."))
-    dict_name="None"
+    ui.update_dict_action_checkboxes()
 
 
 def install_finished():
     mw.progress.finish()
-    showInfo(_("Download complete.<br>Please restart Anki and re-select your dictionary."))
+    showInfo(_("Please restart Anki now for your dictionary settings to take effect."))
+    if installing_dict:
+        chinese_support_config.set_option('dictionary', installing_dict)
+
+
 t = None
 
 def install_dict(dict):
@@ -149,3 +149,4 @@ def install_dict(dict):
     t.start()
 
 
+init_dict(chinese_support_config.options["dictionary"])

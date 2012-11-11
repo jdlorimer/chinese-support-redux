@@ -8,65 +8,39 @@
 #
 
 import anki.stdmodels
+from css import style
 
 # List of fields
 ######################################################################
 
-fields_list = ["Hanzi",  "Meaning", "Pinyin", "Color"]
+fields_list = ["Hanzi",  "Meaning", "Pinyin", "Color", "Sound"]
 
 # Card templates
 ######################################################################
 
-recognition_front = u'''
+recognition_front = u'''\
 <div class=tags>{{Deck}} {{#Tags}} -- {{/Tags}}{{Tags}}</div>
 
 <span class=chinese>{{Hanzi}}</span>
 '''
 
-recognition_back = u'''
-{{Front}}
-{{Meaning}}
-<div class=chinese>{{Pinyin}}<br>{{Color}}</div>
-'''
-
-recall_front = u'''
+recall_front = u'''\
 <div class=tags>{{Deck}} {{#Tags}} -- {{/Tags}}{{Tags}}</div>
 
-{{Meaning}}
-<span class=chinese>{{hanzi_silhouette:Hanzi}}</span>
+<div>{{Meaning}}</div>
+<div class=chinese>{{hanzi_silhouette:Hanzi}}</div>
 <div class=hint>{{hint_transcription:Hanzi}}</div>
-
 '''
 
-recall_back = u'''
-{{Front}}
-<div class=chinese>{{Pinyin}}<br>{{Color}}</div>
+card_back = u'''\
+<div class=tags>{{Deck}} {{#Tags}} -- {{/Tags}}{{Tags}}</div>
+
+<div>{{Meaning}}</div>
+<div class=chinese>{{Pinyin}}</div>
+<div class=chinese>{{Color}}</div>
+<!-- {{Sound}}-->
 '''
 
-# CSS styling
-######################################################################
-
-css_style = u'''
-.card {
- font-family: arial;
- font-size: 20px;
- text-align: center;
- color: black;
- background-color: white;
-}
-.chinese { font-size: 30px }
-.win .chinese { font-family: "MS Mincho", "ＭＳ 明朝"; }
-.mac .chinese { }
-.linux .chinese { font-family: "Kochi Mincho", "東風明朝"; }
-.mobile .chinese { font-family: "Hiragino Mincho ProN"; }
-.tags {color:gray;text-align:right;font-size:10pt;}
-.hint {font-size:12pt;}
-.tone1 {color: red;}
-.tone2 {color: orange;}
-.tone3 {color: green;}
-.tone4 {color: blue;}
-.tone5 {color: gray;}
-'''
 
 # Add model for chinese word to Anki
 ######################################################################
@@ -80,14 +54,14 @@ def add_model_ruby(col):
         mm.addField(m, fm)
     t = mm.newTemplate(u"Recognition")
     t['qfmt'] = recognition_front
-    t['afmt'] = recognition_back
+    t['afmt'] = card_back
     mm.addTemplate(m, t)
     t = mm.newTemplate(u"Recall")
     t['qfmt'] = recall_front
-    t['afmt'] = recall_back
+    t['afmt'] = card_back
     mm.addTemplate(m, t)
 
-    m['css'] += css_style
+    m['css'] += style
     m['addon'] = 'Chinese (compatibility)'
     mm.add(m)
     # recognition card

@@ -20,21 +20,30 @@ from aqt.qt import *
 from aqt.utils import showInfo, openLink, askUser
 import aqt.addons 
 from anki.hooks import wrap
+
+from config import chinese_support_config
 import __init__
 import translate
-import dict_setting
 import Chinese_support
 import edit_behavior
 
-def suggest_setup_dict():
-    if askUser(_("You don't seem to have configured a dictionary yet for Chinese Support Add-on.<br>Would you like to learn more about this feature?")):
-        openLink("https://github.com/ttempe/chinese-support-addon/wiki/Dictionary-Setup-Instructions")   
+ui_actions = {}
+dictionaries = [ "None", "CEDICT", "HanDeDict", "CFDICT"]
+transcriptions = ["Pinyin", "WadeGiles", "CantoneseYale", "Jyutping", "Bopomofo"]
 
-def suggest_setup_plugin():
-    if askUser(_("Thank you for installing the Chinese Support Add-on<br>Before using it, you will need to create a new note type.<br>Would you like to learn how?")):
-        openLink("https://github.com/ttempe/chinese-support-addon/wiki/Setup-Instructions")
+edit_window = None
+    
 
-            
+def display_next_tip():
+    (tip, link) = chinese_support_config.get_next_tip()
+    if tip:
+        if link:
+            if askUser(tip):
+                openLink(link)
+        else:
+            showInfo(tip)
+
+
 def setup_plugin():
     openLink("https://github.com/ttempe/chinese-support-addon/wiki/Setup-Instructions")
 
@@ -45,51 +54,42 @@ def about_plugin():
     showInfo(u"Chinese support plugin v. " + __init__.__version__ + u"<br>Copyright © 2012 Thomas TEMP&Eacute; and many others.<br><br>Please see source code for additional info.")
 
 def set_dict_None():
-    translate.set_dict("None")
     update_dict_action_checkboxes()
+    translate.set_dict("None")
 
 def set_dict_CEDICT():
-    translate.set_dict("CEDICT")
     update_dict_action_checkboxes()
+    translate.set_dict("CEDICT")
+
 
 def set_dict_HanDeDict():
-    translate.set_dict("HanDeDict")
     update_dict_action_checkboxes()
+    translate.set_dict("HanDeDict")
 
 def set_dict_CFDICT():
-    translate.set_dict("CFDICT")
     update_dict_action_checkboxes()
+    translate.set_dict("CFDICT")
 
 def set_transcription_Pinyin():
-    dict_setting.transcription="Pinyin"
-    translate.save_settings()
+    chinese_support_config.set_option("transcription", "Pinyin")
     update_dict_action_checkboxes()
 
 def set_transcription_WadeGiles():
-    dict_setting.transcription="WadeGiles"
-    translate.save_settings()
+    chinese_support_config.set_option("transcription", "WadeGiles")
     update_dict_action_checkboxes()
 
 def set_transcription_CantoneseYale():
-    dict_setting.transcription="CantoneseYale"
-    translate.save_settings()
+    chinese_support_config.set_option("transcription", "CantoneseYale")
     update_dict_action_checkboxes()
 
 def set_transcription_Jyutping():
-    dict_setting.transcription="Jyutping"
-    translate.save_settings()
+    chinese_support_config.set_option("transcription", "Jyutping")
     update_dict_action_checkboxes()
 
 def set_transcription_Bopomofo():
-    dict_setting.transcription="Bopomofo"
-    translate.save_settings()
+    chinese_support_config.set_option("transcription", "Bopomofo")
     update_dict_action_checkboxes()
 
-dict_setting.ui_actions = {}
-dictionaries = [ "None", "CEDICT", "HanDeDict", "CFDICT"]
-transcriptions = ["Pinyin", "WadeGiles", "CantoneseYale", "Jyutping", "Bopomofo"]
-
-edit_window = None
 
 def edit_logic_ok():
     open(Chinese_support.edit_behavior_filename, "w").write(edit_window.text.toPlainText().encode("utf8"))
@@ -105,7 +105,6 @@ def edit_logic():
     d.connect(edit_window.buttonBox, SIGNAL("accepted()"), edit_logic_ok)
     d.exec_()
 
-
 def add_action(title, to, funct, checkable=False):
     action = QAction(_(title), mw)
     if checkable:
@@ -115,26 +114,29 @@ def add_action(title, to, funct, checkable=False):
     return action
 
 def update_dict_action_checkboxes():
+    global ui_actions
     for d in dictionaries:
-        dict_setting.ui_actions[d].setChecked(d==dict_setting.dict_name)
+        ui_actions[d].setChecked(d==chinese_support_config.options["dictionary"])
     for t in transcriptions:
-        dict_setting.ui_actions[t].setChecked(t==dict_setting.transcription)
+        ui_actions[t].setChecked(t==chinese_support_config.options["transcription"])
+
 
 def myRebuildAddonsMenu(self):
+    global ui_actions
     for m in self._menus:
         if "Chinese_support"==m.title():
             sm=m.addMenu(_("Set dictionary"))
-            dict_setting.ui_actions["None"]=add_action(_("None"), sm, set_dict_None, True)
-            dict_setting.ui_actions["CEDICT"]=add_action(_("English"), sm, set_dict_CEDICT, True)
-            dict_setting.ui_actions["HanDeDict"]=add_action(_("German"), sm, set_dict_HanDeDict, True)
-            dict_setting.ui_actions["CFDICT"]=add_action(_("French"), sm, set_dict_CFDICT, True)
+            ui_actions["None"]=add_action(_("None"), sm, set_dict_None, True)
+            ui_actions["CEDICT"]=add_action(_("English"), sm, set_dict_CEDICT, True)
+            ui_actions["HanDeDict"]=add_action(_("German"), sm, set_dict_HanDeDict, True)
+            ui_actions["CFDICT"]=add_action(_("French"), sm, set_dict_CFDICT, True)
 
             sm=m.addMenu(_("Set transcription"))
-            dict_setting.ui_actions["Pinyin"]=add_action("Pinyin", sm, set_transcription_Pinyin, True)
-            dict_setting.ui_actions["WadeGiles"]=add_action("WadeGiles", sm, set_transcription_WadeGiles, True)
-            dict_setting.ui_actions["CantoneseYale"]=add_action("CantoneseYale", sm, set_transcription_CantoneseYale, True)
-            dict_setting.ui_actions["Jyutping"]=add_action("Jyutping", sm, set_transcription_Jyutping, True)
-            dict_setting.ui_actions["Bopomofo"]=add_action("Bopomofo", sm, set_transcription_Bopomofo, True)
+            ui_actions["Pinyin"]=add_action("Pinyin", sm, set_transcription_Pinyin, True)
+            ui_actions["WadeGiles"]=add_action("WadeGiles", sm, set_transcription_WadeGiles, True)
+            ui_actions["CantoneseYale"]=add_action("CantoneseYale", sm, set_transcription_CantoneseYale, True)
+            ui_actions["Jyutping"]=add_action("Jyutping", sm, set_transcription_Jyutping, True)
+            ui_actions["Bopomofo"]=add_action("Bopomofo", sm, set_transcription_Bopomofo, True)
 
             update_dict_action_checkboxes()
             add_action(_("Editor Behavior"), m, edit_logic)
@@ -145,5 +147,6 @@ def myRebuildAddonsMenu(self):
             m.setTitle(_("Chinese support"))
             break
 
-
 aqt.addons.AddonManager.rebuildAddonsMenu = wrap(aqt.addons.AddonManager.rebuildAddonsMenu, myRebuildAddonsMenu)
+
+display_next_tip()

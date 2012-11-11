@@ -17,33 +17,37 @@
 import re
 from anki.hooks import addHook
 from anki.utils import stripHTML
-from anki.template.furigana import noSound
 
 r = r' ?([^ >]+?)\[(.+?)\]'
+s = r'\[sound:.*?\]'
 ruby_re = r'<ruby><rb>\1</rb><rt>\2</rt></ruby>'
 html_comments_re = r'<!--.*?-->'
 
-def remove_comments(txt):
+def no_comments(txt):
     #Remove HTML comments.
     return re.sub(html_comments_re, '', txt)
 
+def no_sound(txt):
+    print "No_sound", txt, re.sub(s, "", txt)
+    return re.sub(s, "", txt)
+
 def ruby(txt, *args):
-    return re.sub(r, noSound(ruby_re), txt)
+    return re.sub(r, ruby_re, no_sound(txt))
 
 def ruby_top(txt, *args):
-    return re.sub(r, noSound(r'\2 '), txt)
+    return re.sub(r, r'\2 ', no_sound(txt))
 
 def ruby_bottom(txt, *args):
-    return re.sub(r, noSound(r'\1'), txt)
+    return re.sub(r, r'\1', no_sound(txt))
 
 def ruby_top_text(txt, *args):
-    return stripHTML(re.sub(r, noSound(r'\2 '), remove_comments(txt)))
+    return stripHTML(re.sub(r, r'\2 ', no_sound(no_comments(txt))))
 
 def ruby_bottom_text(txt, *args):
-    return stripHTML(re.sub(r, noSound(r'\1'), remove_comments(txt)))
+    return stripHTML(re.sub(r, r'\1', no_sound(no_comments(txt))))
 
 def sound(txt, *args):
-    return re.sub(r'(\[sound:[^]]+\])', r'\1', txt)
+    return re.sub(r'(\[sound:.+?\])', r'\1', txt)
 
 def install():
     addHook('fmod_ruby', ruby)
