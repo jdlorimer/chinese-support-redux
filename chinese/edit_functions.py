@@ -103,6 +103,7 @@ def ruby(text, transcription=None, only_one=False, try_dict_first=True):
     text = re.sub(u'[］】]', u']', text)
     #Strip former HTML tone marking and comments
     text = no_color(text)
+    text = no_sound(text)
     #Make sure sound tag isn't confused with Hanzi
     text = re.sub(u'([\u4e00-\u9fff])(\[sound:)', r'\1 \2', text)
 
@@ -132,6 +133,7 @@ def ruby(text, transcription=None, only_one=False, try_dict_first=True):
     text = re.sub(u'([\u4e00-\u9fff])([^[])', insert_pinyin_sub, text)
     text = re.sub(u'([\u4e00-\u9fff])([^[])', insert_pinyin_sub, text)
     text = text[:-1]
+    text = text+sound(text)
     return text
 
 def no_tone(text):
@@ -257,19 +259,27 @@ def pinyin(text):
 def mean_word(text):
     return "(Mean Word generation : not available yet.)"
 
-def audio(text):
+def sound(text):
     '''
-    Returns audio tag for a given Hanzi string.
-    Warning, as the audio is obtained from Google TTS, it may not be the
-    same as your transcription field.
+    Returns sound tag for a given Hanzi string.
+
+    If the sound does not already exist in the media directory, then
+    attempt to obtain it from Google text-to-speech.
+    If that fails, return nothing.
+
+    Does not work with pinyin or other transcriptions.
+
+    Warning, the pronounciation is obtained from hanzi, not transcription.
+    Therefore, it may not be the same as your transcription field.
     '''
-    text = no_color(no_sound(text))
+    text = no_color(no_accents(no_sound(text)))
+    if has_ruby(text):
+        text = hanzi(text)
     if "" == text:
         return ""
     try:
         return "[sound:"+downloadaudio.google_tts.get_word_from_google(text)+"]"
     except:
-        print "Failed to download audio"
         return ""
 
 
@@ -298,8 +308,8 @@ def has_field(fields, dico):
     '''
     for f in dico:
         if f in fields:
-            return true
-    return false
+            return True
+    return False
 
 def no_sound(text):
     u''' 

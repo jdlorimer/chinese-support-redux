@@ -18,7 +18,7 @@ Color_fields         = ["Color", "Colour", "Colored Hanzi", u"彩色"]
 Transcription_fields = ["Reading", "Pinyin", "PY", u"拼音"]
 Meaning_fields       = ["Meaning", "Definition", "English", "German", \
 "French", u"意思", u"翻译", u"英语", u"法语", u"德语", u"法文", u"英文", u"德文"]
-Audio_fields         = ["Audio", "Sound", "Spoken", u"声音"]
+Sound_fields         = ["Audio", "Sound", "Spoken", u"声音"]
 
 def update_fields(field, updated_field, model_name, model_type):
     #1st case : the new Ruby-based model
@@ -48,18 +48,23 @@ def update_fields(field, updated_field, model_name, model_type):
         #Fields to update after the Hanzi field has been modified:
         if updated_field in Hanzi_fields:
 
-            #Update Meaning field only if empty
+            #Update Meaning field only if empty.
             if get_any(Meaning_fields, field)  == "" :
                 m = translate(field[updated_field])
                 set_all(Meaning_fields, field, to = m)
 
-            #Erase Meaning field if the updated field was emptied
-            elif field[updated_field]=="":
-                set_all(Meaning_fields, field, to="")
 
             #Update transcription field with default transcription (Pinyin?)
-            t = colorize( transcribe( no_sound( field[updated_field] ) ) )
-            set_all(Transcription_fields, field, to = t )
+            #Only if it's empty
+            if get_any(Transcription_fields, field)  == "" :
+                t = colorize( transcribe( no_sound( field[updated_field] ) ) )
+                set_all(Transcription_fields, field, to = t )
+
+            #Erase meaning and transcription if the updated field was emptied
+            if field[updated_field]=="":
+                set_all(Meaning_fields, field, to="")
+                set_all(Transcription_fields, field, to="")
+
 
             #Update Color field from the Hanzi field, 
             #Take the tone info from the Transcription field
@@ -68,11 +73,11 @@ def update_fields(field, updated_field, model_name, model_type):
             c = colorize_fuse( h, t )
             set_all(Color_fields, field, to = c )
 
-            #Update Audio field from Hanzi field
+            #Update Sound field from Hanzi field
             #(only if field actually exists, as it implies downloading 
             #a soundfile from Internet)
-            if has_field(dico, Audio_fields):
-                set_all(Audio_fields, field, to = audio(field[updated_field]) )
+            if has_field(field, Sound_fields):
+                set_all(Sound_fields, field, to = sound(field[updated_field]))
 
         #If the transcription was modified, update the Color field
         elif updated_field in Transcription_fields:
