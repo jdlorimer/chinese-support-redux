@@ -46,11 +46,9 @@ sys.path.append( os.path.join(addon_dir, "chinese", "python-2.7-modules") )
 
 #Quick-and-dirty trick to remove cjklib warning on a Linux with a full
 #python install, about having 2 different versions of sqlalchemy
-try:
+while '/usr/lib/python2.7/dist-packages' in sys.path:
     i = sys.path.index('/usr/lib/python2.7/dist-packages')
     sys.path.pop(i)
-except:
-    pass
 
 
 #Create edit_behavior.py
