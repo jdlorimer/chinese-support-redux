@@ -58,17 +58,17 @@ def set_dict_None():
     translate.set_dict("None")
 
 def set_dict_CEDICT():
-    update_dict_action_checkboxes()
     translate.set_dict("CEDICT")
+    update_dict_action_checkboxes()
 
 
 def set_dict_HanDeDict():
-    update_dict_action_checkboxes()
     translate.set_dict("HanDeDict")
+    update_dict_action_checkboxes()
 
 def set_dict_CFDICT():
-    update_dict_action_checkboxes()
     translate.set_dict("CFDICT")
+    update_dict_action_checkboxes()
 
 def set_transcription_Pinyin():
     chinese_support_config.set_option("transcription", "Pinyin")

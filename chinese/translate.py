@@ -22,8 +22,8 @@ from PyQt4.QtCore import SIGNAL, QObject
 from aqt import mw
 from aqt.utils import showInfo, askUser, showWarning
 import Chinese_support
-import cjklib.dictionary
 from chinese.config import chinese_support_config
+import cjklib.dictionary
 import ui
 
 
@@ -32,7 +32,6 @@ import ui
 
 cjkdict = None
 installing_dict=None
-reverting_dict=None
 
 def transcribe_cjklib(chinese):
     '''Lookup word in current dictionary.
@@ -90,7 +89,6 @@ def set_dict(dict_name):
     #First, try out the designated dictionary, then save.
     #If it fails, offer the user to install dict
     global installing_dict
-    global reverting_dict
 
     try:
         init_dict(dict_name)
@@ -99,10 +97,8 @@ def set_dict(dict_name):
     except ValueError:
         try:
             if askUser(_("This dictionary will be downloaded from the Internet now.<br>This will take a few minutes<br>Do you want to continue?")):
-                reverting_dict = chinese_support_config.options['dictionary']
                 installing_dict = dict_name
                 install_dict(dict_name)
-                
         except:
             pass
     return False
@@ -119,23 +115,21 @@ class installerThread(QtCore.QThread):
         try:
             installer = DictionaryInstaller()
             installer.install(self.dict, local=True)
+            self.emit(SIGNAL('install_finished'))
         except IOError:
             self.emit(SIGNAL('install_failed'))
-        self.emit(SIGNAL('install_finished'))
 
         
 def install_failed():
-    installing_dict = None
-    chinese_support_config.set_option('dictionary', reverting_dict)
+    mw.progress.finish()
     showWarning(_("There was an error during dictionary download.<br>Please try again later."))
-    ui.update_dict_action_checkboxes()
 
 
 def install_finished():
     mw.progress.finish()
-    showInfo(_("Please restart Anki now for your dictionary settings to take effect."))
-    if installing_dict:
-        chinese_support_config.set_option('dictionary', installing_dict)
+    showInfo(_("Install succeeded<br>Please restart Anki now for your dictionary settings to take effect."))
+    chinese_support_config.set_option('dictionary', installing_dict)
+    ui.update_dict_action_checkboxes()
 
 
 t = None
@@ -148,5 +142,8 @@ def install_dict(dict):
     QObject.connect(t, SIGNAL('install_failed'), install_failed, QtCore.Qt.QueuedConnection)
     t.start()
 
-
-init_dict(chinese_support_config.options["dictionary"])
+try:
+    init_dict(chinese_support_config.options["dictionary"])
+except:
+    showWarning(_("The current dictionary for Chinese Support Add-on does not seem to be properly installed. Please re-select your dictionary from the list."))
+    chinese_support_config.set_option('dictionary', "None")
