@@ -6,7 +6,7 @@
 A Plugin for the Anki2 Spaced Repition learning system,
 <http://ankisrs.net/>
 
-   Copyright © 2012 by Roland Sieker, <ospalh@gmail.com> 
+   Copyright © 2012 by Roland Sieker, <ospalh@gmail.com>
    Copyright © 2012 by Thomas TEMPÉ, <thomas.tempe@alysse.org>
 
    Using parts of the Japanese plugin by Damien Elms.
@@ -40,13 +40,15 @@ addon_dir = mw.pm.addonFolder()
 if isWin:
     addon_dir = addon_dir.encode(sys.getfilesystemencoding())
 sys.path.insert(0, os.path.join(addon_dir, "chinese") )
-#Import a few modules from the full Python distribution, 
+#Import a few modules from the full Python distribution,
 #which don't come with Anki on Windows or MacOS but are needed for cjklib
 sys.path.append( os.path.join(addon_dir, "chinese", "python-2.7-modules") )
 
-#Quick-and-dirty trick to remove cjklib warning on a Linux with a full
-#python install, about having 2 different versions of sqlalchemy
-sys.path = filter(lambda a: not(re.search(r'dist-packages$', a)), sys.path)
+# Quick-and-dirty trick to remove cjklib warning on a Linux with a
+# full python install, about having two different versions of
+# sqlalchemy, httplib2, ... on Ubuntu and Fedora
+sys.path = filter(
+    lambda a: not(re.search(r'(dist|site)-packages$', a)), sys.path)
 
 #Create edit_behavior.py
 edit_behavior_filename = os.path.join(addon_dir, "chinese", "edit_behavior.py")
@@ -66,5 +68,3 @@ import chinese.models.compatibility
 import chinese.models.ruby
 import chinese.models.ruby_synonyms
 import chinese.ui
-
-    
