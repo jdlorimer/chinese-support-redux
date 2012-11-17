@@ -28,7 +28,6 @@ def no_comments(txt):
     return re.sub(html_comments_re, '', txt)
 
 def no_sound(txt):
-    print "No_sound", txt, re.sub(s, "", txt)
     return re.sub(s, "", txt)
 
 def ruby(txt, *args):

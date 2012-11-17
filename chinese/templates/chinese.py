@@ -36,11 +36,9 @@ def transcription_no_tones(txt, *args):
     '''
     txt = ruby_top_text(txt)
     for a, b in tone_info:
-        print "Suppression " + a +" -> " + b
         txt = re.sub(a, b, txt)
     txt = re.sub(r'(\[\s*[a-z]+?)[0-9]', r'\1 ', txt, flags=re.IGNORECASE)
     txt = re.sub(r'¹²³⁴', r' ', txt)
-    print "After : " +txt
     return txt
 
 def hanzi_silhouette(txt, *args):
