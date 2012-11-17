@@ -80,4 +80,4 @@ def add_model_ruby(col):
     # recognition card
     return m
 
-anki.stdmodels.models.append(("Chinese Ruby", add_model_ruby))
+#anki.stdmodels.models.append(("Chinese Ruby", add_model_ruby))
