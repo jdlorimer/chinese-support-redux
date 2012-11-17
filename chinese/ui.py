@@ -29,10 +29,9 @@ import edit_behavior
 
 ui_actions = {}
 dictionaries = [ "None", "CEDICT", "HanDeDict", "CFDICT"]
-transcriptions = ["Pinyin", "WadeGiles", "CantoneseYale", "Jyutping", "Bopomofo"]
-
-edit_window = None
-    
+transcriptions = [
+    "Pinyin", "WadeGiles", "CantoneseYale", "Jyutping", "Bopomofo"]
+speech_options = [ "None", "Google TTS Mandarin"]
 
 def display_next_tip():
     (tip, link) = chinese_support_config.get_next_tip()
@@ -53,43 +52,20 @@ def help_plugin():
 def about_plugin():
     showInfo(u"Chinese support plugin v. " + __init__.__version__ + u"<br>Copyright © 2012 Thomas TEMP&Eacute; and many others.<br><br>Please see source code for additional info.")
 
-def set_dict_None():
-    update_dict_action_checkboxes()
-    translate.set_dict("None")
+def set_dict_constructor(dict):
+    def set_dict():
+        update_dict_action_checkboxes()
+        translate.set_dict(dict)
+    return set_dict
 
-def set_dict_CEDICT():
-    translate.set_dict("CEDICT")
-    update_dict_action_checkboxes()
+def set_option_constructor(option, value):
+    def set_option():
+        chinese_support_config.set_option(option, value)
+        update_dict_action_checkboxes()
+    return set_option
 
 
-def set_dict_HanDeDict():
-    translate.set_dict("HanDeDict")
-    update_dict_action_checkboxes()
-
-def set_dict_CFDICT():
-    translate.set_dict("CFDICT")
-    update_dict_action_checkboxes()
-
-def set_transcription_Pinyin():
-    chinese_support_config.set_option("transcription", "Pinyin")
-    update_dict_action_checkboxes()
-
-def set_transcription_WadeGiles():
-    chinese_support_config.set_option("transcription", "WadeGiles")
-    update_dict_action_checkboxes()
-
-def set_transcription_CantoneseYale():
-    chinese_support_config.set_option("transcription", "CantoneseYale")
-    update_dict_action_checkboxes()
-
-def set_transcription_Jyutping():
-    chinese_support_config.set_option("transcription", "Jyutping")
-    update_dict_action_checkboxes()
-
-def set_transcription_Bopomofo():
-    chinese_support_config.set_option("transcription", "Bopomofo")
-    update_dict_action_checkboxes()
-
+edit_window = None
 
 def edit_logic_ok():
     open(Chinese_support.edit_behavior_filename, "w").write(edit_window.text.toPlainText().encode("utf8"))
@@ -116,9 +92,11 @@ def add_action(title, to, funct, checkable=False):
 def update_dict_action_checkboxes():
     global ui_actions
     for d in dictionaries:
-        ui_actions[d].setChecked(d==chinese_support_config.options["dictionary"])
+        ui_actions["dict_"+d].setChecked(d==chinese_support_config.options["dictionary"])
     for t in transcriptions:
-        ui_actions[t].setChecked(t==chinese_support_config.options["transcription"])
+        ui_actions["transcription_"+t].setChecked(t==chinese_support_config.options["transcription"])
+    for t in speech_options:
+        ui_actions["speech_"+t].setChecked(t==chinese_support_config.options["speech"])
 
 
 def myRebuildAddonsMenu(self):
@@ -126,25 +104,20 @@ def myRebuildAddonsMenu(self):
     for m in self._menus:
         if "Chinese_support"==m.title():
             sm=m.addMenu(_("Set dictionary"))
-            ui_actions["None"]=add_action(_("None"), sm, set_dict_None, True)
-            ui_actions["CEDICT"]=add_action(_("English"), sm, set_dict_CEDICT, True)
-            ui_actions["HanDeDict"]=add_action(_("German"), sm, set_dict_HanDeDict, True)
-            ui_actions["CFDICT"]=add_action(_("French"), sm, set_dict_CFDICT, True)
-
+            for i in dictionaries:
+                ui_actions["dict_"+i]=add_action(i, sm, set_dict_constructor(i),True)
             sm=m.addMenu(_("Set transcription"))
-            ui_actions["Pinyin"]=add_action("Pinyin", sm, set_transcription_Pinyin, True)
-            ui_actions["WadeGiles"]=add_action("WadeGiles", sm, set_transcription_WadeGiles, True)
-            ui_actions["CantoneseYale"]=add_action("CantoneseYale", sm, set_transcription_CantoneseYale, True)
-            ui_actions["Jyutping"]=add_action("Jyutping", sm, set_transcription_Jyutping, True)
-            ui_actions["Bopomofo"]=add_action("Bopomofo", sm, set_transcription_Bopomofo, True)
-
-            update_dict_action_checkboxes()
+            for i in transcriptions:
+                ui_actions["transcription_"+i]=add_action(i, sm, set_option_constructor("transcription", i), True)
+            sm=m.addMenu(_("Set speech language"))
+            for i in speech_options:
+                ui_actions["speech_"+i]=add_action(i, sm, set_option_constructor("speech", i), True)
             add_action(_("Editor Behavior"), m, edit_logic)
-
             add_action(_("Setup instructions"), m, setup_plugin)
             add_action(_("Help"), m, help_plugin)
             add_action(_("About..."), m, about_plugin)
             m.setTitle(_("Chinese support"))
+            update_dict_action_checkboxes()
             break
 
 aqt.addons.AddonManager.rebuildAddonsMenu = wrap(aqt.addons.AddonManager.rebuildAddonsMenu, myRebuildAddonsMenu)

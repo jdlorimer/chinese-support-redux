@@ -262,19 +262,23 @@ def pinyin(text):
 def mean_word(text):
     return "(Mean Word generation : not available yet.)"
 
-def sound(text):
+def sound(text, source=None):
     '''
     Returns sound tag for a given Hanzi string.
 
     If the sound does not already exist in the media directory, then
-    attempt to obtain it from Google text-to-speech.
-    If that fails, return nothing.
+    attempt to obtain it from the specified source.
+    if the specified source is omitted, use the one selected in the
+    tools menu.
+    If it fails (eg: no network connexion while trying to retrieve 
+    speech from Google TTS), return nothing.
 
     Does not work with pinyin or other transcriptions.
-
-    Warning, the pronounciation is obtained from hanzi, not transcription.
-    Therefore, it may not be the same as your transcription field.
     '''
+    if None==source:
+        source = chinese_support_config.options['speech']
+    if "Google TTS Mandarin" != source:
+        return ""
     text = no_color(no_accents(no_sound(text)))
     if has_ruby(text):
         text = hanzi(text)
