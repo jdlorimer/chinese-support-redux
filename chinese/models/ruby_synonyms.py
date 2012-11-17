@@ -60,7 +60,7 @@ card_back = string.Template(u'''
 </div>
 
 <div class=chinese>
-{{#Hanzi1}}
+{{ruby:Hanzi}}
 {{#Hanzi2}} / {{/Hanzi2}}{{ruby:Hanzi2}} 
 {{#Hanzi3}} / {{/Hanzi3}}{{ruby:Hanzi3}} 
 {{#Hanzi4}} / {{/Hanzi4}}{{ruby:Hanzi4}} 
