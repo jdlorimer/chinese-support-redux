@@ -22,7 +22,7 @@ from PyQt4.QtCore import SIGNAL, QObject
 from aqt import mw
 from aqt.utils import showInfo, askUser, showWarning
 import Chinese_support
-from chinese.config import chinese_support_config
+from config import chinese_support_config
 import cjklib.dictionary
 import ui
 

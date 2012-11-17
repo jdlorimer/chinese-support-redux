@@ -34,6 +34,8 @@ import os, sys, os.path, re
 from aqt import mw
 from aqt.utils import isWin
 
+# Python path hacks
+#################################################################
 
 #Add local copy of sqlalchemy to Python path, for cjklib to work.
 addon_dir = mw.pm.addonFolder()
@@ -50,19 +52,10 @@ sys.path.append( os.path.join(addon_dir, "chinese", "python-2.7-modules") )
 sys.path = filter(
     lambda a: not(re.search(r'(dist|site)-packages$', a)), sys.path)
 
-#Create edit_behavior.py
-edit_behavior_filename = os.path.join(addon_dir, "chinese", "edit_behavior.py")
-edit_behavior_model = os.path.join(addon_dir, "chinese", "edit_behavior_model.py")
-
-if not os.path.exists(edit_behavior_filename):
-    open(edit_behavior_filename, "w").write(open(edit_behavior_model).read())
-    import chinese.edit_behavior
-
-
+import chinese.upgrade
 import chinese.templates.ruby ; chinese.templates.ruby.install()
 import chinese.templates.chinese ; chinese.templates.chinese.install()
 
-from chinese.config import chinese_support_config
 import chinese.edit
 import chinese.models.compatibility
 import chinese.models.ruby
