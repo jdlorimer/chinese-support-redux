@@ -39,7 +39,6 @@ def ask_to_upgrade():
         copy_from_model()
 
 def update_config():
-    print "Update"
     chinese_support_config.set_option("add-on version", __version__)
     chinese_support_config.set_option("edit_behavior_model.py hash", md5.new(open(edit_behavior_model).read()).hexdigest())
 
