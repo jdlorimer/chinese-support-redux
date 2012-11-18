@@ -29,15 +29,9 @@ def update_fields(field, updated_field, model_name, model_type):
                 field["Meaning"] = ""
             elif field["Meaning"] == "":
                 field["Meaning"] = translate( field["Hanzi"] )
-        if updated_field == "Hanzi2":
-            field["Hanzi2"] = \
-                colorize( ruby( accentuate_pinyin( field["Hanzi2"] ) ) )
-        if updated_field == "Hanzi3":
-            field["Hanzi3"] = \
-                colorize( ruby( accentuate_pinyin( field["Hanzi3"] ) ) )
-        if updated_field == "Hanzi4":
-            field["Hanzi4"] = \
-                colorize( ruby( accentuate_pinyin( field["Hanzi4"] ) ) )
+        elif updated_field[0:5] == "Hanzi":#Field name starts with "Hanzi"
+            field[updated_field] = \
+                colorize( ruby( accentuate_pinyin( field[updated_field] ) ) )
 
     #2nd case : use the old Anki1 Pinyin-toolkit rules if the deck is
     #called "Chinese" or was created as "Chinese (compatibility)" from
