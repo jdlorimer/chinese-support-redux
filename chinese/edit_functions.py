@@ -285,27 +285,36 @@ def get_any(fields, dico):
     Scans all field names listed as "fields", to find one that exists,
     then returns its value.
     If none exists, returns an empty string.
+
+    Case-insensitive.
     '''
     for f in fields:
-        if f in dico:
-            return dico[f]
+        for k, v in dico.iteritems():
+            if f.lower()==k.lower():
+                return dico[k]
     return ""
 
 def set_all(fields, dico, to):
     u'''Set all existing fields to the same value. 
     (Non-existing fields are ignored)
+
+    Case-insensitive.
     '''
     for f in fields:
-        if f in dico:
-            dico[f] = to
+        for d, v in dico.iteritems():
+            if d.lower()==f.lower():
+                dico[d] = to
 
-def has_field(dico, fields):
+def has_field(fields, dico):
     u'''
     Check if one of the named fields exists in the field list
+
+    Case-insensitive.
     '''
-    for f in dico:
-        if f in fields:
-            return True
+    for d, v in dico.iteritems():
+        for f in fields:
+            if f.lower() == d.lower():
+                return True
     return False
 
 def no_sound(text):
