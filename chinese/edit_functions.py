@@ -241,7 +241,7 @@ def transcribe(text, transcription=None, only_one=True, try_dict_first=True):
             return p.group()
 
     def trans_sub(p):
-        return " " + get_character_transcription(p.group(), transcription, only_one) + " "
+        return " " + get_character_transcription(p.group(1), transcription, only_one) + " "
 
     if transcription == None:
         transcription = chinese_support_config.options['transcription']
@@ -249,7 +249,7 @@ def transcribe(text, transcription=None, only_one=True, try_dict_first=True):
     if try_dict_first and transcription in ["Pinyin", "Bopomofo"]:
         text = re.sub(u'\s?([\u4e00-\u9fff]+)\s?', trans_word_sub, text)
 
-    text = re.sub(u'\s?[\u4e00-\u9fff]\s?', trans_sub, text)
+    text = re.sub(u'\s?([\u4e00-\u9fff])\s?', trans_sub, text)
     if " " == text[-1:]:
         text=text[:-1]
     if " " == text[:1]:
