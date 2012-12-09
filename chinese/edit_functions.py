@@ -53,13 +53,13 @@ def colorize(text, ruby_whole=False):
     text = text+sound_tags
     return text
 
-def ruby_top(txt, *args):
-    "Extract the top (pronunciation) part of a ruby string"
+def ruby_top(txt):
+    "Extract the top (pronunciation) part of a ruby string."
     r = r' ?([^ >]+?)\[(.+?)\]'
     return re.sub(r, r'\2 ', no_sound(txt))
 
-def ruby_bottom(txt, *args):
-    "Extract the bottom part of a ruby string"
+def ruby_bottom(txt):
+    "Extract the bottom part of a ruby string."
     r = r' ?([^ >]+?)\[(.+?)\]'
     return re.sub(r, r'\1 ', no_sound(txt))
 
