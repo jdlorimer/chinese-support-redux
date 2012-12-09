@@ -45,9 +45,9 @@ def on_focus_lost(flag, fields_data, focus_field):
             flag = True
     
 #    if flag:
-#        print "Left field ", updated_field, "(polluted)" 
+#        print "Left field ", updated_field, "(polluted)", efields[updated_field]
 #    else:
-#        print "Left field ", updated_field, "(clean)" 
+#        print "Left field ", updated_field, "(clean)", efields[updated_field]
 
     return flag
 

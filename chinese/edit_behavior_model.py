@@ -58,7 +58,6 @@ def update_fields(field, updated_field, model_name, model_type):
             #Update transcription field with default transcription (Pinyin?)
             #Only if it's empty
             if get_any(Transcription_fields, field)  == "" :
-                print "Transcribe", transcribe( no_sound( field[updated_field] ) ) 
                 t = colorize( transcribe( no_sound( field[updated_field] ) ) )
                 #Hide the unaccented transcription in the field, 
                 #to make searching easier
