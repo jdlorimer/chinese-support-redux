@@ -12,7 +12,6 @@ import translate as translate_module
 import bopomofo as bopomofo_module
 import google_tts
 
-
 # Essential Edit functions
 ##################################################################
 #
@@ -32,6 +31,13 @@ def colorize(text, ruby_whole=False):
     text = no_color(text)
     (text, sound_tags) = extract_sound_tags(text)
 
+    def colorize_hanzi_sub(p):
+        return u'<span class="tone{t}">{r}</span>'.format(t=get_tone_number(transcribe(p.group(1), only_one=True)), r=p.group())
+
+    def colorize_pinyin_sub(p):
+        return u'<span class="tone{t}">{r}</span>'.format(t=get_tone_number(p.group(1)), r=p.group())
+
+
     if has_ruby(text): #Treat like ruby
         if ruby_whole:
             def colorize_ruby_sub(p):
@@ -47,6 +53,16 @@ def colorize(text, ruby_whole=False):
     text = text+sound_tags
     return text
 
+def ruby_top(txt, *args):
+    "Extract the top (pronunciation) part of a ruby string"
+    r = r' ?([^ >]+?)\[(.+?)\]'
+    return re.sub(r, r'\2 ', no_sound(txt))
+
+def ruby_bottom(txt, *args):
+    "Extract the bottom part of a ruby string"
+    r = r' ?([^ >]+?)\[(.+?)\]'
+    return re.sub(r, r'\1 ', no_sound(txt))
+
 def no_color(text):
     "Remove tone color info and other HTML pollutions"
     text = re.sub(r'&nbsp;', '', text)
@@ -60,7 +76,17 @@ def hide(text, hidden):
     to make a note searchable in the 'browse' window
     """
     hidden = no_color(hidden)
+    hidden = re.sub(r"[<!->]", "", hidden)
     return text + "<!--"+hidden+"-->"
+
+def hide_ruby(text):
+    """Append hidden hanzi and toneless pinyin to a ruby string,
+    to make a note searchable in the 'browse' window.
+    """
+    t =  no_tone(ruby_top(text))
+    t += re.sub(" ", "", no_color(ruby_bottom(text)))
+    return hide(text, t)
+
 
 def no_hidden(text):
     """Remove hidden keyword string"""
@@ -75,6 +101,20 @@ def accentuate_pinyin(text, force=False):
     unless force=True.
     Nota : also removes coloring. If you want color, please add it last.
    '''
+    def accentuate_pinyin_sub(p):
+        pinyin = p.group(1)
+        tone = p.group(2)
+        if "tone"==pinyin:
+            return pinyin+tone
+        for v in u"aeiouüvAEIOUÜV":
+            if pinyin.find(v)>-1:
+                try:
+                    return re.sub(v, vowel_decorations[int(tone)][v.lower()], pinyin, count=1)
+                except KeyError, IndexError:
+                    pass
+        return pinyin
+    
+
     if not 'Pinyin'== chinese_support_config.options['transcription'] and not force:
         return text
     text = no_color(text)
@@ -413,24 +453,6 @@ def get_tone_number(pinyin):
                 continue
         return "5"
 
-def colorize_hanzi_sub(p):
-    return u'<span class="tone{t}">{r}</span>'.format(t=get_tone_number(transcribe(p.group(1), only_one=True)), r=p.group())
-
-def colorize_pinyin_sub(p):
-    return u'<span class="tone{t}">{r}</span>'.format(t=get_tone_number(p.group(1)), r=p.group())
-
-def accentuate_pinyin_sub(p):
-    pinyin = p.group(1)
-    tone = p.group(2)
-    if "tone"==pinyin:
-        return pinyin+tone
-    for v in u"aeiouüvAEIOUÜV":
-        if pinyin.find(v)>-1:
-            try:
-                return re.sub(v, vowel_decorations[int(tone)][v.lower()], pinyin, count=1)
-            except KeyError, IndexError:
-                pass
-    return pinyin
 
 def has_ruby(text):
     return re.match(u"[\u4e00-\u9fff]\[.+\]", text)

@@ -24,7 +24,12 @@ def update_fields(field, updated_field, model_name, model_type):
     #1st case : the new Ruby-based model
     if model_type == "Chinese Ruby":
         if updated_field == "Hanzi":
-            field["Hanzi"] = colorize(ruby(accentuate_pinyin(field["Hanzi"])))
+            #Update the ruby
+            h = colorize(ruby(accentuate_pinyin(field["Hanzi"])))
+            #Add the toneless transcription and hanzi, hidden, 
+            #to make them searchable
+            h = hide_ruby(h)
+            field["Hanzi"] = h
             if field["Hanzi"] == "":
                 field["Meaning"] = ""
             elif field["Meaning"] == "":
