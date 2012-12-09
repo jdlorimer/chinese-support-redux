@@ -54,6 +54,9 @@ def update_fields(field, updated_field, model_name, model_type):
             #Only if it's empty
             if get_any(Transcription_fields, field)  == "" :
                 t = colorize( transcribe( no_sound( field[updated_field] ) ) )
+                #Hide the unaccented transcription in the field, 
+                #to make searching easier
+                t = hide(t, no_tone(t))
                 set_all(Transcription_fields, field, to = t )
 
             #Erase other fields if the updated field was emptied
@@ -80,6 +83,7 @@ def update_fields(field, updated_field, model_name, model_type):
         #If the transcription was modified, update the Color field
         elif updated_field in Transcription_fields:
             t = colorize( accentuate_pinyin( field[updated_field] ) )
+            t = hide(t, no_tone(t))
             field[updated_field] = t
             h = no_sound( get_any( Hanzi_fields, field) )
             t = no_sound( no_color( field[updated_field] ) )

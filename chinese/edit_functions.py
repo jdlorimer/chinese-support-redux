@@ -50,10 +50,21 @@ def colorize(text, ruby_whole=False):
 def no_color(text):
     "Remove tone color info and other HTML pollutions"
     text = re.sub(r'&nbsp;', '', text)
-    text = re.sub(r'<!--.*?-->', '', text)
+    text = no_hidden(text)
     #remove color info
     text = re.sub(r'<span class="tone1?[0-9]">(.*?)</span>', r'\1', text)
     return text
+
+def hide(text, hidden):
+    """Add hidden keyword to string (typically Hanzi and toneless pinyin),
+    to make a note searchable in the 'browse' window
+    """
+    hidden = no_color(hidden)
+    return text + "<!--"+hidden+"-->"
+
+def no_hidden(text):
+    """Remove hidden keyword string"""
+    return re.sub("<!--.*?-->", "", text)
 
     
 def accentuate_pinyin(text, force=False):
@@ -73,6 +84,10 @@ def accentuate_pinyin(text, force=False):
 
 def no_accents(text):
     u'Eg: ní becomes ni2.'
+    
+    def desaccentuate_pinyin_sub(p):
+        return ""+p.group(1)+base_letters[p.group(2)]+p.group(3)+get_tone_number(p.group(2))
+
     return re.sub(r'([a-z]*)(['+accents+'])([a-z]*)', desaccentuate_pinyin_sub, text, flags=re.I)
 
 def ruby(text, transcription=None, only_one=False, try_dict_first=True):
@@ -416,9 +431,6 @@ def accentuate_pinyin_sub(p):
             except KeyError, IndexError:
                 pass
     return pinyin
-
-def desaccentuate_pinyin_sub(p):
-    return ""+p.group(1)+base_letters[p.group(2)]+p.group(3)+get_tone_number(p.group(2))
 
 def has_ruby(text):
     return re.match(u"[\u4e00-\u9fff]\[.+\]", text)
