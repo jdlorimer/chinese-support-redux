@@ -26,6 +26,7 @@ import __init__
 import translate
 import Chinese_support
 import edit_behavior
+from upgrade import edit_behavior_file
 
 ui_actions = {}
 dictionaries = [ 
@@ -37,6 +38,7 @@ dictionaries = [
 transcriptions = [
     "Pinyin", "WadeGiles", "CantoneseYale", "Jyutping", "Bopomofo"]
 speech_options = [ "None", "Google TTS Mandarin"]
+
 
 def display_next_tip():
     (tip, link) = chinese_support_config.get_next_tip()
@@ -73,7 +75,7 @@ def set_option_constructor(option, value):
 edit_window = None
 
 def edit_logic_ok():
-    open(Chinese_support.edit_behavior_filename, "w").write(edit_window.text.toPlainText().encode("utf8"))
+    open(edit_behavior_file, "w").write(edit_window.text.toPlainText().encode("utf8"))
     reload(edit_behavior)
 
 def edit_logic():
@@ -82,7 +84,7 @@ def edit_logic():
     edit_window = aqt.forms.editaddon.Ui_Dialog()
     edit_window.setupUi(d)
     d.setWindowTitle(_("Configure behavior of note edit dialog box"))
-    edit_window.text.setPlainText(unicode(open(Chinese_support.edit_behavior_filename).read(), "utf8"))
+    edit_window.text.setPlainText(unicode(open(edit_behavior_file).read(), "utf8"))
     d.connect(edit_window.buttonBox, SIGNAL("accepted()"), edit_logic_ok)
     d.exec_()
 
