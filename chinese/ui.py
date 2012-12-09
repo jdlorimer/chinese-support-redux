@@ -28,7 +28,12 @@ import Chinese_support
 import edit_behavior
 
 ui_actions = {}
-dictionaries = [ "None", "CEDICT", "HanDeDict", "CFDICT"]
+dictionaries = [ 
+("None", _("None")), 
+("CEDICT", _("English")), 
+("HanDeDict", _("German")),
+("CFDICT", _("French"))]
+
 transcriptions = [
     "Pinyin", "WadeGiles", "CantoneseYale", "Jyutping", "Bopomofo"]
 speech_options = [ "None", "Google TTS Mandarin"]
@@ -54,8 +59,8 @@ def about_plugin():
 
 def set_dict_constructor(dict):
     def set_dict():
-        update_dict_action_checkboxes()
         translate.set_dict(dict)
+        update_dict_action_checkboxes()
     return set_dict
 
 def set_option_constructor(option, value):
@@ -91,7 +96,7 @@ def add_action(title, to, funct, checkable=False):
 
 def update_dict_action_checkboxes():
     global ui_actions
-    for d in dictionaries:
+    for d, d_name in dictionaries:
         ui_actions["dict_"+d].setChecked(d==chinese_support_config.options["dictionary"])
     for t in transcriptions:
         ui_actions["transcription_"+t].setChecked(t==chinese_support_config.options["transcription"])
@@ -104,8 +109,8 @@ def myRebuildAddonsMenu(self):
     for m in self._menus:
         if "Chinese_support"==m.title():
             sm=m.addMenu(_("Set dictionary"))
-            for i in dictionaries:
-                ui_actions["dict_"+i]=add_action(i, sm, set_dict_constructor(i),True)
+            for d, d_names in dictionaries:
+                ui_actions["dict_"+d]=add_action(d_names, sm, set_dict_constructor(d),True)
             sm=m.addMenu(_("Set transcription"))
             for i in transcriptions:
                 ui_actions["transcription_"+i]=add_action(i, sm, set_option_constructor("transcription", i), True)
