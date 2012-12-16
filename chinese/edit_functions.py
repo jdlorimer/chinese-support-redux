@@ -96,6 +96,7 @@ def no_hidden(text):
 def accentuate_pinyin(text, force=False):
     u'''Add accents to pinyin. 
     Eg: ni2 becomes ní.
+    Eg: ní4 becomes nì. (to make correction easier)
     
     Does nothing if the default transcription is not Pinyin,
     unless force=True.
@@ -106,6 +107,9 @@ def accentuate_pinyin(text, force=False):
         tone = p.group(2)
         if "tone"==pinyin:
             return pinyin+tone
+#        for v in accents:            
+#            re.sub(v, base_letters[v], pinyin)
+        pinyin = no_tone(pinyin)
         for v in u"aeiouüvAEIOUÜV":
             if pinyin.find(v)>-1:
                 try:
@@ -119,7 +123,7 @@ def accentuate_pinyin(text, force=False):
         return text
     text = no_color(text)
     text = re.sub(r'[vV]', 'ü', text, count=1)
-    text = re.sub(r'([a-z]*[aeiouüÜv][a-z]*)([1-5])', accentuate_pinyin_sub, text, flags=re.I)
+    text = re.sub(u'([a-z]*[aeiouüÜv'+accents+r'][a-z]*)([1-5])', accentuate_pinyin_sub, text, flags=re.I)
     return text
 
 def no_accents(text):
