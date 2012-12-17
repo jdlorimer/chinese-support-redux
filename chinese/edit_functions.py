@@ -35,7 +35,11 @@ def colorize(text, ruby_whole=False):
         return u'<span class="tone{t}">{r}</span>'.format(t=get_tone_number(transcribe(p.group(1), only_one=True)), r=p.group())
 
     def colorize_pinyin_sub(p):
-        return u'<span class="tone{t}">{r}</span>'.format(t=get_tone_number(p.group(1)), r=p.group())
+        pinyin = p.group()
+        if pinyin[0] in '&<"':
+            return pinyin
+        else:
+            return u'<span class="tone{t}">{r}</span>'.format(t=get_tone_number(p.group(1)), r=pinyin)
 
 
     if has_ruby(text): #Treat like ruby
@@ -49,7 +53,7 @@ def colorize(text, ruby_whole=False):
     elif has_hanzi(text):
         text = re.sub(u'([\u4e00-\u9fff])', colorize_hanzi_sub, text)
     else:
-        text = re.sub(u'([a-z'+accents+u']+1?[0-9¹²³⁴]?)', colorize_pinyin_sub, text, flags=re.I)
+        text = re.sub(u'([&<"/]?[a-z'+accents+u']+1?[0-9¹²³⁴]?)', colorize_pinyin_sub, text, flags=re.I)
     text = text+sound_tags
     return text
 
@@ -61,7 +65,8 @@ def ruby_top(txt):
 def ruby_bottom(txt):
     "Extract the bottom part of a ruby string."
     r = r' ?([^ >]+?)\[(.+?)\]'
-    return re.sub(r, r'\1 ', no_sound(txt))
+    text = re.sub(r, r'\1 ', no_sound(txt))
+    return text
 
 def no_color(text):
     "Remove tone color info and other HTML pollutions"
@@ -91,7 +96,6 @@ def hide_ruby(text):
 def no_hidden(text):
     """Remove hidden keyword string"""
     return re.sub("<!--.*?-->", "", text)
-
     
 def accentuate_pinyin(text, force=False):
     u'''Add accents to pinyin. 
@@ -386,7 +390,29 @@ def no_sound(text):
     '''
     return re.sub(r'\[sound:.*?]', '', text)
 
+def separate_pinyin(text, force=False):
+    u"""
+    Separate pinyin syllables with whitespace.
+    Eg: "Yīlù píng'ān" becomes "Yī lù píng ān"
+
+    Does nothing if the default transcription is not pinyin, 
+    unless Force=True
+    Useful for people pasting Pinyin from Google Translate.
+    """
+    if not 'Pinyin'== chinese_support_config.options['transcription'] and not force:
+        return text
+    def clean(t):
+        'remove leading apostrophe'
+        if "'" == t[0]:
+            return t[1:]
+        return t
+    def separate_pinyin_sub(p):
+        return clean(p.group("one"))+" "+clean(p.group("two"))
+    text =  pinyin_two_re.sub(separate_pinyin_sub, text)
+    text =  pinyin_two_re.sub(separate_pinyin_sub, text)
+    return text
     
+
 
 # Extra support functions and parameters
 ##################################################################
@@ -420,6 +446,17 @@ u'a':u'a', u'e':u'e', u'i':u'i', u'o':u'o', u'u':u'u', u'ü':u'ü',
 }
 
 accents = u'ɑ̄āĀáɑ́ǎɑ̌ÁǍàɑ̀ÀēĒéÉěĚèÈīĪíÍǐǏìÌōŌóÓǒǑòÒūŪúÚǔǓùÙǖǕǘǗǚǙǜǛ'
+
+
+def pinyin_re_sub():
+    inits = u"zh|sh|ch|[bpmfdtnlgkhjqxrzscwy]"
+    finals = u"i[ōóǒòo]ng|[ūúǔùu]ng|[āáǎàa]ng|[ēéěèe]ng|i[āɑ̄áɑ́ɑ́ǎɑ̌àɑ̀aāáǎàa]ng|[īíǐìi]ng|i[āáǎàa]n|u[āáǎàa]n|[ōóǒòo]ng|[ēéěèe]r|i[āáǎàa]|i[ēéěèe]|i[āáǎàa]o|i[ūúǔùu]|[īíǐìi]n|u[āáǎàa]|u[ōóǒòo]|u[āáǎàa]i|u[īíǐìi]|[ūúǔùu]n|u[ēéěèe]|ü[ēéěèe]|v[ēéěèe]|i[ōóǒòo]|[āáǎàa]i|[ēéěèe]i|[āáǎàa]o|[ōóǒòo]u|[āáǎàa]n|[ēéěèe]n|[āáǎàa]|[ēéěèe]|[ōóǒòo]|[īíǐìi]|[ūúǔùu]|[ǖǘǚǜüv]"
+    standalones = u"'[āáǎàa]ng|'[ēéěèe]ng|'[ēéěèe]r|'[āáǎàa]i|'[ēéěèe]i|'[āáǎàa]o|'[ōóǒòo]u|'[āáǎàa]n|'[ēéěèe]n|'[āáǎàa]|'[ēéěèe]|'[ōóǒòo]"
+    return "(("+inits+")("+finals+")|("+standalones+"))"
+
+pinyin_re = pinyin_re_sub()
+pinyin_two_re = re.compile("(?P<one>"+pinyin_re+")(?P<two>"+pinyin_re+")", flags=re.I)
+
 
 characterLookup = characterlookup.CharacterLookup('C')
 #One of TCJKV. I don't know what difference it makes

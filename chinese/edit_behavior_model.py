@@ -87,7 +87,8 @@ def update_fields(field, updated_field, model_name, model_type):
 
         #If the transcription was modified, update the Color field
         elif updated_field in Transcription_fields:
-            t = colorize( accentuate_pinyin( field[updated_field] ) )
+            t = colorize( accentuate_pinyin( separate_pinyin(no_color(field[updated_field] ) )))
+#            t = colorize( accentuate_pinyin(no_color(field[updated_field])))
             t = hide(t, no_tone(t))
             field[updated_field] = t
             h = no_sound( get_any( Hanzi_fields, field) )
