@@ -36,7 +36,7 @@ def colorize(text, ruby_whole=False):
 
     def colorize_pinyin_sub(p):
         pinyin = p.group()
-        if pinyin[0] in '&<"':
+        if pinyin[0] in '&<"/':
             return pinyin
         else:
             return u'<span class="tone{t}">{r}</span>'.format(t=get_tone_number(p.group(1)), r=pinyin)
@@ -81,6 +81,7 @@ def hide(text, hidden):
     to make a note searchable in the 'browse' window
     """
     hidden = no_color(hidden)
+    hidden = re.sub("<.*?>", "", hidden)
     hidden = re.sub(r"[<!->]", "", hidden)
     return text + "<!--"+hidden+"-->"
 
@@ -126,7 +127,7 @@ def accentuate_pinyin(text, force=False):
     if not 'Pinyin'== chinese_support_config.options['transcription'] and not force:
         return text
     text = no_color(text)
-    text = re.sub(r'[vV]', 'ü', text, count=1)
+    #text = re.sub(r'[vV]', u'ü', text, count=1)
     text = re.sub(u'([a-z]*[aeiouüÜv'+accents+r'][a-z]*)([1-5])', accentuate_pinyin_sub, text, flags=re.I)
     return text
 
@@ -333,6 +334,7 @@ def sound(text, source=None):
     if "Google TTS Mandarin" != source:
         return ""
     text = no_color(no_accents(no_sound(text)))
+    text = re.sub("<.*?>", "", text)
     if has_ruby(text):
         text = hanzi(text)
     if "" == text:
