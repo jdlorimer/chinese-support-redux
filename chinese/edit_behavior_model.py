@@ -90,7 +90,7 @@ def update_fields(field, updated_field, model_name, model_type):
             #Only if it's different from the Hanzi field
             if get_any(["Simplified"], field)  == "" :
                 t = simplify(field[updated_field])
-                if t != get_any(["Simplified"], field):
+                if t != get_any(Hanzi_fields, field):
                     set_all(["Simplified"], field, to = t )
 
         #If the transcription was modified, update the Color field
