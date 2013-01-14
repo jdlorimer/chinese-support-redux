@@ -221,7 +221,7 @@ def transcribe(text, transcription=None, only_one=True, try_dict_first=True):
     Converts to specified transcription.
     Eg : 你 becomes nǐ (transcription="Pinyin", only_one=True)
 
-    if try_tict_first is set and transcription is Pinyin or Bopomofo, 
+    if try_dict_first is set and transcription is Pinyin or Bopomofo, 
     then first try to lookup word in the selected dictionary. 
     If it fails, or if there were multiple possible transcriptions, then 
     look up each character one by one. 
@@ -525,3 +525,16 @@ def get_character_transcription(hanzi, transcription=None, only_one=False):
         text = bopomofo_module.bopomofo(no_accents(text))
     return text
 
+def simplify(text):
+    u'''
+    Converts to simplified variants (if they exist)
+    '''
+
+    def simplify_sub(p):
+        s = characterLookup.getCharacterVariants(p.group(1), 'S')
+        if len(s) > 0:
+            return s[0]
+        else:
+            return p.group(1)
+    text = re.sub(u'\s?([\u4e00-\u9fff])\s?', simplify_sub, text)
+    return text
