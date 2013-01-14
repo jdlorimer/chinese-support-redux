@@ -85,7 +85,7 @@ def update_fields(field, updated_field, model_name, model_type):
                     get_any(Sound_fields, field)=="":
                 set_all(Sound_fields, field, to = sound(field[updated_field]))
 				
-		    #Update simplified field with simplified variant
+            #Update simplified field with simplified variant
             #Only if it's empty
             #Only if it's different from the Hanzi field
             if get_any(["Simplified"], field)  == "" :
