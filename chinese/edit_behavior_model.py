@@ -56,7 +56,7 @@ def update_fields(field, updated_field, model_name, model_type):
 
 
             #Update transcription field with default transcription (Pinyin?)
-            # Only if it's empty
+            #Only if it's empty
             if get_any(Transcription_fields, field)  == "" :
                 t = colorize( transcribe( no_sound( field[updated_field] ) ) )
                 #Hide the unaccented transcription in the field, 
@@ -84,10 +84,10 @@ def update_fields(field, updated_field, model_name, model_type):
             if has_field(Sound_fields, field) and \
                     get_any(Sound_fields, field)=="":
                 set_all(Sound_fields, field, to = sound(field[updated_field]))
-    			
-			#Update simplified field with simplified variant
+				
+		    #Update simplified field with simplified variant
             #Only if it's empty
-			#Only if it's different from the Hanzi field
+            #Only if it's different from the Hanzi field
             if get_any(["Simplified"], field)  == "" :
                 t = simplify(field[updated_field])
                 if t != get_any(["Simplified"], field):
