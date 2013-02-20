@@ -8,6 +8,7 @@ CSS used by the different Chinese models.
 """
 
 style = u'''\
+.card { word-wrap: break-word; }
 .win .chinese { font-family: "MS Mincho", "ＭＳ 明朝"; }
 .mac .chinese { }
 .linux .chinese { font-family: "Kochi Mincho", "東風明朝"; }
