@@ -110,6 +110,7 @@ def accentuate_pinyin(text, force=False):
     def accentuate_pinyin_sub(p):
         pinyin = p.group(1)
         tone = p.group(2)
+        print "treating ", pinyin, tone
         if "tone"==pinyin:
             return pinyin+tone
 #        for v in accents:            
@@ -123,12 +124,13 @@ def accentuate_pinyin(text, force=False):
                     pass
         return pinyin
     
-
+    print "string:", text
     if not 'Pinyin'== chinese_support_config.options['transcription'] and not force:
         return text
     text = no_color(text)
-    #text = re.sub(r'[vV]', u'ü', text, count=1)
+    print "removing accents from ", text
     text = re.sub(u'([a-z]*[aeiouüÜv'+accents+r'][a-z]*)([1-5])', accentuate_pinyin_sub, text, flags=re.I)
+    print "removed: ", text
     return text
 
 def no_accents(text):
