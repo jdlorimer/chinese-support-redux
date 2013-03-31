@@ -9,17 +9,18 @@
 # http://www.yellowbridge.com/chinese/zhuyin.php
 import re
 
-initials_re = "([BPMFDTNLGKHJQXRZCS]|ZH|CH|SH)"
+initials_re = "(ZHI|ZH|CHI|CH|SHI|SH|[BPMFDTNLGKHJQXRZCS])"
 medials_re = "(YI|WU|YU|[IUVU]|)"
 finals_re = "(YE|AI|EI|AO|OU|ANG|ENG|AN|EN|ER|[AOE]|)"
 tones_re = "([1-5]?)"
 
 initials_dict = {
+"ZHI":u"ㄓ","CHI":u"ㄔ","SHI":u"ㄕ",
+"ZH":u"ㄓ","CH":u"ㄔ","SH":u"ㄕ","R":u"ㄖ",
 "B":u"ㄅ","P":u"ㄆ","M":u"ㄇ","F":u"ㄈ",
 "D":u"ㄉ","T":u"ㄊ","N":u"ㄋ","L":u"ㄌ",
 "G":u"ㄍ","K":u"ㄎ","H":u"ㄏ",
 "J":u"ㄐ","Q":u"ㄑ","X":u"ㄒ",
-"ZH":u"ㄓ","CH":u"ㄔ","SH":u"ㄕ","R":u"ㄖ",
 "Z":u"ㄗ","C":u"ㄘ","S":u"ㄙ"}
 
 medials_dict = {
@@ -28,9 +29,9 @@ medials_dict = {
 "V":u"ㄩ","YU":u"ㄩ"}
 
 finals_dict = {
-"A":u"ㄚ","O":u"ㄛ","E":u"ㄜ","E":u"ㄝ","YE":u"ㄝ",
 "AI":u"ㄞ","EI":u"ㄟ","AO":u"ㄠ","OU":u"ㄡ",
-"AN":u"ㄢ","EN":u"ㄣ","ANG":u"ㄤ","ENG":u"ㄥ","ER":u"ㄦ"}
+"AN":u"ㄢ","EN":u"ㄣ","ANG":u"ㄤ","ENG":u"ㄥ","ER":u"ㄦ",
+"A":u"ㄚ","O":u"ㄛ","E":u"ㄜ","E":u"ㄝ","YE":u"ㄝ"}
 
 tones_dict = {
  "1":"", "2":u"ˊ", "3":u"ˇ","4":u"ˋ", "5":u"˙"}
