@@ -11,6 +11,7 @@ from config import chinese_support_config
 import translate as translate_module
 import bopomofo as bopomofo_module
 import google_tts
+import transcribe as transcribe_module
 
 # Essential Edit functions
 ##################################################################
@@ -512,11 +513,17 @@ def get_character_transcription(hanzi, transcription=None, only_one=False):
 
     def concat(a, b):
         return a+' '+b
-    transcriptions = characterLookup.getReadingForCharacter(hanzi, transcription)
+    if "Pinyin" == transcription:
+        transcriptions = transcribe_module.get_pinyin(hanzi)
+    else:
+        transcriptions = characterLookup.getReadingForCharacter(hanzi, transcription)
     if 0 == len(transcriptions):
         text = ""
     elif only_one:
-        text = transcriptions[0]
+        try:
+            text = transcriptions[0]
+        except:
+            text = ""
     else:
         text = reduce(concat, transcriptions)
     if bopomofo:
