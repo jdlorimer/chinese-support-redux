@@ -354,8 +354,11 @@ def get_any(fields, dico):
     '''
     for f in fields:
         for k, v in dico.iteritems():
-            if not( f.lower() <> k.lower()):
-                return dico[k]
+            try:
+                if unicode(f.lower()) == unicode(k.lower()):
+                    return dico[k]
+            except:
+                pass
     return ""
 
 def set_all(fields, dico, to):
@@ -366,8 +369,11 @@ def set_all(fields, dico, to):
     '''
     for f in fields:
         for d, v in dico.iteritems():
-            if not( d.lower() <> f.lower()):
-                dico[d] = to
+            try:
+                if unicode(d.lower()) == unicode(f.lower()):
+                    dico[d] = to
+            except:
+                pass
 
 def has_field(fields, dico):
     u'''
@@ -377,8 +383,11 @@ def has_field(fields, dico):
     '''
     for d, v in dico.iteritems():
         for f in fields:
-            if not( f.lower() <> d.lower()):
-                return True
+            try:
+                if unicode(f.lower()) == unicode(d.lower()):
+                    return True
+            except:
+                pass
     return False
 
 def no_sound(text):
