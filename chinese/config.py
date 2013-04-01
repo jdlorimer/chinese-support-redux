@@ -20,7 +20,12 @@ initial_options =  {
 startup_tips = [
 ('Thank you for installing the Chinese Support Add-on<br>&nbsp;<br>Before using it, you will need to create a new note type.<br>Would you like to learn how?','https://github.com/ttempe/chinese-support-addon/wiki/Setup-Instructions'),
 ("The Chinese Support Add-on allows you to choose and download a dictionary, that will be used to pre-fill your cards data.<br>Would you like to learn more about this feature?",'https://github.com/ttempe/chinese-support-addon/wiki/Dictionary-Setup-Instructions'),
-('If you set a dictionary for Chinese translation, it will also be used to fill in you Pinyin more cleverly, saving your time.<br>Do you want to learn how to set one up?', 'https://github.com/ttempe/chinese-support-addon/wiki/Dictionary-Setup-Instructions')
+('If you set a dictionary for Chinese translation, it will also be used to fill in you Pinyin more cleverly.<br>To do so, click on Tools->Add-ons->Chinese Support->Set dictionary.', None),
+(None, None),
+(None, None),
+(None, None),
+(None, None),
+('Thank you for using the <b>Chinese Support Add-on</b>. <br/>If you like it, please take a moment to rate it in <a href="https://ankiweb.net/shared/addons/">Ankiweb</a>. <br/>If you have questions or comments, don\'t hesitate to post them on the <a href="https://groups.google.com/forum/#!msg/anki-addons/YZmzNpmEuaY/OKbqbfGaMA0J">support forum</a>', None)
 ]
 
 
@@ -57,7 +62,7 @@ class config:
             self.set_option(name, default_value)
 
     def get_next_tip(self):
-        if self.options['startup_tip_number'] < len(startup_tips)-1:
+        if self.options['startup_tip_number'] < len(startup_tips):
             self.set_option("startup_tip_number", self.options['startup_tip_number']+1)
             return startup_tips[self.options['startup_tip_number']-1]
         else:
