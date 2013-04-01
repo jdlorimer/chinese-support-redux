@@ -12,7 +12,7 @@
 
 from edit_functions import *
 
-anki1_model_names    = ["Chinese", "chinese", "Mandarin Vocab"]
+anki1_model_names    = ["Chinese", "chinese", "Mandarin Vocab", "Mandarin"]
 Hanzi_fields         = ["Expression", "Hanzi", "Chinese",  u"汉字", u"中文"]
 Color_fields         = ["Color", "Colour", "Colored Hanzi", u"彩色"]
 Transcription_fields = ["Reading", "Pinyin", "PY", u"拼音"]
@@ -84,6 +84,14 @@ def update_fields(field, updated_field, model_name, model_type):
             if has_field(Sound_fields, field) and \
                     get_any(Sound_fields, field)=="":
                 set_all(Sound_fields, field, to = sound(field[updated_field]))
+				
+            #Update simplified field with simplified variant
+            #Only if it's empty
+            #Only if it's different from the Hanzi field
+            if get_any(["Simplified"], field)  == "" :
+                t = simplify(field[updated_field])
+                if t != get_any(Hanzi_fields, field):
+                    set_all(["Simplified"], field, to = t )
 
         #If the transcription was modified, update the Color field
         elif updated_field in Transcription_fields:
