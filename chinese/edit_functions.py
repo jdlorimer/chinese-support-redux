@@ -354,7 +354,7 @@ def get_any(fields, dico):
     '''
     for f in fields:
         for k, v in dico.iteritems():
-            if f.lower()==k.lower():
+            if not( f.lower() <> k.lower()):
                 return dico[k]
     return ""
 
@@ -366,7 +366,7 @@ def set_all(fields, dico, to):
     '''
     for f in fields:
         for d, v in dico.iteritems():
-            if d.lower()==f.lower():
+            if not( d.lower() <> f.lower()):
                 dico[d] = to
 
 def has_field(fields, dico):
@@ -377,7 +377,7 @@ def has_field(fields, dico):
     '''
     for d, v in dico.iteritems():
         for f in fields:
-            if f.lower() == d.lower():
+            if not( f.lower() <> d.lower()):
                 return True
     return False
 
@@ -543,3 +543,4 @@ def simplify(text):
             return p.group(1)
     text = re.sub(u'\s?([\u4e00-\u9fff])\s?', simplify_sub, text)
     return text
+

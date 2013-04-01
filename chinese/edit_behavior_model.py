@@ -12,13 +12,14 @@
 
 from edit_functions import *
 
-anki1_model_names    = ["Chinese", "chinese", "Mandarin Vocab", "Mandarin"]
+anki1_model_names    = ["Chinese", "chinese", "Mandarin Vocab"] #"Mandarin" is used by the Pinyin Toolkit port by Chris Hatch
 Hanzi_fields         = ["Expression", "Hanzi", "Chinese",  u"汉字", u"中文"]
 Color_fields         = ["Color", "Colour", "Colored Hanzi", u"彩色"]
 Transcription_fields = ["Reading", "Pinyin", "PY", u"拼音"]
 Meaning_fields       = ["Meaning", "Definition", "English", "German", \
 "French", u"意思", u"翻译", u"英语", u"法语", u"德语", u"法文", u"英文", u"德文"]
 Sound_fields         = ["Audio", "Sound", "Spoken", u"声音"]
+Simplified_fields    = ["Simplified", "简体"]
 
 def update_fields(field, updated_field, model_name, model_type):
     #1st case : the new Ruby-based model
@@ -69,7 +70,7 @@ def update_fields(field, updated_field, model_name, model_type):
                 set_all(Meaning_fields, field, to="")
                 set_all(Transcription_fields, field, to="")
                 set_all(Sound_fields, field, to="")
-
+                set_all(Simplified_fields, field, to="")
 
             #Update Color field from the Hanzi field, 
             #Take the tone info from the Transcription field
@@ -86,12 +87,12 @@ def update_fields(field, updated_field, model_name, model_type):
                 set_all(Sound_fields, field, to = sound(field[updated_field]))
 				
             #Update simplified field with simplified variant
-            #Only if it's empty
-            #Only if it's different from the Hanzi field
-            if get_any(["Simplified"], field)  == "" :
-                t = simplify(field[updated_field])
-                if t != get_any(Hanzi_fields, field):
-                    set_all(["Simplified"], field, to = t )
+            #If it's the same, leave empty, so as to make this feature unobtrusive to simplified chinese users
+            s = simplify(field[updated_field])
+            if s <> field[updated_field]:
+                set_all(Simplified_fields, field, to = s )
+            else:
+                set_all(Simplified_fields, field, to = "" )
 
         #If the transcription was modified, update the Color field
         elif updated_field in Transcription_fields:
