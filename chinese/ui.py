@@ -49,15 +49,8 @@ def display_next_tip():
         else:
             showInfo(tip)
 
-
-def setup_plugin():
-    openLink("https://github.com/ttempe/chinese-support-addon/wiki/Setup-Instructions")
-
-def help_plugin():
-    openLink("https://github.com/ttempe/chinese-support-addon/wiki")
-
-def about_plugin():
-    showInfo(u"Chinese support plugin v. " + __init__.__version__ + u"<br>Copyright © 2012 Thomas TEMP&Eacute; and many others.<br><br>Please see source code for additional info.")
+def goto_page(page):
+    openLink(page)
 
 def set_dict_constructor(dict):
     def set_dict():
@@ -120,12 +113,18 @@ def myRebuildAddonsMenu(self):
             for i in speech_options:
                 ui_actions["speech_"+i]=add_action(i, sm, set_option_constructor("speech", i), True)
             add_action(_("Editor Behavior"), m, edit_logic)
-            add_action(_("Setup instructions"), m, setup_plugin)
-            add_action(_("Help"), m, help_plugin)
-            add_action(_("About..."), m, about_plugin)
+            sm=m.addMenu(_("Help"))
+            ### REMINDER : the website addresses are also available in config.py, in some startup tips. Don't forget to update both.
+            add_action(_("Setup instructions"), sm, lambda : goto_page("https://github.com/ttempe/chinese-support-addon/wiki/Setup-Instructions"))
+            add_action(_("Usage instructions"), sm, lambda : goto_page("https://github.com/ttempe/chinese-support-addon/wiki"))
+            add_action(_("Support forum"), sm, lambda : goto_page("https://groups.google.com/forum/#!msg/anki-addons/YZmzNpmEuaY/OKbqbfGaMA0J"))
+            add_action(_("Issue tracker"), sm, lambda : goto_page("https://github.com/ttempe/chinese-support-addon/issues"))
+            add_action(_("About..."), m, lambda : showInfo(u"Chinese support plugin v. " + __init__.__version__ + u"<br>Copyright © 2012 Thomas TEMP&Eacute; and many others.<br><br>Please see source code for additional info."))
+            add_action(_("Please rate me on Ankiweb!"), m, lambda : goto_page("https://ankiweb.net/shared/addons/"))
             m.setTitle(_("Chinese support"))
             update_dict_action_checkboxes()
             break
+
 
 aqt.addons.AddonManager.rebuildAddonsMenu = wrap(aqt.addons.AddonManager.rebuildAddonsMenu, myRebuildAddonsMenu)
 
