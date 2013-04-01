@@ -21,7 +21,8 @@ margin-top:15pt;
 margin-bottom:30pt;
 padding-top:15px;
 padding-bottom:15px;}
-.chinese { font-size: 30px }
+.chinese { font-size: 30px;}
+.comment {font-size: 15px; color:grey;}
 .tags {color:gray;text-align:right;font-size:10pt;}
 .note {color:gray;font-size:12pt;margin-top:20pt;}
 .hint {font-size:12pt;}

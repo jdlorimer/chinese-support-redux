@@ -13,7 +13,7 @@ from css import style
 # List of fields
 ######################################################################
 
-fields_list = ["Hanzi",  "Meaning", "Pinyin", "Color", "Sound"]
+fields_list = ["Hanzi",  "Meaning", "Pinyin", "Color", "Sound", "Simplified"]
 
 # Card templates
 ######################################################################
@@ -29,7 +29,7 @@ recall_front = u'''\
 
 <div>{{Meaning}}</div>
 <div class=chinese>{{hanzi_silhouette:Hanzi}}</div>
-<div class=hint>{{hint_transcription:Hanzi}}</div>
+<div class=hint>{{hint_transcription:Pinyin}}</div>
 '''
 
 card_back = u'''\
@@ -38,7 +38,14 @@ card_back = u'''\
 <div>{{Meaning}}</div>
 <div class=chinese>{{Pinyin}}</div>
 <div class=chinese>{{Color}}</div>
+{{#Simplified}}<div class=chinese><span class=comment>Simplified:</span> {{Simplified}}</div>{{/Simplified}}
 <!-- {{Sound}}-->
+
+<div class=comment>
+<a href="http://www.mdbg.net/chindict/chindict.php?page=worddict&wdrst=0&wdqb={{text:Hanzi}}">MDBG</a>, 
+<a href="http://zhidao.baidu.com/q?word={{text:Hanzi}}&ct=17&pn=0&tn=ikaslist&rn=10&lm=0&fr=search">百度</a>,
+<a href="http://image.baidu.com/i?ie=utf-8&word={{text:Hanzi}}">Image</a>
+</div>
 '''
 
 
