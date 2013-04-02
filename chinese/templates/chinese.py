@@ -45,7 +45,6 @@ def hanzi_silhouette(txt, *args):
     ''' Hides the chinese characters, ruby annotations and tone colorization.
     Eg: '又[you4]A又B' returns '_ A _ B'.
     '''
-    print "silhouetting", txt
     if len(txt)<10:
         return re.sub(u'[\u4e00-\u9fff]', '_ ', ruby_bottom_text(txt))
     else:
