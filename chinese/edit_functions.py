@@ -48,13 +48,13 @@ def colorize(text, ruby_whole=False):
             def colorize_ruby_sub(p):
                 return u'<span class="tone{t}">{r}</span>'.format(t=get_tone_number(p.group(2)), r=p.group())
 
-            text = re.sub(u'([\u4e00-\u9fff]\[\s*)([a-z'+accents+u']+1?[0-9¹²³⁴]?)(.*?\])', colorize_ruby_sub, text, flags=re.I)    
+            text = re.sub(u'([\u4e00-\u9fff]\[\s*)([a-zü'+accents+u']+1?[0-9¹²³⁴]?)(.*?\])', colorize_ruby_sub, text, flags=re.I)    
         else:
-            text = re.sub(u'([a-z'+accents+u']+1?[0-9¹²³⁴]?)', colorize_pinyin_sub, text, flags=re.I)
+            text = re.sub(u'([a-zü'+accents+u']+1?[0-9¹²³⁴]?)', colorize_pinyin_sub, text, flags=re.I)
     elif has_hanzi(text):
         text = re.sub(u'([\u4e00-\u9fff])', colorize_hanzi_sub, text)
     else:
-        text = re.sub(u'([&<"/]?[a-z'+accents+u']+1?[0-9¹²³⁴]?)', colorize_pinyin_sub, text, flags=re.I)
+        text = re.sub(u'([&<"/]?[a-zü'+accents+u']+1?[0-9¹²³⁴]?)', colorize_pinyin_sub, text, flags=re.I)
     text = text+sound_tags
     return text
 
@@ -127,16 +127,16 @@ def accentuate_pinyin(text, force=False):
     if not 'Pinyin'== chinese_support_config.options['transcription'] and not force:
         return text
     text = no_color(text)
-    text = re.sub(u'([a-z]*[aeiouüÜv'+accents+r'][a-z]*)([1-5])', accentuate_pinyin_sub, text, flags=re.I)
+    text = re.sub(u'([a-z]*[aeiouüÜv'+accents+u'][a-zü]*)([1-5])', accentuate_pinyin_sub, text, flags=re.I)
     return text
 
 def no_accents(text):
     u'Eg: ní becomes ni2.'
     
     def desaccentuate_pinyin_sub(p):
-        return ""+p.group(1)+base_letters[p.group(2)]+p.group(3)+get_tone_number(p.group(2))
+        return ""+p.group(1)+base_letters[p.group(2).lower()]+p.group(3)+get_tone_number(p.group(2).lower())
 
-    return re.sub(r'([a-z]*)(['+accents+'])([a-z]*)', desaccentuate_pinyin_sub, text, flags=re.I)
+    return re.sub(u'([a-zü]*)(['+accents+u'])([a-zü]*)', desaccentuate_pinyin_sub, text, flags=re.I)
 
 def ruby(text, transcription=None, only_one=False, try_dict_first=True):
     u'''Convert hanzi to ruby notation, eg: '你' becomes '你[nǐ]'.
@@ -203,7 +203,7 @@ def no_tone(text):
     if has_ruby(text):
         text = re.sub(u'([\u4e00-\u9fff]\[)([^[]+?)\]', no_tone_marks_sub, text)
     else:
-        text = re.sub(r'([a-z]+)1?[0-9¹²³⁴]', r'\1', text)
+        text = re.sub(u'([a-zü]+)1?[0-9¹²³⁴]', r'\1', text)
     return text
 
 def hanzi(text):
@@ -236,7 +236,7 @@ def transcribe(text, transcription=None, only_one=True, try_dict_first=True):
     '''
 
     def trans_word_sub(p):
-        r = translate_module.transcribe_cjklib(p.group(1))
+        r = add_diaeresis(translate_module.transcribe_cjklib(p.group(1)))
         if r:
             if "Pinyin" == transcription:
                 return " " + r + " "
@@ -249,7 +249,7 @@ def transcribe(text, transcription=None, only_one=True, try_dict_first=True):
             return p.group()
 
     def trans_sub(p):
-        return " " + get_character_transcription(p.group(1), transcription, only_one) + " "
+        return " " + add_diaeresis(get_character_transcription(p.group(1), transcription, only_one)) + " "
 
     if transcription == None:
         transcription = chinese_support_config.options['transcription']
@@ -263,8 +263,6 @@ def transcribe(text, transcription=None, only_one=True, try_dict_first=True):
     if " " == text[:1]:
         text=text[1:]
     return text
-
-
 
 def translate(text, from_lang="zh", to_lang=None, max_nb_lines=None):
     u'''Translate to a diferent language. 
@@ -422,6 +420,33 @@ def separate_pinyin(text, force=False):
     text =  pinyin_two_re.sub(separate_pinyin_sub, text)
     return text
     
+def simplify(text):
+    u'''
+    Converts to simplified variants (if they exist)
+    '''
+
+    def simplify_sub(p):
+        s = characterLookup.getCharacterVariants(p.group(1), 'S')
+        if len(s) > 0:
+            return s[0]
+        else:
+            return p.group(1)
+    text = re.sub(u'\s?([\u4e00-\u9fff])\s?', simplify_sub, text)
+    return text
+
+def traditional(text):
+    u'''
+    Converts to traditional variants (if they exist)
+    '''
+
+    def traditional_sub(p):
+        s = characterLookup.getCharacterVariants(p.group(1), 'T')
+        if len(s) > 0:
+            return s[0]
+        else:
+            return p.group(1)
+    text = re.sub(u'\s?([\u4e00-\u9fff])\s?', traditional_sub, text)
+    return text
 
 
 # Extra support functions and parameters
@@ -539,31 +564,9 @@ def get_character_transcription(hanzi, transcription=None, only_one=False):
         text = bopomofo_module.bopomofo(no_accents(text))
     return text
 
-def simplify(text):
-    u'''
-    Converts to simplified variants (if they exist)
-    '''
-
-    def simplify_sub(p):
-        s = characterLookup.getCharacterVariants(p.group(1), 'S')
-        if len(s) > 0:
-            return s[0]
-        else:
-            return p.group(1)
-    text = re.sub(u'\s?([\u4e00-\u9fff])\s?', simplify_sub, text)
-    return text
-
-def traditional(text):
-    u'''
-    Converts to simplified variants (if they exist)
-    '''
-
-    def traditional_sub(p):
-        s = characterLookup.getCharacterVariants(p.group(1), 'T')
-        if len(s) > 0:
-            return s[0]
-        else:
-            return p.group(1)
-    text = re.sub(u'\s?([\u4e00-\u9fff])\s?', traditional_sub, text)
-    return text
+def add_diaeresis(text):
+    try:
+        return re.sub(u"v", u"ü", text)
+    except:
+        return ""
 
