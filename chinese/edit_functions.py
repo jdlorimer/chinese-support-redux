@@ -553,3 +553,17 @@ def simplify(text):
     text = re.sub(u'\s?([\u4e00-\u9fff])\s?', simplify_sub, text)
     return text
 
+def traditional(text):
+    u'''
+    Converts to simplified variants (if they exist)
+    '''
+
+    def traditional_sub(p):
+        s = characterLookup.getCharacterVariants(p.group(1), 'T')
+        if len(s) > 0:
+            return s[0]
+        else:
+            return p.group(1)
+    text = re.sub(u'\s?([\u4e00-\u9fff])\s?', traditional_sub, text)
+    return text
+

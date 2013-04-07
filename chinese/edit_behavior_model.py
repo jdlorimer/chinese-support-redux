@@ -20,6 +20,7 @@ Meaning_fields       = ["Meaning", "Definition", "English", "German", \
 "French", u"意思", u"翻译", u"英语", u"法语", u"德语", u"法文", u"英文", u"德文"]
 Sound_fields         = ["Audio", "Sound", "Spoken", u"声音"]
 Simplified_fields    = ["Simplified", "简体"]
+Traditional_fields    = ["Traditional", "繁体"]
 
 def update_fields(field, updated_field, model_name, model_type):
     #1st case : the new Ruby-based model
@@ -86,13 +87,19 @@ def update_fields(field, updated_field, model_name, model_type):
                     get_any(Sound_fields, field)=="":
                 set_all(Sound_fields, field, to = sound(field[updated_field]))
 				
-            #Update simplified field with simplified variant
+            #Update simplified/traditional fields 
             #If it's the same, leave empty, so as to make this feature unobtrusive to simplified chinese users
             s = simplify(field[updated_field])
             if s <> field[updated_field]:
                 set_all(Simplified_fields, field, to = s )
             else:
                 set_all(Simplified_fields, field, to = "" )
+            t = traditional(field[updated_field])
+            if t <> field[updated_field]:
+                set_all(Traditional_fields, field, to = t )
+            else:
+                set_all(Traditional_fields, field, to = "" )
+
 
         #If the transcription was modified, update the Color field
         elif updated_field in Transcription_fields:

@@ -13,7 +13,7 @@ from css import style
 # List of fields
 ######################################################################
 
-fields_list = ["Hanzi",  "Meaning", "Pinyin", "Color", "Sound", "Simplified"]
+fields_list = ["Hanzi",  "Meaning", "Pinyin", "Color", "Sound", "Simplified", "Traditional"]
 
 # Card templates
 ######################################################################
@@ -39,6 +39,7 @@ card_back = u'''\
 <div class=chinese>{{Pinyin}}</div>
 <div class=chinese>{{Color}}</div>
 {{#Simplified}}<div class=chinese><span class=comment>Simplified:</span> {{Simplified}}</div>{{/Simplified}}
+{{#Traditional}}<div class=chinese><span class=comment>Traditional:</span> {{Traditional}}</div>{{/Traditional}}
 <!-- {{Sound}}-->
 
 <div class=comment> <!-- Word lookup -->
