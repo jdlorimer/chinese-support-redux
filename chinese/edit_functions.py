@@ -493,8 +493,14 @@ pinyin_re = pinyin_re_sub()
 pinyin_two_re = re.compile("(?P<one>"+pinyin_re+")(?P<two>"+pinyin_re+")", flags=re.I)
 
 
-characterLookup = characterlookup.CharacterLookup('C')
-#One of TCJKV. I don't know what difference it makes
+try:
+    characterLookup = characterlookup.CharacterLookup('C')
+    #One of TCJKV (Taiwan, China, Japan, Korea, Vietnam). I don't know what difference it actually makes
+except:
+    #Mornir's bug (Issue #29) : on Windows, CKJlib will fail if the user path contains special characters (eg: the profile name contains an accent)
+    from aqt.utils import showInfo
+    showInfo('<b>Chinese Support Add-on</b> seem to be experiencing Mornir\'s bug. Please refer to <a href="">this help plage</a> to solve the issue.')
+    characterLookup = characterlookup.CharacterLookup('C') #cause the actual error after showing the help message.
 
 bopomofo_notes = {
  u"ˊ":"2", u"ˇ":"3",u"ˋ":"4", u"˙":"5"}
