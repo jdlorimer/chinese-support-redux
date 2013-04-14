@@ -99,4 +99,5 @@ def add_model_ruby_synonyms(col):
     # recognition card
     return m
 
-anki.stdmodels.models.append(("Chinese Ruby (+synonyms)", add_model_ruby_synonyms))
+#If nobody's using it, let's kill it
+#anki.stdmodels.models.append(("Chinese Ruby (+synonyms)", add_model_ruby_synonyms))
