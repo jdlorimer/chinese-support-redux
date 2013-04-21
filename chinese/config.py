@@ -57,7 +57,7 @@ class config:
 
     def add_option(self, name, default_value):
         '''To make sure an old config file remains compatible with a
-        newer version of this add-on, call this early.'''
+        newer version of this add-on, call this below.'''
         if not name in self.options:
             self.set_option(name, default_value)
 
@@ -69,3 +69,7 @@ class config:
             return (None, None)
 
 chinese_support_config = config()
+
+import __init__
+chinese_support_config.add_option("latest_available_version", __init__.__version__)
+

@@ -10,5 +10,4 @@
 #format, as it is parsed by a very simple regexp to check for next
 #release info from github, in config.py
 __version__ = """0.7.3"""
-release_info = """Fix some Windows bugs, remove "Ruby" model.
-"""
+release_info = """Fixes some Windows bugs<br>removes "Ruby" model."""
