@@ -22,7 +22,10 @@ from aqt import mw
 from anki.hooks import addHook
 
 import Chinese_support
-import edit_behavior
+try:
+    import edit_behavior
+except:
+    pass
 
 # Focus lost hook
 ##########################################################################
