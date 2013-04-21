@@ -86,8 +86,8 @@ def check_for_next_version(*args, **kwargs):
         pass
 
 def display_new_version_message():
-    #Only show message on second startup (unless updated again) to somewhat delay upgrades. 
-    #This way, in case of a regression fixed immediately thereafter, it will impact fewer users.
+    #Only show message on next startup
+    #Only show message once for each version
     if chinese_support_config.options["next_version_message"]:
         showInfo(chinese_support_config.options["next_version_message"])
         chinese_support_config.set_option("next_version_message", None)
@@ -174,5 +174,5 @@ aqt.addons.AddonManager.rebuildAddonsMenu = wrap(aqt.addons.AddonManager.rebuild
 
 display_next_tip()
 display_new_version_message()
-
+#Check for new version of this plug-in when closing Anki
 aqt.main.AnkiQt.onClose = wrap(aqt.main.AnkiQt.onClose, check_for_next_version)
