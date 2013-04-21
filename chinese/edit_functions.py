@@ -499,7 +499,7 @@ try:
 except:
     #Mornir's bug (Issue #29) : on Windows, CKJlib will fail if the user path contains special characters (eg: the profile name contains an accent)
     from aqt.utils import showInfo
-    showInfo('<b>Chinese Support Add-on</b> seem to be experiencing Mornir\'s bug. Please refer to <a href="">this help plage</a> to solve the issue.')
+    showInfo('<b>Chinese Support Add-on</b> seem to be experiencing Mornir\'s bug. Please refer to <a href="https://github.com/ttempe/chinese-support-addon/wiki/Mornir%27s-bug">this help plage</a> to solve the issue.')
     characterLookup = characterlookup.CharacterLookup('C') #cause the actual error after showing the help message.
 
 bopomofo_notes = {
