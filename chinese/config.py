@@ -7,6 +7,7 @@
 
 import os.path
 import json
+import __init__
 from aqt import mw
 
 initial_options =  { 
@@ -38,6 +39,10 @@ class config:
         #self.filepath = os.path.join(mw.pm.profileFolder(), "chinese_config.json")
         self.filepath = os.path.join(mw.pm.addonFolder(), "chinese", "chinese_addon_config.json")
         self.load()
+        #Options that may be missing in some installs initialized by old versions of this code
+        self.add_option("latest_available_version", __init__.__version__)
+        self.add_option("next_version_message", None)
+
 
     def load(self):
         if not os.path.exists(self.filepath):
@@ -57,7 +62,7 @@ class config:
 
     def add_option(self, name, default_value):
         '''To make sure an old config file remains compatible with a
-        newer version of this add-on, call this below.'''
+        newer version of this add-on, call this in __init__.'''
         if not name in self.options:
             self.set_option(name, default_value)
 
@@ -69,7 +74,4 @@ class config:
             return (None, None)
 
 chinese_support_config = config()
-
-import __init__
-chinese_support_config.add_option("latest_available_version", __init__.__version__)
 

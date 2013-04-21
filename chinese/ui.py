@@ -18,17 +18,18 @@
 from aqt import mw
 from aqt.qt import *
 from aqt.utils import showInfo, openLink, askUser
-import aqt.addons 
 from anki.hooks import wrap
+import aqt.main
 
 from config import chinese_support_config
 import __init__
 import translate
 import Chinese_support
 import edit_behavior
-import urllib
+import urllib2
 import re
 from upgrade import edit_behavior_file
+import aqt.main
 
 ui_actions = {}
 dictionaries = [ 
@@ -51,10 +52,11 @@ def display_next_tip():
         else:
             showInfo(tip)
 
-def check_for_next_version():
+def check_for_next_version(*args, **kwargs):
     '''Attempt to fetch the __init__.py file from github, and check
     if it corresponds to a new release. If so, warn the user (exactly once
-    per version)'''
+    per version).
+    This function is called on exit.'''
     def is_newer(a, b):
         'compares version strings in the form "0.7.3"'
         version_re = r"(\d+)\.(\d+)\.(\d+).*"
@@ -69,16 +71,29 @@ def check_for_next_version():
             return True
         else:
             return False
+    try:
+        print "Start"
+        #fetch the latest release on Github. This means github must be updated *after* Ankiweb
+        latest_data = urllib2.urlopen('https://raw.github.com/ttempe/chinese-support-addon/master/chinese/__init__.py', timeout=7).read()
+        print "End"
+        latest_version = re.search(r"__version__\s*=\s*\"\"\"(.*?)\"\"\"", latest_data).group(1)
+        latest_comment = re.search(r"release_info\s*=\s*\"\"\"(.*?)\"\"\"", latest_data, re.S).group(1)
+        import __init__
+        local_version = __init__.__version__
+        if is_newer(latest_version, local_version):
+            if chinese_support_config.options["latest_available_version"] <> latest_version:
+                chinese_support_config.set_option("latest_available_version", latest_version)
+                chinese_support_config.set_option("next_version_message", "A new version of <b>Chinese Support Add-on</b> is available.<br>You can download it through <tt>Tools->Add-ons->Browse and install</tt>.<br>&nbsp;<br><b>Version "+latest_version+":</b><br>"+latest_comment)
+    except:
+        pass
 
-    latest_data = urllib.urlopen('https://raw.github.com/ttempe/chinese-support-addon/master/chinese/__init__.py').read()
-    latest_version = re.search(r"__version__\s*=\s*\"\"\"(.*?)\"\"\"", latest_data).group(1)
-    latest_comment = re.search(r"release_info\s*=\s*\"\"\"(.*?)\"\"\"", latest_data, re.S).group(1)
-    import __init__
-    local_version = __init__.__version__
-    if is_newer(latest_version, local_version):
-        if chinese_support_config.options["latest_available_version"] <> latest_version:
-            chinese_support_config.set_option("latest_available_version", latest_version)
-            showInfo("A new version of <b>Chinese Support Add-on</b> is available.<br>You can download it through Tools->Add-ons->Browse and install.<br>&nbsp;<br><b>Version "+latest_version+":</b><br>"+latest_comment)
+def display_new_version_message():
+    #Only show message on second startup (unless updated again) to somewhat delay upgrades. 
+    #This way, in case of a regression fixed immediately thereafter, it will impact fewer users.
+    if chinese_support_config.options["next_version_message"]:
+        showInfo(chinese_support_config.options["next_version_message"])
+        chinese_support_config.set_option("next_version_message", None)
+
 
 def goto_page(page):
     openLink(page)
@@ -160,8 +175,6 @@ def myRebuildAddonsMenu(self):
 aqt.addons.AddonManager.rebuildAddonsMenu = wrap(aqt.addons.AddonManager.rebuildAddonsMenu, myRebuildAddonsMenu)
 
 display_next_tip()
-try:
-    #Under no condition should the checking for a new version cause an error message
-    check_for_next_version()
-except:
-    pass
+display_new_version_message()
+
+aqt.main.AnkiQt.onClose = wrap(aqt.main.AnkiQt.onClose, check_for_next_version)
