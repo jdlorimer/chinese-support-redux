@@ -54,4 +54,3 @@ def install():
     addHook('fmod_ruby_bottom', ruby_bottom)
     addHook('fmod_ruby_top_text', ruby_top_text)
     addHook('fmod_ruby_bottom_text', ruby_bottom_text) 
-
