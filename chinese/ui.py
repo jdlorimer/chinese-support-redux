@@ -72,10 +72,8 @@ def check_for_next_version(*args, **kwargs):
         else:
             return False
     try:
-        print "Start"
         #fetch the latest release on Github. This means github must be updated *after* Ankiweb
         latest_data = urllib2.urlopen('https://raw.github.com/ttempe/chinese-support-addon/master/chinese/__init__.py', timeout=7).read()
-        print "End"
         latest_version = re.search(r"__version__\s*=\s*\"\"\"(.*?)\"\"\"", latest_data).group(1)
         latest_comment = re.search(r"release_info\s*=\s*\"\"\"(.*?)\"\"\"", latest_data, re.S).group(1)
         import __init__
