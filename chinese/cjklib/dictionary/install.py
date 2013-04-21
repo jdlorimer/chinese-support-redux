@@ -189,7 +189,10 @@ class DownloaderBase(object):
         lastModified = response.info().getheader('Last-Modified')
         if not self.quiet: warn("Done")
         if lastModified:
-            return datetime.strptime(lastModified, '%a, %d %b %Y %H:%M:%S %Z')
+            try:
+                return datetime.strptime(lastModified, '%a, %d %b %Y %H:%M:%S %Z')
+            except:
+                return datetime.now()
 
     def download(self, **options):
         """
