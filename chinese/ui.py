@@ -145,29 +145,27 @@ def update_dict_action_checkboxes():
 
 def myRebuildAddonsMenu(self):
     global ui_actions
-    for m in self._menus:
-        if "Chinese_support"==m.title():
-            sm=m.addMenu(_("Set dictionary"))
-            for d, d_names in dictionaries:
-                ui_actions["dict_"+d]=add_action(d_names, sm, set_dict_constructor(d),True)
-            sm=m.addMenu(_("Set transcription"))
-            for i in transcriptions:
-                ui_actions["transcription_"+i]=add_action(i, sm, set_option_constructor("transcription", i), True)
-            sm=m.addMenu(_("Set speech language"))
-            for i in speech_options:
-                ui_actions["speech_"+i]=add_action(i, sm, set_option_constructor("speech", i), True)
-            add_action(_("Editor Behavior"), m, edit_logic)
-            sm=m.addMenu(_("Help"))
-            ### REMINDER : the website addresses are also available in config.py, in some startup tips. Don't forget to update both.
-            add_action(_("Setup instructions"), sm, lambda : goto_page("https://github.com/ttempe/chinese-support-addon/wiki/Setup-Instructions"))
-            add_action(_("Usage instructions"), sm, lambda : goto_page("https://github.com/ttempe/chinese-support-addon/wiki"))
-            add_action(_("Support forum"), sm, lambda : goto_page("https://groups.google.com/forum/#!msg/anki-addons/YZmzNpmEuaY/OKbqbfGaMA0J"))
-            add_action(_("Report a bug"), sm, lambda : goto_page("https://github.com/ttempe/chinese-support-addon/issues"))
-            add_action(_("About..."), m, lambda : showInfo(u"Chinese support plugin v. " + __init__.__version__ + u"<br>Copyright © 2012 Thomas TEMP&Eacute; and many others.<br><br>Please see source code for additional info."))
-            add_action(_("Please rate me on Ankiweb!"), m, lambda : goto_page("https://ankiweb.net/shared/addons/"))
-            m.setTitle(_("Chinese support"))
-            update_dict_action_checkboxes()
-            break
+    m = mw.form.menuTools.addMenu("Chinese Support")
+    sm=m.addMenu(_("Set dictionary"))
+    for d, d_names in dictionaries:
+        ui_actions["dict_"+d]=add_action(d_names, sm, set_dict_constructor(d),True)
+    sm=m.addMenu(_("Set transcription"))
+    for i in transcriptions:
+        ui_actions["transcription_"+i]=add_action(i, sm, set_option_constructor("transcription", i), True)
+    sm=m.addMenu(_("Set speech language"))
+    for i in speech_options:
+        ui_actions["speech_"+i]=add_action(i, sm, set_option_constructor("speech", i), True)
+    add_action(_("Editor Behavior"), m, edit_logic)
+    sm=m.addMenu(_("Help"))
+    ### REMINDER : the website addresses are also available in config.py, in some startup tips. Don't forget to update both.
+    add_action(_("Setup instructions"), sm, lambda : goto_page("https://github.com/ttempe/chinese-support-addon/wiki/Setup-Instructions"))
+    add_action(_("Usage instructions"), sm, lambda : goto_page("https://github.com/ttempe/chinese-support-addon/wiki"))
+    add_action(_("Support forum"), sm, lambda : goto_page("https://groups.google.com/forum/#!msg/anki-addons/YZmzNpmEuaY/OKbqbfGaMA0J"))
+    add_action(_("Report a bug"), sm, lambda : goto_page("https://github.com/ttempe/chinese-support-addon/issues"))
+    add_action(_("About..."), m, lambda : showInfo(u"Chinese support plugin v. " + __init__.__version__ + u"<br>Copyright © 2012 Thomas TEMP&Eacute; and many others.<br><br>Please see source code for additional info."))
+    add_action(_("Please rate me on Ankiweb!"), m, lambda : goto_page("https://ankiweb.net/shared/addons/"))
+    update_dict_action_checkboxes()
+
 
 
 aqt.addons.AddonManager.rebuildAddonsMenu = wrap(aqt.addons.AddonManager.rebuildAddonsMenu, myRebuildAddonsMenu)
