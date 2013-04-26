@@ -22,6 +22,7 @@ from aqt import mw
 from anki.hooks import addHook
 
 import Chinese_support
+import edit_ui
 try:
     import edit_behavior
 except:
@@ -31,6 +32,9 @@ except:
 ##########################################################################
 
 def on_focus_lost(flag, fields_data, focus_field):
+    if not edit_ui.enable: #the edit_ui "update fields" push-button is off
+        return flag
+
     field_names = mw.col.models.fieldNames(fields_data.model())
     updated_field = field_names[focus_field]
     efields = dict(fields_data) #user-edited fields

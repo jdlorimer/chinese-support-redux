@@ -20,16 +20,16 @@ from aqt.qt import *
 from aqt.utils import showInfo, openLink, askUser
 from anki.hooks import wrap
 import aqt.main
+import urllib2
+import re
 
 from config import chinese_support_config
 import __init__
 import translate
 import Chinese_support
 import edit_behavior
-import urllib2
-import re
 from upgrade import edit_behavior_file
-import aqt.main
+import edit_ui
 
 ui_actions = {}
 dictionaries = [ 
