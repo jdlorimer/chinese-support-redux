@@ -12,6 +12,7 @@ import translate as translate_module
 import bopomofo as bopomofo_module
 import google_tts
 import transcribe as transcribe_module
+from microsofttranslator import Translator as MSTranslator
 
 # Essential Edit functions
 ##################################################################
@@ -264,21 +265,13 @@ def transcribe(text, transcription=None, only_one=True, try_dict_first=True):
         text=text[1:]
     return text
 
-def translate(text, from_lang="zh", to_lang=None, max_nb_lines=None):
-    u'''Translate to a diferent language. 
+def translate_local(text, from_lang="zh", to_lang=None, max_nb_lines=None):
+    u'''Translate to a different language. 
     Eg: '你好' becomes 'Hello'
     Only installed dictionaries can be used.
-
-    If the text is made of words taken from the dictionary, than use them directly.
-    Otherwise, 
-
-    to_lang possible values : en (English), de (German), fr (French)
-    if to_lang is unspecified, the default language will be used.
     '''
     if "zh" != from_lang:
         return "(translation from languages other than Chinese : not available yet.)"
-    if None != to_lang:
-        return "(specifying translation language: not available yet.)"
     text = translate_module.translate(text)
     if max_nb_lines:
         regex=""
@@ -288,6 +281,33 @@ def translate(text, from_lang="zh", to_lang=None, max_nb_lines=None):
         text = re.sub("(^"+regex+").*", r"\1", text, flags=re.I)
     return text
 
+
+def translate(text, from_lang="zh", to_lang=None, max_nb_lines=None):
+    u'''Translate to a different language. 
+    Eg: '你好' becomes 'Hello'
+    Only installed dictionaries can be used.
+
+    to_lang possible values : CEDICT, HanDeDict, CFDICT,
+    or 2-letter ISO language code for MS Translate
+    
+    if to_lang is unspecified, the default language will be used.
+    '''
+    global MS_translator_object
+    if "" == text:
+        return ""
+    if None == to_lang:
+        to_lang = chinese_support_config.options["dictionary"]
+        if "None" == to_lang:
+            return ""
+    if to_lang in ["CEDICT", "CFDICT", "HanDeDict"]: #Local dict
+        return translate_local(text, from_lang, to_lang, max_nb_lines)    
+    else:  #Ms translate
+        if None == MS_translator_object:
+            MS_translator_object = MSTranslator("chinese-support-add-on", "Mh+X5YY17LZZ8rO9hzJXYD3I02V3E+ltItF15ep7qG8=")
+        try:
+            return MS_translator_object.translate(text, to_lang)
+        except:
+            return ""
 
 def colorize_fuse(hanzi, pinyin):
     u'''Gives color to a Hanzi phrase based on the tone info from a 
@@ -431,7 +451,7 @@ def simplify(text):
             return s[0]
         else:
             return p.group(1)
-    text = re.sub(u'\s?([\u4e00-\u9fff])\s?', simplify_sub, text)
+    text = re.sub(u'([\u4e00-\u9fff])', simplify_sub, text)
     return text
 
 def traditional(text):
@@ -445,12 +465,14 @@ def traditional(text):
             return s[0]
         else:
             return p.group(1)
-    text = re.sub(u'\s?([\u4e00-\u9fff])\s?', traditional_sub, text)
+    text = re.sub(u'([\u4e00-\u9fff])', traditional_sub, text)
     return text
 
 
 # Extra support functions and parameters
 ##################################################################
+
+MS_translator_object = None
 
 vowel_tone_dict = {
     u'ā':1, u'ā':1, u'ɑ̄':1, u'ē':1, u'ī':1, u'ō':1, u'ū':1,
