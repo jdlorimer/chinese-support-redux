@@ -82,6 +82,8 @@ def hide(text, hidden):
     """Add hidden keyword to string (typically Hanzi and toneless pinyin),
     to make a note searchable in the 'browse' window
     """
+    if len(text) == 0 or text == "<br />":
+        return ""
     hidden = no_color(hidden)
     hidden = re.sub("<.*?>", "", hidden)
     hidden = re.sub(r"[<!->]", "", hidden)
