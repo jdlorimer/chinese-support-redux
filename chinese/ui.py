@@ -30,6 +30,7 @@ import Chinese_support
 import edit_behavior
 from upgrade import edit_behavior_file
 import edit_ui
+from fill_missing import fill_sounds
 
 ui_actions = {}
 dictionaries = [ 
@@ -125,6 +126,9 @@ def edit_logic():
     d.connect(edit_window.buttonBox, SIGNAL("accepted()"), edit_logic_ok)
     d.exec_()
 
+def fill_sounds_logic():
+    fill_sounds(mw.col, mw.web.key)
+
 def add_action(title, to, funct, checkable=False):
     action = QAction(_(title), mw)
     if checkable:
@@ -155,6 +159,7 @@ def myRebuildAddonsMenu(self):
     sm=m.addMenu(_("Set speech language"))
     for i in speech_options:
         ui_actions["speech_"+i]=add_action(i, sm, set_option_constructor("speech", i), True)
+    add_action(_("Fill missing sounds"), m, fill_sounds_logic)
     add_action(_("Editor Behavior"), m, edit_logic)
     sm=m.addMenu(_("Help"))
     ### REMINDER : the website addresses are also available in config.py, in some startup tips. Don't forget to update both.
