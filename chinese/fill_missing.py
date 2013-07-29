@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright © 2012 Thomas TEMPÉ, <thomas.tempe@alysse.org>
+# Copyright © 2013 Chris Hatch, <foonugget@gmail.com>
 # 
 # License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
 #
