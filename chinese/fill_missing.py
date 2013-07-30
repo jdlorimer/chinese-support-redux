@@ -9,6 +9,7 @@ from aqt.utils import showInfo
 from anki.find import Finder
 from edit_behavior_model import Sound_fields
 from edit_functions import has_field, sound, get_any, set_all
+from aqt import mw
 
 
 def fill_sounds(collection, view_key):
@@ -18,7 +19,7 @@ def fill_sounds(collection, view_key):
     query_str = "deck:current"
 
     notes = Finder(collection).findNotes(query_str)
-
+    mw.progress.start(immediate=True)
     for noteId in notes:
         note = collection.getNote(noteId)
         note_dict = dict(note)      # edit_function routines require a dict
@@ -31,6 +32,7 @@ def fill_sounds(collection, view_key):
                 if note_dict.has_key(f) and note_dict[f] <> note[f]:
                     note[f] = note_dict[f]
                     note.flush()
+    mw.progress.finish()
 
 def fill_all(collection, view_key):
     # TODO: fill all - reading, pinyin, sounds, etc.
