@@ -56,6 +56,7 @@ import chinese.upgrade
 import chinese.templates.ruby ; chinese.templates.ruby.install()
 import chinese.templates.chinese ; chinese.templates.chinese.install()
 
+import chinese.ui
 import chinese.edit
 import chinese.models.compatibility
 import chinese.models.ruby
