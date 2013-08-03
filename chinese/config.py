@@ -42,7 +42,7 @@ class config:
         #Options that may be missing in some installs initialized by old versions of this code
         self.add_option("latest_available_version", __init__.__version__)
         self.add_option("next_version_message", None)
-
+        self.add_option("warned_about_MS_translate_long_delays", False)
 
     def load(self):
         if not os.path.exists(self.filepath):
