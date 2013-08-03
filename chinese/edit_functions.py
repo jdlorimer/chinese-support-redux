@@ -4,6 +4,7 @@
 # 
 # License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
 
+from aqt import mw
 import re
 
 from cjklib import characterlookup
@@ -284,15 +285,16 @@ def translate_local(text, from_lang="zh", to_lang=None, max_nb_lines=None):
     return text
 
 
-def translate(text, from_lang="zh", to_lang=None, max_nb_lines=None):
+def translate(text, from_lang="zh", to_lang=None, max_nb_lines=None, progress_bar=True):
     u'''Translate to a different language. 
     Eg: '你好' becomes 'Hello'
     Only installed dictionaries can be used.
 
-    to_lang possible values : CEDICT, HanDeDict, CFDICT,
+    to_lang possible values : "CEDICT", "HanDeDict", "CFDICT",
     or 2-letter ISO language code for MS Translate
     
     if to_lang is unspecified, the default language will be used.
+    if progress_bar is True, then will display a progress bar.
     '''
     global MS_translator_object
     if "" == text:
@@ -304,12 +306,23 @@ def translate(text, from_lang="zh", to_lang=None, max_nb_lines=None):
     if to_lang in ["CEDICT", "CFDICT", "HanDeDict"]: #Local dict
         return translate_local(text, from_lang, to_lang, max_nb_lines)    
     else:  #Ms translate
+        ret = ""
+        if progress_bar:
+            mw.progress.start(label="MS Translator lookup", immediate=True)
         if None == MS_translator_object:
             MS_translator_object = MSTranslator("chinese-support-add-on", "Mh+X5YY17LZZ8rO9hzJXYD3I02V3E+ltItF15ep7qG8=")
         try:
-            return MS_translator_object.translate(text, to_lang)
+            ret = MS_translator_object.translate(text, to_lang)
         except:
-            return ""
+            pass
+        
+        if "ArgumentException:" == ret[:18]:
+            #Token has probably expired
+            ret=""
+        if progress_bar:
+            mw.progress.finish()
+        return ret
+
 
 def colorize_fuse(hanzi, pinyin):
     u'''Gives color to a Hanzi phrase based on the tone info from a 

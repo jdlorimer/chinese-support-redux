@@ -153,9 +153,9 @@ def set_option_constructor(option, value):
 
 def set_ms_lang_constructor(lang):
     def set_ms_lang():
-        if False == chinese_support_config.options["warned_about_MS_translate_long_delays"]:
-            showInfo("Warning: this is an online dictionary. <br>If Anki freezes while adding a card, check your network connexion or disable online dictionary lookup.")
-            chinese_support_config.set_option("warned_about_MS_translate_long_delays", True)
+#        if False == chinese_support_config.options["warned_about_MS_translate_long_delays"]:
+#            showInfo("Warning: this is an online dictionary. <br>If Anki freezes while adding a card, check your network connexion or disable online dictionary lookup.")
+#            chinese_support_config.set_option("warned_about_MS_translate_long_delays", True)
         chinese_support_config.set_option("dictionary", lang)
         update_dict_action_checkboxes()
 
