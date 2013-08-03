@@ -42,7 +42,7 @@ def update_config():
     chinese_support_config.set_option("add-on version", __version__)
     chinese_support_config.set_option("edit_behavior_model.py hash", md5.new(open(edit_behavior_model).read()).hexdigest())
 
-if not os.path.exists(edit_behavior_file) or 0 == len(open(edit_behavior_file).read()):
+if (not os.path.exists(edit_behavior_file)) or 0 == len(open(edit_behavior_file).read()):
     #New install or erased config file
     copy_from_model()
     update_config()
