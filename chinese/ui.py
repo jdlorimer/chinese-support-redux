@@ -43,6 +43,48 @@ transcriptions = [
     "Pinyin", "WadeGiles", "CantoneseYale", "Jyutping", "Bopomofo"]
 speech_options = [ "None", "Google TTS Mandarin"]
 
+msTranslateLanguages = [
+("Arabic","ar"),
+("Bulgarian","bg"),
+("Catalan","ca"),
+("Czech","cs"),
+("Danish","da"),
+("Dutch","nl"),
+("English","en"),
+("Estonian","et"),
+("Persian (Farsi)","fa"),
+("Finnish","fi"),
+("French","fr"),
+("German","de"),
+("Greek","el"),
+("Haitian Creole","ht"),
+("Hebrew","he"),
+("Hindi","hi"),
+("Hungarian","hu"),
+("Indonesian","id"),
+("Italian","it"),
+("Japanese","ja"),
+("Korean","ko"),
+("Latvian","lv"),
+("Lithuanian","lt"),
+("Malay","ms"),
+("Hmong Daw","mww"),
+("Norwegian","no"),
+("Polish","pl"),
+("Portuguese","pt"),
+("Romanian","ro"),
+("Russian","ru"),
+("Slovak","sk"),
+("Slovenian","sl"),
+("Spanish","es"),
+("Swedish","sv"),
+("Thai","th"),
+("Turkish","tr"),
+("Ukrainian","uk"),
+("Urdu","ur"),
+("Vietnamese ","vi")
+]
+
 
 def display_next_tip():
     (tip, link) = chinese_support_config.get_next_tip()
@@ -109,6 +151,16 @@ def set_option_constructor(option, value):
         update_dict_action_checkboxes()
     return set_option
 
+def set_ms_lang_constructor(lang):
+    def set_ms_lang():
+        if False == chinese_support_config.options["warned_about_MS_translate_long_delays"]:
+            showInfo("Warning: this is an online dictionary. <br>If Anki freezes while adding a card, check your network connexion or disable online dictionary lookup.")
+            chinese_support_config.set_option("warned_about_MS_translate_long_delays", True)
+        chinese_support_config.set_option("dictionary", lang)
+        update_dict_action_checkboxes()
+
+
+    return set_ms_lang
 
 edit_window = None
 
@@ -141,6 +193,8 @@ def update_dict_action_checkboxes():
     global ui_actions
     for d, d_name in dictionaries:
         ui_actions["dict_"+d].setChecked(d==chinese_support_config.options["dictionary"])
+    for name, code in msTranslateLanguages:
+        ui_actions["dict_"+code].setChecked(code==chinese_support_config.options["dictionary"])
     for t in transcriptions:
         ui_actions["transcription_"+t].setChecked(t==chinese_support_config.options["transcription"])
     for t in speech_options:
@@ -150,9 +204,12 @@ def update_dict_action_checkboxes():
 def myRebuildAddonsMenu(self):
     global ui_actions
     m = mw.form.menuTools.addMenu("Chinese Support")
-    sm=m.addMenu(_("Set dictionary"))
+    sm=m.addMenu(_("Use local dictionary"))
     for d, d_names in dictionaries:
         ui_actions["dict_"+d]=add_action(d_names, sm, set_dict_constructor(d),True)
+    sm=m.addMenu(_("Use Microsoft Translate"))
+    for name, code in msTranslateLanguages:
+        ui_actions["dict_"+code]=add_action(name, sm, set_ms_lang_constructor(code),True)
     sm=m.addMenu(_("Set transcription"))
     for i in transcriptions:
         ui_actions["transcription_"+i]=add_action(i, sm, set_option_constructor("transcription", i), True)
