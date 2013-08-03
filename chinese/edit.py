@@ -23,10 +23,7 @@ from anki.hooks import addHook
 
 import Chinese_support
 import edit_ui
-try:
-    import edit_behavior
-except:
-    pass
+import edit_behavior
 
 # Focus lost hook
 ##########################################################################
