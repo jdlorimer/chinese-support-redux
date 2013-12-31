@@ -28,9 +28,11 @@ import __init__
 import translate
 import Chinese_support
 import edit_behavior
-from upgrade import edit_behavior_file
+from upgrade import edit_behavior_file, do_upgrade
 import edit_ui
 from fill_missing import fill_sounds
+
+offer_auto_module_upgrade = False #Broken for now.
 
 ui_actions = {}
 dictionaries = [ 
@@ -124,17 +126,28 @@ def check_for_next_version(*args, **kwargs):
         if is_newer(latest_version, local_version):
             if chinese_support_config.options["latest_available_version"] <> latest_version:
                 chinese_support_config.set_option("latest_available_version", latest_version)
-                chinese_support_config.set_option("next_version_message", "A new version of <b>Chinese Support Add-on</b> is available.<br>You can download it through <tt>Tools->Add-ons->Browse and install</tt>.<br>&nbsp;<br><b>Version "+latest_version+":</b><br>"+latest_comment)
+                if offer_auto_module_upgrade:
+                    chinese_support_config.set_option("next_version_message", "A new version of <b>Chinese Support Add-on</b> is available.<br>&nbsp;<br>Do you want Anki to <b>download and install it automatically</b> now?<br>&nbsp;Alternately, you can also download it later through <tt>Tools->Add-ons->Browse and install</tt>.<br>&nbsp;<br><b>Version "+latest_version+":</b><br>"+latest_comment)
+                else:
+                    chinese_support_config.set_option("next_version_message", "A new version of <b>Chinese Support Add-on</b> is available.<br>&nbsp;<br>You can download it now through <tt>Tools->Add-ons->Browse and install</tt>.<br>&nbsp;<br><b>Version "+latest_version+":</b><br>"+latest_comment)
     except:
         pass
 
 def display_new_version_message():
     #Only show message on next startup
-    #Only show message once for each version
     if chinese_support_config.options["next_version_message"]:
-        showInfo(chinese_support_config.options["next_version_message"])
-        chinese_support_config.set_option("next_version_message", None)
-
+        if offer_auto_module_upgrade:
+            if askUser(chinese_support_config.options["next_version_message"]):
+                if do_upgrade():
+                #success
+                    chinese_support_config.set_option("next_version_message", None)
+            else:
+            #User does not want to be bothered with upgrades
+                chinese_support_config.set_option("next_version_message", None)
+        else:
+            #no auto upgrade
+            showInfo(chinese_support_config.options["next_version_message"])
+            chinese_support_config.set_option("next_version_message", None)
 
 def goto_page(page):
     openLink(page)
