@@ -9,5 +9,6 @@
 #This should stay written exactly this way, and keep the same parenthesis
 #format, as it is parsed by a very simple regexp to check for next
 #release info from github, in config.py
-__version__ = """0.7.8"""
-release_info = """Added 'fill missing sounds' feature, fixed MS Translator support."""
+__version__ = """0.7.9"""
+release_info = """New statistics now show the number of characters that you master."""
+anki_mini_version = "2.0.12"
