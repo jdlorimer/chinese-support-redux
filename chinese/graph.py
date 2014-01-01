@@ -16,17 +16,17 @@
 
 # Chinese support addon for Anki2
 ########################################################################
-#TODO:
-#Check date=0
+'''
+This module draws two stats graphs in Anki's "stats" window, showing the 
+progress made on Chinese individual characters, and on Anki notes
+containing Chinese characters, over time.
+'''
 
 from anki import stats
 from anki.hooks import wrap
 
-import time, re
+import time, re, sys
 
-#Nb of characters and nb of cards known, by date
-
-#Others
 now = time.mktime(time.localtime())
 
 def addchars(chars, txt, date):
@@ -130,4 +130,9 @@ def myTodayStats(self, _old):
     txt+= chineseGraphs(self, chunks, chunk_size, chunk_name)
     return txt
 
-stats.CollectionStats.todayStats = wrap(stats.CollectionStats.todayStats, myTodayStats, "around")
+try:
+    stats.CollectionStats.todayStats = wrap(stats.CollectionStats.todayStats, myTodayStats, "around")
+except AttributeError:
+    #Happens on Anki 2.0.0, fixed at least in 2.0.14
+    pass
+
