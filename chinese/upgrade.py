@@ -11,7 +11,7 @@ from aqt.utils import askUser, isWin, showInfo
 from aqt.downloader import download
 
 from config import chinese_support_config 
-from __init__ import __version__, anki_mini_version
+from __init__ import __version__
 
 older_versions = ['\xb8\xd2\x9e\x073\x8f\xad\xf6\xe2cip\xdd\xe9;\xa2',
 '_\x7f\xfa\xd6=\x95\x89\xd7\x18\xd9A\x9a\xeb_\xf9\xa3']

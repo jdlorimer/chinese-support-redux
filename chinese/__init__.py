@@ -11,4 +11,3 @@
 #release info from github, in config.py
 __version__ = """0.7.9"""
 release_info = """New statistics now show the number of characters that you master."""
-anki_mini_version = "2.0.12"
