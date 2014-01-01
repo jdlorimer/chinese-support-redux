@@ -1,17 +1,17 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright © 2012 Thomas TEMPÉ, <thomas.tempe@alysse.org>
+# Copyright © 2012-2014 Thomas TEMPÉ, <thomas.tempe@alysse.org>
 # 
 # License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
 #
 import os, sys, os.path
 import  md5
 from aqt import mw
-from aqt.utils import askUser, isWin
+from aqt.utils import askUser, isWin, showInfo
 from aqt.downloader import download
 
 from config import chinese_support_config 
-from __init__ import __version__
+from __init__ import __version__, anki_mini_version
 
 older_versions = ['\xb8\xd2\x9e\x073\x8f\xad\xf6\xe2cip\xdd\xe9;\xa2',
 '_\x7f\xfa\xd6=\x95\x89\xd7\x18\xd9A\x9a\xeb_\xf9\xa3']
