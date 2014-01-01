@@ -124,8 +124,6 @@ def myTodayStats(self, _old):
         chunks = 52; chunk_size = 7; chunk_name="week"
     else:
         chunks = None; chunk_size = 30; chunk_name="month"
-    print "type: ", type
-    print "_old: ", _old
     txt = _old(self)
     txt+= chineseGraphs(self, chunks, chunk_size, chunk_name)
     return txt
