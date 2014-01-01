@@ -43,7 +43,6 @@ class config:
         self.add_option("latest_available_version", __init__.__version__)
         self.add_option("next_version_message", None)
         self.add_option("warned_about_MS_translate_long_delays", False)
-
     def load(self):
         if not os.path.exists(self.filepath):
             self.create_new()
