@@ -20,6 +20,22 @@
 This module draws two stats graphs in Anki's "stats" window, showing the 
 progress made on Chinese individual characters, and on Anki notes
 containing Chinese characters, over time.
+
+Here is what it counts:
+* Only looks at the 1st field. Ignores all other fields.
+* Selects chinese characters from the Unicode 4e00-9fff range.
+This includes all Hanzi, but not Chinese punctuation.
+It's also the same range used for Japanese Kanji.
+* Only cards classified as young or mature are counted. 
+Learning mode or suspended cards are ignored.
+* Suspended or deleted cards are not counted at all in the history, 
+even if they have been practiced in the past. This means the graph can 
+never show a decrease in your vocabulary.
+* No distinction is made on note types. All notes are counted, either
+from the whole collection, or from the active deck, depending on your 
+selection (bottom of the window).
+
+
 '''
 
 from anki import stats
@@ -31,17 +47,23 @@ now = time.mktime(time.localtime())
 
 def addchars(chars, txt, date):
     "List each chinese character, with its earliest study date"
-    for c in txt:
-        if re.match( u"[\u4e00-\u9fff]", c):
+    try:
+        for c in txt:
             try:
-                chars[c] = max(date, chars[c])
+                if re.match( u"[\u4e00-\u9fff]", c):
+                    chars[c] = max(date, chars[c])
             except:
                 chars[c]=date
-        
+    except:
+        pass
+
 def addword(words, txt, date):
     "List each card containing at least one chinese character" 
-    if re.match(u".*[\u4e00-\u9fff]", txt):
-        words[txt] = date
+    try:
+        if re.match(u".*[\u4e00-\u9fff]", txt):
+            words[txt] = date
+    except:
+        pass
 
 def history(data, chunks=None, chunk_size=1):
     #Compute history
