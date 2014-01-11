@@ -1,0 +1,79 @@
+#!/usr/bin/python
+# -*- coding: utf-8 ; mode: python -*-
+
+import urllib2
+import zipfile
+import re
+import simplejson as json
+import sqlite3
+import sys
+
+source = "http://unicode.org/Public/UCD/latest/ucdxml/ucd.unihan.flat.zip"
+zip = "unihan.zip"
+dest = "chinese_dict.sqlite"
+fields = ["cp", "kMandarin", "kCantonese", "kFrequency", "kHangul", "kJapaneseKun", "kSimplifiedVariant", "kTraditionalVariant", "Vietnamese"]
+
+
+def downloadUnihan():
+    fd = open(zip, 'wb')
+    fd.write( urllib2.urlopen(source).read())
+
+def importUnihan(call):
+    """Opens the unihan.zip file containing the XML unihan data.
+    for each character, calls function 'call', with
+    a list of values, matching 'fields'."""
+    z = zipfile.ZipFile(zip, 'r')
+    data = z.read("ucd.unihan.flat.xml")
+
+    for char in re.finditer("<char (.*?)/>", data):
+        c = re.sub(r'([a-zA-Z0-9_]*)="(.*?)"', r'"\1":u"\2",', char.group(1))
+        c = "{"+c[:-1]+"}"
+        c = unicode(c, "UTF-8")
+        d = unihanFilter(eval(c))
+        if d:
+            call(d)
+
+def unihanFilter(d):
+    """given a dictionary representing one Unihan entry, returns a list of 
+    fields matching global variable 'fields'.
+    If character does not have mandarin/cantonese pronunciation, return None"""
+    values = [None]*len(fields)
+
+    #Filter out non-chinese characters
+    try:
+        if d["kMandarin"] == None and d["kCantonese"] == None:
+            return None
+    except KeyError:
+        return None
+
+    #Convert the character point to a unicode string
+    d["cp"] = eval("u'\\u%s'"% d["cp"])
+
+    #Convert to list
+    for i in range(len(fields)):
+        try:
+            values[i]=d[fields[i]]
+        except:
+            pass
+    return values
+
+def populateHanziDB():
+    def processEntry(d):
+        c.execute('insert into hanzi values (%s)'%("?,"*len(d))[:-1], d)
+
+    conn=sqlite3.connect(dest)
+    c = conn.cursor()
+    try:
+        c.execute("drop table hanzi;")
+    except:
+        pass
+    c.execute("create table hanzi (%s);" % reduce(lambda a,b:a+", "+b, fields))
+    conn.commit()
+    
+    importUnihan(processEntry)
+    for a in c.execute("select count(kMandarin) from hanzi;"):
+        print("imported %d characters" % a)
+    conn.commit()
+
+
+populateHanziDB()
