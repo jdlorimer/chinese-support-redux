@@ -1,0 +1,81 @@
+#########################
+The chinese_dict.sqlite database was created by aggregating the following sources.
+
+#########################
+This database contains an extract of the Unihan databasze
+
+ Copyright © 1991-2013 Unicode, Inc. 
+ For terms of use, see http://www.unicode.org/terms_of_use.html 
+#########################
+This database contains an extract of CC-CEDICT
+
+# CC-CEDICT
+# Community maintained free Chinese-English dictionary.
+# 
+# Published by MDBG
+# 
+# License:
+# Creative Commons Attribution-Share Alike 3.0
+# http://creativecommons.org/licenses/by-sa/3.0/
+# 
+# Referenced works:
+# CEDICT - Copyright (C) 1997, 1998 Paul Andrew Denisowski
+# 
+# CC-CEDICT can be downloaded from:
+# http://www.mdbg.net/chindict/chindict.php?page=cc-cedict
+# 
+# Additions and corrections can be sent through:
+# http://cc-cedict.org/editor/editor.php
+# 
+# For more information about CC-CEDICT see:
+# http://cc-cedict.org/wiki/
+# 
+#! version=1
+#! subversion=0
+#! format=ts
+#! charset=UTF-8
+#! entries=108913
+#! publisher=MDBG
+#! license=http://creativecommons.org/licenses/by-sa/3.0/
+#! date=2014-01-14T20:02:33Z
+#! time=1389729753
+
+
+#########################
+This database contains an extract of HanDeDICT
+
+# HanDeDict Sat May 28 01:27:49 2011; Copyright 2011 (see http://chdw.de/dl for details); -*- coding: utf-8 -*-
+
+
+#########################
+This database contains an extract of CFDICT_old
+
+#############################################################################
+#  _____   _____   _____   _   _____   _____  
+# /  ___| |  ___| |  _  \ | | /  ___| |_   _| 
+# | |     | |__   | | | | | | | |       | |   
+# | |     |  __|  | | | | | | | |       | |   
+# | |___  | |     | |_| | | | | |___    | |   
+# \_____| |_|     |_____/ |_| \_____|   |_|    
+# CFDICT, le dictionnaire chinois-francais libre 
+# par Chine-Informations.com (2010)
+#	
+# - Fichier : cfdict.u8 
+# - Version : 09/11/2013 02:30 
+# - Nombre de traductions : environ 130 260
+#	
+# - Fondateur : David Houstin - david.houstin@gmail.com
+# - Page officielle : http://www.chine-informations.com/chinois/open/CFDICT/
+# - Licence : http://creativecommons.org/licenses/by-sa/3.0/
+#
+# Cette creation est mise a disposition sous un contrat CREATIVE COMMONS 3
+# "Paternite - Partage des Conditions Initiales a l'Identique",
+# impliquant qu'il est autorise d'utiliser ces donnees a des fins
+# commerciales ou non, sous la reserve de mentionner le site officiel
+# (http://www.chine-informations.com) et que, dans le cas ou vous 
+# amelioreriez ou ajouteriez des donnees au fichier, vous n'avez le droit
+# de le redistribuer que sous la meme licence que celle-ci.
+#
+#############################################################################
+
+
