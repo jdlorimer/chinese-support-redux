@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright © 2012 Thomas TEMPÉ, <thomas.tempe@alysse.org>
+# Copyright © 2014 Thomas TEMPÉ, <thomas.tempe@alysse.org>
 # 
 # License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
 #
@@ -72,21 +72,31 @@ class ChineseDB:
         except:
             return c
         
-    def _get_word_pinyin(self, w):
+    def _get_word_pinyin(self, w, taiwan=False):
         """Returns the pinyin transcription of a word, from CEDICT.
-        If it's not in the dictionary, return None"""
+        If it's not in the dictionary, return None
+
+        if taiwan==True then prefer Taiwan variant
+        """
 
         self.c.execute("select pinyin, pinyin_taiwan from cidian where traditional=? or simplified=?;", (w, w))
         try:
-            pinyin, taiwan = self.c.fetchone()
-            return pinyin
+            pinyin, taiwan_pinyin = self.c.fetchone()
+            if taiwan and len(taiwan_pinyin):
+                return taiwan_pinyin
+            else:
+                return pinyin
         except:
             return None
 
-    def get_pinyin(self, w):
+    def get_pinyin(self, w, taiwan=False):
         """Returns the full pinyin transcription of a string.
-        Use CEDICT wherever possible. Use Unihan to fill in."""
-        p = self._get_word_pinyin(w)
+        Use CEDICT wherever possible. Use Unihan to fill in.
+
+        if taiwan==True then prefer Taiwan variant
+        """
+
+        p = self._get_word_pinyin(w, taiwan)
         if p:
             return p #one word, in dictionary
         if len(w)==1:
@@ -97,7 +107,7 @@ class ChineseDB:
         transcription = u""
         w = w[:]
         while len(w)>0:
-            p = self._get_word_pinyin(w[:2])
+            p = self._get_word_pinyin(w[:2], taiwan)
             if p:
                 transcription+=p+" "
                 w = w[2:]
@@ -105,6 +115,7 @@ class ChineseDB:
                 transcription+=self._get_char_pinyin(w[0])+" "
                 w = w[1:]
         return transcription
+
 
 
 db = ChineseDB()
