@@ -51,6 +51,8 @@ cedicts =  [
 #        }
     ]
 
+
+
 ###################################################################
 # cedict
 
@@ -81,7 +83,7 @@ def importCedict(cedict, call):
             if items:
                 traditional= items.group(1)
                 simplified = items.group(2)
-                pinyin = items.group(3)
+                pinyin = accentuate_pinyin(items.group(3))
                 rest = items.group(4)
                 translation = ""
                 pinyin_taiwan = None
@@ -89,7 +91,11 @@ def importCedict(cedict, call):
                 alternates = None
                 for defs in rest.split("/"):
                     if defs.startswith("Taiwan pr."):
-                        pinyin_taiwan = defs[12:-1]
+                        try:
+                            pinyin_taiwan = re.match(r"Taiwan pr. \[(.*?)\]", defs).group(1)
+                            pinyin_taiwan = accentuate_pinyin(pinyin_taiwan)
+                        except:
+                            pass
                     elif defs.startswith("CL:"):
                         classifiers = defs[3:]
                     elif defs.startswith("also written"):
@@ -100,6 +106,7 @@ def importCedict(cedict, call):
                     translation = translation[2:-2]
                 except:
                     pass
+                translation = accentuate_pinyin_in_definition(translation)
                 item_as_list = eval(cedict["fields"])
                 call( item_as_list )
             else:
@@ -247,9 +254,57 @@ def cleanup():
     conn.commit()
     conn.close()
 
+
+###################################################################
+# support functions
+
+vowel_decorations = [
+{ },
+{ u'a':u'ā', u'e':u'ē', u'i':u'ī', u'o':u'ō', u'u':u'ū', u'ü':u'ǖ', u'v':u'ǖ'},
+{ u'a':u'á', u'e':u'é', u'i':u'í', u'o':u'ó', u'u':u'ú', u'ü':u'ǘ', u'v':u'ǘ'},
+{ u'a':u'ǎ', u'e':u'ě', u'i':u'ǐ', u'o':u'ǒ', u'u':u'ǔ', u'ü':u'ǚ', u'v':u'ǚ'},
+{ u'a':u'à', u'e':u'è', u'i':u'ì', u'o':u'ò', u'u':u'ù', u'ü':u'ǜ', u'v':u'ǜ'},
+{ u'a':u'a', u'e':u'e', u'i':u'i', u'o':u'o', u'u':u'u', u'ü':u'ü', u'v':u'ü'},
+]
+accents = u'ɑ̄āĀáɑ́ǎɑ̌ÁǍàɑ̀ÀēĒéÉěĚèÈīĪíÍǐǏìÌōŌóÓǒǑòÒūŪúÚǔǓùÙǖǕǘǗǚǙǜǛ'
+
+
+def accentuate_pinyin_in_definition(text):
+    u'''Add accents to pinyin between brackets, as in CCDICT's definitions;
+    ex: variant of 不答理[bu4 da1 li3]'''
+    def apid_sub(p):
+        return accentuate_pinyin(p.group(1))
+    text = re.sub(u'(\[.*?\])', apid_sub, text, flags=re.I)
+    return text
+
+def accentuate_pinyin(text):
+    u'''Add accents to pinyin. 
+    Eg: ni2 becomes ní.
+    Eg: ní4 becomes nì. (to make correction easier)
+   '''
+    def accentuate_pinyin_sub(p):
+        pinyin = p.group(1)
+        tone = p.group(2)
+        if "tone"==pinyin:
+            return pinyin+tone
+        for v in u"aeiouüvAEIOUÜV":
+            if pinyin.find(v)>-1:
+                try:
+                    return re.sub(v, vowel_decorations[int(tone)][v.lower()], pinyin, count=1)
+                except KeyError, IndexError:
+                    pass
+        return pinyin
+    
+    text = re.sub(u'([a-z]*[aeiouüÜv'+accents+u'][a-zü]*)([1-5])', accentuate_pinyin_sub, text, flags=re.I)
+    return text
+
+###################################################################
+# Action
+
+
 #downloadUnihan()
 #downloadCedict()
-copyrightNote()
+copyrightNote() #Create blank copyright file -- will be populated below
 populateHanziDB()
 populateWordsDictionary()
-cleanup()
+cleanup() #Optimize database size
