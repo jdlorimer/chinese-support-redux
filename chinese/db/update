@@ -12,7 +12,7 @@ dest = "chinese_dict.sqlite"
 
 unihan_source = "http://unicode.org/Public/UCD/latest/ucdxml/ucd.unihan.flat.zip"
 unihan_zip = "unihan.zip"
-unihan_fields = ["cp", "kMandarin", "kCantonese", "kFrequency", "kHangul", "kJapaneseKun", "kSimplifiedVariant", "kTraditionalVariant", "Vietnamese"]
+unihan_fields = ["cp", "kMandarin", "kCantonese", "kSimplifiedVariant", "kTraditionalVariant"]
 
 cedict_source = "http://www.mdbg.net/chindict/export/cedict/cedict_1_0_ts_utf-8_mdbg.zip"
 cedict_zip = "cedict_1_0_ts_utf-8_mdbg.zip"
@@ -205,8 +205,16 @@ def unihanFilter(d):
     except KeyError:
         return None
 
-    #Convert the character point to a unicode string
+    #Convert the characters to unicode strings
     d["cp"] = eval("u'\\u%s'"% d["cp"])
+    try:
+        d["kSimplifiedVariant" ] = eval("u'\\u%s'"% d["kSimplifiedVariant"][2:])
+    except:
+        pass
+    try:
+        d["kTraditionalVariant"] = eval("u'\\u%s'"% d["kTraditionalVariant"][2:])
+    except:
+        pass
 
     #Convert to list
     for i in range(len(unihan_fields)):
