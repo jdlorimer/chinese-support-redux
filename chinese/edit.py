@@ -19,7 +19,10 @@
 import re
 
 from aqt import mw
-from anki.hooks import addHook
+from anki.hooks import addHook, wrap
+from aqt.editor import Editor, _html
+from aqt.utils  import getBase
+import anki.js
 
 import Chinese_support
 import edit_ui
@@ -55,4 +58,19 @@ def on_focus_lost(flag, fields_data, focus_field):
 
     return flag
 
+def colorize_notes(self, note, hide=True, focus=False):
+    css_colors = ""
+    if note:
+        for l in note.model()["css"].split("\n"):
+            if l.startswith(".tone"):
+                css_colors += l+"\n"
+        myHtml = _html % (
+            getBase(self.mw.col), anki.js.jquery,
+            _("Show Duplicates"))
+        myHtml = myHtml.replace("<style>", "<style\n>"+css_colors)
+        self.web.setHtml(myHtml, loadCB=self._loadFinished)
+
+
 addHook('editFocusLost', on_focus_lost)
+
+Editor.setNote = wrap(Editor.setNote, colorize_notes)
