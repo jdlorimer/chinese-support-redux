@@ -7,11 +7,13 @@ import re
 import simplejson as json
 import sqlite3
 import sys
+import argparse
+import os
 
 dest = "chinese_dict.sqlite"
 
 unihan_source = "http://unicode.org/Public/UCD/latest/ucdxml/ucd.unihan.flat.zip"
-unihan_zip = "unihan.zip"
+unihan_zip = "tmp/unihan.zip"
 unihan_fields = ["cp", "kMandarin", "kCantonese", "kSimplifiedVariant", "kTraditionalVariant"]
 
 cedict_source = "http://www.mdbg.net/chindict/export/cedict/cedict_1_0_ts_utf-8_mdbg.zip"
@@ -23,7 +25,7 @@ cedicts =  [
     {
         "name":"CC-CEDICT",
         "source":"http://www.mdbg.net/chindict/export/cedict/cedict_1_0_ts_utf-8_mdbg.zip",
-        "zip":"cedict_1_0_ts_utf-8_mdbg.zip",
+        "zip":"tmp/cedict_1_0_ts_utf-8_mdbg.zip",
         "datafile":"cedict_ts.u8",
         "fields": ' [traditional, simplified, pinyin, pinyin_taiwan, classifiers, alternates, translation, None, None, None ]'
         },
@@ -31,14 +33,14 @@ cedicts =  [
     {
         "name":"HanDeDICT",
         "source":"http://www.handedict.de/handedict/handedict-20110528.zip",
-        "zip":"handedict-20110528.zip",
+        "zip":"tmp/handedict-20110528.zip",
         "datafile":"handedict-20110528/handedict.u8",
         "fields": ' [traditional, simplified, pinyin, pinyin_taiwan, classifiers, alternates, None, translation, None, None ]'
         },
     {
         "name":"CFDICT_old",
         "source":"http://www.chine-informations.com/chinois/open/CFDICT/cfdict_old.zip",
-        "zip":"cfdict_old.zip",
+        "zip":"tmp/cfdict_old.zip",
         "datafile":"cfdict.u8",
         "fields":' [traditional, simplified, pinyin, pinyin_taiwan, classifiers, alternates, None, None, translation, None ]'
         } 
@@ -57,19 +59,23 @@ cedicts =  [
 # cedict
 
 def downloadCedict():
+    try:
+        os.mkdir("tmp")
+    except:
+        pass
     for cedict in cedicts:
         print "Downloading %s" % cedict["name"]
         fd = open(cedict["zip"], 'wb')
         fd.write( urllib2.urlopen(cedict["source"]).read())
         fd.close()
         z = zipfile.ZipFile(cedict["zip"], 'r')
-        z.extract(cedict["datafile"])
+        z.extract(cedict["datafile"], "tmp")
 
 def importCedict(cedict, call):
     """Opens the cedict*.zip file containing the dictionary data.
     for each word, calls function 'call', with
     a list of values, matching 'cedict_fields'."""
-    fd = open(cedict["datafile"], "r")
+    fd = open("tmp/"+cedict["datafile"], "r")
     licenses = open(licenses_file, "a")
     licenses.write("#########################\nThis database contains an extract of %s\n\n"% cedict["name"])
 
@@ -167,6 +173,10 @@ def populateWordsDictionary():
 
 def downloadUnihan():
     print "Downloading Hanzi Unihan database"
+    try:
+        os.mkdir("tmp")
+    except:
+        pass
     fd = open(unihan_zip, 'wb')
     fd.write( urllib2.urlopen(unihan_source).read())
 
@@ -255,9 +265,9 @@ def cleanup():
     print "Optimizing database size"
     conn=sqlite3.connect(dest)
     c = conn.cursor()
-    c.execute("drop index icp;")
-    c.execute("drop index isimplified;")
-    c.execute("drop index itraditional;")
+    c.execute("drop index if exists icp;")
+    c.execute("drop index if exists isimplified;")
+    c.execute("drop index if exists itraditional;")
     c.execute("vacuum;")
     conn.commit()
     conn.close()
@@ -302,7 +312,7 @@ def accentuate_pinyin(text):
                 except KeyError, IndexError:
                     pass
         return pinyin
-    
+    text = text.replace("u:", "v")
     text = re.sub(u'([a-z]*[aeiouüÜv'+accents+u'][a-zü]*)([1-5])', accentuate_pinyin_sub, text, flags=re.I)
     return text
 
@@ -310,9 +320,37 @@ def accentuate_pinyin(text):
 # Action
 
 
-#downloadUnihan()
-#downloadCedict()
-copyrightNote() #Create blank copyright file -- will be populated below
-populateHanziDB()
-populateWordsDictionary()
-cleanup() #Optimize database size
+def do_nothing():
+    pass
+
+def delete():
+    print "Deleting chinese_dict.sqlite"
+    os.remove("chinese_dict.sqlite") 
+
+def download():
+    downloadUnihan()
+    downloadCedict()
+
+def populate():
+    copyrightNote()
+    populateHanziDB()
+    populateWordsDictionary()
+
+#def cleanup()
+
+def cmd_line():
+    parser= argparse.ArgumentParser("Maintains SQLite database of Words and characters for use by Chinese Support Add-on.")
+    parser.add_argument('--delete', dest="delete", action="store_const", default=do_nothing, const=delete, help="Delete the SQLite database prior to reconstructing it." )    
+    parser.add_argument('--download', dest="download", action="store_const", default=do_nothing, const=download, help="Download UniHan and CEDICT dictionaries from their official locations." )
+    parser.add_argument('--populate', dest="populate", action="store_const", default=do_nothing, const=populate, help="Populate the database from downloaded files." )
+    parser.add_argument('--cleanup', dest="cleanup", action="store_const", default=do_nothing, const=cleanup, help="Remove indexes and deframent database to reduce its size before distribution.")
+
+    args = parser.parse_args()
+    args.delete()
+    args.download()
+    args.populate()
+    args.cleanup()
+
+
+print sys.argv[0], " --help for help"
+cmd_line()
