@@ -594,7 +594,7 @@ def add_diaeresis(text):
         return ""
 
 
-def local_dict_colorize(txt, ruby=False):
+def local_dict_colorize(txt, ruby=True):
     def _sub(p):
         c = ""
         hanzi = p.group(1)
