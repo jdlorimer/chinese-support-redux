@@ -97,6 +97,23 @@ def hide_ruby(text):
     return hide(text, t)
 
 
+def silhouette(hanzi):
+    """Replaces each Chinese character by a blank space.
+
+    Eg: 以A为B -> _A_B
+    Eg: 哈密瓜 -> _ _ _
+    """
+    def insert_spaces(p):
+        r = ""
+        for i in p.group(0):
+            r += i + " "
+        return r[:-1]
+
+    hanzi = re.sub(u"[\u3400-\u9fff]+", insert_spaces, hanzi)
+    txt = re.sub(u"[\u3400-\u9fff]", "_", hanzi)
+    return txt
+
+
 def no_hidden(text):
     """Remove hidden keyword string"""
     return re.sub("<!--.*?-->", "", text)
@@ -600,6 +617,7 @@ def local_dict_colorize(txt, ruby=True):
         hanzi = p.group(1)
         pinyin = p.group(2)
         pinyin = accentuate_pinyin(pinyin)
+ 
         if ruby:
             if 1 == hanzi.count("|"):
                 hanzi = hanzi.split("|")

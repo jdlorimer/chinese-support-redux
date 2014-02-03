@@ -24,6 +24,7 @@ Traditional_fields   = ["Traditional", "Trad", "繁体"]
 Mean_Word_fields     = ["Mean Word", "MW", "Mean", "Classifier", "量词"]
 Alternate_fields     = ["Also writted", "Alt", "Alternate"]
 Ruby_fields          = ["Ruby"]
+Silhouette_fields    = ["Silhouette"]
 
 def update_fields(field, updated_field, model_name, model_type):
     #1st case : the new Ruby-based model
@@ -79,6 +80,10 @@ def update_fields(field, updated_field, model_name, model_type):
             if get_any(Alternate_fields, field)  == "" :
                 m = get_alternate_spellings(field[updated_field])
                 set_all(Alternate_fields, field, to = m)
+
+            #Update Silhouette
+            m = silhouette(get_any(Hanzi_fields,field))
+            set_all(Silhouette_fields, field, to = m)
                 
 
             #Update transcription field with default transcription (Pinyin?)
@@ -100,6 +105,7 @@ def update_fields(field, updated_field, model_name, model_type):
                 set_all(Mean_Word_fields, field, to="")
                 set_all(Alternate_fields, field, to="")
                 set_all(Ruby_fields, field, to="")
+                set_all(Silhouette_fields, field, to="")
 
             #Update Color field from the Hanzi field, 
             #Take the tone info from the Transcription field
