@@ -9,5 +9,8 @@ cd chinese
 rm chinese_addon_config.json
 rm edit_behavior.py
 touch edit_behavior.py
-cd ..
-zip -r chinese_support Chinese_support.py chinese
+cd db
+./update --cleanup
+rm -rf tmp
+cd ../..
+zip -r chinese_support Chinese_support.py chinese --exclude \*~ \#* \*.orig Logo .DS_Store
