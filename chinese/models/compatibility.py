@@ -13,7 +13,7 @@ from css import style
 # List of fields
 ######################################################################
 
-fields_list = ["Hanzi",  "Meaning", "Pinyin", "Color", "Sound", "Simplified", "Traditional"]
+fields_list = ["Hanzi",  "Meaning", "Pinyin", "Color", "Mean Word", "Sound", "Simplified", "Traditional", "Also Written", "Ruby"]
 
 # Card templates
 ######################################################################
@@ -40,7 +40,8 @@ card_back = u'''\
 <div class=chinese>{{Color}}</div>
 {{#Simplified}}<div class=chinese><span class=comment>Simplified:</span> {{Simplified}}</div>{{/Simplified}}
 {{#Traditional}}<div class=chinese><span class=comment>Traditional:</span> {{Traditional}}</div>{{/Traditional}}
-<!-- {{Sound}}-->
+{{#Mean Word}}<div class=chinese><span class=comment>Mean Word:</span> {{Mean Word}}</div>{{/Mean Word}}
+{{#Also Written}}<div class=chinese><span class=comment>Also written:</span> {{Also Written}}</div>{{/Also Written}}<!-- {{Sound}}-->
 
 <div class=comment> <!-- Word lookup -->
 <a href="http://www.mdbg.net/chindict/chindict.php?page=worddict&wdrst=0&wdqb={{text:Hanzi}}">MDBG</a>, 
