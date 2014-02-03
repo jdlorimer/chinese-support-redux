@@ -6,6 +6,8 @@ This database contains an extract of the Unihan databasze
 
  Copyright © 1991-2013 Unicode, Inc. 
  For terms of use, see http://www.unicode.org/terms_of_use.html 
+
+
 #########################
 This database contains an extract of CC-CEDICT
 
@@ -34,11 +36,11 @@ This database contains an extract of CC-CEDICT
 #! subversion=0
 #! format=ts
 #! charset=UTF-8
-#! entries=108913
+#! entries=108989
 #! publisher=MDBG
 #! license=http://creativecommons.org/licenses/by-sa/3.0/
-#! date=2014-01-14T20:02:33Z
-#! time=1389729753
+#! date=2014-02-01T21:49:46Z
+#! time=1391291386
 
 
 #########################
