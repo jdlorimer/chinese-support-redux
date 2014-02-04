@@ -312,7 +312,10 @@ def accentuate_pinyin(text):
                 except KeyError, IndexError:
                     pass
         return pinyin
+    #correct specific idiosyncracies in CEDICT
     text = text.replace("u:", "v")
+    text = text.replace(" r5", " er5")
+    #do the actual convertion
     text = re.sub(u'([a-z]*[aeiouüÜv'+accents+u'][a-zü]*)([1-5])', accentuate_pinyin_sub, text, flags=re.I)
     return text
 
