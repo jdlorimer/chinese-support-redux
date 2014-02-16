@@ -336,16 +336,22 @@ def colorize_fuse(hanzi, pinyin, ruby=False):
     pinyin = cleanup(no_color(pinyin))+" "*len(hanzi)
     hanzi  = cleanup(hanzi)
     text = ""
+#    print hanzi, "\t", pinyin
     for h in hanzi:
+        if len(pinyin)<5:
+            pinyin = pinyin+"     "
         if has_hanzi(h):
             [p, pinyin] = pinyin.split(" ", 1)
+#            print "C1\t", h, "\t", p
             if ruby:
                 text +=  u'<span class="tone{t}"><ruby>{h}<rt>{p}</rt></span>'.format(t=get_tone_number(p), h=h, p=p)
             else:
                 text +=  u'<span class="tone{t}">{h}</span>'.format(t=get_tone_number(p), h=h)
         elif " "==h and " "!=pinyin[0]:
             text += " "
+#            print "C2\t_\t(none)"
         else:
+#            print "C3\t", h, "\t", pinyin[0]
             text += pinyin[0]
             pinyin = pinyin[1:]
             if " " == pinyin[0]:
@@ -381,7 +387,7 @@ def sound(text, source=None):
     if the specified source is omitted, use the one selected in the
     tools menu.
     If it fails (eg: no network connexion while trying to retrieve 
-    speech from Google TTS), return nothing.
+    speech from Google TTS), return empty string.
 
     Does not work with pinyin or other transcriptions.
     '''
@@ -400,6 +406,21 @@ def sound(text, source=None):
         return "[sound:"+google_tts.get_word_from_google(text)+"]"
     except:
         return ""
+
+def check_for_sound(text):
+    '''
+    Returns True if the soundfile arleady exists in the user's resources directory.
+    '''
+    text = cleanup(text)
+    text = no_color(no_accents(no_sound(text)))
+    text = re.sub("<.*?>", "", text)
+    if has_ruby(text):
+        text = hanzi(text)
+    if "" == text:
+        return False
+    if google_tts.check_resources(text):
+        return True
+    return False
 
 
 def get_any(fields, dico):

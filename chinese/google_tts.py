@@ -32,13 +32,20 @@ def get_word_from_google(source):
     # This may throw an exception
     request = urllib2.Request(get_url)
     request.add_header('User-agent', user_agent_string)
-    response = urllib2.urlopen(request)
+    response = urllib2.urlopen(request, timeout=5)
     if 200 != response.code:
         raise ValueError(str(response.code) + ': ' + response.msg)
     with open(fullpath, 'wb') as audio_file:
         audio_file.write(response.read())
     return filename
 
+def check_resources(source):
+    "Only checks for the existence of the file in resources directory, without downloading"
+    filename, fullpath = get_filename(source, download_file_extension)
+    if os.path.exists(fullpath):
+        return True
+    return False
+    
 
 def build_query_url(source):
     qdict = dict(tl='zh', q=source.encode('utf-8'))
