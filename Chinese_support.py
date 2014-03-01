@@ -59,7 +59,7 @@ import chinese.templates.chinese ; chinese.templates.chinese.install()
 import chinese.ui
 import chinese.edit
 import chinese.models.compatibility
-import chinese.models.ruby
-import chinese.models.ruby_synonyms
+#import chinese.models.ruby
+#import chinese.models.ruby_synonyms
 import chinese.ui
 import chinese.graph

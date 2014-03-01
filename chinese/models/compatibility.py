@@ -54,7 +54,7 @@ card_back = u'''\
 # Add model for chinese word to Anki
 ######################################################################
 
-def add_model_ruby(col):
+def add_model(col):
     mm = col.models
     m = mm.new("Chinese (compatibility)")
     # Add fields
@@ -76,4 +76,4 @@ def add_model_ruby(col):
     # recognition card
     return m
 
-anki.stdmodels.models.append(("Chinese (compatibility)", add_model_ruby))
+anki.stdmodels.models.append(("Chinese (compatibility)", add_model))
