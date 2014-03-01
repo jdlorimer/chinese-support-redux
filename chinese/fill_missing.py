@@ -12,6 +12,7 @@ from edit_functions import has_field, sound, get_any, set_all, cleanup, check_fo
 from aqt import mw
 from aqt.utils import showInfo
 import re
+from time import sleep
 
 def no_html(txt):
     return re.sub("<.*?>", "", txt)
@@ -42,6 +43,7 @@ def fill_sounds(collection, view_key):
                 s = sound(get_any(Hanzi_fields, note_dict))
                 if  "" == s:
                     d_failed = d_failed+1
+                    sleep(1)
                 else:
                     set_all(Sound_fields, note_dict, to = s)
                     d_success = d_success+1
