@@ -268,13 +268,27 @@ def translate_local(text, lang):
 
     lang is one of "en", "fr", "de", "es"
     """
-    (definition, cl, alt) = db.get_definition(text, lang)
-    if definition:
-        definition = definition.replace("\n", "\n<br>")
-        definition = local_dict_colorize(definition)
-        return definition
-    else:
+    defs =  db.get_definitions(text, lang)
+    if 0 == len(defs):
         return ""
+    def are_there_multiple_pinyins(defs):
+        (prev_p, a, b, c)= defs[0]
+        for (pinyin, definition, cl, alt) in defs:
+            if pinyin<>prev_p:
+                return True
+        return False
+
+    res = ""
+    if are_there_multiple_pinyins(defs):
+        for (pinyin, definition, cl, alt) in defs:
+            res += u"❖ %s[%s] %s\n" % (text, pinyin, definition)
+    else:
+        for (pinyin, definition, cl, alt) in defs:
+            res += " \t"+definition+"\n"        
+
+    res = res.replace("\n", "\n<br>")
+    res = local_dict_colorize(res)
+    return res
 
 def translate(text, from_lang="zh", to_lang=None, progress_bar=True):
     u'''Translate to a different language. 
@@ -362,21 +376,18 @@ def pinyin(text):
     return transcribe(text, transcription="Pinyin")
 
 def get_mean_word(text):
-    (definition, cl, alt) = db.get_definition(text, None)
-    if cl:
-        cl = local_dict_colorize(cl)
-        return cl
+    cl =  db.get_classifiers(text)
+    if len(cl):
+        return local_dict_colorize(", ".join(cl))
     else:
         return ""
 
 def get_alternate_spellings(text):
-    (definition, cl, alt) = db.get_definition(text, None)
-    if alt:
-        alt = local_dict_colorize(alt)
-        return alt
+    alt =  db.get_alt_spellings(text)
+    if len(alt):
+        return local_dict_colorize(", ".join(alt))
     else:
         return ""
-
 
 def sound(text, source=None):
     '''
@@ -633,6 +644,11 @@ def add_diaeresis(text):
 
 
 def local_dict_colorize(txt, ruby=True):
+    """
+    Colorize text in the form :
+    "Hello is written 你好[ni3 hao]"
+    (as used in the local dictionaries)
+    """
     def _sub(p):
         c = ""
         hanzi = p.group(1)

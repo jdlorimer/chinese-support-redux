@@ -154,7 +154,8 @@ def populateWordsDictionary():
     c.execute("create table cidian (%s);" % reduce(lambda a,b:a+", "+b, cedict_fields))
     conn.commit()
     c.execute("create index isimplified on cidian ( simplified );")
-    c.execute("create unique index itraditional on cidian ( traditional );")
+#    c.execute("create unique index itraditional on cidian ( traditional);")
+    c.execute("create unique index itraditional on cidian ( traditional, pinyin );")
     conn.commit()
 
     for d in cedicts:

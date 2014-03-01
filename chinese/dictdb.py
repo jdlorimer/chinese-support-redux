@@ -64,7 +64,10 @@ class DictDB:
 
     def _get_char_pinyin(self, c):
         """returns the pinyin transcription of a given Hanzi from Unihan.
-        If it's not in the dictionary, return the original text"""
+        If it's not in the dictionary, return the original text.
+
+        If there are multiple possibilities, returns one at random.
+        """
         self.c.execute("select kMandarin from hanzi where cp = ?;", (c,) )
         try:
             (pinyin,) = self.c.fetchone()
@@ -74,7 +77,8 @@ class DictDB:
         
     def _get_word_pinyin(self, w, taiwan=False):
         """Returns the pinyin transcription of a word, from CEDICT.
-        If it's not in the dictionary, return None
+        If it's not in the dictionary, returns None.
+        If there are multiple possibilities, returns one at random.
 
         if taiwan==True then prefer Taiwan variant
         """
@@ -131,6 +135,7 @@ class DictDB:
 
 
     def get_cantonese(self, w, only_one=True):
+        """Returns a character-by-character cantonese transcription."""
         t = u""
         for c in w:
             self.c.execute("select kCantonese from hanzi where cp = ?;", (c,) )
@@ -169,24 +174,37 @@ class DictDB:
                 txt += c
         return txt                
 
-    def get_definition(self, w, lang):
-        '''Return translation
+    def get_definitions(self, w, lang):
+        '''Returns all definitions for a given language.
+        Lang should be one of en, de, fr, es.
+
+        returns a list of 
+        each one in the format (pinyin, definition, classifier, alt_spelling)
         '''
-        self.c.execute("select english, german, french, spanish, classifiers, alternates from cidian where traditional=? or simplified=?;", (w, w))
+        langs = {"en":"english", "de":"german", "fr":"french", "es":"spanish"}
+        self.c.execute("select distinct pinyin, %s as definition, classifiers, alternates from cidian where (traditional=? or simplified=?) and length(definition)>0 order by pinyin;" % langs[lang], (w, w))
         try:
-            en, de, fr, es, cl, alt = self.c.fetchone()
-            if lang=="en":
-                return en, cl, alt
-            if lang=="de":
-                return de, cl, alt
-            elif lang=="fr":
-                return fr, cl, alt
-            elif lang=="es":
-                return es, cl, alt
-            else: 
-                return None, cl, alt
+            return self.c.fetchall()
         except:
-            return None, None, None
+            return []
+
+    def get_classifiers(self, txt):
+        r = []
+        self.c.execute("select distinct classifiers from cidian where (traditional=? or simplified=?);", (txt, txt))
+        try:
+            #fetchall returns a list of tuples, converts to a list of strings
+            return filter(lambda a:a, map(lambda a:a[0], self.c.fetchall()))
+        except:
+            return []
+
+    def get_alt_spellings(self, txt):
+        self.c.execute("select distinct alternates from cidian where (traditional=? or simplified=?);", (txt, txt))
+        try:
+            #fetchall returns a list of tuples, converts to a list of strings
+            return filter(lambda a:a, map(lambda a:a[0], self.c.fetchall()))
+        except:
+            return []
+        
 
 
 def add_with_space(a, b):
