@@ -129,7 +129,7 @@ def check_for_next_version(*args, **kwargs):
                 if offer_auto_module_upgrade:
                     chinese_support_config.set_option("next_version_message", "A new version of <b>Chinese Support Add-on</b> is available.<br>&nbsp;<br>Do you want Anki to <b>download and install it automatically</b> now?<br>&nbsp;Alternately, you can also download it later through <tt>Tools->Add-ons->Browse and install</tt>.<br>&nbsp;<br><b>Version "+latest_version+":</b><br>"+latest_comment)
                 else:
-                    chinese_support_config.set_option("next_version_message", "A new version of <b>Chinese Support Add-on</b> is available.<br>&nbsp;<br>You can download it now through <tt>Tools->Add-ons->Browse and install</tt>.<br>&nbsp;<br><b>Version "+latest_version+":</b><br>"+latest_comment)
+                    chinese_support_config.set_option("next_version_message", 'A new version of <b>Chinese Support Add-on</b> is available.<br>&nbsp;<br>You can download it now through <tt>Tools->Add-ons->Browse and install</tt><br>&nbsp;<br>Add-on code: %s<br>&nbsp;<br><b>Version %s:</div><div>%s</div>' %( __init__.ankiweb_number, latest_version, latest_comment))
     except:
         pass
 
@@ -239,3 +239,8 @@ display_next_tip()
 display_new_version_message()
 #Check for new version of this plug-in when closing Anki
 aqt.main.AnkiQt.onClose = wrap(aqt.main.AnkiQt.onClose, check_for_next_version)
+
+#Uncomment to force display of next version info (debug)
+#latest_version="123"
+#latest_comment = __init__.release_info
+#chinese_support_config.set_option("next_version_message", 'A new version of <b>Chinese Support Add-on</b> is available.<br>&nbsp;<br>You can download it now through <tt>Tools->Add-ons->Browse and install</tt><br>&nbsp;<br>Add-on code: %s<br>&nbsp;<br><b>Version %s:</div><div>%s</div>' %( __init__.ankiweb_number, latest_version, latest_comment))
