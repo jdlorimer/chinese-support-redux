@@ -89,7 +89,7 @@ def importCedict(cedict, call):
             if items:
                 traditional= items.group(1)
                 simplified = items.group(2)
-                pinyin = accentuate_pinyin(items.group(3))
+                pinyin = accentuate_pinyin(items.group(3).lower())
                 rest = items.group(4)
                 translation = ""
                 pinyin_taiwan = None
