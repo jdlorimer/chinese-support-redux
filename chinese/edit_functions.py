@@ -71,7 +71,9 @@ def ruby_bottom(txt):
 
 def no_color(text):
     "Remove tone color info and other HTML pollutions"
-    text = re.sub(r'&nbsp;', '', text)
+    if text == None:
+        return ""
+    text = text.replace(r'&nbsp;', '')
     text = no_hidden(text)
     #remove color info
     text = re.sub(r'<span class="tone1?[0-9]">(.*?)</span>', r'\1', text)
@@ -84,8 +86,8 @@ def hide(text, hidden):
     if len(text) == 0 or text == "<br />":
         return ""
     hidden = no_color(hidden)
-    hidden = re.sub("<.*?>", "", hidden)
-    hidden = re.sub(r"[<!->]", "", hidden)
+    hidden = hidden.replace("<.*?>", "")
+    hidden = hidden.replace(r"[<!->]", "")
     return text + "<!--"+hidden+"-->"
 
 def hide_ruby(text):
@@ -93,7 +95,7 @@ def hide_ruby(text):
     to make a note searchable in the 'browse' window.
     """
     t =  no_tone(ruby_top(text))
-    t += re.sub(" ", "", no_color(ruby_bottom(text)))
+    t += no_color(ruby_bottom(text)).replace(" ", "")
     return hide(text, t)
 
 
@@ -116,7 +118,7 @@ def silhouette(hanzi):
 
 def no_hidden(text):
     """Remove hidden keyword string"""
-    return re.sub("<!--.*?-->", "", text)
+    return text.replace("<!--.*?-->", "")
     
 def accentuate_pinyin(text, force=False):
     u'''Add accents to pinyin. 
@@ -245,6 +247,8 @@ def transcribe(text, transcription=None, only_one=True):
     If no transcription is specified, use the transcription set in the menu.
     '''
     text = cleanup(text)
+    if text == "":
+        return ""
     if None == transcription:
         transcription = chinese_support_config.options["transcription"]
     if "Pinyin" == transcription:
@@ -376,6 +380,8 @@ def pinyin(text):
     return transcribe(text, transcription="Pinyin")
 
 def get_mean_word(text):
+    if text == "":
+        return ""
     cl =  db.get_classifiers(text)
     if len(cl):
         return local_dict_colorize(", ".join(cl))
@@ -383,6 +389,8 @@ def get_mean_word(text):
         return ""
 
 def get_alternate_spellings(text):
+    if text == "":
+        return ""
     alt =  db.get_alt_spellings(text)
     if len(alt):
         return local_dict_colorize(", ".join(alt))
