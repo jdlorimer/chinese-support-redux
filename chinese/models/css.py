@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright © 2012 Thomas Tempe <thomas.tempe@alysse.org>
+# Copyright © 2012-2014 Thomas Tempe <thomas.tempe@alysse.org>
 # Copyright © 2012 Roland Sieker <ospalh@gmail.com>
 
 """
@@ -13,19 +13,12 @@ style = u'''\
 .mac .chinese { }
 .linux .chinese { font-family: "Kochi Mincho", "東風明朝"; }
 .mobile .chinese { font-family: "Hiragino Mincho ProN"; }
-.question {
-background-color: rgb(255, 239, 213);
-border-style:dotted;
-border-width:1pt;
-margin-top:15pt;
-margin-bottom:30pt;
-padding-top:15px;
-padding-bottom:15px;}
 .chinese { font-size: 30px;}
 .comment {font-size: 15px; color:grey;}
 .tags {color:gray;text-align:right;font-size:10pt;}
 .note {color:gray;font-size:12pt;margin-top:20pt;}
 .hint {font-size:12pt;}
+.answer { background-color:bisque; border:dotted;border-width:1px}
 
 .tone1 {color: red;}
 .tone2 {color: orange;}
