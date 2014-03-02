@@ -56,7 +56,7 @@ class DictDB:
         #These indexes are removed from the distribution files, in order to save space
         try:
             self.c.execute("create index isimplified on cidian ( simplified );")
-            self.c.execute("create unique index itraditional on cidian ( traditional );")
+            self.c.execute("create unique index itraditional on cidian ( traditional, pinyin );")
             self.conn.commit()
         except:
             pass
