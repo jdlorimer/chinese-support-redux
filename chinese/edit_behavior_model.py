@@ -44,13 +44,12 @@ def update_fields(field, updated_field, model_name, model_type):
             field[updated_field] = \
                 colorize( ruby( accentuate_pinyin( field[updated_field] ) ) )
 
-    #2nd case : use the old Anki1 Pinyin-toolkit rules if the deck is
+    #2nd case : use the old Anki1 Pinyin-toolkit rule1s if the deck is
     #called "Chinese" or was created as "Chinese (compatibility)" from
     #Anki2.
     #Note that we accept multiple field names for each field, to ensure
     #Anki1 compatibility.
-    elif model_name in anki1_model_names \
-            or model_type =="Chinese (compatibility)":   
+    else:
 
         #Fields to update after the Hanzi field has been modified:
         if updated_field in Hanzi_fields:
