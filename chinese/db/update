@@ -137,13 +137,13 @@ def populateWordsDictionary():
             c.execute('insert or fail into cidian values (%s)'%("?,"*len(d))[:-1], d)
         except:
             #If the word already exists, just add its additional translations.
-            c.execute("select english, german, french, spanish from cidian where traditional = '%s'"%d[0])
+            c.execute("select english, german, french, spanish from cidian where traditional = ? and pinyin= ?", (d[0], d[2]))
             english, german, french, spanish = c.fetchone()
             english = fuseDefinition(english, d[cedict_fields.index('english')])
             french  = fuseDefinition(french , d[cedict_fields.index('french' )])
             german  = fuseDefinition(german , d[cedict_fields.index('german' )])
             spanish = fuseDefinition(spanish, d[cedict_fields.index('spanish')])
-            c.execute("update cidian set english=?, german=?, french=?, spanish=? where traditional = ?", (english, german, french, spanish, d[0])) 
+            c.execute("update cidian set english=?, german=?, french=?, spanish=? where traditional = ? and pinyin= ? ", (english, german, french, spanish, d[0], d[2])) 
 
     conn=sqlite3.connect(dest)
     c = conn.cursor()
