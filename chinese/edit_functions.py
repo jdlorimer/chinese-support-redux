@@ -118,7 +118,7 @@ def silhouette(hanzi):
 
 def no_hidden(text):
     """Remove hidden keyword string"""
-    return text.replace("<!--.*?-->", "")
+    return re.sub(r"<!--.*?-->", "", text)
     
 def accentuate_pinyin(text, force=False):
     u'''Add accents to pinyin. 
