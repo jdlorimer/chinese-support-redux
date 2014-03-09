@@ -9,13 +9,11 @@
 #This should stay written exactly this way, and keep the same parenthesis
 #format, as it is parsed by a very simple regexp to check for next
 #release info from github, in config.py
-__version__ = """0.8.0"""
+__version__ = """0.9.1"""
+ankiweb_number = "3448800906"
 release_info = """<ul>
-<li><b>Improved local dictionaries</b>: no need to download them separately, hanzi in definition have tone colors, corrected Mornir's bug.</li>
-<li><b>Improved pinyin transcription</b>: now using cidian-based transcription on sentences too, even when using an on-line dictionary.</li>
-<li><b>Improved editor display</b>: now showing colors while editing notes.</li>
-<li><b>Added Taiwan pronunciation</b>; removed Wade-Giles and Yale transcriptions, retaining limited support for Cantonese-Yale.</li>
-<li><b>Improved model</b>: classifier and alternate spelling now appear in their own fields (if you create them). Added optional ruby and silhouette fields support.</li>
-<li><b>Major code cleanup</b>, reducing download size by 25% and removing multiple external dependencies.</li>
-<li><b>Some bugs fixed</b> (many thanks to Christian and Lili for reporting)</li></ul>
+<li>Improved "Fill missing sounds" function.</li>
+<li>Local dictionaries now point out words with multiple pronunciations.</li>
+<li>Now offering two default models, "basic" and "advanced", to better accomodate new users.</li>
+</ul>
 """
