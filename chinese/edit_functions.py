@@ -77,6 +77,8 @@ def no_color(text):
     text = no_hidden(text)
     #remove color info
     text = re.sub(r'<span class="tone1?[0-9]">(.*?)</span>', r'\1', text)
+    #remove black font tag sometimes added by Anki
+    text = re.sub(r'<font color="#000000">(.*?)</font>', r'\1', text)
     return text
 
 def hide(text, hidden):
@@ -507,7 +509,8 @@ def separate_pinyin(text, force=False):
     unless Force=True
     Useful for people pasting Pinyin from Google Translate.
     """
-    if not 'Pinyin'== chinese_support_config.options['transcription'] and not force:
+    if chinese_support_config.options['transcription'] \
+            not in ['Pinyin', 'Pinyin (Taiwan)'] and not force:
         return text
     def clean(t):
         'remove leading apostrophe'
@@ -579,7 +582,7 @@ def pinyin_re_sub():
     inits = u"zh|sh|ch|[bpmfdtnlgkhjqxrzscwy]"
     finals = u"i[ōóǒòo]ng|[ūúǔùu]ng|[āáǎàa]ng|[ēéěèe]ng|i[āɑ̄áɑ́ɑ́ǎɑ̌àɑ̀aāáǎàa]ng|[īíǐìi]ng|i[āáǎàa]n|u[āáǎàa]n|[ōóǒòo]ng|[ēéěèe]r|i[āáǎàa]|i[ēéěèe]|i[āáǎàa]o|i[ūúǔùu]|[īíǐìi]n|u[āáǎàa]|u[ōóǒòo]|u[āáǎàa]i|u[īíǐìi]|[ūúǔùu]n|u[ēéěèe]|ü[ēéěèe]|v[ēéěèe]|i[ōóǒòo]|[āáǎàa]i|[ēéěèe]i|[āáǎàa]o|[ōóǒòo]u|[āáǎàa]n|[ēéěèe]n|[āáǎàa]|[ēéěèe]|[ōóǒòo]|[īíǐìi]|[ūúǔùu]|[ǖǘǚǜüv]"
     standalones = u"'[āáǎàa]ng|'[ēéěèe]ng|'[ēéěèe]r|'[āáǎàa]i|'[ēéěèe]i|'[āáǎàa]o|'[ōóǒòo]u|'[āáǎàa]n|'[ēéěèe]n|'[āáǎàa]|'[ēéěèe]|'[ōóǒòo]"
-    return "(("+inits+")("+finals+")|("+standalones+"))"
+    return "(("+inits+")("+finals+")[1-5]?|("+standalones+")[1-5]?)"
 
 pinyin_re = pinyin_re_sub()
 pinyin_two_re = re.compile("(?P<one>"+pinyin_re+")(?P<two>"+pinyin_re+")", flags=re.I)
