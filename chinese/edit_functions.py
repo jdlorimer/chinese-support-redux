@@ -338,7 +338,7 @@ def translate(text, from_lang="zh", to_lang=None, progress_bar=True):
 def cleanup(txt):
     if not txt:
         return ""
-    txt = re.sub(r"<.*?>", "", txt)
+    txt = re.sub(r"<.*?>", "", txt, flags=re.S)
     txt = txt.replace("&nbsp;", " ")
     txt = re.sub(r"^\s*", "", txt)
     txt = re.sub(r"\s*$", "", txt)
