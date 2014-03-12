@@ -19,14 +19,18 @@ initial_options =  {
 }
 
 startup_tips = [
-('Thank you for installing the Chinese Support Add-on<br>&nbsp;<br>Before using it, you will need to create a new note type.<br>Would you like to learn how?','https://github.com/ttempe/chinese-support-addon/wiki/Setup-Instructions'),
-("The Chinese Support Add-on allows you to choose and download a dictionary, that will be used to pre-fill your cards data.<br>Would you like to learn more about this feature?",'https://github.com/ttempe/chinese-support-addon/wiki/Dictionary-Setup-Instructions'),
-('If you set a dictionary for Chinese translation, it will also be used to fill in you Pinyin more cleverly.<br>To do so, click on Tools->Add-ons->Chinese Support->Set dictionary.', None),
+('Thank you for downloading the <b>Chinese Support Add-on</b>.<br>Please remember to select a dictionary in the <tt>Tools-&gt;Chinese support</tt> menu, so that you may have automatic translation.', None),
+(None, None),
+('Did you know that the <b>Chinese support Add-on</b> offers two types of dictionaries? <br><b>Local dictionaries</b> are great for single-word look-up, and can point out words with multiple possible pronunciations, while <b>on-line translation</b> offers full-sentence translation.<br>Both are available under <tt>Tools-&gt;Chinese support</tt>.', None),
+(None, None),
+('Did you know that the <b>Chinese Support Add-on</b> can generate pronunciation for your chinese words?<br>Just make sure to select <b>Google TTS</b> in the <tt>Tools-&gt;Chinese</tt> menu, and that you have an Internet connexion when adding new cards.<br>If you missed this feature, no worries! You can still download audio for your existing cards with <tt>Tools-&gt;Chinese support-&gt;Fill missing sounds.</tt>',None),
 (None, None),
 (None, None),
 (None, None),
 (None, None),
-('Thank you for using the <b>Chinese Support Add-on</b>. <br/>If you like it, please take a moment to rate it in <a href="https://ankiweb.net/shared/addons/">Ankiweb</a>. <br/>If you have questions or comments, don\'t hesitate to post them on the <a href="https://groups.google.com/forum/#!msg/anki-addons/YZmzNpmEuaY/OKbqbfGaMA0J">support forum</a>', None)
+(None, None),
+(None, None),
+('Thank you for using the <b>Chinese Support Add-on</b>. Did you know? This is a volunteer project to help you improve your Chinese. Hundreds of hours went into it!<br/>If you like it, please take a moment to rate it in <a href="https://ankiweb.net/shared/info/3448800906">Ankiweb</a>. <br/>If you have questions or comments, don\'t hesitate to post them on the <a href="https://groups.google.com/forum/#!msg/anki-addons/YZmzNpmEuaY/OKbqbfGaMA0J">support forum</a>', None)
 ]
 
 
