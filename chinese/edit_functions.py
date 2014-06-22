@@ -10,6 +10,7 @@ import re
 from config import chinese_support_config
 import bopomofo as bopomofo_module
 import google_tts
+import baidu_tts
 from microsofttranslator import Translator as MSTranslator
 import dictdb
 
@@ -415,17 +416,25 @@ def sound(text, source=None):
     text = cleanup(text)
     if None==source:
         source = chinese_support_config.options['speech']
-    if "Google TTS Mandarin" != source:
-        return ""
+
     text = no_color(no_accents(no_sound(text)))
     text = re.sub("<.*?>", "", text)
     if has_ruby(text):
         text = hanzi(text)
     if "" == text:
         return ""
-    try:
-        return "[sound:"+google_tts.get_word_from_google(text)+"]"
-    except:
+
+    if "Google TTS Mandarin" == source:
+        try:
+            return "[sound:"+google_tts.get_word_from_google(text)+"]"
+        except:
+            return ""
+    elif "Baidu Translate" == source:
+        try:
+            return "[sound:"+baidu_tts.get_word_from_baidu(text)+"]"
+        except:
+            return ""        
+    else:
         return ""
 
 def check_for_sound(text):
