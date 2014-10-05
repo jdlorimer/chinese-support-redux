@@ -216,19 +216,19 @@ def myRebuildAddonsMenu(self):
     sm=m.addMenu(_("Set transcription"))
     for i in transcriptions:
         ui_actions["transcription_"+i]=add_action(i, sm, set_option_constructor("transcription", i), True)
-    sm=m.addMenu(_("Set speech language"))
+    sm=m.addMenu(_("Set speech engine"))
     for i in speech_options:
         ui_actions["speech_"+i]=add_action(i, sm, set_option_constructor("speech", i), True)
     add_action(_("Fill missing sounds"), m, fill_sounds_logic)
     add_action(_("Editor Behavior"), m, edit_logic)
     sm=m.addMenu(_("Help"))
     ### REMINDER : the website addresses are also available in config.py, in some startup tips. Don't forget to update both.
-    add_action(_("Setup instructions"), sm, lambda : goto_page("https://github.com/ttempe/chinese-support-addon/wiki/Setup-Instructions"))
+    add_action(_("Setup instructions"), sm, lambda : goto_page("https://ankiweb.net/shared/info/3448800906"))
     add_action(_("Usage instructions"), sm, lambda : goto_page("https://github.com/ttempe/chinese-support-addon/wiki"))
-    add_action(_("Support forum"), sm, lambda : goto_page("https://groups.google.com/forum/#!msg/anki-addons/YZmzNpmEuaY/OKbqbfGaMA0J"))
+    add_action(_("Support forum"), sm, lambda : goto_page("https://anki.tenderapp.com/discussions/add-ons/1646-chinese-support-add-on"))
     add_action(_("Report a bug"), sm, lambda : goto_page("https://github.com/ttempe/chinese-support-addon/issues"))
-    add_action(_("About..."), m, lambda : showInfo(u"Chinese support plugin v. " + __init__.__version__ + u"<br>Copyright © 2012 Thomas TEMP&Eacute; and many others.<br><br>Please see source code for additional info."))
-    add_action(_("Please rate me on Ankiweb!"), m, lambda : goto_page("https://ankiweb.net/shared/addons/"))
+    add_action(_("About..."), m, lambda : showInfo(u"Chinese support plugin v. " + __init__.__version__ + u"<br>Copyright © 2012-2014 Thomas TEMP&Eacute; and many others.<br><br>Please see source code for additional info."))
+    add_action(_("Please rate me on Ankiweb!"), m, lambda : goto_page("https://ankiweb.net/shared/info/3448800906"))
     update_dict_action_checkboxes()
 
 
@@ -241,6 +241,4 @@ display_new_version_message()
 aqt.main.AnkiQt.onClose = wrap(aqt.main.AnkiQt.onClose, check_for_next_version)
 
 #Uncomment to force display of next version info (debug)
-#latest_version="123"
-#latest_comment = __init__.release_info
-#chinese_support_config.set_option("next_version_message", 'A new version of <b>Chinese Support Add-on</b> is available.<br>&nbsp;<br>You can download it now through <tt>Tools->Add-ons->Browse and install</tt><br>&nbsp;<br>Add-on code: %s<br>&nbsp;<br><b>Version %s:</div><div>%s</div>' %( __init__.ankiweb_number, latest_version, latest_comment))
+#showInfo('A new version of <b>Chinese Support Add-on</b> is available.<br>&nbsp;<br>You can download it now through <tt>Tools->Add-ons->Browse and install</tt><br>&nbsp;<br>Add-on code: %s<br>&nbsp;<br><b>Version %s:</div><div>%s</div>' %( __init__.ankiweb_number, __init__.__version__, __init__.release_info))
