@@ -128,7 +128,7 @@ def accentuate_pinyin(text, force=False):
     Eg: ni2 becomes ní.
     Eg: ní4 becomes nì. (to make correction easier)
     
-    Does nothing if the default transcription is not Pinyin,
+    Does nothing if the default transcription is not Pinyin or Pinyin (Taiwan),
     unless force=True.
     Nota : also removes coloring. If you want color, please add it last.
    '''
@@ -147,8 +147,9 @@ def accentuate_pinyin(text, force=False):
                 except KeyError, IndexError:
                     pass
         return pinyin
-    
-    if not 'Pinyin'== chinese_support_config.options['transcription'] and not force:
+
+    if chinese_support_config.options['transcription'] \
+            not in ['Pinyin', 'Pinyin (Taiwan)'] and not force:
         return text
     text = no_color(text)
     text = re.sub(u'([a-z]*[aeiouüÜv'+accents+u'][a-zü]*)([1-5])', accentuate_pinyin_sub, text, flags=re.I)
@@ -160,7 +161,8 @@ def no_accents(text):
     def desaccentuate_pinyin_sub(p):
         return ""+p.group(1)+base_letters[p.group(2).lower()]+p.group(3)+get_tone_number(p.group(2).lower())
 
-    return re.sub(u'([a-zü]*)(['+accents+u'])([a-zü]*)', desaccentuate_pinyin_sub, text, flags=re.I)
+    #Remove +u'aeiouüvAEIOUÜV' if you want 5th tone to be ignored
+    return re.sub(u'([a-zü]*)(['+u'aeiouüvAEIOUÜV'+accents+u'])([a-zü]*)', desaccentuate_pinyin_sub, text, flags=re.I)
 
 def ruby(text, transcription=None, only_one=False, try_dict_first=True):
     u'''Convert hanzi to ruby notation, eg: '你' becomes '你[nǐ]'.
@@ -255,7 +257,7 @@ def transcribe(text, transcription=None, only_one=True):
     if None == transcription:
         transcription = chinese_support_config.options["transcription"]
     if "Pinyin" == transcription:
-        r = db.get_pinyin(text)
+        r = db.get_pinyin(text, taiwan=False)
     elif "Pinyin (Taiwan)" == transcription:
         r = db.get_pinyin(text, taiwan=True)
     elif "Cantonese" == transcription:
@@ -267,8 +269,11 @@ def transcribe(text, transcription=None, only_one=True):
         r = ""
     return r
 
-def get_alt(text):
-    """Returns alternate spelling of Chinese expression"""
+def pinyin_to_bopomofo(pinyin):
+    u'''
+    Converts Pinyin to Bopomofo.
+    '''
+    return bopomofo_module.bopomofo(no_accents(cleanup(pinyin)))
 
 def translate_local(text, lang):
     """Translate using local dictionary.
@@ -509,46 +514,54 @@ def no_sound(text):
     '''
     return re.sub(r'\[sound:.*?]', '', text)
 
-def separate_pinyin(text, force=False):
+def separate_pinyin(text, force=False, cantonese=False):
     u"""
     Separate pinyin syllables with whitespace.
     Eg: "Yīlù píng'ān" becomes "Yī lù píng ān"
 
-    Does nothing if the default transcription is not pinyin, 
-    unless Force=True
+    Does nothing if the default transcription is not Pinyin or Pinyin (Taiwan), 
+    unless force="Pinyin" or force="Pinyin (Taiwan)" or force=True
+    Cantonese sets whether or not the text being separated is cantonese (if force=True).
     Useful for people pasting Pinyin from Google Translate.
     """
-    if chinese_support_config.options['transcription'] \
-            not in ['Pinyin', 'Pinyin (Taiwan)'] and not force:
+    
+    if (chinese_support_config.options['transcription'] \
+            in ['Pinyin', 'Pinyin (Taiwan)'] and not force) or (force and not cantonese):    
+        def clean(t):
+            'remove leading apostrophe'
+            if "'" == t[0]:
+                return t[1:]
+            return t
+        def separate_pinyin_sub(p):
+            return clean(p.group("one"))+" "+clean(p.group("two"))
+        text =  pinyin_two_re.sub(separate_pinyin_sub, text)
         return text
-    def clean(t):
-        'remove leading apostrophe'
-        if "'" == t[0]:
-            return t[1:]
-        return t
-    def separate_pinyin_sub(p):
-        return clean(p.group("one"))+" "+clean(p.group("two"))
-    text =  pinyin_two_re.sub(separate_pinyin_sub, text)
-    text =  pinyin_two_re.sub(separate_pinyin_sub, text)
-    return text
+    elif (chinese_support_config.options['transcription'] \
+            in ['Cantonese'] and not force) or (force and cantonese):
+        def clean(t):
+            'remove leading apostrophe'
+            if "'" == t[0]:
+                return t[1:]
+            return t
+        def separate_jyutping_sub(p):
+            return clean(p.group("one"))+" "+clean(p.group("two"))
+        text =  jyutping_two_re.sub(separate_jyutping_sub, text)
+        text =  jyutping_two_re.sub(separate_jyutping_sub, text)
+        return text
+    else:
+        return text
     
 def simplify(text):
-    u'''Converts to simplified variants (if they exist)
+    u'''Converts to simplified variants
     '''
     r = db.get_simplified(text)
-    if r != text:
-        return r
-    else:
-        return ""
+    return r
 
 def traditional(text):
-    u'''Converts to traditional variants (if they exist)
+    u'''Converts to traditional variants
     '''
     r = db.get_traditional(text)
-    if r != text:
-        return r
-    else:
-        return ""
+    return r
 
 
 # Extra support functions and parameters
@@ -595,6 +608,15 @@ def pinyin_re_sub():
 
 pinyin_re = pinyin_re_sub()
 pinyin_two_re = re.compile("(?P<one>"+pinyin_re+")(?P<two>"+pinyin_re+")", flags=re.I)
+
+def jyutping_re_sub():
+    inits = u"ng|gw|kw|[bpmfdtnlgkhwzcsj]"
+    finals = u"i|ip|it|ik|im|in|ing|iu|yu|yut|yun|u|up|ut|uk|um|un|ung|ui|e|ep|et|ek|em|en|eng|ei|eu|eot|eon|eoi|oe|oet|oek|oeng|oei|o|ot|ok|om|on|ong|oi|ou|ap|at|ak|am|an|ang|ai|au|aa|aap|aat|aak|aam|aan|aang|aai|aau|m|ng"
+    standalones = u"'uk|'ung|'e|'ei|'oe|'o|'ok|'om|'on|'ong|'oi|'ou|'ap|'at|'ak|'am|'an|'ang|'ai|'au|'aa|'aap|'aat|'aak|'aam|'aan|'aang|'aai|'aau|'m|'ng"
+    return "(("+inits+")("+finals+")[1-6]?|("+standalones+")[1-6]?)"
+
+jyutping_re = jyutping_re_sub()
+jyutping_two_re = re.compile("(?P<one>"+jyutping_re+")(?P<two>"+jyutping_re+")", flags=re.I)
 
 db = dictdb.DictDB()
 
@@ -697,4 +719,3 @@ def local_dict_colorize(txt, ruby=True):
 
     txt = re.sub(u"([\u3400-\u9fff|]+)\\[(.*?)\\]", _sub, txt)
     return txt
-    

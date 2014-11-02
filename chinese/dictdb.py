@@ -74,7 +74,7 @@ class DictDB:
             return pinyin
         except:
             return None
-        
+    
     def _get_word_pinyin(self, w, taiwan=False):
         """Returns the pinyin transcription of a word, from CEDICT.
         If it's not in the dictionary, returns None.
@@ -86,14 +86,15 @@ class DictDB:
         self.c.execute("select pinyin, pinyin_taiwan from cidian where traditional=? or simplified=?;", (w, w))
         try:
             pinyin, taiwan_pinyin = self.c.fetchone()
-            if taiwan and len(taiwan_pinyin):
+            if taiwan and taiwan_pinyin is not None:  
                 return taiwan_pinyin
             else:
                 return pinyin
         except:
+            #Not in dictionary
             return None
 
-    def get_pinyin(self, w, taiwan=False):
+    def get_pinyin(self, w, taiwan=False, wl=4):
         """Returns the full pinyin transcription of a string.
         Use CEDICT wherever possible. Use Unihan to fill in.
 
@@ -107,17 +108,26 @@ class DictDB:
             return self._get_char_pinyin(w) #single character
 
         #We're looking up a string that's not in the dictionary
-        #We'll try each 2-character sequence in turn, and if it fails, do unit lookup.
+        #We'll try each 4-character sequence in turn, then 3-sequence, then 2-sequence and if those fails, do unit lookup.
+        #transcription = u""
         transcription = u""
         w = w[:]
-        last_was_pinyin=False
+        last_was_pinyin = False
         while len(w)>0:
-            p = self._get_word_pinyin(w[:2], taiwan)
-            if p:
-                transcription = add_with_space(transcription, p)
-                w = w[2:]
-                last_was_pinyin = True
-            else:
+            word_was_found = False
+            word_len = wl
+
+            while word_len > 1:
+                p = self._get_word_pinyin(w[:word_len], taiwan)
+                if p:
+                    transcription = add_with_space(transcription, p)
+                    w = w[word_len:]
+                    last_was_pinyin = True
+                    word_was_found = True
+                    break
+                word_len -= 1
+                
+            if word_was_found == False:
                 p = self._get_char_pinyin(w[0])
                 if p:
                     transcription = add_with_space(transcription, p)
@@ -131,8 +141,6 @@ class DictDB:
                     last_was_pinyin = False
                 w = w[1:]
         return transcription
-
-
 
     def get_cantonese(self, w, only_one=True):
         """Returns a character-by-character cantonese transcription."""
@@ -150,29 +158,119 @@ class DictDB:
                 t+=c
         return t
 
-    def get_traditional(self, w):
-        """Returns character-by-character equivalent"""
-        txt = ""
-        for c in w:
-            self.c.execute("select kTraditionalVariant from hanzi where cp = ?;", (c,) )
-            try:
-                (k,) = self.c.fetchone()
-                txt += k
-            except:
-                txt += c
-        return txt
+    def _get_char_traditional(self, c):
+        """Uses Unihan to find a traditional variant"""
+        self.c.execute("select kTraditionalVariant from hanzi where cp = ?;", (c,) )
+        try:
+            (k,) = self.c.fetchone()
+            return k
+        except:
+            return None
 
-    def get_simplified(self, w):
-        """Returns character-by-character equivalent"""
-        txt = ""
-        for c in w:
-            self.c.execute("select kSimplifiedVariant from hanzi where cp = ?;", (c,) )
-            try:
-                (k,) = self.c.fetchone()
-                txt += k
-            except:
-                txt += c
-        return txt                
+    def _get_word_traditional(self, w):
+        """Uses CEDICT to find a traditional variant"""
+        self.c.execute("select traditional from cidian where traditional=? or simplified=?;", (w, w) )
+        try:
+            (k,) = self.c.fetchone()
+            return k
+        except:
+            return None
+
+    def get_traditional(self, w, wl=4):
+        """Returns the full traditional form of a string.
+        Use CEDICT wherever possible. Use Unihan to fill in.
+        """
+
+        p = self._get_word_traditional(w)
+        if p:
+            return p #one word, in dictionary
+        if len(w)==1:
+            return self._get_char_traditional(w) #single character
+
+        #We're looking up a string that's not in the dictionary
+        #We'll try each 4-character sequence in turn, then 3-sequence, then 2-sequence and if those fails, do unit lookup.
+        traditional = u""
+        w = w[:]
+        while len(w)>0:
+            word_was_found = False
+            word_len = wl
+
+            while word_len > 1:
+                p = self._get_word_traditional(w[:word_len])
+                if p:
+                    traditional += p
+                    w = w[word_len:]
+                    word_was_found = True
+                    break
+                word_len -= 1
+                
+            if word_was_found == False:
+                p = self._get_char_traditional(w[0])
+                if p:
+                    traditional += p
+                else:
+                    #add character directly.
+                    traditional+=w[0]
+                w = w[1:]
+                
+        return traditional
+
+    def _get_char_simplified(self, c):
+        """Uses Unihan to find a simplified variant"""
+        self.c.execute("select kSimplifiedVariant from hanzi where cp = ?;", (c,) )
+        try:
+            (k,) = self.c.fetchone()
+            return k
+        except:
+            return None         
+
+    def _get_word_simplified(self, w):
+        """Uses CEDICT to find a traditional variant"""
+        self.c.execute("select simplified from cidian where traditional=? or simplified=?;", (w, w) )
+        try:
+            (k,) = self.c.fetchone()
+            return k
+        except:
+            return None
+
+    def get_simplified(self, w, wl=4):
+        """Returns the full traditional form of a string.
+        Use CEDICT wherever possible. Use Unihan to fill in.
+        """
+
+        p = self._get_word_simplified(w)
+        if p:
+            return p #one word, in dictionary
+        if len(w)==1:
+            return self._get_char_simplified(w) #single character
+
+        #We're looking up a string that's not in the dictionary
+        #We'll try each 4-character sequence in turn, then 3-sequence, then 2-sequence and if those fails, do unit lookup.
+        simplified = u""
+        w = w[:]
+        while len(w)>0:
+            word_was_found = False
+            word_len = wl
+
+            while word_len > 1:
+                p = self._get_word_simplified(w[:word_len])
+                if p:
+                    simplified += p
+                    w = w[word_len:]
+                    word_was_found = True
+                    break
+                word_len -= 1
+                
+            if word_was_found == False:
+                p = self._get_char_simplified(w[0])
+                if p:
+                    simplified += p
+                else:
+                    #add character directly.
+                    simplified+=w[0]
+                w = w[1:]
+                
+        return simplified
 
     def get_definitions(self, w, lang):
         '''Returns all definitions for a given language.
@@ -212,12 +310,3 @@ def add_with_space(a, b):
         return a+" "+b
     return a+b
 
-
-def test():
-    db = DictDB()
-    print db._get_char_pinyin(u"没")
-    print db.get_pinyin(u"吃过了没有ABC？")
-    print db.get_definition(u"程序", "en")
-    print db.get_cantonese(u"吃过了没有ABC？")
-    print db.get_traditional(u"学习ABC")
-    print db.get_simplified(u"壆习")
