@@ -159,7 +159,7 @@ def no_accents(text):
     u'Eg: ní becomes ni2.'
     
     def desaccentuate_pinyin_sub(p):
-        return ""+p.group(1)+base_letters[p.group(2).lower()]+p.group(3)+get_tone_number(p.group(2).lower())
+        t= ""+p.group(1)+base_letters[p.group(2).lower()]+p.group(3)+get_tone_number(p.group(2).lower())
 
     #Remove +u'aeiouüvAEIOUÜV' if you want 5th tone to be ignored
     return re.sub(u'([a-zü]*)(['+u'aeiouüvAEIOUÜV'+accents+u'])([a-zü]*)', desaccentuate_pinyin_sub, text, flags=re.I)
@@ -594,7 +594,7 @@ u'ā':u'a', u'ē':u'e', u'ī':u'i', u'ō':u'o', u'ū':u'u', u'ǖ':u'ü',
 u'á':u'a', u'é':u'e', u'í':u'i', u'ó':u'o', u'ú':u'u', u'ǘ':u'ü',  
 u'ǎ':u'a', u'ě':u'e', u'ǐ':u'i', u'ǒ':u'o', u'ǔ':u'u', u'ǚ':u'ü',  
 u'à':u'a', u'è':u'e', u'ì':u'i', u'ò':u'o', u'ù':u'u', u'ǜ':u'ü',  
-u'a':u'a', u'e':u'e', u'i':u'i', u'o':u'o', u'u':u'u', u'ü':u'ü', 
+u'a':u'a', u'e':u'e', u'i':u'i', u'o':u'o', u'u':u'u', u'ü':u'ü', u'v':'v'
 }
 
 accents = u'ɑ̄āĀáɑ́ǎɑ̌ÁǍàɑ̀ÀēĒéÉěĚèÈīĪíÍǐǏìÌōŌóÓǒǑòÒūŪúÚǔǓùÙǖǕǘǗǚǙǜǛ'
