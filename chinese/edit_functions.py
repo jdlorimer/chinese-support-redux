@@ -159,7 +159,7 @@ def no_accents(text):
     u'Eg: ní becomes ni2.'
     
     def desaccentuate_pinyin_sub(p):
-        t= ""+p.group(1)+base_letters[p.group(2).lower()]+p.group(3)+get_tone_number(p.group(2).lower())
+        return = ""+p.group(1)+base_letters[p.group(2).lower()]+p.group(3)+get_tone_number(p.group(2).lower())
 
     #Remove +u'aeiouüvAEIOUÜV' if you want 5th tone to be ignored
     return re.sub(u'([a-zü]*)(['+u'aeiouüvAEIOUÜV'+accents+u'])([a-zü]*)', desaccentuate_pinyin_sub, text, flags=re.I)
