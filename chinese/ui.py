@@ -29,7 +29,7 @@ import Chinese_support
 import edit_behavior
 from upgrade import edit_behavior_file, do_upgrade
 import edit_ui
-from fill_missing import fill_sounds, fill_pinyin, fill_translation
+from fill_missing import fill_sounds, fill_pinyin, fill_translation, fill_simp_trad, fill_silhouette
 
 offer_auto_module_upgrade = False #Broken for now.
 
@@ -190,6 +190,12 @@ def fill_pinyin_logic():
 def fill_translation_logic():
     fill_translation(mw.col, mw.web.key)
 
+def fill_simp_trad_logic():
+    fill_simp_trad(mw.col, mw.web.key)
+
+def fill_silhouette_logic():
+    fill_silhouette(mw.col, mw.web.key)
+
 def add_action(title, to, funct, checkable=False):
     action = QAction(_(title), mw)
     if checkable:
@@ -229,6 +235,8 @@ def myRebuildAddonsMenu(self):
     add_action(_("Fill missing sounds"), sm, fill_sounds_logic)
     add_action(_("Fill pinyin and color"), sm, fill_pinyin_logic)
     add_action(_("Fill translation"), sm, fill_translation_logic)
+    add_action(_("Fill simplified/traditional"), sm, fill_simp_trad_logic)
+    add_action(_("Fill silhouette"), sm, fill_silhouette_logic)
     add_action(_("Editor Behavior"), m, edit_logic)
     sm=m.addMenu(_("Help"))
     ### REMINDER : the website addresses are also available in config.py, in some startup tips. Don't forget to update both.
