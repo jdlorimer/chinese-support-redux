@@ -13,7 +13,7 @@ __version__ = """0.9.2"""
 ankiweb_number = "3448800906"
 release_info = """This version brings:<ul>
 <li>Improved Taiwan Pinyin and Bopomofo transcription.</li>
-<li>Added "Fill missing Pinyin" feature.
+<li>Added "Fill missing Pinyin" and "Fill missing translations" features.
 </ul>
 Many thanks to <b>Varbird</b> for these improvements!
 """
