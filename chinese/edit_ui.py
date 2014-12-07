@@ -26,8 +26,11 @@ def toggleButtonClick():
 def updateToggleButton(editor):
     global config_file_key
     global enable
-    model_name = editor.note.model()['name']
-    model_id = editor.note.model()['id']
+    try:
+        model_name = editor.note.model()['name']
+        model_id = editor.note.model()['id']
+    except:
+        return
     try:
         model_type = editor.note.model()['addon']
     except:
