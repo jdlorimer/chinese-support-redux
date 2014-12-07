@@ -76,7 +76,7 @@ def fill_pinyin(collection, view_key):
     d_has_fields = 0
     d_failed = 0
     d_added_pinyin = 0
-    d_added_accents = 0
+    d_updated = 0
 
     notes = Finder(collection).findNotes(query_str)
     mw.progress.start(immediate=True, min=0, max=len(notes))
@@ -87,7 +87,8 @@ def fill_pinyin(collection, view_key):
         if has_field(Transcription_fields, note_dict) and has_field(Hanzi_fields, note_dict):
             d_has_fields += 1
 
-            msg_string = "<b>Processing:</b> %(hanzi)s<br><b>Filled pinyin:</b> %(pinyin)d<br><b>Added tone marks:</b>%(accents)d"% {"hanzi":cleanup(no_html(get_any(Hanzi_fields, note_dict))), "pinyin":d_added_pinyin, "accents":d_added_accents}
+            msg_string = "<b>Processing:</b> %(hanzi)s<br><b>Filled pinyin:</b> %(pinyin)d<br><b>Updated fields:</b>%(updated)d"% {"hanzi":cleanup(no_html(get_any(Hanzi_fields, note_dict))), "pinyin":d_added_pinyin, "updated":d_updated}
+
             mw.progress.update(label=msg_string, value=d_scanned)
 
             #Update the transcription field
@@ -98,13 +99,13 @@ def fill_pinyin(collection, view_key):
                 #to make searching easier
                 t = hide(t, no_tone(t))
                 set_all(Transcription_fields, note_dict, to = t )
-                d_added_pinyin+=1
+                if len(t)>0:
+                    d_added_pinyin+=1
             #Otherwise colorize the pinyin
             else:
                 t = colorize( accentuate_pinyin( separate_pinyin(no_color(get_any(Transcription_fields, note_dict) ) )))
                 t = hide(t, no_tone(t))
                 set_all(Transcription_fields, note_dict, to = t)
-                d_added_accents+=1
 
             #Update Color field from the Hanzi field, 
             #Take the tone info from the Transcription field
@@ -118,14 +119,16 @@ def fill_pinyin(collection, view_key):
             for f in Transcription_fields:
                 if note_dict.has_key(f) and note_dict[f] <> note[f]:
                     note[f] = note_dict[f]
+                    d_updated+=1
             for f in Color_fields:
                 if note_dict.has_key(f) and note_dict[f] <> note[f]:
                     note[f] = note_dict[f]
+                    d_updated+=1
             note.flush()
 
 
     mw.progress.finish()
-    msg_string = "<b>Processing:</b> %(hanzi)s<br><b>Filled pinyin:</b> %(pinyin)d<br><b>Added tone marks:</b>%(accents)d"% {"hanzi":cleanup(no_html(get_any(Hanzi_fields, note_dict))), "pinyin":d_added_pinyin, "accents":d_added_accents}
+    msg_string = "<b>Processing:</b> %(hanzi)s<br><b>Filled pinyin:</b> %(pinyin)d<br><b>Updated fields:</b>%(updated)d"% {"hanzi":cleanup(no_html(get_any(Hanzi_fields, note_dict))), "pinyin":d_added_pinyin, "updated":d_updated}
     showInfo(msg_string)
 
 ############################################################
