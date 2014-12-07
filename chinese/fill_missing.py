@@ -21,6 +21,8 @@ def no_html(txt):
 def fill_sounds(collection, view_key):
     if view_key == "deckBrowser":
         return showInfo(u"Please first select one of your decks.")
+    if not(askUser("<div>This will update the <i>Sound</i> fields in the current deck, if they are empty.</div>\n\n<div><b>Continue?</b></div>")):
+        return False
 
     query_str = "deck:current"
     d_scanned = 0
@@ -70,6 +72,8 @@ def fill_sounds(collection, view_key):
 def fill_pinyin(collection, view_key):
     if view_key == "deckBrowser":
         return showInfo(u"Please first select one of your decks.")
+    if not(askUser("<div>This will update the <i>Pinyin</i> (or <i>Transcription</i>) and <i>Color</i> fields in the current deck.</div>\n\n<div><i>Pinyin</i> and <i>Transcription</i> will only be modified if they are empty.</div>\n\n<div><b>Continue?</b></div>")):
+        return False
 
     query_str = "deck:current"
     d_scanned = 0
@@ -137,7 +141,7 @@ def fill_translation(collection, view_key):
     if view_key == "deckBrowser":
         return showInfo(u"First select one of your decks")
 
-    if not(askUser("<b>Learning tip:</b><div>Automatic dictionary lookup tends to produce very long text, often with multiple translations.</div>\n\n<div>For more effective memorization, it's highly recommended to trim them down to just a few words, only one meaning, and possibly add some mnemonics.</div>\n\n<div>Dictionary lookup is simply meant as a way to save you time when typing; please consider editing each definition by hand when you're done.</div>\n\n<div><b>Continue?</b></div>")):
+    if not(askUser("<div>This will update the <i>Meaning</i>, </i>Mean Word, and </i>Also Written</i> fields in the current deck, if they are empty.</div><b>Learning tip:</b><div>Automatic dictionary lookup tends to produce very long text, often with multiple translations.</div>\n\n<div>For more effective memorization, it's highly recommended to trim them down to just a few words, only one meaning, and possibly add some mnemonics.</div>\n\n<div>Dictionary lookup is simply meant as a way to save you time when typing; please consider editing each definition by hand when you're done.</div>\n\n<div><b>Continue?</b></div>")):
         return False
 
     query_str = "deck:current"
