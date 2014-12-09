@@ -405,7 +405,7 @@ def get_alternate_spellings(text):
     else:
         return ""
 
-def sound(text, source=None):
+def sound(text, source=None, append=''):
     '''
     Returns sound tag for a given Hanzi string.
 
@@ -431,14 +431,19 @@ def sound(text, source=None):
 
     if "Google TTS Mandarin" == source:
         try:
-            return "[sound:"+google_tts.get_word_from_google(text)+"]"
+            return "[sound:"+google_tts.get_word_from_google(text, 'zh', append)+"]"
         except:
             return ""
     elif "Baidu Translate" == source:
         try:
             return "[sound:"+baidu_tts.get_word_from_baidu(text)+"]"
         except:
-            return ""        
+            return ""
+    elif "Google TTS Cantonese" == source:
+        try:
+            return "[sound:"+google_tts.get_word_from_google(text, 'zh-YUE', append)+"]"
+        except:
+            return ""
     else:
         return ""
 
