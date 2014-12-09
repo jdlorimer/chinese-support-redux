@@ -8,7 +8,7 @@
 
 from aqt.utils import showInfo, askUser
 from anki.find import Finder
-from edit_behavior import Sound_fields, Hanzi_fields, Transcription_fields, Color_fields, Meaning_fields, Mean_Word_fields, Alternate_fields, Simplified_fields, Traditional_fields, Ruby_fields, Silhouette_fields
+from edit_behavior import *
 from edit_functions import *
 from aqt import mw
 from aqt.utils import showInfo
@@ -88,55 +88,66 @@ def fill_pinyin(collection, view_key):
         d_scanned += 1
         note = collection.getNote(noteId)
         note_dict = dict(note)      # edit_function routines require a dict
-        if has_field(Transcription_fields, note_dict) and has_field(Hanzi_fields, note_dict):
+
+        _hf_t = has_field(Transcription_fields, note_dict)
+        _hf_py = has_field(Pinyin_fields, note_dict)
+        _hf_pytw = has_field(PinyinTW_fields, note_dict)
+        _hf_cant = has_field(Cantonese_fields, note_dict)
+        _hf_bpmf = has_field(Bopomofo_fields, note_dict)
+        
+        if (_hf_t or _hf_py or _hf_pytw or _hf_cant or _hf_bpmf) and has_field(Hanzi_fields, note_dict):
             d_has_fields += 1
 
             msg_string = "<b>Processing:</b> %(hanzi)s<br><b>Filled pinyin:</b> %(pinyin)d notes<br><b>Updated: </b>%(updated)d fields"% {"hanzi":cleanup(no_html(get_any(Hanzi_fields, note_dict))), "pinyin":d_added_pinyin, "updated":d_updated}
-
             mw.progress.update(label=msg_string, value=d_scanned)
 
-            #Update the transcription field
-            #If empty, transcribe from Hanzi
-            if get_any(Transcription_fields, note_dict)  == "" :
-                t = colorize( transcribe( no_sound( get_any(Hanzi_fields, note_dict) ) ) )
-                #Hide the unaccented transcription in the field, 
-                #to make searching easier
-                t = hide(t, no_tone(t))
-                set_all(Transcription_fields, note_dict, to = t )
-                if t:
-                    d_added_pinyin+=1
-            #Otherwise colorize the existing pinyin
-            else:
-                t = colorize( accentuate_pinyin( separate_pinyin(no_color(get_any(Transcription_fields, note_dict) ) )))
-                t = hide(t, no_tone(t))
-                set_all(Transcription_fields, note_dict, to = t)
+            hanzi = get_any(Hanzi_fields, note_dict)
+            results = 0
 
-            #Update Color field from the Hanzi field, 
-            #Take the tone info from the Transcription field
+            if _hf_t:
+                results += update_Transcription_fields(hanzi, note_dict)
+            if _hf_py:
+                results += update_Pinyin_fields(hanzi, note_dict)
+            if _hf_pytw:
+                results += update_PinyinTW_fields(hanzi, note_dict)
+            if _hf_cant:
+                results += update_Cantonese_fields(hanzi, note_dict)
+            if _hf_bpmf:
+                results += update_Bopomofo_fields(hanzi, note_dict)
+
+            if results != 0:
+                d_added_pinyin+=1
+
             #Always overwrite, as in the default edit_behavior
-            h = no_sound( get_any(Hanzi_fields, note_dict) )
-            t = no_sound( no_color(get_any(Transcription_fields, note_dict) ) )
-            c = colorize_fuse( h, t )
-            set_all(Color_fields, note_dict, to = c )
+            update_all_Color_fields(hanzi, note_dict)           
 
             #Update ruby field
-            m = colorize_fuse(get_any(Hanzi_fields, note_dict), get_any(Transcription_fields, note_dict), ruby=True)
-            set_all(Ruby_fields, note_dict, to = m)
+            update_all_Ruby_fields(hanzi, note_dict)
 
+            def write_back(fields):
+                num_updated = 0
+                for f in fields:
+                    if note_dict.has_key(f) and note_dict[f] <> note[f]:
+                        note[f] = note_dict[f]
+                        num_updated+=1
+                return num_updated
 
-        # write back to note from dict and flush
-            for f in Transcription_fields:
-                if note_dict.has_key(f) and note_dict[f] <> note[f]:
-                    note[f] = note_dict[f]
-                    d_updated+=1
-            for f in Color_fields:
-                if note_dict.has_key(f) and note_dict[f] <> note[f]:
-                    note[f] = note_dict[f]
-                    d_updated+=1
-            for f in Ruby_fields:
-                if note_dict.has_key(f) and note_dict[f] <> note[f]:
-                    note[f] = note_dict[f]
-                    d_updated+=1
+            # write back to note from dict and flush
+            d_updated += write_back(Transcription_fields)
+            d_updated += write_back(Pinyin_fields)
+            d_updated += write_back(PinyinTW_fields)
+            d_updated += write_back(Cantonese_fields)
+            d_updated += write_back(Bopomofo_fields)
+            d_updated += write_back(Color_fields)
+            d_updated += write_back(ColorPY_fields)
+            d_updated += write_back(ColorPYTW_fields)
+            d_updated += write_back(ColorCANT_fields)
+            d_updated += write_back(ColorBPMF_fields)
+            d_updated += write_back(Ruby_fields)
+            d_updated += write_back(RubyPY_fields)
+            d_updated += write_back(RubyPYTW_fields)
+            d_updated += write_back(RubyCANT_fields)
+            d_updated += write_back(RubyBPMF_fields)
             note.flush()
 
 
@@ -164,49 +175,51 @@ def fill_translation(collection, view_key):
         d_scanned += 1
         note = collection.getNote(noteId)
         note_dict = dict(note)      # edit_function routines require a dict
-        if has_field(Meaning_fields, note_dict) and has_field(Hanzi_fields, note_dict):
+
+        _hf_m = has_field(Meaning_fields, note_dict)
+        _hf_e = has_field(English_fields, note_dict)
+        _hf_g = has_field(German_fields, note_dict)
+        _hf_f = has_field(French_fields, note_dict)
+        
+        if (_hf_m or _hf_e or _hf_g or _hf_f) and has_field(Hanzi_fields, note_dict):
             d_has_fields += 1
 
             msg_string = "<b>Processing:</b> %(hanzi)s<br><b>Translated:</b> %(filled)d<br><b>Failed:</b> %(failed)d"% {"hanzi":cleanup(no_html(get_any(Hanzi_fields, note_dict))), "filled":d_success, "failed":d_failed}
             mw.progress.update(label=msg_string, value=d_scanned)
 
-            #Update Meaning field only if empty.
-            m = ""
-            if get_any(Meaning_fields, note_dict)  == "" :
-                m = translate(get_any(Hanzi_fields, note_dict))
-                if not(m): #Translation is empty
-                    d_failed+=1
-                else: #If there's a translation, then:
-                    d_success+=1
-                    #Mean word
-                    _mw = get_mean_word(get_any(Hanzi_fields, note_dict))
-                    if _mw:
-                        #If there's no mean word field, then add it to the translation
-                        if not has_field(Mean_Word_fields, note_dict):
-                            m += "<br>Cl: "+_mw
-                        else:
-                            set_all(Mean_Word_fields, note_dict, to=_mw)
-                    _alt = get_alternate_spellings(get_any(Hanzi_fields, note_dict))
-                    #Alternate spelling
-                    if _alt:
-                        #If there's no alt spelling field, then add it to the translation
-                        if not has_field(Alternate_fields, note_dict):
-                            m += "<br>Also written: "+_mw
-                        else:
-                            set_all(Alternate_fields, note_dict, to=_alt)
-                    set_all(Meaning_fields, note_dict, to = m)
-                
-        # write back to note from dict and flush
-            for f in Meaning_fields:
-                if note_dict.has_key(f) and note_dict[f] <> note[f]:
-                    note[f] = note_dict[f]
-            for f in Mean_Word_fields:
-                if note_dict.has_key(f) and note_dict[f] <> note[f]:
-                    note[f] = note_dict[f]
-            for f in Alternate_fields:
-                if note_dict.has_key(f) and note_dict[f] <> note[f]:
-                    note[f] = note_dict[f]
+            hanzi = get_any(Hanzi_fields, note_dict)
+            result = 0
+
+            if _hf_m:
+                result += update_Meaning_fields(hanzi, note_dict)
+            if _hf_e:
+                result += update_English_fields(hanzi, note_dict)
+            if _hf_g:
+                result += update_German_fields(hanzi, note_dict)
+            if _hf_f:
+                result += update_French_fields(hanzi, note_dict)
+
+
+            if result == 0:
+                d_failed+=1
+            else:
+                d_success+=1
+
+            def write_back(fields):
+                for f in fields:
+                    if note_dict.has_key(f) and note_dict[f] <> note[f]:
+                        note[f] = note_dict[f]
+                return
+
+            # write back to note from dict and flush
+            write_back(Meaning_fields)
+            write_back(English_fields)
+            write_back(German_fields)
+            write_back(French_fields)                   
+            write_back(Mean_Word_fields)
+            write_back(Alternate_fields)
             note.flush()
+            
     msg_string = "<b>Translation fill complete</b> %(hanzi)s<br><b>Translated:</b> %(filled)d<br><b>Failed:</b> %(failed)d"% {"hanzi":cleanup(no_html(get_any(Hanzi_fields, note_dict))), "filled":d_success, "failed":d_failed}
     if d_failed>0:
         msg_string = msg_string+"\n\n<div>Translation failures may come either from connection issues (if you're using an on-line translation service), or because some words are not it the dictionary (for local dictionaries).</div>"
@@ -242,19 +255,12 @@ def fill_simp_trad(collection, view_key):
 
             #Update simplified/traditional fields 
             #If it's the same, leave empty, so as to make this feature unobtrusive to simplified chinese users
-            h =get_any(Hanzi_fields, note_dict)
-            s = simplify(h)
-            if s<>h:
-                set_all(Simplified_fields, note_dict, to = s )
-            else:
-                set_all(Simplified_fields, note_dict, to = "" )
-            t = traditional(h)
-            if t <> h:
-                set_all(Traditional_fields, note_dict, to = t )
-            else:
-                set_all(Traditional_fields, note_dict, to = "" )
+            hanzi = get_any(Hanzi_fields, note_dict)
 
-        # write back to note from dict and flush
+            update_Simplified_fields(hanzi, note_dict)
+            update_Traditional_fields(hanzi, note_dict)
+
+            # write back to note from dict and flush
             for f in Traditional_fields:
                 if note_dict.has_key(f) and note_dict[f] <> note[f]:
                     note[f] = note_dict[f]
@@ -295,11 +301,12 @@ def fill_silhouette(collection, view_key):
             msg_string = "<b>Processing:</b> %(hanzi)s<br><b>Updated:</b> %(filled)d"% {"hanzi":cleanup(no_html(get_any(Hanzi_fields, note_dict))), "filled":d_success}
             mw.progress.update(label=msg_string, value=d_scanned)
 
-            #Update Silhouette
-            m = silhouette(get_any(Hanzi_fields,note_dict))
-            set_all(Silhouette_fields, note_dict, to = m)
+            hanzi = get_any(Hanzi_fields, note_dict)
 
-        # write back to note from dict and flush
+            #Update Silhouette
+            update_Silhouette_fields(hanzi, note_dict)
+
+            # write back to note from dict and flush
             for f in Silhouette_fields:
                 if note_dict.has_key(f) and note_dict[f] <> note[f]:
                     note[f] = note_dict[f]
