@@ -30,40 +30,82 @@ def fill_sounds(collection, view_key):
     d_already_had_sound = 0
     d_success = 0
     d_failed = 0
+    d_downloaded = 0
+    d_failed_download = 0
+    
     notes = Finder(collection).findNotes(query_str)
     mw.progress.start(immediate=True, min=0, max=len(notes))
     for noteId in notes:
         d_scanned += 1
         note = collection.getNote(noteId)
         note_dict = dict(note)      # edit_function routines require a dict
-        if has_field(Sound_fields, note_dict) and has_field(Hanzi_fields, note_dict):
+
+        _hf_s = has_field(Sound_fields, note_dict)
+        _hf_sm = has_field(Sound_Mandarin_fields, note_dict)
+        _hf_sc = has_field(Sound_Cantonese_fields, note_dict)
+
+        if (_hf_s or _hf_sm or _hf_sc) and has_field(Hanzi_fields, note_dict):
             d_has_fields += 1
-            if check_for_sound(get_any(Hanzi_fields, note_dict)):
+
+            hanzi = get_any(Hanzi_fields, note_dict)
+            
+            if check_for_sound(hanzi) and check_for_sound(hanzi + u'(普)') and check_for_sound(hanzi + u'(粵)'):
                 d_already_had_sound += 1
             else:
                 msg_string = "<b>Processing:</b> %(hanzi)s<br><b>Updated:</b> %(filled)d notes<br><b>Failed:</b> %(failed)d notes"% {"hanzi":cleanup(no_html(get_any(Hanzi_fields, note_dict))), "filled":d_success, "failed":d_failed}
                 mw.progress.update(label=msg_string, value=d_scanned)
-                s = sound(get_any(Hanzi_fields, note_dict))
-                if  "" == s:
-                    d_failed = d_failed+1
-                    sleep(1)
-                else:
-                    set_all(Sound_fields, note_dict, to = s)
+
+                _failed = 0
+
+                if _hf_s:
+                    if update_Sound_fields(hanzi, note_dict) == 0:
+                        d_failed_download += 1
+                        _failed = 1
+                        sleep(1)
+                    else:
+                        d_downloaded += 1
+
+                if _hf_sm:
+                    if update_Sound_Mandarin_fields(hanzi, note_dict) == 0:
+                        d_failed_download += 1
+                        _failed = 1
+                        sleep(1)
+                    else:
+                        d_downloaded += 1
+
+                if _hf_sc:
+                    if update_Sound_Cantonese_fields(hanzi, note_dict) == 0:
+                        d_failed_download += 1
+                        _failed = 1
+                        sleep(1)
+                    else:
+                        d_downloaded += 1
+
+                d_failed += _failed
+
+                if _failed == 0:
                     d_success = d_success+1
+
                 # write back to note from dict and flush
-                    for f in Sound_fields:
-                        if note_dict.has_key(f) and note_dict[f] <> note[f]:
-                            note[f] = note_dict[f]
-                    note.flush()
+                for f in Sound_fields:
+                    if note_dict.has_key(f) and note_dict[f] <> note[f]:
+                        note[f] = note_dict[f]
+                for f in Sound_Mandarin_fields:
+                    if note_dict.has_key(f) and note_dict[f] <> note[f]:
+                        note[f] = note_dict[f]
+                for f in Sound_Cantonese_fields:
+                    if note_dict.has_key(f) and note_dict[f] <> note[f]:
+                        note[f] = note_dict[f]
+                note.flush()
     mw.progress.finish()
     msg_string = '''
-%(d_success)d new pronunciations downloaded
+%(d_downloaded)d new pronunciations downloaded
 
-%(d_failed)d downloads failed
+%(d_failed_download)d downloads failed
 
 %(have)d/%(d_has_fields)d notes now have pronunciation
-''' % {"d_success":d_success, "d_failed":d_failed, "have":d_already_had_sound+d_success, "d_has_fields":d_has_fields}
-    if d_failed>0:
+''' % {"d_success":d_success, "d_failed":d_failed, "have":d_already_had_sound+d_success, "d_has_fields":d_has_fields, "d_downloaded":d_downloaded, "d_failed_download":d_failed_download}
+    if d_failed_download>0:
         msg_string = msg_string+"\n\n<div>TTS is taken from an on-line source. It may not always be fully responsive. Please check your network connexion, or retry later.</div>"
     showInfo(msg_string)
 
