@@ -38,6 +38,11 @@ Bopomofo_fields = [u"注音符號" u"註音符號", u"注音符号", "Bopomofo",
 
 Sound_fields         = ["Audio", "Sound", "Spoken", u"声音", u"聲音"]
 
+#Will use Google TTS Mandarin regardless of settings
+Sound_Mandarin_fields         = ["Sound - Mandarin"]
+#Will use Google TTS Cantonese regardless of settings
+Sound_Cantonese_fields         = ["Sound - Cantonese"]
+
 Simplified_fields    = ["Simplified", "Simp", "Simp.", u"简体", u"簡體", u"简化", u"簡化", u"简体字", u"簡體字", u"简化字", u"簡化字"]
 Traditional_fields   = ["Traditional", "Trad", "Trad.", u"繁体", u"繁體", u"繁体字", u"繁體字"]
 
@@ -77,7 +82,7 @@ def get_mean(hanzi, dico):
         #Otherwise add it to the mean word field
         elif get_any(Mean_Word_fields, dico)  == "":
             set_all(Mean_Word_fields, dico, to = mw)
-            return ""
+    return ""
 
 def get_alt(hanzi, dico):
 
@@ -89,11 +94,14 @@ def get_alt(hanzi, dico):
         #Otherwise add it to the alt spelling field
         elif get_any(Alternate_fields, dico)  == "":
             set_all(Alternate_fields, dico, to = alt )
-            return ""
+    return ""
     
 
 #Returns 1 if a translation was found in the dictionary, otherwise returns 0
 def update_Meaning_fields(hanzi, dico):
+
+    mw = get_mean(hanzi, dico)
+    alt = get_alt(hanzi, dico)
     
     #Update Meaning field only if empty.
     m = ""
@@ -101,12 +109,15 @@ def update_Meaning_fields(hanzi, dico):
         m = translate(hanzi)
         if not(m): #Translation is empty
             return 0
-        m  = m + get_mean(hanzi, dico) + get_alt(hanzi, dico)
+        m = m + mw + alt
         set_all(Meaning_fields, dico, to = m)
         
     return 1
 
 def update_English_fields(hanzi, dico):
+
+    mw = get_mean(hanzi, dico)
+    alt = get_alt(hanzi, dico)
 
     #Translate to English
     m = ""
@@ -114,12 +125,15 @@ def update_English_fields(hanzi, dico):
         m = translate(hanzi, "zh", "local_en")
         if not(m): #Translation is empty
             return 0
-        m  = m + get_mean(hanzi, dico) + get_alt(hanzi, dico)
+        m = m + mw + alt
         set_all(English_fields, dico, to = m)
 
     return 1
 
 def update_German_fields(hanzi, dico):
+
+    mw = get_mean(hanzi, dico)
+    alt = get_alt(hanzi, dico)
 
     #Translate to German
     m = ""
@@ -127,12 +141,15 @@ def update_German_fields(hanzi, dico):
         m = translate(hanzi, "zh", "local_de")
         if not(m): #Translation is empty
             return 0
-        m  = m + get_mean(hanzi, dico) + get_alt(hanzi, dico)
+        m = m + mw + alt
         set_all(German_fields, dico, to = m)
 
     return 1
 
 def update_French_fields(hanzi, dico):
+
+    mw = get_mean(hanzi, dico)
+    alt = get_alt(hanzi, dico)
 
     #Translate to French
     m = ""
@@ -140,7 +157,7 @@ def update_French_fields(hanzi, dico):
         m = translate(hanzi, "zh", "local_fr")
         if not (m): #Translation is empty
             return 0
-        m  = m + get_mean(hanzi, dico) + get_alt(hanzi, dico)
+        m = m + mw + alt
         set_all(French_fields, dico, to = m)
 
     return 1
@@ -157,7 +174,7 @@ def update_Silhouette_fields(hanzi, dico):
     set_all(Silhouette_fields, dico, to = m)
     return
 
-def format_Transcription_field(dico):
+def format_Transcription_fields(dico):
     t = colorize( accentuate_pinyin( separate_pinyin(no_color(get_any(Transcription_fields, dico)) )))
     t = hide(t, no_tone(t))
     set_all(Transcription_fields, dico, to = t)
@@ -174,7 +191,7 @@ def update_Transcription_fields(hanzi, dico):
         return 1
     #Otherwise colorize and accentuate the existing pinyin
     else:
-        format_Transcription_field(dico)
+        format_Transcription_fields(dico)
         return 0
 
 def format_Pinyin_fields(dico):
@@ -238,11 +255,10 @@ def format_Bopomofo_fields(dico):
 
 def update_Bopomofo_fields(hanzi, dico):
     if  get_any(Bopomofo_fields, dico) == "" :
-        if not leave_empty:
-            t = colorize( transcribe( no_sound( hanzi ), "Bopomofo") )
-            t = hide(t, no_tone(t))
-            set_all(Bopomofo_fields, dico, to = t )
-            return 1
+        t = colorize( transcribe( no_sound( hanzi ), "Bopomofo") )
+        t = hide(t, no_tone(t))
+        set_all(Bopomofo_fields, dico, to = t )
+        return 1
     else:
         format_Bopomofo_fields(dico)
         return 0
@@ -277,7 +293,7 @@ def update_Color_fields(hanzi, dico):
 
 def update_ColorPY_fields(hanzi, dico):
     #Update Color fields from the Hanzi field,
-    h = no_sound( hanzi )    
+    h = no_sound( hanzi )
     
     #Take the tone info from the Pinyin field
     t = no_sound( no_color(get_any(Pinyin_fields, dico) ) )
@@ -288,7 +304,7 @@ def update_ColorPY_fields(hanzi, dico):
 def update_ColorPYTW_fields(hanzi, dico):
     #Update Color fields from the Hanzi field,
     h = no_sound( hanzi )
-
+    
     #Take the tone info from the PinyinTW field
     t = no_sound( no_color(get_any(PinyinTW_fields, dico) ) )
     c = colorize_fuse( h, t )
@@ -323,6 +339,7 @@ def update_all_Color_fields(hanzi, dico):
     update_ColorBPMF_fields(hanzi, dico)
     return
 
+#Returns 1 if a sound was added, otherwise returns 0
 def update_Sound_fields(hanzi, dico):
     #Update Sound field from Hanzi field if non-empty
     #(only if field actually exists, as it implies downloading 
@@ -330,7 +347,33 @@ def update_Sound_fields(hanzi, dico):
     if has_field(Sound_fields, dico) and \
             get_any(Sound_fields, dico)=="":
         set_all(Sound_fields, dico, to = sound(hanzi))
-    return
+        return 1
+    return 0
+
+def update_Sound_Mandarin_fields(hanzi, dico):
+    #Update Sound field from Hanzi field if non-empty
+    #(only if field actually exists, as it implies downloading 
+    #a soundfile from Internet)
+    if has_field(Sound_Mandarin_fields, dico) and \
+            get_any(Sound_Mandarin_fields, dico)=="":
+        set_all(Sound_Mandarin_fields, dico, to = sound(hanzi, "Google TTS Mandarin", u'(普)'))
+        return 1
+    return 0
+
+def update_Sound_Cantonese_fields(hanzi, dico):
+    #Update Sound field from Hanzi field if non-empty
+    #(only if field actually exists, as it implies downloading 
+    #a soundfile from Internet)
+    if has_field(Sound_Cantonese_fields, dico) and \
+            get_any(Sound_Cantonese_fields, dico)=="":
+        set_all(Sound_Cantonese_fields, dico, to = sound(hanzi, "Google TTS Cantonese", u'(粵)'))
+        return 1
+    return 0
+
+def update_all_Sound_fields(hanzi, dico):
+    update_Sound_fields(hanzi, dico)
+    update_Sound_Mandarin_fields(hanzi, dico)
+    update_Sound_Cantonese_fields(hanzi, dico)
 
 def update_Simplified_fields(hanzi, dico):
     
@@ -415,8 +458,6 @@ def erase_fields(dico):
     set_all(Sound_fields, dico, to="")
     set_all(Simplified_fields, dico, to="")
     set_all(Traditional_fields, dico, to="")
-    set_all(SimplifiedInclusive_fields, dico, to="")
-    set_all(TraditionalInclusive_fields, dico, to="")
     set_all(Mean_Word_fields, dico, to="")
     set_all(Alternate_fields, dico, to="")
     set_all(Ruby_fields, dico, to="")
@@ -462,7 +503,7 @@ def update_fields(field, updated_field, model_name, model_type):
                 update_all_Meaning_fields(field[updated_field], field)
                 update_all_Transcription_fields(field[updated_field], field)
                 update_all_Color_fields(field[updated_field], field)
-                update_Sound_fields(field[updated_field], field)
+                update_all_Sound_fields(field[updated_field], field)
                 update_Simplified_fields(field[updated_field], field)
                 update_Traditional_fields(field[updated_field], field)
                 update_all_Ruby_fields(field[updated_field], field)
@@ -470,28 +511,33 @@ def update_fields(field, updated_field, model_name, model_type):
 
         #If the transcription was modified, update the Color field
         elif updated_field in Transcription_fields:
+            hanzi = get_any(Hanzi_fields, field)
             format_Transcription_fields(field)
-            update_all_Color_fields(field[updated_field], field)
-            update_all_Ruby_fields(field[updated_field], field)
+            update_all_Color_fields(hanzi, field)
+            update_all_Ruby_fields(hanzi, field)
 
         elif updated_field in Pinyin_fields:
+            hanzi = get_any(Hanzi_fields, field)
             format_Pinyin_fields(field)
-            update_all_Color_fields(field[updated_field], field)
-            update_all_Ruby_fields(field[updated_field], field)
+            update_all_Color_fields(hanzi, field)
+            update_all_Ruby_fields(hanzi, field)
 
         elif updated_field in PinyinTW_fields:
+            hanzi = get_any(Hanzi_fields, field)
             format_PinyinTW_fields(field)
-            update_all_Color_fields(field[updated_field], field)
-            update_all_Ruby_fields(field[updated_field], field)
+            update_all_Color_fields(hanzi, field)
+            update_all_Ruby_fields(hanzi, field)
 
         elif updated_field in Cantonese_fields:
+            hanzi = get_any(Hanzi_fields, field)
             format_Cantonese_fields(field)
-            update_all_Color_fields(field[updated_field], field)
-            update_all_Ruby_fields(field[updated_field], field)
+            update_all_Color_fields(hanzi, field)
+            update_all_Ruby_fields(hanzi, field)
 
         elif updated_field in Bopomofo_fields:
+            hanzi = get_any(Hanzi_fields, field)
             format_Bopomofo_fields(field)
-            update_all_Color_fields(field[updated_field], field)
-            update_all_Ruby_fields(field[updated_field], field)
+            update_all_Color_fields(hanzi, field)
+            update_all_Ruby_fields(hanzi, field)
                     
     return field
