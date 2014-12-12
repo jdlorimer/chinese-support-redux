@@ -43,7 +43,7 @@ dictionaries = [
 transcriptions = [
     "Pinyin", "Pinyin (Taiwan)", "Cantonese", "Bopomofo"]
 #    "Pinyin", "WadeGiles", "CantoneseYale", "Jyutping", "Bopomofo"]
-speech_options = [ "None", "Google TTS Mandarin", "Baidu Translate"]
+speech_options = [ "None", "Google TTS Mandarin", "Google TTS Cantonese", "Baidu Translate"]
 
 msTranslateLanguages = [
 ("Arabic","ar"),
