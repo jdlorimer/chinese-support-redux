@@ -466,7 +466,13 @@ def erase_fields(dico):
     set_all(RubyCANT_fields, dico, to="")
     set_all(RubyBPMF_fields, dico, to="")
     set_all(Silhouette_fields, dico, to="")
+    set_all(Color_fields, dico, to="")
+    set_all(ColorPY_fields, dico, to="")
+    set_all(ColorPYTW_fields, dico, to="")
+    set_all(ColorCANT_fields, dico, to="")
+    set_all(ColorBPMF_fields, dico, to="")
     return
+
 
 def update_fields(field, updated_field, model_name, model_type):
     #1st case : the new Ruby-based model
