@@ -28,7 +28,7 @@ German_fields        = ["German", "Deutsch", u"德语", u"德語", u"德文"]
 French_fields        = ["French", "le français", u"法语", u"法語", u"法文"]
 
 #Will use the settings under Tools->Chinese Support->Set Transcription
-Transcription_fields = ["Reading"]
+Transcription_fields = ["Reading", "Transcription"]
 
 #Will ignore settings and fill regardless
 Pinyin_fields = ["Pinyin", "PY", u"拼音", u"大陆拼音", u"大陸拼音"]
@@ -286,6 +286,8 @@ def update_Color_fields(hanzi, dico):
         t = no_sound( no_color(get_any(Cantonese_fields, dico) ) )
     elif has_field(Bopomofo_fields, dico):
         t = no_sound( no_color(get_any(Bopomofo_fields, dico) ) )
+    else:
+        t=""
     c = colorize_fuse( h, t )
     set_all(Color_fields, dico, to = c )
 
