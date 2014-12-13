@@ -34,7 +34,7 @@ card_back = u'''\
 <div class=tags>{{Deck}} {{#Tags}} -- {{/Tags}}{{Tags}}</div>
 
 <div>{{Meaning}}</div>
-<div class=chinese>{{Pinyin}}</div>
+<div class=pinyin>{{Pinyin}}</div>
 <div class=chinese>{{Color}}</div>
 <!-- {{Sound}}-->
 '''
