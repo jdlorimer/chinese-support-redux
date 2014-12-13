@@ -417,6 +417,8 @@ def sound(text, source=None, append=''):
     speech from Google TTS), return empty string.
 
     Does not work with pinyin or other transcriptions.
+
+    Append is a optional string that gets appended to the media filename.
     '''
     text = cleanup(text)
     if None==source:
