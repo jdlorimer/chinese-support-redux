@@ -405,7 +405,7 @@ def get_alternate_spellings(text):
     else:
         return ""
 
-def sound(text, source=None, append=''):
+def sound(text, source=None):
     '''
     Returns sound tag for a given Hanzi string.
 
@@ -418,7 +418,8 @@ def sound(text, source=None, append=''):
 
     Does not work with pinyin or other transcriptions.
 
-    Append is a optional string that gets appended to the media filename.
+    Source is either the TTS speech engine name. 
+    If empty, taking the one from the menu.
     '''
     text = cleanup(text)
     if None==source:
@@ -433,36 +434,22 @@ def sound(text, source=None, append=''):
 
     if "Google TTS Mandarin" == source:
         try:
-            return "[sound:"+google_tts.get_word_from_google(text, 'zh', append)+"]"
+            return "[sound:"+google_tts.get_word_from_google(text, 'zh')+"]"
         except:
             return ""
     elif "Baidu Translate" == source:
         try:
-            return "[sound:"+baidu_tts.get_word_from_baidu(text)+"]"
+            return "[sound:"+baidu_tts.get_word_from_baidu(text, 'zh')+"]"
         except:
             return ""
     elif "Google TTS Cantonese" == source:
         try:
-            return "[sound:"+google_tts.get_word_from_google(text, 'zh-YUE', append)+"]"
+            return "[sound:"+google_tts.get_word_from_google(text, 'zh-YUE')+"]"
         except:
             return ""
     else:
         return ""
 
-def check_for_sound(text):
-    '''
-    Returns True if the soundfile arleady exists in the user's resources directory.
-    '''
-    text = cleanup(text)
-    text = no_color(no_accents(no_sound(text)))
-    text = re.sub("<.*?>", "", text)
-    if has_ruby(text):
-        text = hanzi(text)
-    if "" == text:
-        return False
-    if google_tts.check_resources(text):
-        return True
-    return False
 
 
 def get_any(fields, dico):

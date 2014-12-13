@@ -48,8 +48,8 @@ def fill_sounds(collection, view_key):
             d_has_fields += 1
 
             hanzi = get_any(Hanzi_fields, note_dict)
-            
-            if check_for_sound(hanzi) and check_for_sound(hanzi + u'(普)') and check_for_sound(hanzi + u'(粵)'):
+
+            if get_any(Sound_fields, note_dict) or get_any(Sound_Mandarin_fields, note_dict) or get_any(Sound_Cantonese_fields, note_dict):
                 d_already_had_sound += 1
             else:
                 msg_string = "<b>Processing:</b> %(hanzi)s<br><b>Updated:</b> %(filled)d notes<br><b>Failed:</b> %(failed)d notes"% {"hanzi":cleanup(no_html(get_any(Hanzi_fields, note_dict))), "filled":d_success, "failed":d_failed}

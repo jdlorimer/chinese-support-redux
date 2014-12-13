@@ -356,7 +356,7 @@ def update_Sound_Mandarin_fields(hanzi, dico):
     #a soundfile from Internet)
     if has_field(Sound_Mandarin_fields, dico) and \
             get_any(Sound_Mandarin_fields, dico)=="":
-        set_all(Sound_Mandarin_fields, dico, to = sound(hanzi, "Google TTS Mandarin", u'(普)'))
+        set_all(Sound_Mandarin_fields, dico, to = sound(hanzi, "Google TTS Mandarin"))
         return 1
     return 0
 
@@ -366,7 +366,7 @@ def update_Sound_Cantonese_fields(hanzi, dico):
     #a soundfile from Internet)
     if has_field(Sound_Cantonese_fields, dico) and \
             get_any(Sound_Cantonese_fields, dico)=="":
-        set_all(Sound_Cantonese_fields, dico, to = sound(hanzi, "Google TTS Cantonese", u'(粵)'))
+        set_all(Sound_Cantonese_fields, dico, to = sound(hanzi, "Google TTS Cantonese"))
         return 1
     return 0
 

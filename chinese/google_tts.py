@@ -24,8 +24,8 @@ url_gtts = 'http://translate.google.com/translate_tts?'
 user_agent_string = 'Mozilla/5.0'
 
 
-def get_word_from_google(source, voice = 'zh', append = ''):
-    filename, fullpath = get_filename(source + append, download_file_extension)
+def get_word_from_google(source, voice = 'zh'):
+    filename, fullpath = get_filename("_".join([source, "G", voice]), download_file_extension)
     if os.path.exists(fullpath):
         return filename
     get_url = build_query_url(source, voice)
@@ -38,14 +38,6 @@ def get_word_from_google(source, voice = 'zh', append = ''):
     with open(fullpath, 'wb') as audio_file:
         audio_file.write(response.read())
     return filename
-
-def check_resources(source):
-    "Only checks for the existence of the file in resources directory, without downloading"
-    filename, fullpath = get_filename(source, download_file_extension)
-    if os.path.exists(fullpath):
-        return True
-    return False
-    
 
 def build_query_url(source, voice):
     qdict = dict(tl=voice, q=source.encode('utf-8'))
