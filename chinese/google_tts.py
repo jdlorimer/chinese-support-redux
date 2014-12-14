@@ -24,11 +24,11 @@ url_gtts = 'http://translate.google.com/translate_tts?'
 user_agent_string = 'Mozilla/5.0'
 
 
-def get_word_from_google(source, voice = 'zh'):
-    filename, fullpath = get_filename("_".join([source, "G", voice]), download_file_extension)
+def get_word_from_google(source, lang = 'zh'):
+    filename, fullpath = get_filename("_".join([source, "G", lang]), download_file_extension)
     if os.path.exists(fullpath):
         return filename
-    get_url = build_query_url(source, voice)
+    get_url = build_query_url(source, lang)
     # This may throw an exception
     request = urllib2.Request(get_url)
     request.add_header('User-agent', user_agent_string)
@@ -39,8 +39,8 @@ def get_word_from_google(source, voice = 'zh'):
         audio_file.write(response.read())
     return filename
 
-def build_query_url(source, voice):
-    qdict = dict(tl=voice, q=source.encode('utf-8'))
+def build_query_url(source, lang):
+    qdict = dict(tl=lang, q=source.encode('utf-8'))
     return url_gtts + urllib.urlencode(qdict)
 
 
