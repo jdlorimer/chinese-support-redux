@@ -28,7 +28,7 @@ German_fields        = ["German", "Deutsch", u"德语", u"德語", u"德文"]
 French_fields        = ["French", "le français", u"法语", u"法語", u"法文"]
 
 #Will use the settings under Tools->Chinese Support->Set Transcription
-Transcription_fields = ["Reading", "Transcription"]
+Transcription_fields = ["Reading"]
 
 #Will ignore settings and fill regardless
 Pinyin_fields = ["Pinyin", "PY", u"拼音", u"大陆拼音", u"大陸拼音"]
@@ -286,8 +286,6 @@ def update_Color_fields(hanzi, dico):
         t = no_sound( no_color(get_any(Cantonese_fields, dico) ) )
     elif has_field(Bopomofo_fields, dico):
         t = no_sound( no_color(get_any(Bopomofo_fields, dico) ) )
-    else:
-        t=""
     c = colorize_fuse( h, t )
     set_all(Color_fields, dico, to = c )
 
@@ -348,9 +346,12 @@ def update_Sound_fields(hanzi, dico):
     #a soundfile from Internet)
     if has_field(Sound_fields, dico) and \
             get_any(Sound_fields, dico)=="":
-        set_all(Sound_fields, dico, to = sound(hanzi))
-        return 1
-    return 0
+        s = sound(hanzi)
+        if s:
+            set_all(Sound_fields, dico, to = s)
+            return 1, 0 #1 field filled, 0 errors
+        return 0, 1 
+    return 0, 0
 
 def update_Sound_Mandarin_fields(hanzi, dico):
     #Update Sound field from Hanzi field if non-empty
@@ -358,9 +359,12 @@ def update_Sound_Mandarin_fields(hanzi, dico):
     #a soundfile from Internet)
     if has_field(Sound_Mandarin_fields, dico) and \
             get_any(Sound_Mandarin_fields, dico)=="":
-        set_all(Sound_Mandarin_fields, dico, to = sound(hanzi, "Google TTS Mandarin"))
-        return 1
-    return 0
+        s = sound(hanzi, "Google TTS Mandarin")
+        if s:
+            set_all(Sound_Mandarin_fields, dico, to = s)
+            return 1, 0 #1 field filled, 0 errors
+        return 0, 1
+    return 0, 0
 
 def update_Sound_Cantonese_fields(hanzi, dico):
     #Update Sound field from Hanzi field if non-empty
@@ -368,14 +372,18 @@ def update_Sound_Cantonese_fields(hanzi, dico):
     #a soundfile from Internet)
     if has_field(Sound_Cantonese_fields, dico) and \
             get_any(Sound_Cantonese_fields, dico)=="":
-        set_all(Sound_Cantonese_fields, dico, to = sound(hanzi, "Google TTS Cantonese"))
-        return 1
-    return 0
+        s = sound(hanzi, "Google TTS Cantonese")
+        if s:
+            set_all(Sound_Cantonese_fields, dico, to = s)
+            return 1, 0 #1 field filled, 0 errors
+        return 0, 1
+    return 0, 0
 
 def update_all_Sound_fields(hanzi, dico):
-    update_Sound_fields(hanzi, dico)
-    update_Sound_Mandarin_fields(hanzi, dico)
-    update_Sound_Cantonese_fields(hanzi, dico)
+    updated1, errors1 = update_Sound_fields(hanzi, dico)
+    updated2, errors2 = update_Sound_Mandarin_fields(hanzi, dico)
+    updated3, errors3 = update_Sound_Cantonese_fields(hanzi, dico)
+    return updated1+updated2+updated3, errors1+errors2+errors3
 
 def update_Simplified_fields(hanzi, dico):
     
