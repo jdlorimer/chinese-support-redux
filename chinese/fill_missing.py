@@ -21,7 +21,7 @@ def no_html(txt):
 def fill_sounds(collection, view_key):
     if view_key == "deckBrowser":
         return showInfo(u"Please first select one of your decks.")
-    if not(askUser("<div>This will update the <i>Sound</i> fields in the current deck, if they exist and are empty.</div>\n\n<div><b>Continue?</b></div>")):
+    if not(askUser("<div>This will update the <i>Sound</i> fields in the current deck, if they exist and are empty, using the selected speech engine.</div>\n\n<div>Please back-up your Anki deck first!</div>\n\n<div><b>Continue?</b></div>")):
         return False
 
     query_str = "deck:current"
@@ -30,8 +30,6 @@ def fill_sounds(collection, view_key):
     d_already_had_sound = 0
     d_success = 0
     d_failed = 0
-    d_downloaded = 0
-    d_failed_download = 0
     
     notes = Finder(collection).findNotes(query_str)
     mw.progress.start(immediate=True, min=0, max=len(notes))
@@ -48,65 +46,31 @@ def fill_sounds(collection, view_key):
             d_has_fields += 1
 
             hanzi = get_any(Hanzi_fields, note_dict)
-            
-            if check_for_sound(hanzi) and check_for_sound(hanzi + u'(普)') and check_for_sound(hanzi + u'(粵)'):
+
+            if get_any(Sound_fields, note_dict) or get_any(Sound_Mandarin_fields, note_dict) or get_any(Sound_Cantonese_fields, note_dict):
                 d_already_had_sound += 1
             else:
-                msg_string = "<b>Processing:</b> %(hanzi)s<br><b>Updated:</b> %(filled)d notes<br><b>Failed:</b> %(failed)d notes"% {"hanzi":cleanup(no_html(get_any(Hanzi_fields, note_dict))), "filled":d_success, "failed":d_failed}
+                msg_string = "<b>Processing:</b> %(hanzi)s<br><b>Updated:</b> %(d_success)d notes<br><b>Failed:</b> %(d_failed)d notes"% {"hanzi":cleanup(no_html(get_any(Hanzi_fields, note_dict))), "d_success":d_success, "d_failed":d_failed}
                 mw.progress.update(label=msg_string, value=d_scanned)
-
-                _failed = 0
-
-                if _hf_s:
-                    if update_Sound_fields(hanzi, note_dict) == 0:
-                        d_failed_download += 1
-                        _failed = 1
-                        sleep(1)
-                    else:
-                        d_downloaded += 1
-
-                if _hf_sm:
-                    if update_Sound_Mandarin_fields(hanzi, note_dict) == 0:
-                        d_failed_download += 1
-                        _failed = 1
-                        sleep(1)
-                    else:
-                        d_downloaded += 1
-
-                if _hf_sc:
-                    if update_Sound_Cantonese_fields(hanzi, note_dict) == 0:
-                        d_failed_download += 1
-                        _failed = 1
-                        sleep(1)
-                    else:
-                        d_downloaded += 1
-
-                d_failed += _failed
-
-                if _failed == 0:
-                    d_success = d_success+1
+                s, f = update_all_Sound_fields(hanzi, note_dict)
+                d_success += s
+                d_failed += f
 
                 # write back to note from dict and flush
-                for f in Sound_fields:
-                    if note_dict.has_key(f) and note_dict[f] <> note[f]:
-                        note[f] = note_dict[f]
-                for f in Sound_Mandarin_fields:
-                    if note_dict.has_key(f) and note_dict[f] <> note[f]:
-                        note[f] = note_dict[f]
-                for f in Sound_Cantonese_fields:
+                for f in Sound_fields + Sound_Mandarin_fields + Sound_Cantonese_fields:
                     if note_dict.has_key(f) and note_dict[f] <> note[f]:
                         note[f] = note_dict[f]
                 note.flush()
     mw.progress.finish()
     msg_string = '''
-%(d_downloaded)d new pronunciations downloaded
+%(d_success)d new pronunciations downloaded
 
-%(d_failed_download)d downloads failed
+%(d_failed)d downloads failed
 
 %(have)d/%(d_has_fields)d notes now have pronunciation
-''' % {"d_success":d_success, "d_failed":d_failed, "have":d_already_had_sound+d_success, "d_has_fields":d_has_fields, "d_downloaded":d_downloaded, "d_failed_download":d_failed_download}
-    if d_failed_download>0:
-        msg_string = msg_string+"\n\n<div>TTS is taken from an on-line source. It may not always be fully responsive. Please check your network connexion, or retry later.</div>"
+''' % {"d_success":d_success, "d_failed":d_failed, "have":d_already_had_sound+d_success, "d_has_fields":d_has_fields}
+    if d_failed>0:
+        msg_string = msg_string+"\n\nTTS is taken from an on-line source. It may not always be fully responsive. Please check your network connexion, or retry later."
     showInfo(msg_string)
 
 #############################################################
@@ -114,7 +78,7 @@ def fill_sounds(collection, view_key):
 def fill_pinyin(collection, view_key):
     if view_key == "deckBrowser":
         return showInfo(u"Please first select one of your decks.")
-    if not(askUser("<div>This will update the <i>Pinyin</i> (or <i>Transcription</i>), <i>Color</i> and <i>Ruby</i> fields in the current deck, if they exist.</div>\n\n<div><i>Pinyin</i> and <i>Transcription</i> will be filled if empty. Otherwise, their colorization and accentuation will be refreshed as needed.</div>\n\n<div><b>Continue?</b></div>")):
+    if not(askUser("<div>This will update the <i>Pinyin</i> (or <i>Transcription</i>), <i>Color</i> and <i>Ruby</i> fields in the current deck, if they exist.</div>\n\n<div><i>Pinyin</i> and <i>Transcription</i> will be filled if empty. Otherwise, their colorization and accentuation will be refreshed as needed.</div>\n\n<div>Please back-up your Anki deck first!</div>\n\n<div><b>Continue?</b></div>")):
         return False
 
     query_str = "deck:current"
@@ -203,7 +167,7 @@ def fill_translation(collection, view_key):
     if view_key == "deckBrowser":
         return showInfo(u"First select one of your decks")
 
-    if not(askUser("<div>This will update the <i>Meaning</i>, </i>Mean Word, and </i>Also Written</i> fields in the current deck, if they exist and are empty.</div><b>Learning tip:</b><div>Automatic dictionary lookup tends to produce very long text, often with multiple translations.</div>\n\n<div>For more effective memorization, it's highly recommended to trim them down to just a few words, only one meaning, and possibly add some mnemonics.</div>\n\n<div>Dictionary lookup is simply meant as a way to save you time when typing; please consider editing each definition by hand when you're done.</div>\n\n<div><b>Continue?</b></div>")):
+    if not(askUser("<div>This will update the <i>Meaning</i>, <i>Mean Word</i>, and <i>Also Written</i> fields in the current deck, if they exist and are empty.</div><b>Learning tip:</b><div>Automatic dictionary lookup tends to produce very long text, often with multiple translations.</div>\n\n<div>For more effective memorization, it's highly recommended to trim them down to just a few words, only one meaning, and possibly add some mnemonics.</div>\n\n<div>Dictionary lookup is simply meant as a way to save you time when typing; please consider editing each definition by hand when you're done.</div>\n\n<div>Please back-up your Anki deck first!</div>\n\n<div><b>Continue?</b></div>")):
         return False
 
     query_str = "deck:current"
@@ -211,6 +175,7 @@ def fill_translation(collection, view_key):
     d_has_fields = 0
     d_success = 0
     d_failed = 0
+    failed_hanzi = []
     notes = Finder(collection).findNotes(query_str)
     mw.progress.start(immediate=True, min=0, max=len(notes))
     for noteId in notes:
@@ -226,26 +191,32 @@ def fill_translation(collection, view_key):
         if (_hf_m or _hf_e or _hf_g or _hf_f) and has_field(Hanzi_fields, note_dict):
             d_has_fields += 1
 
-            msg_string = "<b>Processing:</b> %(hanzi)s<br><b>Translated:</b> %(filled)d<br><b>Failed:</b> %(failed)d"% {"hanzi":cleanup(no_html(get_any(Hanzi_fields, note_dict))), "filled":d_success, "failed":d_failed}
+            msg_string = "<b>Processing:</b> %(hanzi)s<br><b>Chinese notes:</b> %(has_fields)d<br><b>Translated:</b> %(filled)d<br><b>Failed:</b> %(failed)d"% {"hanzi":cleanup(no_html(get_any(Hanzi_fields, note_dict))), "has_fields":d_has_fields, "filled":d_success, "failed":d_failed}
             mw.progress.update(label=msg_string, value=d_scanned)
 
             hanzi = get_any(Hanzi_fields, note_dict)
-            result = 0
-
-            if _hf_m:
-                result += update_Meaning_fields(hanzi, note_dict)
-            if _hf_e:
-                result += update_English_fields(hanzi, note_dict)
-            if _hf_g:
-                result += update_German_fields(hanzi, note_dict)
-            if _hf_f:
-                result += update_French_fields(hanzi, note_dict)
-
-
-            if result == 0:
-                d_failed+=1
-            else:
-                d_success+=1
+            empty = len(get_any(Meaning_fields, note_dict))
+            empty += len(get_any(English_fields, note_dict))
+            empty += len(get_any(German_fields, note_dict))
+            empty += len(get_any(French_fields, note_dict))
+            if not(empty):
+                result=0
+                if _hf_m:
+                    result += update_Meaning_fields(hanzi, note_dict)
+                if _hf_e:
+                    result += update_English_fields(hanzi, note_dict)
+                if _hf_g:
+                    result += update_German_fields(hanzi, note_dict)
+                if _hf_f:
+                    result += update_French_fields(hanzi, note_dict)
+    
+    
+                if result == 0:
+                    d_failed+=1
+                    if d_failed<20:
+                        failed_hanzi += [cleanup(no_html(get_any(Hanzi_fields, note_dict)))]
+                else:
+                    d_success+=1
 
             def write_back(fields):
                 for f in fields:
@@ -262,9 +233,10 @@ def fill_translation(collection, view_key):
             write_back(Alternate_fields)
             note.flush()
             
-    msg_string = "<b>Translation fill complete</b> %(hanzi)s<br><b>Translated:</b> %(filled)d<br><b>Failed:</b> %(failed)d"% {"hanzi":cleanup(no_html(get_any(Hanzi_fields, note_dict))), "filled":d_success, "failed":d_failed}
+    msg_string = "<b>Translation complete</b> <br><b>Chinese notes:</b> %(has_fields)d<br><b>Translated:</b> %(filled)d<br><b>Failed:</b> %(failed)d"% {"has_fields":d_has_fields, "filled":d_success, "failed":d_failed}
     if d_failed>0:
-        msg_string = msg_string+"\n\n<div>Translation failures may come either from connection issues (if you're using an on-line translation service), or because some words are not it the dictionary (for local dictionaries).</div>"
+        msg_string += "\n\n<div>Translation failures may come either from connection issues (if you're using an on-line translation service), or because some words are not it the dictionary (for local dictionaries).</div>"
+        msg_string += "<div>The following notes failed: "+ ", ".join(failed_hanzi)+"</div>"
     mw.progress.finish()
 
     showInfo(msg_string)
@@ -275,7 +247,7 @@ def fill_translation(collection, view_key):
 def fill_simp_trad(collection, view_key):
     if view_key == "deckBrowser":
         return showInfo(u"First select one of your decks")
-    if not(askUser("<div>This will update the <i>Simplified</i> and <i>Traditional</i> fields in the current deck, if they exist and are empty.</div>\n\n<div><b>Continue?</b></div>")):
+    if not(askUser("<div>This will update the <i>Simplified</i> and <i>Traditional</i> fields in the current deck, if they exist and are empty.</div>\n\n<div>Please back-up your Anki deck first!</div>\n\n<div><b>Continue?</b></div>")):
         return False
 
     query_str = "deck:current"
@@ -296,7 +268,8 @@ def fill_simp_trad(collection, view_key):
             mw.progress.update(label=msg_string, value=d_scanned)
 
             #Update simplified/traditional fields 
-            #If it's the same, leave empty, so as to make this feature unobtrusive to simplified chinese users
+            #If it's the same, leave empty, 
+            #so as to make this feature unobtrusive to simplified chinese users
             hanzi = get_any(Hanzi_fields, note_dict)
 
             update_Simplified_fields(hanzi, note_dict)
@@ -323,7 +296,7 @@ def fill_simp_trad(collection, view_key):
 def fill_silhouette(collection, view_key):
     if view_key == "deckBrowser":
         return showInfo(u"First select one of your decks")
-    if not(askUser("<div>This will update the <i>Silhouette</i> fields in the current deck.</div>\n\n<div><b>Continue?</b></div>")):
+    if not(askUser("<div>This will update the <i>Silhouette</i> fields in the current deck.</div>\n\n<div>Please back-up your Anki deck first!</div>\n\n<div><b>Continue?</b></div>")):
         return False
 
     query_str = "deck:current"

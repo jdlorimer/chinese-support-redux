@@ -346,9 +346,12 @@ def update_Sound_fields(hanzi, dico):
     #a soundfile from Internet)
     if has_field(Sound_fields, dico) and \
             get_any(Sound_fields, dico)=="":
-        set_all(Sound_fields, dico, to = sound(hanzi))
-        return 1
-    return 0
+        s = sound(hanzi)
+        if s:
+            set_all(Sound_fields, dico, to = s)
+            return 1, 0 #1 field filled, 0 errors
+        return 0, 1 
+    return 0, 0
 
 def update_Sound_Mandarin_fields(hanzi, dico):
     #Update Sound field from Hanzi field if non-empty
@@ -356,9 +359,12 @@ def update_Sound_Mandarin_fields(hanzi, dico):
     #a soundfile from Internet)
     if has_field(Sound_Mandarin_fields, dico) and \
             get_any(Sound_Mandarin_fields, dico)=="":
-        set_all(Sound_Mandarin_fields, dico, to = sound(hanzi, "Google TTS Mandarin", u'(普)'))
-        return 1
-    return 0
+        s = sound(hanzi, "Google TTS Mandarin")
+        if s:
+            set_all(Sound_Mandarin_fields, dico, to = s)
+            return 1, 0 #1 field filled, 0 errors
+        return 0, 1
+    return 0, 0
 
 def update_Sound_Cantonese_fields(hanzi, dico):
     #Update Sound field from Hanzi field if non-empty
@@ -366,14 +372,18 @@ def update_Sound_Cantonese_fields(hanzi, dico):
     #a soundfile from Internet)
     if has_field(Sound_Cantonese_fields, dico) and \
             get_any(Sound_Cantonese_fields, dico)=="":
-        set_all(Sound_Cantonese_fields, dico, to = sound(hanzi, "Google TTS Cantonese", u'(粵)'))
-        return 1
-    return 0
+        s = sound(hanzi, "Google TTS Cantonese")
+        if s:
+            set_all(Sound_Cantonese_fields, dico, to = s)
+            return 1, 0 #1 field filled, 0 errors
+        return 0, 1
+    return 0, 0
 
 def update_all_Sound_fields(hanzi, dico):
-    update_Sound_fields(hanzi, dico)
-    update_Sound_Mandarin_fields(hanzi, dico)
-    update_Sound_Cantonese_fields(hanzi, dico)
+    updated1, errors1 = update_Sound_fields(hanzi, dico)
+    updated2, errors2 = update_Sound_Mandarin_fields(hanzi, dico)
+    updated3, errors3 = update_Sound_Cantonese_fields(hanzi, dico)
+    return updated1+updated2+updated3, errors1+errors2+errors3
 
 def update_Simplified_fields(hanzi, dico):
     
@@ -466,7 +476,13 @@ def erase_fields(dico):
     set_all(RubyCANT_fields, dico, to="")
     set_all(RubyBPMF_fields, dico, to="")
     set_all(Silhouette_fields, dico, to="")
+    set_all(Color_fields, dico, to="")
+    set_all(ColorPY_fields, dico, to="")
+    set_all(ColorPYTW_fields, dico, to="")
+    set_all(ColorCANT_fields, dico, to="")
+    set_all(ColorBPMF_fields, dico, to="")
     return
+
 
 def update_fields(field, updated_field, model_name, model_type):
     #1st case : the new Ruby-based model
