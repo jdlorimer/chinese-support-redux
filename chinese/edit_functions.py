@@ -344,6 +344,7 @@ def translate(text, from_lang="zh", to_lang=None, progress_bar=True):
         return ret
 
 def cleanup(txt):
+    u'''Remove all HTML, tags, and others.'''
     if not txt:
         return ""
     txt = re.sub(r"<.*?>", "", txt, flags=re.S)
