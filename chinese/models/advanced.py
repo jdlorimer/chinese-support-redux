@@ -29,7 +29,7 @@ recall_front = u'''\
 
 <div>{{Meaning}}</div>
 <div>{{Silhouette}}</div>
-<div class=hint>{{hint_transcription:Pinyin}}</div>
+<div class=hint>{{hint_transcription:Reading}}</div>
 '''
 
 card_back = u'''\
@@ -37,7 +37,7 @@ card_back = u'''\
 
 <div class=answer>
 <div>{{Meaning}}</div>
-<div class=pinyin>{{Pinyin}}</div>
+<div class=reading>{{Reading}}</div>
 <div class=chinese>{{Color}}</div>
 {{#Simplified}}<div class=chinese><span class=comment>Simplified:</span> {{Simplified}}</div>{{/Simplified}}
 {{#Traditional}}<div class=chinese><span class=comment>Traditional:</span> {{Traditional}}</div>{{/Traditional}}

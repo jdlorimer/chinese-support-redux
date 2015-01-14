@@ -13,7 +13,7 @@ from css import style
 # List of fields
 ######################################################################
 
-fields_list = ["Hanzi",  "Meaning", "Pinyin", "Color", "Mean Word", "Sound", "Simplified", "Traditional", "Also Written", "Ruby", "Silhouette"]
+fields_list = ["Hanzi",  "Meaning", "Reading", "Color", "Mean Word", "Sound", "Simplified", "Traditional", "Also Written", "Ruby", "Silhouette"]
 
 # Card templates
 ######################################################################
@@ -29,14 +29,14 @@ recall_front = u'''\
 
 <div>{{Meaning}}</div>
 <!--Still incompatible with AnkiDroid: <div class=chinese>{{hanzi_silhouette:Hanzi}}</div> -->
-<div class=hint>{{hint_transcription:Pinyin}}</div>
+<div class=hint>{{hint_transcription:Reading}}</div>
 '''
 
 card_back = u'''\
 <div class=tags>{{Deck}} {{#Tags}} -- {{/Tags}}{{Tags}}</div>
 
 <div>{{Meaning}}</div>
-<div class=pinyin>{{Pinyin}}</div>
+<div class=reading>{{Reading}}</div>
 <div class=chinese>{{Color}}</div>
 {{#Simplified}}<div class=chinese><span class=comment>Simplified:</span> {{Simplified}}</div>{{/Simplified}}
 {{#Traditional}}<div class=chinese><span class=comment>Traditional:</span> {{Traditional}}</div>{{/Traditional}}

@@ -14,7 +14,7 @@ style = u'''\
 .linux .chinese { font-family: "Kochi Mincho", "東風明朝"; }
 .mobile .chinese { font-family: "Hiragino Mincho ProN"; }
 .chinese { font-size: 30px;}
-.pinyin { font-size: 16px;}
+.reading { font-size: 16px;}
 .comment {font-size: 15px; color:grey;}
 .tags {color:gray;text-align:right;font-size:10pt;}
 .note {color:gray;font-size:12pt;margin-top:20pt;}
