@@ -175,7 +175,7 @@ def update_Silhouette_fields(hanzi, dico):
     return
 
 def format_Transcription_fields(dico):
-    t = colorize( accentuate_pinyin( separate_pinyin(no_color(get_any(Transcription_fields, dico)) )))
+    t = colorize( accentuate_pinyin( separate_pinyin(cleanup(get_any(Transcription_fields, dico)) )))
     t = hide(t, no_tone(t))
     set_all(Transcription_fields, dico, to = t)
     return
@@ -195,7 +195,7 @@ def update_Transcription_fields(hanzi, dico):
         return 0
 
 def format_Pinyin_fields(dico):
-    t = colorize(accentuate_pinyin(separate_pinyin(no_color(get_any(Pinyin_fields, dico)), True), True))
+    t = colorize(accentuate_pinyin(separate_pinyin(cleanup(get_any(Pinyin_fields, dico)), True), True))
     t = hide(t, no_tone(t))
     set_all(Pinyin_fields, dico, to = t)
 
@@ -211,7 +211,7 @@ def update_Pinyin_fields(hanzi, dico):
     return
 
 def format_PinyinTW_fields(dico):
-    t = colorize(accentuate_pinyin(separate_pinyin(no_color(get_any(PinyinTW_fields, dico)), True), True))
+    t = colorize(accentuate_pinyin(separate_pinyin(cleanup(get_any(PinyinTW_fields, dico)), True), True))
     t = hide(t, no_tone(t))
     set_all(PinyinTW_fields, dico, to = t )
 
@@ -232,7 +232,7 @@ def update_PinyinTW_fields(hanzi, dico):
         return 0
 
 def format_Cantonese_fields(dico):
-    t = colorize(separate_pinyin(no_color(get_any(Cantonese_fields, dico)), True, True))
+    t = colorize(separate_pinyin(cleanup(get_any(Cantonese_fields, dico)), True, True))
     t = hide(t, no_tone(t))
     set_all(Cantonese_fields, dico, to = t )
     return
@@ -248,7 +248,7 @@ def update_Cantonese_fields(hanzi, dico):
         return 0
 
 def format_Bopomofo_fields(dico):
-    t = colorize(no_color(get_any(Bopomofo_fields, dico)))
+    t = colorize(cleanup(get_any(Bopomofo_fields, dico)))
     t = hide(t, no_tone(t))
     set_all(Bopomofo_fields, dico, to = t)
     return

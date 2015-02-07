@@ -9,11 +9,15 @@
 #This should stay written exactly this way, and keep the same parenthesis
 #format, as it is parsed by a very simple regexp to check for next
 #release info from github, in config.py
-__version__ = """0.9.2"""
+__version__ = """0.10.6"""
 ankiweb_number = "3448800906"
 release_info = """This version brings:<ul>
 <li>Improved Taiwan Pinyin and Bopomofo transcription.</li>
-<li>Added "Fill missing" features.
+<li>Added "Fill missing" features.</li>
+<li>Added Cantonese speech</li>
 </ul>
 Many thanks to <b>Varbird</b> for these improvements!
+<br><b>If you are studying Cantonese or Taiwan Pinyin:</b> please rename your <tt>Pinyin</tt> field to <tt>Reading</tt>. From now on, transcription choice only applies to the <tt>Reading</tt> field. <tt>Pinyin</tt> will always be treated as Pinyin. This change allows you have both Pinyin and Bopomofo in the same note.
+
+<br><b>Note to advanced users:</b> This version includes a rewritten <tt>edit_behavior.py</tt> function. If you did some customizations, you can keep using your version, but the new "fill missing" features will not work.</b>
 """

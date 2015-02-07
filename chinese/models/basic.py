@@ -13,7 +13,7 @@ from css import style
 # List of fields
 ######################################################################
 
-fields_list = ["Hanzi",  "Meaning", "Pinyin", "Color", "Sound"]
+fields_list = ["Hanzi",  "Meaning", "Reading", "Color", "Sound"]
 
 # Card templates
 ######################################################################

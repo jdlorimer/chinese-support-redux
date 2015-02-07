@@ -80,6 +80,8 @@ def no_color(text):
     text = re.sub(r'<span class="tone1?[0-9]">(.*?)</span>', r'\1', text)
     #remove black font tag sometimes added by Anki
     text = re.sub(r'<font color="#000000">(.*?)</font>', r'\1', text)
+    #remove Anki1 Pinyin Toolkit coloring
+    text = re.sub(r'<span style=.*?>(.*?)</span>', r'\1', text)
     return text
 
 def hide(text, hidden):
@@ -342,6 +344,7 @@ def translate(text, from_lang="zh", to_lang=None, progress_bar=True):
         return ret
 
 def cleanup(txt):
+    u'''Remove all HTML, tags, and others.'''
     if not txt:
         return ""
     txt = re.sub(r"<.*?>", "", txt, flags=re.S)
