@@ -53,7 +53,7 @@ Alternate_fields     = ["Also writted", "Alt", "Alternate"]
 #Will fill with any Transcription/Pinyin/PinyinTW/Cantonese/Bopomofo field (Transcription fields take highest priority)
 Color_fields         = ["Color", "Colour", "Colored Hanzi", "Coloured Hanzi", u"彩色"]
 
-#Will only fill using a Transcription/Pinyin/PinyinTW/Cantonese/Bopomofo field repsectively
+#Will only fill using a Transcription/Pinyin/PinyinTW/Cantonese/Bopomofo field respectively
 ColorPY_fields         = ["ColorPY", "ColourPY"]
 ColorPYTW_fields         = ["ColorPYTW", "ColourPYTW"]
 ColorCANT_fields         = ["ColorCANT", "ColourCANT"]
@@ -62,7 +62,7 @@ ColorBPMF_fields         = ["ColorBPMF", "ColourBPMF"]
 #Will fill with any Transcription/Pinyin/PinyinTW/Cantonese/Bopomofo field (Transcription fields take highest priority)
 Ruby_fields          = ["Ruby"]
 
-#Will only fill using a Transcription/Pinyin/PinyinTW/Cantonese/Bopomofo field repsectively
+#Will only fill using a Transcription/Pinyin/PinyinTW/Cantonese/Bopomofo field respectively
 RubyPY_fields          = ["RubyPY"]
 RubyPYTW_fields          = ["RubyPYTW"]
 RubyCANT_fields          = ["RubyCANT"]
