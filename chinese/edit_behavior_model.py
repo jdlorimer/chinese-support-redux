@@ -286,9 +286,10 @@ def update_Color_fields(hanzi, dico):
         t = no_sound( no_color(get_any(Cantonese_fields, dico) ) )
     elif has_field(Bopomofo_fields, dico):
         t = no_sound( no_color(get_any(Bopomofo_fields, dico) ) )
+    else:
+        t = ""
     c = colorize_fuse( h, t )
     set_all(Color_fields, dico, to = c )
-
     return
 
 def update_ColorPY_fields(hanzi, dico):
@@ -423,6 +424,8 @@ def update_Ruby_fields(hanzi, dico):
         m = colorize_fuse(hanzi, get_any(Cantonese_fields, dico), ruby=True)
     elif has_field(Bopomofo_fields, dico):
         m = colorize_fuse(hanzi, get_any(Bopomofo_fields, dico), ruby=True)
+    else:
+        m = ""
     set_all(Ruby_fields, dico, to = m)
     return
 
