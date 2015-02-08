@@ -19,7 +19,7 @@ anki1_model_names    = ["Chinese", "chinese", "Mandarin Vocab"] #"Mandarin" is u
 
 Hanzi_fields         = ["Expression", "Hanzi", "Chinese",  u"汉字", u"漢字", u"中文"]
 
-#Will use the settings under Tools->Chinese Support->Set Transcription
+#Will use the settings under Tools->Chinese Support->Use local dictionary
 Meaning_fields       = ["Meaning", "Definition", u"意思", u"翻译", u"翻譯", u"解释", u"解釋"]
 
 #Will ignore settings and fill regardless
