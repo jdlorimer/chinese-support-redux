@@ -142,7 +142,7 @@ def accentuate_pinyin(text, force=False):
 #        for v in accents:            
 #            re.sub(v, base_letters[v], pinyin)
         pinyin = no_tone(pinyin)
-        for v in u"aeiouüvAEIOUÜV":
+        for v in u"aeouüviAEOUÜVI":
             if pinyin.find(v)>-1:
                 try:
                     return re.sub(v, vowel_decorations[int(tone)][v.lower()], pinyin, count=1)
@@ -352,6 +352,7 @@ def cleanup(txt):
     txt = re.sub(r"^\s*", "", txt)
     txt = re.sub(r"\s*$", "", txt)
 #    txt = re.sub(r"[\s+]", " ", txt)
+    txt = re.sub(r"\{\{c[0-9]+::(.*)(::.*?)?\}\}", r"\1", txt)
     return txt
 
 
