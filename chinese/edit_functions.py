@@ -352,7 +352,7 @@ def cleanup(txt):
     txt = re.sub(r"^\s*", "", txt)
     txt = re.sub(r"\s*$", "", txt)
 #    txt = re.sub(r"[\s+]", " ", txt)
-    txt = re.sub(r"\{\{c[0-9]+::(.*)(::.*?)?\}\}", r"\1", txt)
+    txt = re.sub(r"\{\{c[0-9]+::(.*?)(::.*?)?\}\}", r"\1", txt)
     return txt
 
 
