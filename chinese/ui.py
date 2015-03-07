@@ -241,8 +241,11 @@ def myRebuildAddonsMenu(self):
     sm=m.addMenu(_("Help"))
     ### REMINDER : the website addresses are also available in config.py, in some startup tips. Don't forget to update both.
     add_action(_("Setup instructions"), sm, lambda : goto_page("https://ankiweb.net/shared/info/3448800906"))
-    add_action(_("Usage instructions"), sm, lambda : goto_page("https://github.com/ttempe/chinese-support-addon/wiki"))
+    add_action(_("Frequently asked questions"), sm, lambda : goto_page("https://github.com/ttempe/chinese-support-addon/wiki/Frequently-asked-questions"))
+    add_action(_("Learning tips"), sm, lambda : goto_page("https://github.com/ttempe/chinese-support-addon/wiki/Learning-tips"))
     add_action(_("Support forum"), sm, lambda : goto_page("https://anki.tenderapp.com/discussions/add-ons/1646-chinese-support-add-on"))
+    add_action(_("Development forum"), sm, lambda : goto_page("https://anki.tenderapp.com/discussions/add-ons/2336-chinese-support-add-on-development"))
+    add_action(_("Video tutorial"), sm, lambda : goto_page("http://youtu.be/SiGUrrxptpg"))
     add_action(_("Report a bug"), sm, lambda : goto_page("https://github.com/ttempe/chinese-support-addon/issues"))
     add_action(_("About..."), m, lambda : showInfo(u"Chinese support plugin v. " + __init__.__version__ + u"<br>Copyright © 2012-2014 Thomas TEMP&Eacute; and many others.<br><br>Please see source code for additional info."))
     add_action(_("Please rate me on Ankiweb!"), m, lambda : goto_page("https://ankiweb.net/shared/info/3448800906"))
