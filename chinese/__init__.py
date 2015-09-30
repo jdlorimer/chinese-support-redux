@@ -9,9 +9,12 @@
 #This should stay written exactly this way, and keep the same parenthesis
 #format, as it is parsed by a very simple regexp to check for next
 #release info from github, in config.py
-__version__ = """0.10.6"""
+__version__ = """0.10.10"""
 ankiweb_number = "3448800906"
-release_info = """This version brings:<ul>
+release_info = """This version fixes Google TTS sound generation.<br>
+Thanks to Glutaminate for providing the fix."""
+
+prev = """<ul>
 <li>Improved Taiwan Pinyin and Bopomofo transcription.</li>
 <li>Added "Fill missing" features.</li>
 <li>Added Cantonese speech</li>
