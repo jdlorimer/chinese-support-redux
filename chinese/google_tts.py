@@ -20,7 +20,7 @@ from aqt import mw
 
 
 download_file_extension = u'.mp3'
-url_gtts = 'http://translate.google.com/translate_tts?'
+url_gtts = 'http://translate.google.com/translate_tts?client=t&'
 user_agent_string = 'Mozilla/5.0'
 
 
