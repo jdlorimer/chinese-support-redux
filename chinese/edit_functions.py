@@ -55,7 +55,7 @@ def colorize(text, ruby_whole=False):
     elif has_hanzi(text):
         text = re.sub(u'([\u3400-\u9fff])', colorize_hanzi_sub, text)
     else:
-        text = re.sub(u'([&<"/]?[a-zü'+accents+u']+1?[0-9¹²³⁴]?)', colorize_pinyin_sub, text, flags=re.I)
+        text = re.sub(u'([&<"/]?[a-zü\u3100-\u312F'+accents+u']+1?[0-9¹²³⁴ˊˇˋ˙]?)', colorize_pinyin_sub, text, flags=re.I)
     text = text+sound_tags
     return text
 
