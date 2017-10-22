@@ -47,10 +47,10 @@ def on_focus_lost(flag, fields_data, focus_field):
     edit_behavior.update_fields(efields, updated_field, model_name, model_type)
 
     for k in field_names:
-        if efields[k] <> fields_data[k]:
+        if efields[k] != fields_data[k]:
             fields_data[k] = efields[k]
             flag = True
-    
+
 #    if flag:
 #        print "Left field ", updated_field, "(polluted)", efields[updated_field]
 #    else:

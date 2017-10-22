@@ -58,10 +58,10 @@ elif not "edit_behavior_model.py hash" in chinese_support_config.options:
         #User-modified
         ask_to_upgrade()
     update_config()
-elif __version__ <> chinese_support_config.options["add-on version"]:
+elif __version__ != chinese_support_config.options["add-on version"]:
     #New version. Compare current edit_behavior with former model
     current_hash = md5.new(open(edit_behavior_file).read()).hexdigest()
-    if current_hash <> chinese_support_config.options["edit_behavior_model.py hash"]:
+    if current_hash != chinese_support_config.options["edit_behavior_model.py hash"]:
         ask_to_upgrade()
     update_config()
 else:

@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright © 2013 Chris Hatch, <foonugget@gmail.com> 
+# Copyright © 2013 Chris Hatch, <foonugget@gmail.com>
 # Copyright © 2014 Thomas TEMPE, <thomas.tempe@alysse.org>
-# 
+#
 # License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
 #
 
@@ -30,7 +30,7 @@ def fill_sounds(collection, view_key):
     d_already_had_sound = 0
     d_success = 0
     d_failed = 0
-    
+
     notes = Finder(collection).findNotes(query_str)
     mw.progress.start(immediate=True, min=0, max=len(notes))
     for noteId in notes:
@@ -58,7 +58,7 @@ def fill_sounds(collection, view_key):
 
                 # write back to note from dict and flush
                 for f in Sound_fields + Sound_Mandarin_fields + Sound_Cantonese_fields:
-                    if note_dict.has_key(f) and note_dict[f] <> note[f]:
+                    if note_dict.has_key(f) and note_dict[f] != note[f]:
                         note[f] = note_dict[f]
                 note.flush()
     mw.progress.finish()
@@ -100,7 +100,7 @@ def fill_pinyin(collection, view_key):
         _hf_pytw = has_field(PinyinTW_fields, note_dict)
         _hf_cant = has_field(Cantonese_fields, note_dict)
         _hf_bpmf = has_field(Bopomofo_fields, note_dict)
-        
+
         if (_hf_t or _hf_py or _hf_pytw or _hf_cant or _hf_bpmf) and has_field(Hanzi_fields, note_dict):
             d_has_fields += 1
 
@@ -125,7 +125,7 @@ def fill_pinyin(collection, view_key):
                 d_added_pinyin+=1
 
             #Always overwrite, as in the default edit_behavior
-            update_all_Color_fields(hanzi, note_dict)           
+            update_all_Color_fields(hanzi, note_dict)
 
             #Update ruby field
             update_all_Ruby_fields(hanzi, note_dict)
@@ -133,7 +133,7 @@ def fill_pinyin(collection, view_key):
             def write_back(fields):
                 num_updated = 0
                 for f in fields:
-                    if note_dict.has_key(f) and note_dict[f] <> note[f]:
+                    if note_dict.has_key(f) and note_dict[f] != note[f]:
                         note[f] = note_dict[f]
                         num_updated+=1
                 return num_updated
@@ -187,7 +187,7 @@ def fill_translation(collection, view_key):
         _hf_e = has_field(English_fields, note_dict)
         _hf_g = has_field(German_fields, note_dict)
         _hf_f = has_field(French_fields, note_dict)
-        
+
         if (_hf_m or _hf_e or _hf_g or _hf_f) and has_field(Hanzi_fields, note_dict):
             d_has_fields += 1
 
@@ -209,8 +209,8 @@ def fill_translation(collection, view_key):
                     result += update_German_fields(hanzi, note_dict)
                 if _hf_f:
                     result += update_French_fields(hanzi, note_dict)
-    
-    
+
+
                 if result == 0:
                     d_failed+=1
                     if d_failed<20:
@@ -220,7 +220,7 @@ def fill_translation(collection, view_key):
 
             def write_back(fields):
                 for f in fields:
-                    if note_dict.has_key(f) and note_dict[f] <> note[f]:
+                    if note_dict.has_key(f) and note_dict[f] != note[f]:
                         note[f] = note_dict[f]
                 return
 
@@ -228,11 +228,11 @@ def fill_translation(collection, view_key):
             write_back(Meaning_fields)
             write_back(English_fields)
             write_back(German_fields)
-            write_back(French_fields)                   
+            write_back(French_fields)
             write_back(Mean_Word_fields)
             write_back(Alternate_fields)
             note.flush()
-            
+
     msg_string = "<b>Translation complete</b> <br><b>Chinese notes:</b> %(has_fields)d<br><b>Translated:</b> %(filled)d<br><b>Failed:</b> %(failed)d"% {"has_fields":d_has_fields, "filled":d_success, "failed":d_failed}
     if d_failed>0:
         msg_string += "\n\n<div>Translation failures may come either from connection issues (if you're using an on-line translation service), or because some words are not it the dictionary (for local dictionaries).</div>"
@@ -267,8 +267,8 @@ def fill_simp_trad(collection, view_key):
             msg_string = "<b>Processing:</b> %(hanzi)s<br><b>Updated:</b> %(filled)d"% {"hanzi":cleanup(no_html(get_any(Hanzi_fields, note_dict))), "filled":d_success}
             mw.progress.update(label=msg_string, value=d_scanned)
 
-            #Update simplified/traditional fields 
-            #If it's the same, leave empty, 
+            #Update simplified/traditional fields
+            #If it's the same, leave empty,
             #so as to make this feature unobtrusive to simplified chinese users
             hanzi = get_any(Hanzi_fields, note_dict)
 
@@ -277,11 +277,11 @@ def fill_simp_trad(collection, view_key):
 
             # write back to note from dict and flush
             for f in Traditional_fields:
-                if note_dict.has_key(f) and note_dict[f] <> note[f]:
+                if note_dict.has_key(f) and note_dict[f] != note[f]:
                     note[f] = note_dict[f]
                     d_success+=1
             for f in Simplified_fields:
-                if note_dict.has_key(f) and note_dict[f] <> note[f]:
+                if note_dict.has_key(f) and note_dict[f] != note[f]:
                     note[f] = note_dict[f]
                     d_success+=1
             note.flush()
@@ -323,7 +323,7 @@ def fill_silhouette(collection, view_key):
 
             # write back to note from dict and flush
             for f in Silhouette_fields:
-                if note_dict.has_key(f) and note_dict[f] <> note[f]:
+                if note_dict.has_key(f) and note_dict[f] != note[f]:
                     note[f] = note_dict[f]
                     d_success+=1
             note.flush()
