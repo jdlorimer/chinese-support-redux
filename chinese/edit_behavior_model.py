@@ -2,7 +2,7 @@
 # Welcome to the Chinese Support Add-on's field edition ruleset.
 # Here, you can tweak the note editor helper's behavior to your liking.
 #
-# If you messed things up, you can safely delete file 
+# If you messed things up, you can safely delete file
 # addons/chinese/edit_behavior.py from your Anki directory.
 # It will be recreated the next time you restart Anki.
 #
@@ -95,14 +95,14 @@ def get_alt(hanzi, dico):
         elif get_any(Alternate_fields, dico)  == "":
             set_all(Alternate_fields, dico, to = alt )
     return ""
-    
+
 
 #Returns 1 if a translation was found in the dictionary, otherwise returns 0
 def update_Meaning_fields(hanzi, dico):
 
     mw = get_mean(hanzi, dico)
     alt = get_alt(hanzi, dico)
-    
+
     #Update Meaning field only if empty.
     m = ""
     if get_any(Meaning_fields, dico)  == "" :
@@ -111,7 +111,7 @@ def update_Meaning_fields(hanzi, dico):
             return 0
         m = m + mw + alt
         set_all(Meaning_fields, dico, to = m)
-        
+
     return 1
 
 def update_English_fields(hanzi, dico):
@@ -274,7 +274,7 @@ def update_all_Transcription_fields(hanzi, dico):
 def update_Color_fields(hanzi, dico):
     #Update Color fields from the Hanzi field,
     h = no_sound( hanzi )
-    
+
     #Take the tone info from the Transcription, Pinyin, PinyinTW, Cantonese or Bopomofo field
     if has_field(Transcription_fields, dico):
         t = no_sound( no_color(get_any(Transcription_fields, dico) ) )
@@ -295,7 +295,7 @@ def update_Color_fields(hanzi, dico):
 def update_ColorPY_fields(hanzi, dico):
     #Update Color fields from the Hanzi field,
     h = no_sound( hanzi )
-    
+
     #Take the tone info from the Pinyin field
     t = no_sound( no_color(get_any(Pinyin_fields, dico) ) )
     c = colorize_fuse( h, t )
@@ -305,7 +305,7 @@ def update_ColorPY_fields(hanzi, dico):
 def update_ColorPYTW_fields(hanzi, dico):
     #Update Color fields from the Hanzi field,
     h = no_sound( hanzi )
-    
+
     #Take the tone info from the PinyinTW field
     t = no_sound( no_color(get_any(PinyinTW_fields, dico) ) )
     c = colorize_fuse( h, t )
@@ -315,7 +315,7 @@ def update_ColorPYTW_fields(hanzi, dico):
 def update_ColorCANT_fields(hanzi, dico):
     #Update Color fields from the Hanzi field,
     h = no_sound( hanzi )
-    
+
     #Take the tone info from the Cantonese field
     t = no_sound( no_color(get_any(Cantonese_fields, dico) ) )
     c = colorize_fuse( h, t )
@@ -325,7 +325,7 @@ def update_ColorCANT_fields(hanzi, dico):
 def update_ColorBPMF_fields(hanzi, dico):
     #Update Color fields from the Hanzi field,
     h = no_sound( hanzi )
-    
+
     #Take the tone info from the Bopomofo field
     t = no_sound( no_color(get_any(Bopomofo_fields, dico) ) )
     c = colorize_fuse( h, t )
@@ -343,7 +343,7 @@ def update_all_Color_fields(hanzi, dico):
 #Returns 1 if a sound was added, otherwise returns 0
 def update_Sound_fields(hanzi, dico):
     #Update Sound field from Hanzi field if non-empty
-    #(only if field actually exists, as it implies downloading 
+    #(only if field actually exists, as it implies downloading
     #a soundfile from Internet)
     if has_field(Sound_fields, dico) and \
             get_any(Sound_fields, dico)=="":
@@ -351,12 +351,12 @@ def update_Sound_fields(hanzi, dico):
         if s:
             set_all(Sound_fields, dico, to = s)
             return 1, 0 #1 field filled, 0 errors
-        return 0, 1 
+        return 0, 1
     return 0, 0
 
 def update_Sound_Mandarin_fields(hanzi, dico):
     #Update Sound field from Hanzi field if non-empty
-    #(only if field actually exists, as it implies downloading 
+    #(only if field actually exists, as it implies downloading
     #a soundfile from Internet)
     if has_field(Sound_Mandarin_fields, dico) and \
             get_any(Sound_Mandarin_fields, dico)=="":
@@ -369,7 +369,7 @@ def update_Sound_Mandarin_fields(hanzi, dico):
 
 def update_Sound_Cantonese_fields(hanzi, dico):
     #Update Sound field from Hanzi field if non-empty
-    #(only if field actually exists, as it implies downloading 
+    #(only if field actually exists, as it implies downloading
     #a soundfile from Internet)
     if has_field(Sound_Cantonese_fields, dico) and \
             get_any(Sound_Cantonese_fields, dico)=="":
@@ -387,13 +387,13 @@ def update_all_Sound_fields(hanzi, dico):
     return updated1+updated2+updated3, errors1+errors2+errors3
 
 def update_Simplified_fields(hanzi, dico):
-    
+
     #Don't do anything if already filled
     if not get_any(Simplified_fields, dico) == "":
         return
-    
+
     s = simplify(hanzi)
-    if s <> hanzi:
+    if s != hanzi:
         set_all(Simplified_fields, dico, to = s )
     else:
         set_all(Simplified_fields, dico, to = "" )
@@ -404,9 +404,9 @@ def update_Traditional_fields(hanzi, dico):
     #Don't do anything if already filled
     if not get_any(Traditional_fields, dico) == "":
         return
-    
+
     t = traditional(hanzi)
-    if t <> hanzi:
+    if t != hanzi:
         set_all(Traditional_fields, dico, to = t )
     else:
         set_all(Traditional_fields, dico, to = "" )
@@ -493,7 +493,7 @@ def update_fields(field, updated_field, model_name, model_type):
         if updated_field == "Hanzi":
             #Update the ruby
             h = colorize(ruby(accentuate_pinyin(field["Hanzi"])))
-            #Add the toneless transcription and hanzi, hidden, 
+            #Add the toneless transcription and hanzi, hidden,
             #to make them searchable
             h = hide_ruby(h)
             field["Hanzi"] = h
@@ -558,5 +558,5 @@ def update_fields(field, updated_field, model_name, model_type):
             format_Bopomofo_fields(field)
             update_all_Color_fields(hanzi, field)
             update_all_Ruby_fields(hanzi, field)
-                    
+
     return field

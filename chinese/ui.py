@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 # Copyright © 2012 Thomas TEMPÉ, <thomas.tempe@alysse.org>
-# 
+#
 # License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
 #
 #COPYRIGHT AND PERMISSION NOTICE
@@ -34,9 +34,9 @@ from fill_missing import fill_sounds, fill_pinyin, fill_translation, fill_simp_t
 offer_auto_module_upgrade = False #Broken for now.
 
 ui_actions = {}
-dictionaries = [ 
-("None", _("None")), 
-("local_en", _("English")), 
+dictionaries = [
+("None", _("None")),
+("local_en", _("English")),
 ("local_de", _("German")),
 ("local_fr", _("French"))]
 
@@ -124,7 +124,7 @@ def check_for_next_version(*args, **kwargs):
         import __init__
         local_version = __init__.__version__
         if is_newer(latest_version, local_version):
-            if chinese_support_config.options["latest_available_version"] <> latest_version:
+            if chinese_support_config.options["latest_available_version"] != latest_version:
                 chinese_support_config.set_option("latest_available_version", latest_version)
                 if offer_auto_module_upgrade:
                     chinese_support_config.set_option("next_version_message", "A new version of <b>Chinese Support Add-on</b> is available.<br>&nbsp;<br>Do you want Anki to <b>download and install it automatically</b> now?<br>&nbsp;Alternately, you can also download it later through <tt>Tools->Add-ons->Browse and install</tt>.<br>&nbsp;<br><b>Version "+latest_version+":</b><br>"+latest_comment)
