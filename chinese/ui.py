@@ -14,20 +14,19 @@
 
 #Except as contained in this notice, the name of a copyright holder shall not be used in advertising or otherwise to promote the sale, use or other dealings in these Data Files or Software without prior written authorization of the copyright holder.
 
+import os.path
 
+from anki.hooks import wrap
 from aqt import mw
 from aqt.qt import *
 from aqt.utils import showInfo, openLink, askUser
-from anki.hooks import wrap
 import aqt.main
-import os.path
 
+from _version import __version__
 from config import chinese_support_config
-import __init__
-import Chinese_support
+from fill_missing import fill_sounds, fill_pinyin, fill_translation, fill_simp_trad, fill_silhouette
 import edit_behavior
 import edit_ui
-from fill_missing import fill_sounds, fill_pinyin, fill_translation, fill_simp_trad, fill_silhouette
 
 
 edit_behavior_file = os.path.join(mw.pm.addonFolder(),
@@ -197,7 +196,7 @@ def myRebuildAddonsMenu(self):
     add_action(_("Development forum"), sm, lambda : goto_page("https://anki.tenderapp.com/discussions/add-ons/2336-chinese-support-add-on-development"))
     add_action(_("Video tutorial"), sm, lambda : goto_page("http://youtu.be/SiGUrrxptpg"))
     add_action(_("Report a bug"), sm, lambda : goto_page("https://github.com/ttempe/chinese-support-addon/issues"))
-    add_action(_("About..."), m, lambda : showInfo(u"Chinese support plugin v. " + __init__.__version__ + u"<br>Copyright © 2012-2014 Thomas TEMP&Eacute; and many others.<br><br>Please see source code for additional info."))
+    add_action(_("About..."), m, lambda : showInfo(u"Chinese support plugin v. " + __version__ + u"<br>Copyright © 2012-2014 Thomas TEMP&Eacute; and many others.<br><br>Please see source code for additional info."))
     add_action(_("Please rate me on Ankiweb!"), m, lambda : goto_page("https://ankiweb.net/shared/info/3448800906"))
     update_dict_action_checkboxes()
 

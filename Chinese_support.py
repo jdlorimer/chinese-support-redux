@@ -26,19 +26,4 @@ A Plugin for the Anki2 Spaced Repition learning system,
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
-# You should not have to edit this file for normal usage.
-# All config options are in the add-on menu.
-
-
-import chinese.templates.ruby ; chinese.templates.ruby.install()
-import chinese.templates.chinese ; chinese.templates.chinese.install()
-
-import chinese.ui
-import chinese.edit
-import chinese.models.basic
-import chinese.models.advanced
-#import chinese.models.compatibility
-#import chinese.models.ruby
-#import chinese.models.ruby_synonyms
-import chinese.ui
-import chinese.graph
+import chinese
