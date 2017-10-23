@@ -29,10 +29,6 @@ import edit_behavior
 import edit_ui
 
 
-edit_behavior_file = os.path.join(mw.pm.addonFolder(),
-                                  "chinese",
-                                  "edit_behavior.py")
-
 ui_actions = {}
 dictionaries = [
 ("None", _("None")),
@@ -116,19 +112,6 @@ def set_option_constructor(option, value):
 
 edit_window = None
 
-def edit_logic_ok():
-    open(edit_behavior_file, "w").write(edit_window.text.toPlainText().encode("utf8"))
-    reload(edit_behavior)
-
-def edit_logic():
-    d = QDialog(mw)
-    global edit_window
-    edit_window = aqt.forms.editaddon.Ui_Dialog()
-    edit_window.setupUi(d)
-    d.setWindowTitle(_("Configure behavior of note edit dialog box"))
-    edit_window.text.setPlainText(unicode(open(edit_behavior_file).read(), "utf8"))
-    d.connect(edit_window.buttonBox, SIGNAL("accepted()"), edit_logic_ok)
-    d.exec_()
 
 def fill_sounds_logic():
     fill_sounds(mw.col, mw.web.key)
@@ -186,7 +169,6 @@ def myRebuildAddonsMenu(self):
     add_action(_("Fill translation"), sm, fill_translation_logic)
     add_action(_("Fill simplified/traditional"), sm, fill_simp_trad_logic)
     add_action(_("Fill silhouette"), sm, fill_silhouette_logic)
-    add_action(_("Editor Behavior"), m, edit_logic)
     sm=m.addMenu(_("Help"))
     ### REMINDER : the website addresses are also available in config.py, in some startup tips. Don't forget to update both.
     add_action(_("Setup instructions"), sm, lambda : goto_page("https://ankiweb.net/shared/info/3448800906"))
