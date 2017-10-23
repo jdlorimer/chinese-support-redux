@@ -30,29 +30,6 @@ A Plugin for the Anki2 Spaced Repition learning system,
 # All config options are in the add-on menu.
 
 
-import os, sys, os.path, re
-from aqt import mw
-from aqt.utils import isWin
-
-# Python path hacks
-#################################################################
-
-#Add local copy of sqlalchemy to Python path, for cjklib to work.
-addon_dir = mw.pm.addonFolder()
-if isWin:
-    addon_dir = addon_dir.encode(sys.getfilesystemencoding())
-sys.path.insert(0, os.path.join(addon_dir, "chinese") )
-#Import a few modules from the full Python distribution,
-#which don't come with Anki on Windows or MacOS but are needed for cjklib
-sys.path.append( os.path.join(addon_dir, "chinese", "python-2.7-modules") )
-
-# Quick-and-dirty trick to remove cjklib warning on a Linux with a
-# full python install, about having two different versions of
-# sqlalchemy, httplib2, ... on Ubuntu and Fedora
-sys.path = filter(
-    lambda a: not(re.search(r'(dist|site)-packages$', a)), sys.path)
-
-import chinese.upgrade
 import chinese.templates.ruby ; chinese.templates.ruby.install()
 import chinese.templates.chinese ; chinese.templates.chinese.install()
 
