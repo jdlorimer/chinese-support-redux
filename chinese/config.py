@@ -1,17 +1,19 @@
 # -*- coding: utf-8 ; mode: python -*-
 #
-#   Copyright © 2012 by Roland Sieker, <ospalh@gmail.com> 
+#   Copyright © 2012 by Roland Sieker, <ospalh@gmail.com>
 #   Copyright © 2012 by Thomas TEMPÉ, <thomas.tempe@alysse.org>
 #
 # License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
 
-import os.path
 import json
-import __init__
+import os.path
+
 from aqt import mw
 
-initial_options =  { 
-'startup_tip_number':0, 
+from _version import __version__
+
+initial_options =  {
+'startup_tip_number':0,
 'show_startup_tips':True,
 'dictionary':'None',
 'transcription':'Pinyin',
@@ -38,19 +40,19 @@ startup_tips = [
 class config:
     filepath = ""
     options = {}
-    
+
     def __init__(self):
         #self.filepath = os.path.join(mw.pm.profileFolder(), "chinese_config.json")
         self.filepath = os.path.join(mw.pm.addonFolder(), "chinese", "chinese_addon_config.json")
         self.load()
         #Options that may be missing in some installs initialized by old versions of this code
-        self.add_option("latest_available_version", __init__.__version__)
+        self.add_option("latest_available_version", __version__)
         self.add_option("next_version_message", None)
         self.add_option("warned_about_MS_translate_long_delays", False)
     def load(self):
         if not os.path.exists(self.filepath):
             self.create_new()
-        self.options = json.load(open(self.filepath, 'r')) 
+        self.options = json.load(open(self.filepath, 'r'))
 
     def save(self):
         json.dump(self.options, open(self.filepath, 'w'))
