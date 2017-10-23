@@ -20,18 +20,19 @@ from aqt.qt import *
 from aqt.utils import showInfo, openLink, askUser
 from anki.hooks import wrap
 import aqt.main
-import urllib2
-import re
+import os.path
 
 from config import chinese_support_config
 import __init__
 import Chinese_support
 import edit_behavior
-from upgrade import edit_behavior_file, do_upgrade
 import edit_ui
 from fill_missing import fill_sounds, fill_pinyin, fill_translation, fill_simp_trad, fill_silhouette
 
-offer_auto_module_upgrade = False #Broken for now.
+
+edit_behavior_file = os.path.join(mw.pm.addonFolder(),
+                                  "chinese",
+                                  "edit_behavior.py")
 
 ui_actions = {}
 dictionaries = [
@@ -97,57 +98,6 @@ def display_next_tip():
         else:
             showInfo(tip)
 
-def check_for_next_version(*args, **kwargs):
-    '''Attempt to fetch the __init__.py file from github, and check
-    if it corresponds to a new release. If so, warn the user (exactly once
-    per version).
-    This function is called on exit.'''
-    def is_newer(a, b):
-        'compares version strings in the form "0.7.3"'
-        version_re = r"(\d+)\.(\d+)\.(\d+).*"
-        ra = re.search(version_re, a)
-        rb = re.search(version_re, b)
-
-        if int(ra.group(1))>int(rb.group(1)):
-            return True
-        elif int(ra.group(2))>int(rb.group(2)):
-            return True
-        elif int(ra.group(3))>int(rb.group(3)):
-            return True
-        else:
-            return False
-    try:
-        #fetch the latest release on Github. This means github must be updated *after* Ankiweb
-        latest_data = urllib2.urlopen('https://raw.github.com/ttempe/chinese-support-addon/master/chinese/__init__.py', timeout=7).read()
-        latest_version = re.search(r"__version__\s*=\s*\"\"\"(.*?)\"\"\"", latest_data).group(1)
-        latest_comment = re.search(r"release_info\s*=\s*\"\"\"(.*?)\"\"\"", latest_data, re.S).group(1)
-        import __init__
-        local_version = __init__.__version__
-        if is_newer(latest_version, local_version):
-            if chinese_support_config.options["latest_available_version"] != latest_version:
-                chinese_support_config.set_option("latest_available_version", latest_version)
-                if offer_auto_module_upgrade:
-                    chinese_support_config.set_option("next_version_message", "A new version of <b>Chinese Support Add-on</b> is available.<br>&nbsp;<br>Do you want Anki to <b>download and install it automatically</b> now?<br>&nbsp;Alternately, you can also download it later through <tt>Tools->Add-ons->Browse and install</tt>.<br>&nbsp;<br><b>Version "+latest_version+":</b><br>"+latest_comment)
-                else:
-                    chinese_support_config.set_option("next_version_message", 'A new version of <b>Chinese Support Add-on</b> is available.<br>&nbsp;<br>You can download it now through <tt>Tools->Add-ons->Browse and install</tt><br>&nbsp;<br>Add-on code: %s<br>&nbsp;<br><b>Version %s:</div><div>%s</div>' %( __init__.ankiweb_number, latest_version, latest_comment))
-    except:
-        pass
-
-def display_new_version_message():
-    #Only show message on next startup
-    if chinese_support_config.options["next_version_message"]:
-        if offer_auto_module_upgrade:
-            if askUser(chinese_support_config.options["next_version_message"]):
-                if do_upgrade():
-                #success
-                    chinese_support_config.set_option("next_version_message", None)
-            else:
-            #User does not want to be bothered with upgrades
-                chinese_support_config.set_option("next_version_message", None)
-        else:
-            #no auto upgrade
-            showInfo(chinese_support_config.options["next_version_message"])
-            chinese_support_config.set_option("next_version_message", None)
 
 def goto_page(page):
     openLink(page)
@@ -256,9 +206,3 @@ def myRebuildAddonsMenu(self):
 aqt.addons.AddonManager.rebuildAddonsMenu = wrap(aqt.addons.AddonManager.rebuildAddonsMenu, myRebuildAddonsMenu)
 
 display_next_tip()
-display_new_version_message()
-#Check for new version of this plug-in when closing Anki
-aqt.main.AnkiQt.onClose = wrap(aqt.main.AnkiQt.onClose, check_for_next_version)
-
-#Uncomment to force display of next version info (debug)
-#showInfo('A new version of <b>Chinese Support Add-on</b> is available.<br>&nbsp;<br>You can download it now through <tt>Tools->Add-ons->Browse and install</tt><br>&nbsp;<br>Add-on code: %s<br>&nbsp;<br><b>Version %s:</div><div>%s</div>' %( __init__.ankiweb_number, __init__.__version__, __init__.release_info))
