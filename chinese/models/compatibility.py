@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# 
+#
 # Copyright © 2012 Thomas Tempe <thomas.tempe@alysse.org>
 # Copyright © 2012 Roland Sieker <ospalh@gmail.com>
 #
@@ -8,7 +8,7 @@
 #
 
 import anki.stdmodels
-from css import style
+from .css import style
 
 # List of fields
 ######################################################################
@@ -44,7 +44,7 @@ card_back = u'''\
 {{#Also Written}}<div class=chinese><span class=comment>Also written:</span> {{Also Written}}</div>{{/Also Written}}<!-- {{Sound}}-->
 
 <div class=comment> <!-- Word lookup -->
-<a href="http://www.mdbg.net/chindict/chindict.php?page=worddict&wdrst=0&wdqb={{text:Hanzi}}">MDBG</a>, 
+<a href="http://www.mdbg.net/chindict/chindict.php?page=worddict&wdrst=0&wdqb={{text:Hanzi}}">MDBG</a>,
 <a href="http://zhidao.baidu.com/q?word={{text:Hanzi}}&ct=17&pn=0&tn=ikaslist&rn=10&lm=0&fr=search">百度</a>,
 <a href="http://image.baidu.com/i?ie=utf-8&word={{text:Hanzi}}">Image</a>
 </div>

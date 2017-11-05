@@ -1,18 +1,19 @@
 # -*- coding: utf-8 -*-
-#
-# Copyright © 2012 Thomas TEMPÉ, <thomas.tempe@alysse.org>
-#
+# Copyright 2012 Thomas TEMPÉ <thomas.tempe@alysse.org>
+# Copyright 2017 Luo Li-Yan <joseph.lorimer13@gmail.com>
 # License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
 
-from aqt import mw
+from functools import reduce
 import re
 
-from config import chinese_support_config
-import bopomofo as bopomofo_module
-import google_tts
-import baidu_tts
-from microsofttranslator import Translator as MSTranslator
-import dictdb
+from aqt import mw
+
+from . import baidu_tts
+from . import bopomofo as bopomofo_module
+from . import dictdb
+from . import google_tts
+from .config import chinese_support_config
+from .microsofttranslator import Translator as MSTranslator
 
 # Essential Edit functions
 ##################################################################
@@ -20,7 +21,7 @@ import dictdb
 # You may call any of these functions from the edit_behavior.py file.
 
 def colorize(text, ruby_whole=False):
-    u'''Add tone color info.
+    '''Add tone color info.
     (can be seen in the card preview, but not the note edit view).
     Works on transcription, hanzi or ruby.
 
@@ -34,28 +35,28 @@ def colorize(text, ruby_whole=False):
     (text, sound_tags) = extract_sound_tags(text)
 
     def colorize_hanzi_sub(p):
-        return u'<span class="tone{t}">{r}</span>'.format(t=get_tone_number(transcribe(p.group(1), only_one=True)), r=p.group())
+        return '<span class="tone{t}">{r}</span>'.format(t=get_tone_number(transcribe(p.group(1), only_one=True)), r=p.group())
 
     def colorize_pinyin_sub(p):
         pinyin = p.group()
         if pinyin[0] in '&<"/':
             return pinyin
         else:
-            return u'<span class="tone{t}">{r}</span>'.format(t=get_tone_number(p.group(1)), r=pinyin)
+            return '<span class="tone{t}">{r}</span>'.format(t=get_tone_number(p.group(1)), r=pinyin)
 
 
     if has_ruby(text): #Treat like ruby
         if ruby_whole:
             def colorize_ruby_sub(p):
-                return u'<span class="tone{t}">{r}</span>'.format(t=get_tone_number(p.group(2)), r=p.group())
+                return '<span class="tone{t}">{r}</span>'.format(t=get_tone_number(p.group(2)), r=p.group())
 
-            text = re.sub(u'([\u3400-\u9fff]\[\s*)([a-zü'+accents+u']+1?[0-9¹²³⁴]?)(.*?\])', colorize_ruby_sub, text, flags=re.I)
+            text = re.sub('([\u3400-\u9fff]\[\s*)([a-zü'+accents+']+1?[0-9¹²³⁴]?)(.*?\])', colorize_ruby_sub, text, flags=re.I)
         else:
-            text = re.sub(u'([a-zü'+accents+u']+1?[0-9¹²³⁴]?)', colorize_pinyin_sub, text, flags=re.I)
+            text = re.sub('([a-zü'+accents+']+1?[0-9¹²³⁴]?)', colorize_pinyin_sub, text, flags=re.I)
     elif has_hanzi(text):
-        text = re.sub(u'([\u3400-\u9fff])', colorize_hanzi_sub, text)
+        text = re.sub('([\u3400-\u9fff])', colorize_hanzi_sub, text)
     else:
-        text = re.sub(u'([&<"/]?[a-zü\u3100-\u312F'+accents+u']+1?[0-9¹²³⁴ˊˇˋ˙]?)', colorize_pinyin_sub, text, flags=re.I)
+        text = re.sub('([&<"/]?[a-zü\u3100-\u312F'+accents+']+1?[0-9¹²³⁴ˊˇˋ˙]?)', colorize_pinyin_sub, text, flags=re.I)
     text = text+sound_tags
     return text
 
@@ -116,8 +117,8 @@ def silhouette(hanzi):
             r += i + " "
         return r[:-1]
 
-    hanzi = re.sub(u"[\u3400-\u9fff]+", insert_spaces, hanzi)
-    txt = re.sub(u"[\u3400-\u9fff]", "_", hanzi)
+    hanzi = re.sub("[\u3400-\u9fff]+", insert_spaces, hanzi)
+    txt = re.sub("[\u3400-\u9fff]", "_", hanzi)
     return txt
 
 
@@ -126,7 +127,7 @@ def no_hidden(text):
     return re.sub(r"<!--.*?-->", "", text)
 
 def accentuate_pinyin(text, force=False):
-    u'''Add accents to pinyin.
+    '''Add accents to pinyin.
     Eg: ni2 becomes ní.
     Eg: ní4 becomes nì. (to make correction easier)
 
@@ -142,11 +143,11 @@ def accentuate_pinyin(text, force=False):
 #        for v in accents:
 #            re.sub(v, base_letters[v], pinyin)
         pinyin = no_tone(pinyin)
-        for v in u"aeouüviAEOUÜVI":
+        for v in "aeouüviAEOUÜVI":
             if pinyin.find(v)>-1:
                 try:
                     return re.sub(v, vowel_decorations[int(tone)][v.lower()], pinyin, count=1)
-                except KeyError, IndexError:
+                except (KeyError, IndexError):
                     pass
         return pinyin
 
@@ -154,20 +155,20 @@ def accentuate_pinyin(text, force=False):
             not in ['Pinyin', 'Pinyin (Taiwan)'] and not force:
         return text
     text = no_color(text)
-    text = re.sub(u'([a-z]*[aeiouüÜv'+accents+u'][a-zü]*)([1-5])', accentuate_pinyin_sub, text, flags=re.I)
+    text = re.sub('([a-z]*[aeiouüÜv'+accents+'][a-zü]*)([1-5])', accentuate_pinyin_sub, text, flags=re.I)
     return text
 
 def no_accents(text):
-    u'Eg: ní becomes ni2.'
+    'Eg: ní becomes ni2.'
 
     def desaccentuate_pinyin_sub(p):
         return ""+p.group(1)+base_letters[p.group(2).lower()]+p.group(3)+get_tone_number(p.group(2).lower())
 
     #Remove +u'aeiouüvAEIOUÜV' if you want 5th tone to be ignored
-    return re.sub(u'([a-zü]*)(['+u'aeiouüvAEIOUÜV'+accents+u'])([a-zü]*)', desaccentuate_pinyin_sub, text, flags=re.I)
+    return re.sub('([a-zü]*)(['+'aeiouüvAEIOUÜV'+accents+'])([a-zü]*)', desaccentuate_pinyin_sub, text, flags=re.I)
 
 def ruby(text, transcription=None, only_one=False, try_dict_first=True):
-    u'''Convert hanzi to ruby notation, eg: '你' becomes '你[nǐ]'.
+    '''Convert hanzi to ruby notation, eg: '你' becomes '你[nǐ]'.
     This can in turn be used with the {{Ruby:fieldname}} card template,
     to generate beautiful ruby-annotated cards.
 
@@ -183,13 +184,13 @@ def ruby(text, transcription=None, only_one=False, try_dict_first=True):
         transcription = chinese_support_config.options['transcription']
 
     #Replace Chinese typography with its ASCII counterpart
-    text = re.sub(u'[［【]', u'[', text)
-    text = re.sub(u'[］】]', u']', text)
+    text = re.sub('[［【]', '[', text)
+    text = re.sub('[］】]', ']', text)
     #Strip former HTML tone marking and comments
     text = no_color(text)
     text = no_sound(text)
     #Make sure sound tag isn't confused with Hanzi
-    text = re.sub(u'([\u3400-\u9fff])(\[sound:)', r'\1 \2', text)
+    text = re.sub('([\u3400-\u9fff])(\[sound:)', r'\1 \2', text)
 
     def insert_multiple_pinyin_sub(p):
         hanzi=p.group(1)
@@ -213,15 +214,15 @@ def ruby(text, transcription=None, only_one=False, try_dict_first=True):
 
     text += '%'
     if try_dict_first and transcription in ["Pinyin", "Bopomofo"]:
-        text = re.sub(u'([\u3400-\u9fff]+)([^[])', insert_multiple_pinyin_sub, text)
-    text = re.sub(u'([\u3400-\u9fff])([^[])', insert_pinyin_sub, text)
-    text = re.sub(u'([\u3400-\u9fff])([^[])', insert_pinyin_sub, text)
+        text = re.sub('([\u3400-\u9fff]+)([^[])', insert_multiple_pinyin_sub, text)
+    text = re.sub('([\u3400-\u9fff])([^[])', insert_pinyin_sub, text)
+    text = re.sub('([\u3400-\u9fff])([^[])', insert_pinyin_sub, text)
     text = text[:-1]
     text += sound(text)
     return text
 
 def no_tone(text):
-    u'''Removes tone information and coloring.
+    '''Removes tone information and coloring.
     Eg: 'ni3' becomes 'ni', 'má' becomes 'ma'
     '''
     text = no_color(text)
@@ -229,22 +230,22 @@ def no_tone(text):
     def no_tone_marks_sub(p):
         return ""+p.group(1)+re.sub(r'1?[0-9¹²³⁴]', '', p.group(2))+"]"
     if has_ruby(text):
-        text = re.sub(u'([\u3400-\u9fff]\[)([^[]+?)\]', no_tone_marks_sub, text)
+        text = re.sub('([\u3400-\u9fff]\[)([^[]+?)\]', no_tone_marks_sub, text)
     else:
-        text = re.sub(u'([a-zü]+)1?[0-9¹²³⁴]', r'\1', text)
+        text = re.sub('([a-zü]+)1?[0-9¹²³⁴]', r'\1', text)
     return text
 
 def hanzi(text):
-    u'''Returns just the anzi from a Ruby notation.
+    '''Returns just the anzi from a Ruby notation.
     Eg: '你[nǐ][You]' becomes '你'.
     '''
-    text = re.sub(u'([\u3400-\u9fff])(\[[^[]+?\])', r'\1', text)
+    text = re.sub('([\u3400-\u9fff])(\[[^[]+?\])', r'\1', text)
     text = re.sub(r'\[sound:.[^[]+?\]', '', text)
     text = re.sub(r'([^\u3400-\u9fff])\[[^[]+?\]\s*$', r'\1', text)
     return text
 
 def transcribe(text, transcription=None, only_one=True):
-    u'''
+    '''
     Converts to specified transcription.
     Eg : 你 becomes nǐ (transcription="Pinyin", only_one=True)
 
@@ -272,7 +273,7 @@ def transcribe(text, transcription=None, only_one=True):
     return r
 
 def pinyin_to_bopomofo(pinyin):
-    u'''
+    '''
     Converts Pinyin to Bopomofo.
     '''
     return bopomofo_module.bopomofo(no_accents(cleanup(pinyin)))
@@ -295,7 +296,7 @@ def translate_local(text, lang):
     res = ""
     if are_there_multiple_pinyins(defs):
         for (pinyin, definition, cl, alt) in defs:
-            res += u"❖ %s[%s] %s\n" % (text, pinyin, definition)
+            res += "❖ %s[%s] %s\n" % (text, pinyin, definition)
     else:
         for (pinyin, definition, cl, alt) in defs:
             res += " \t"+definition+"\n"
@@ -305,7 +306,7 @@ def translate_local(text, lang):
     return res
 
 def translate(text, from_lang="zh", to_lang=None, progress_bar=True):
-    u'''Translate to a different language.
+    '''Translate to a different language.
     Eg: '你好' becomes 'Hello'
     Only installed dictionaries can be used.
 
@@ -325,26 +326,26 @@ def translate(text, from_lang="zh", to_lang=None, progress_bar=True):
             return ""
     if to_lang.startswith("local_"): #Local dict
         return translate_local(text, to_lang[-2:])
-    else:  #Ms translate
-        ret = ""
-        if progress_bar:
-            mw.progress.start(label="MS Translator lookup", immediate=True)
-        if None == MS_translator_object:
-            MS_translator_object = MSTranslator("chinese-support-add-on", "Mh+X5YY17LZZ8rO9hzJXYD3I02V3E+ltItF15ep7qG8=")
-        try:
-            ret = MS_translator_object.translate(text, to_lang)
-        except:
-            pass
+#    else:  #Ms translate
+#        ret = ""
+#        if progress_bar:
+#            mw.progress.start(label="MS Translator lookup", immediate=True)
+#        if None == MS_translator_object:
+#            MS_translator_object = MSTranslator("chinese-support-add-on", "Mh+X5YY17LZZ8rO9hzJXYD3I02V3E+ltItF15ep7qG8=")
+#        try:
+#            ret = MS_translator_object.translate(text, to_lang)
+#        except:
+#            pass
 
-        if "ArgumentException:" == ret[:18]:
-            #Token has probably expired
-            ret=""
-        if progress_bar:
-            mw.progress.finish()
-        return ret
+#        if "ArgumentException:" == ret[:18]:
+#            #Token has probably expired
+#            ret=""
+#        if progress_bar:
+#            mw.progress.finish()
+#        return ret
 
 def cleanup(txt):
-    u'''Remove all HTML, tags, and others.'''
+    '''Remove all HTML, tags, and others.'''
     if not txt:
         return ""
     txt = re.sub(r"<.*?>", "", txt, flags=re.S)
@@ -357,7 +358,7 @@ def cleanup(txt):
 
 
 def colorize_fuse(hanzi, pinyin, ruby=False):
-    u'''Gives color to a Hanzi phrase based on the tone info from a
+    '''Gives color to a Hanzi phrase based on the tone info from a
     corresponding Pinyin phrase.
     If ruby = True, then annotate with pinyin on top of each character
 
@@ -374,9 +375,9 @@ def colorize_fuse(hanzi, pinyin, ruby=False):
             [p, pinyin] = pinyin.split(" ", 1)
 #            print "C1\t", h, "\t", p
             if ruby:
-                text +=  u'<span class="tone{t}"><ruby>{h}<rt>{p}</rt></span>'.format(t=get_tone_number(p), h=h, p=p)
+                text +=  '<span class="tone{t}"><ruby>{h}<rt>{p}</rt></span>'.format(t=get_tone_number(p), h=h, p=p)
             else:
-                text +=  u'<span class="tone{t}">{h}</span>'.format(t=get_tone_number(p), h=h)
+                text +=  '<span class="tone{t}">{h}</span>'.format(t=get_tone_number(p), h=h)
         elif " "==h and " "!=pinyin[0]:
             text += " "
 #            print "C2\t_\t(none)"
@@ -395,7 +396,7 @@ def get_mean_word(text):
     if text == "":
         return ""
     cl =  db.get_classifiers(text)
-    if len(cl):
+    if len(list(cl)):
         return local_dict_colorize(", ".join(cl))
     else:
         return ""
@@ -404,7 +405,7 @@ def get_alternate_spellings(text):
     if text == "":
         return ""
     alt =  db.get_alt_spellings(text)
-    if len(alt):
+    if len(list(alt)):
         return local_dict_colorize(", ".join(alt))
     else:
         return ""
@@ -457,7 +458,7 @@ def sound(text, source=None):
 
 
 def get_any(fields, dico):
-    u'''Get the 1st valid field from a list
+    '''Get the 1st valid field from a list
     Scans all field names listed as "fields", to find one that exists,
     then returns its value.
     If none exists, returns an empty string.
@@ -465,45 +466,45 @@ def get_any(fields, dico):
     Case-insensitive.
     '''
     for f in fields:
-        for k, v in dico.iteritems():
+        for k, v in dico.items():
             try:
-                if unicode(f.lower()) == unicode(k.lower()):
+                if str(f.lower()) == str(k.lower()):
                     return dico[k]
             except:
                 pass
     return ""
 
 def set_all(fields, dico, to):
-    u'''Set all existing fields to the same value.
+    '''Set all existing fields to the same value.
     (Non-existing fields are ignored)
 
     Case-insensitive.
     '''
     for f in fields:
-        for d, v in dico.iteritems():
+        for d, v in dico.items():
             try:
-                if unicode(d.lower()) == unicode(f.lower()):
+                if str(d.lower()) == str(f.lower()):
                     dico[d] = to
             except:
                 pass
 
 def has_field(fields, dico):
-    u'''
+    '''
     Check if one of the named fields exists in the field list
 
     Case-insensitive.
     '''
-    for d, v in dico.iteritems():
+    for d, v in dico.items():
         for f in fields:
             try:
-                if unicode(f.lower()) == unicode(d.lower()):
+                if str(f.lower()) == str(d.lower()):
                     return True
             except:
                 pass
     return False
 
 def no_sound(text):
-    u'''
+    '''
     Removes the [sound:xxx.mp3] tag that's added by Anki when you record
     sound into a field.
 
@@ -513,7 +514,7 @@ def no_sound(text):
     return re.sub(r'\[sound:.*?]', '', text)
 
 def separate_pinyin(text, force=False, cantonese=False):
-    u"""
+    """
     Separate pinyin syllables with whitespace.
     Eg: "Yīlù píng'ān" becomes "Yī lù píng ān"
 
@@ -550,13 +551,13 @@ def separate_pinyin(text, force=False, cantonese=False):
         return text
 
 def simplify(text):
-    u'''Converts to simplified variants
+    '''Converts to simplified variants
     '''
     r = db.get_simplified(text)
     return r
 
 def traditional(text):
-    u'''Converts to traditional variants
+    '''Converts to traditional variants
     '''
     r = db.get_traditional(text)
     return r
@@ -568,49 +569,49 @@ def traditional(text):
 MS_translator_object = None
 
 vowel_tone_dict = {
-    u'ā':1, u'ā':1, u'ɑ̄':1, u'ē':1, u'ī':1, u'ō':1, u'ū':1,
-    u'ǖ':1, u'Ā':1, u'Ē':1, u'Ī':1, u'Ō':1, u'Ū':1, u'Ǖ':1,
-    u'á':2, u'ɑ́':2, u'é':2, u'í':2, u'ó':2, u'ú':2, u'ǘ':2,
-    u'Á':2, u'É':2, u'Í':2, u'Ó':2, u'Ú':2, u'Ǘ':2,
-    u'ǎ':3, u'ɑ̌':3, u'ě':3, u'ǐ':3, u'ǒ':3, u'ǔ':3, u'ǚ':3,
-    u'Ǎ':3, u'Ě':3, u'Ǐ':3, u'Ǒ':3, u'Ǔ':3, u'Ǚ':3,
-    u'à':4, u'ɑ̀':4, u'è':4, u'ì':4, u'ò':4, u'ù':4, u'ǜ':4,
-    u'À':4, u'È':4, u'Ì':4, u'Ò':4, u'Ù':4, u'Ǜ':4
+    'ā':1, 'ā':1, 'ɑ̄':1, 'ē':1, 'ī':1, 'ō':1, 'ū':1,
+    'ǖ':1, 'Ā':1, 'Ē':1, 'Ī':1, 'Ō':1, 'Ū':1, 'Ǖ':1,
+    'á':2, 'ɑ́':2, 'é':2, 'í':2, 'ó':2, 'ú':2, 'ǘ':2,
+    'Á':2, 'É':2, 'Í':2, 'Ó':2, 'Ú':2, 'Ǘ':2,
+    'ǎ':3, 'ɑ̌':3, 'ě':3, 'ǐ':3, 'ǒ':3, 'ǔ':3, 'ǚ':3,
+    'Ǎ':3, 'Ě':3, 'Ǐ':3, 'Ǒ':3, 'Ǔ':3, 'Ǚ':3,
+    'à':4, 'ɑ̀':4, 'è':4, 'ì':4, 'ò':4, 'ù':4, 'ǜ':4,
+    'À':4, 'È':4, 'Ì':4, 'Ò':4, 'Ù':4, 'Ǜ':4
     }
 
 vowel_decorations = [
 { },
-{ u'a':u'ā', u'e':u'ē', u'i':u'ī', u'o':u'ō', u'u':u'ū', u'ü':u'ǖ', u'v':u'ǖ'},
-{ u'a':u'á', u'e':u'é', u'i':u'í', u'o':u'ó', u'u':u'ú', u'ü':u'ǘ', u'v':u'ǘ'},
-{ u'a':u'ǎ', u'e':u'ě', u'i':u'ǐ', u'o':u'ǒ', u'u':u'ǔ', u'ü':u'ǚ', u'v':u'ǚ'},
-{ u'a':u'à', u'e':u'è', u'i':u'ì', u'o':u'ò', u'u':u'ù', u'ü':u'ǜ', u'v':u'ǜ'},
-{ u'a':u'a', u'e':u'e', u'i':u'i', u'o':u'o', u'u':u'u', u'ü':u'ü', u'v':u'ü'},
+{ 'a':'ā', 'e':'ē', 'i':'ī', 'o':'ō', 'u':'ū', 'ü':'ǖ', 'v':'ǖ'},
+{ 'a':'á', 'e':'é', 'i':'í', 'o':'ó', 'u':'ú', 'ü':'ǘ', 'v':'ǘ'},
+{ 'a':'ǎ', 'e':'ě', 'i':'ǐ', 'o':'ǒ', 'u':'ǔ', 'ü':'ǚ', 'v':'ǚ'},
+{ 'a':'à', 'e':'è', 'i':'ì', 'o':'ò', 'u':'ù', 'ü':'ǜ', 'v':'ǜ'},
+{ 'a':'a', 'e':'e', 'i':'i', 'o':'o', 'u':'u', 'ü':'ü', 'v':'ü'},
 ]
 
 base_letters = {
-u'ā':u'a', u'ē':u'e', u'ī':u'i', u'ō':u'o', u'ū':u'u', u'ǖ':u'ü',
-u'á':u'a', u'é':u'e', u'í':u'i', u'ó':u'o', u'ú':u'u', u'ǘ':u'ü',
-u'ǎ':u'a', u'ě':u'e', u'ǐ':u'i', u'ǒ':u'o', u'ǔ':u'u', u'ǚ':u'ü',
-u'à':u'a', u'è':u'e', u'ì':u'i', u'ò':u'o', u'ù':u'u', u'ǜ':u'ü',
-u'a':u'a', u'e':u'e', u'i':u'i', u'o':u'o', u'u':u'u', u'ü':u'ü', u'v':'v'
+'ā':'a', 'ē':'e', 'ī':'i', 'ō':'o', 'ū':'u', 'ǖ':'ü',
+'á':'a', 'é':'e', 'í':'i', 'ó':'o', 'ú':'u', 'ǘ':'ü',
+'ǎ':'a', 'ě':'e', 'ǐ':'i', 'ǒ':'o', 'ǔ':'u', 'ǚ':'ü',
+'à':'a', 'è':'e', 'ì':'i', 'ò':'o', 'ù':'u', 'ǜ':'ü',
+'a':'a', 'e':'e', 'i':'i', 'o':'o', 'u':'u', 'ü':'ü', 'v':'v'
 }
 
-accents = u'ɑ̄āĀáɑ́ǎɑ̌ÁǍàɑ̀ÀēĒéÉěĚèÈīĪíÍǐǏìÌōŌóÓǒǑòÒūŪúÚǔǓùÙǖǕǘǗǚǙǜǛ'
+accents = 'ɑ̄āĀáɑ́ǎɑ̌ÁǍàɑ̀ÀēĒéÉěĚèÈīĪíÍǐǏìÌōŌóÓǒǑòÒūŪúÚǔǓùÙǖǕǘǗǚǙǜǛ'
 
 
 def pinyin_re_sub():
-    inits = u"zh|sh|ch|[bpmfdtnlgkhjqxrzscwy]"
-    finals = u"i[ōóǒòo]ng|[ūúǔùu]ng|[āáǎàa]ng|[ēéěèe]ng|i[āɑ̄áɑ́ɑ́ǎɑ̌àɑ̀aāáǎàa]ng|[īíǐìi]ng|i[āáǎàa]n|u[āáǎàa]n|[ōóǒòo]ng|[ēéěèe]r|i[āáǎàa]|i[ēéěèe]|i[āáǎàa]o|i[ūúǔùu]|[īíǐìi]n|u[āáǎàa]|u[ōóǒòo]|u[āáǎàa]i|u[īíǐìi]|[ūúǔùu]n|u[ēéěèe]|ü[ēéěèe]|v[ēéěèe]|i[ōóǒòo]|[āáǎàa]i|[ēéěèe]i|[āáǎàa]o|[ōóǒòo]u|[āáǎàa]n|[ēéěèe]n|[āáǎàa]|[ēéěèe]|[ōóǒòo]|[īíǐìi]|[ūúǔùu]|[ǖǘǚǜüv]"
-    standalones = u"'[āáǎàa]ng|'[ēéěèe]ng|'[ēéěèe]r|'[āáǎàa]i|'[ēéěèe]i|'[āáǎàa]o|'[ōóǒòo]u|'[āáǎàa]n|'[ēéěèe]n|'[āáǎàa]|'[ēéěèe]|'[ōóǒòo]"
+    inits = "zh|sh|ch|[bpmfdtnlgkhjqxrzscwy]"
+    finals = "i[ōóǒòo]ng|[ūúǔùu]ng|[āáǎàa]ng|[ēéěèe]ng|i[āɑ̄áɑ́ɑ́ǎɑ̌àɑ̀aāáǎàa]ng|[īíǐìi]ng|i[āáǎàa]n|u[āáǎàa]n|[ōóǒòo]ng|[ēéěèe]r|i[āáǎàa]|i[ēéěèe]|i[āáǎàa]o|i[ūúǔùu]|[īíǐìi]n|u[āáǎàa]|u[ōóǒòo]|u[āáǎàa]i|u[īíǐìi]|[ūúǔùu]n|u[ēéěèe]|ü[ēéěèe]|v[ēéěèe]|i[ōóǒòo]|[āáǎàa]i|[ēéěèe]i|[āáǎàa]o|[ōóǒòo]u|[āáǎàa]n|[ēéěèe]n|[āáǎàa]|[ēéěèe]|[ōóǒòo]|[īíǐìi]|[ūúǔùu]|[ǖǘǚǜüv]"
+    standalones = "'[āáǎàa]ng|'[ēéěèe]ng|'[ēéěèe]r|'[āáǎàa]i|'[ēéěèe]i|'[āáǎàa]o|'[ōóǒòo]u|'[āáǎàa]n|'[ēéěèe]n|'[āáǎàa]|'[ēéěèe]|'[ōóǒòo]"
     return "(("+inits+")("+finals+")[1-5]?|("+standalones+")[1-5]?)"
 
 pinyin_re = pinyin_re_sub()
 pinyin_two_re = re.compile("(?P<one>"+pinyin_re+")(?P<two>"+pinyin_re+")", flags=re.I)
 
 def jyutping_re_sub():
-    inits = u"ng|gw|kw|[bpmfdtnlgkhwzcsj]"
-    finals = u"i|ip|it|ik|im|in|ing|iu|yu|yut|yun|u|up|ut|uk|um|un|ung|ui|e|ep|et|ek|em|en|eng|ei|eu|eot|eon|eoi|oe|oet|oek|oeng|oei|o|ot|ok|om|on|ong|oi|ou|ap|at|ak|am|an|ang|ai|au|aa|aap|aat|aak|aam|aan|aang|aai|aau|m|ng"
-    standalones = u"'uk|'ung|'e|'ei|'oe|'o|'ok|'om|'on|'ong|'oi|'ou|'ap|'at|'ak|'am|'an|'ang|'ai|'au|'aa|'aap|'aat|'aak|'aam|'aan|'aang|'aai|'aau|'m|'ng"
+    inits = "ng|gw|kw|[bpmfdtnlgkhwzcsj]"
+    finals = "i|ip|it|ik|im|in|ing|iu|yu|yut|yun|u|up|ut|uk|um|un|ung|ui|e|ep|et|ek|em|en|eng|ei|eu|eot|eon|eoi|oe|oet|oek|oeng|oei|o|ot|ok|om|on|ong|oi|ou|ap|at|ak|am|an|ang|ai|au|aa|aap|aat|aak|aam|aan|aang|aai|aau|m|ng"
+    standalones = "'uk|'ung|'e|'ei|'oe|'o|'ok|'om|'on|'ong|'oi|'ou|'ap|'at|'ak|'am|'an|'ang|'ai|'au|'aa|'aap|'aat|'aak|'aam|'aan|'aang|'aai|'aau|'m|'ng"
     return "(("+inits+")("+finals+")[1-6]?|("+standalones+")[1-6]?)"
 
 jyutping_re = jyutping_re_sub()
@@ -619,7 +620,7 @@ jyutping_two_re = re.compile("(?P<one>"+jyutping_re+")(?P<two>"+jyutping_re+")",
 db = dictdb.DictDB()
 
 bopomofo_notes = {
- u"ˊ":"2", u"ˇ":"3",u"ˋ":"4", u"˙":"5"}
+ "ˊ":"2", "ˇ":"3","ˋ":"4", "˙":"5"}
 
 def extract_sound_tags(text):
     sound_tags = re.findall(r"\[sound:.*?\]", text)
@@ -636,11 +637,11 @@ def get_tone_number(pinyin):
         return pinyin[-2:]
     elif re.match(r".+[0-9]$", pinyin):
         return pinyin[-1:]
-    elif re.match(u".+[¹²³⁴]$", pinyin):
-        return str(u" ¹²³⁴".index(pinyin[-1:]))
-    elif re.match(u"[\u3100-\u312F]", pinyin):#Bopomofo
-        if re.match(u"[ˊˇˋ˙]", pinyin[-1:]):
-            return str(u"  ˊˇˋ˙".index(pinyin[-1:]))
+    elif re.match(".+[¹²³⁴]$", pinyin):
+        return str(" ¹²³⁴".index(pinyin[-1:]))
+    elif re.match("[\u3100-\u312F]", pinyin):#Bopomofo
+        if re.match("[ˊˇˋ˙]", pinyin[-1:]):
+            return str("  ˊˇˋ˙".index(pinyin[-1:]))
         else:
             return "1"
     else:
@@ -653,10 +654,10 @@ def get_tone_number(pinyin):
 
 
 def has_ruby(text):
-    return re.search(u"[\u3400-\u9fff]\[.+\]", text)
+    return re.search("[\u3400-\u9fff]\[.+\]", text)
 
 def has_hanzi(text):
-    return re.search(u"[\u3400-\u9fff]", text)
+    return re.search("[\u3400-\u9fff]", text)
 
 
 def get_character_transcription(hanzi, transcription=None):
@@ -678,7 +679,7 @@ def get_character_transcription(hanzi, transcription=None):
 
 def add_diaeresis(text):
     try:
-        return re.sub(u"v", u"ü", text)
+        return re.sub("v", "ü", text)
     except:
         return ""
 
@@ -715,5 +716,5 @@ def local_dict_colorize(txt, ruby=True):
             c += "[" + colorize(pinyin) + "]"
         return c
 
-    txt = re.sub(u"([\u3400-\u9fff|]+)\\[(.*?)\\]", _sub, txt)
+    txt = re.sub("([\u3400-\u9fff|]+)\\[(.*?)\\]", _sub, txt)
     return txt

@@ -1,57 +1,49 @@
 # -*- coding: utf-8 -*-
 # Copyright 2013 Thomas TEMPE <thomas.tempe@alysse.org>
+# Copyright 2017 Luo Li-Yan <joseph.lorimer13@gmail.com>
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-from anki.hooks import addHook, wrap
-from aqt.editor import Editor
-from config import chinese_support_config as config
+from anki.hooks import addHook
 
-toggleButton = None
-config_file_key = None
-editor_instance = None
-enable = None #enable editor UI enhancements for the current note type?
+from .config import chinese_support_config as config
 
-def setupToggleButton(editor):
-    global toggleButton
-    global editor_instance
-    editor_instance = editor
-    toggleButton = editor_instance._addButton("mybutton", toggleButtonClick, size=False, text=u"汉子", tip="Enable/disable <b>Chinese Support Add-on</b> input fill-up") #check=True
 
-def toggleButtonClick():
-    global enable
-    enable = not enable
-    config.set_option(config_file_key, enable)
-    updateToggleButton(editor_instance)
+def setupToggleButton(buttons, editor):
+    config.toggleOn = False
+
+    editor._links['chineseSupport'] = onClick
+
+    toggleButton = editor._addButton(
+        icon=None,
+        cmd='chineseSupport',
+        tip='Chinese Support',
+        label='<b>汉字</b>',
+        id='chineseSupport',
+        toggleable=True)
+
+    return buttons + [toggleButton]
+
 
 def updateToggleButton(editor):
-    global config_file_key
-    global enable
-    try:
-        model_name = editor.note.model()['name']
-        model_id = editor.note.model()['id']
-    except:
-        return
-    try:
-        model_type = editor.note.model()['addon']
-    except:
-        model_type = None
-    config_file_key = "enable_for_model_"+str(model_id)
+    enabled = editor.note.model()['id'] in config.options['enabledModels']
 
-    if config_file_key in config.options:
-        enable = config.options[config_file_key]
-    elif "Chinese (compatibility)" == model_type:
-        enable = True
-    else:
-        enable = False
+    if (enabled and not config.toggleOn) or (not enabled and config.toggleOn):
+        editor.web.eval('toggleEditorButton(chineseSupport);')
+        onClick(editor)
 
-    if enable:
-#        toggleButton.setChecked(True)
-        toggleButton.setText(u"✓ 汉子")
-    else:
-#        toggleButton.setChecked(False)
-        toggleButton.setText(u"✕ 汉子")
-   
 
-    
-addHook("setupEditorButtons", setupToggleButton)
-Editor.loadNote=wrap(Editor.loadNote, updateToggleButton)
+def onClick(editor):
+    config.toggleOn = not config.toggleOn
+
+    mid = str(editor.note.model()['id'])
+
+    if config.toggleOn and mid not in config.options['enabledModels']:
+        config.options['enabledModels'].append(mid)
+    elif not config.toggleOn and mid in config.options['enabledModels']:
+        config.options['enabledModels'].remove(mid)
+
+    config.save()
+
+
+addHook('setupEditorButtons', setupToggleButton)
+addHook('loadNote', updateToggleButton)

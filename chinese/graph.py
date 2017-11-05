@@ -17,7 +17,7 @@
 # Chinese support addon for Anki2
 ########################################################################
 '''
-This module draws two stats graphs in Anki's "stats" window, showing the 
+This module draws two stats graphs in Anki's "stats" window, showing the
 progress made on Chinese individual characters, and on Anki notes
 containing Chinese characters, over time.
 
@@ -26,13 +26,13 @@ Here is what it counts:
 * Selects chinese characters from the Unicode 4e00-9fff range.
 This includes all Hanzi, but not Chinese punctuation.
 It's also the same range used for Japanese Kanji.
-* Only cards classified as young or mature are counted. 
+* Only cards classified as young or mature are counted.
 Learning mode or suspended cards are ignored.
-* Suspended or deleted cards are not counted at all in the history, 
-even if they have been practiced in the past. This means the graph can 
+* Suspended or deleted cards are not counted at all in the history,
+even if they have been practiced in the past. This means the graph can
 never show a decrease in your vocabulary.
 * No distinction is made on note types. All notes are counted, either
-from the whole collection, or from the active deck, depending on your 
+from the whole collection, or from the active deck, depending on your
 selection (bottom of the window).
 
 
@@ -50,7 +50,7 @@ def addchars(chars, txt, date):
     try:
         for c in txt:
             try:
-                if re.match( u"[\u3400-\u9fff]", c):
+                if re.match( "[\u3400-\u9fff]", c):
                     chars[c] = max(date, chars[c])
             except:
                 chars[c]=date
@@ -58,9 +58,9 @@ def addchars(chars, txt, date):
         pass
 
 def addword(words, txt, date):
-    "List each card containing at least one chinese character" 
+    "List each card containing at least one chinese character"
     try:
-        if re.match(u".*[\u3400-\u9fff]", txt):
+        if re.match(".*[\u3400-\u9fff]", txt):
             words[txt] = date
     except:
         pass
@@ -69,7 +69,7 @@ def history(data, chunks=None, chunk_size=1):
     #Compute history
     if not chunks:
         try:
-            chunks=max(data.values())/chunk_size+1 #nb of periods to look back
+            chunks=max(data.values())//chunk_size+1 #nb of periods to look back
         except:
             chunks = 1 #This happens if the deck contains no Chinese
     histogram = [0]*(chunks+1)
@@ -78,9 +78,9 @@ def history(data, chunks=None, chunk_size=1):
     subtotal=0
     date=-chunks
     #Fill histogram, as a list. d = nb of days in the past (0=today).
-    for d in data.values():
+    for d in list(data.values()):
         if d <= chunks*chunk_size:
-            histogram[d/chunk_size] += 1
+            histogram[d//chunk_size] += 1
         else:
             subtotal+=1
     #Fill history, as a list of coordinates: [(relative_day, nb_values),...]
@@ -113,8 +113,8 @@ def chineseGraphs(self, chunks, chunk_size, chunk_name):
         dict(data=char_cumul, color=3, yaxis=1, bars={'show':False}, lines={"show":True}),
         dict(data=char_delta, color=2, yaxis=2, bars={'show': True}, stack=False)]
     txt += self._graph(id="chinese_chars", data=data,
-                       ylabel = "New chars per "+chunk_name, 
-                       ylabel2=_("Total characters"), 
+                       ylabel = "New chars per "+chunk_name,
+                       ylabel2=_("Total characters"),
                        conf=dict(
             xaxis=dict(tickDecimals=0), yaxes=[dict(
                     tickDecimals=0, position="right")]))
@@ -130,8 +130,8 @@ def chineseGraphs(self, chunks, chunk_size, chunk_name):
         dict(data=note_cumul, color=4, yaxis=1, bars={'show':False}, lines={"show":True}),
         dict(data=note_delta, color=1, yaxis=2, bars={'show': True}, stack=False)]
     txt += self._graph(id="chinese_notes", data=data,
-                       ylabel = "New notes per "+chunk_name, 
-                       ylabel2=_("Total notes"), 
+                       ylabel = "New notes per "+chunk_name,
+                       ylabel2=_("Total notes"),
                        conf=dict(
             xaxis=dict(tickDecimals=0), yaxes=[dict(
                     tickDecimals=0, position="right")]))

@@ -1,17 +1,10 @@
 # -*- coding: utf-8 -*-
-# Welcome to the Chinese Support Add-on's field edition ruleset.
-# Here, you can tweak the note editor helper's behavior to your liking.
-#
-# If you messed things up, you can safely delete file
-# addons/chinese/edit_behavior.py from your Anki directory.
-# It will be recreated the next time you restart Anki.
-#
+
 # You can read about all available functions at:
 # https://github.com/ttempe/chinese-support-addon/wiki/Edit-behavior
 # Also, see the Python tutorial at http://docs.python.org/2/tutorial
 
-from config import chinese_support_config
-from edit_functions import *
+from .edit_functions import *
 
 #Define Variables
 

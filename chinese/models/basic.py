@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# 
+#
 # Copyright © 2012 Thomas Tempe <thomas.tempe@alysse.org>
 # Copyright © 2012 Roland Sieker <ospalh@gmail.com>
 #
@@ -8,7 +8,7 @@
 #
 
 import anki.stdmodels
-from css import style
+from .css import style
 
 # List of fields
 ######################################################################

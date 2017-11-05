@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 # Copyright © 2014 Thomas TEMPÉ, <thomas.tempe@alysse.org>
-# 
+#
 # License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
 #
 #COPYRIGHT AND PERMISSION NOTICE
@@ -33,8 +33,9 @@ cidian table structure:
 
 """
 
-import sqlite3
+from os.path import dirname, realpath
 import os.path
+import sqlite3
 
 
 class DictDB:
@@ -44,14 +45,15 @@ class DictDB:
     def __init__(self):
         try:
             from aqt import mw
-            db_file = os.path.join(mw.pm.addonFolder(), "chinese", "db", "chinese_dict.sqlite")
+            db_file = os.path.join(
+                dirname(realpath(__file__)), "db", "chinese_dict.sqlite")
         except: #Used for local debugging
             db_file = "db/chinese_dict.sqlite"
 
         self.conn=sqlite3.connect(db_file)
         self.c = self.conn.cursor()
 
-        #Create the DB indexes. 
+        #Create the DB indexes.
         #Only works the first time.
         #These indexes are removed from the distribution files, in order to save space
         try:
@@ -74,7 +76,7 @@ class DictDB:
             return pinyin
         except:
             return None
-    
+
     def _get_word_pinyin(self, w, taiwan=False):
         """Returns the pinyin transcription of a word, from CEDICT.
         If it's not in the dictionary, returns None.
@@ -86,7 +88,7 @@ class DictDB:
         self.c.execute("select pinyin, pinyin_taiwan from cidian where traditional=? or simplified=?;", (w, w))
         try:
             pinyin, taiwan_pinyin = self.c.fetchone()
-            if taiwan and taiwan_pinyin is not None:  
+            if taiwan and taiwan_pinyin is not None:
                 return taiwan_pinyin
             else:
                 return pinyin
@@ -126,7 +128,7 @@ class DictDB:
                     word_was_found = True
                     break
                 word_len -= 1
-                
+
             if word_was_found == False:
                 p = self._get_char_pinyin(w[0])
                 if p:
@@ -203,7 +205,7 @@ class DictDB:
                     word_was_found = True
                     break
                 word_len -= 1
-                
+
             if word_was_found == False:
                 p = self._get_char_traditional(w[0])
                 if p:
@@ -212,7 +214,7 @@ class DictDB:
                     #add character directly.
                     traditional+=w[0]
                 w = w[1:]
-                
+
         return traditional
 
     def _get_char_simplified(self, c):
@@ -222,7 +224,7 @@ class DictDB:
             (k,) = self.c.fetchone()
             return k
         except:
-            return None         
+            return None
 
     def _get_word_simplified(self, w):
         """Uses CEDICT to find a traditional variant"""
@@ -260,7 +262,7 @@ class DictDB:
                     word_was_found = True
                     break
                 word_len -= 1
-                
+
             if word_was_found == False:
                 p = self._get_char_simplified(w[0])
                 if p:
@@ -269,14 +271,14 @@ class DictDB:
                     #add character directly.
                     simplified+=w[0]
                 w = w[1:]
-                
+
         return simplified
 
     def get_definitions(self, w, lang):
         '''Returns all definitions for a given language.
         Lang should be one of en, de, fr, es.
 
-        returns a list of 
+        returns a list of
         each one in the format (pinyin, definition, classifier, alt_spelling)
         '''
         langs = {"en":"english", "de":"german", "fr":"french", "es":"spanish"}
@@ -302,7 +304,7 @@ class DictDB:
             return filter(lambda a:a, map(lambda a:a[0], self.c.fetchall()))
         except:
             return []
-        
+
 
 
 def add_with_space(a, b):
