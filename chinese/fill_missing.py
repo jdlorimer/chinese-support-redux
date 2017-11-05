@@ -1,26 +1,23 @@
 # -*- coding: utf-8 -*-
-#
-# Copyright © 2013 Chris Hatch, <foonugget@gmail.com>
-# Copyright © 2014 Thomas TEMPE, <thomas.tempe@alysse.org>
-#
+# Copyright 2013 Chris Hatch <foonugget@gmail.com>
+# Copyright 2014 Thomas TEMPE <thomas.tempe@alysse.org>
+# Copyright 2017 Luo Li-Yan <joseph.lorimer13@gmail.com>
 # License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
-#
 
-from aqt.utils import showInfo, askUser
-from anki.find import Finder
-from edit_behavior import *
-from edit_functions import *
-from aqt import mw
-from aqt.utils import showInfo
 import re
-from time import sleep
+
+from anki.find import Finder
+from aqt import mw
+from aqt.utils import showInfo, askUser
+
+from .edit_behavior import *
+from .edit_functions import *
+
 
 def no_html(txt):
     return re.sub("<.*?>", "", txt)
 
-def fill_sounds(collection, view_key):
-    if view_key == "deckBrowser":
-        return showInfo(u"Please first select one of your decks.")
+def fill_sounds():
     if not(askUser("<div>This will update the <i>Sound</i> fields in the current deck, if they exist and are empty, using the selected speech engine.</div>\n\n<div>Please back-up your Anki deck first!</div>\n\n<div><b>Continue?</b></div>")):
         return False
 
@@ -31,11 +28,11 @@ def fill_sounds(collection, view_key):
     d_success = 0
     d_failed = 0
 
-    notes = Finder(collection).findNotes(query_str)
+    notes = Finder(mw.col).findNotes(query_str)
     mw.progress.start(immediate=True, min=0, max=len(notes))
     for noteId in notes:
         d_scanned += 1
-        note = collection.getNote(noteId)
+        note = mw.col.getNote(noteId)
         note_dict = dict(note)      # edit_function routines require a dict
 
         _hf_s = has_field(Sound_fields, note_dict)
@@ -58,7 +55,7 @@ def fill_sounds(collection, view_key):
 
                 # write back to note from dict and flush
                 for f in Sound_fields + Sound_Mandarin_fields + Sound_Cantonese_fields:
-                    if note_dict.has_key(f) and note_dict[f] != note[f]:
+                    if f in note_dict and note_dict[f] != note[f]:
                         note[f] = note_dict[f]
                 note.flush()
     mw.progress.finish()
@@ -75,9 +72,7 @@ def fill_sounds(collection, view_key):
 
 #############################################################
 
-def fill_pinyin(collection, view_key):
-    if view_key == "deckBrowser":
-        return showInfo(u"Please first select one of your decks.")
+def fill_pinyin():
     if not(askUser("<div>This will update the <i>Pinyin</i> (or <i>Transcription</i>), <i>Color</i> and <i>Ruby</i> fields in the current deck, if they exist.</div>\n\n<div><i>Pinyin</i> and <i>Transcription</i> will be filled if empty. Otherwise, their colorization and accentuation will be refreshed as needed.</div>\n\n<div>Please back-up your Anki deck first!</div>\n\n<div><b>Continue?</b></div>")):
         return False
 
@@ -88,11 +83,11 @@ def fill_pinyin(collection, view_key):
     d_added_pinyin = 0
     d_updated = 0
 
-    notes = Finder(collection).findNotes(query_str)
+    notes = Finder(mw.col).findNotes(query_str)
     mw.progress.start(immediate=True, min=0, max=len(notes))
     for noteId in notes:
         d_scanned += 1
-        note = collection.getNote(noteId)
+        note = mw.col.getNote(noteId)
         note_dict = dict(note)      # edit_function routines require a dict
 
         _hf_t = has_field(Transcription_fields, note_dict)
@@ -133,7 +128,7 @@ def fill_pinyin(collection, view_key):
             def write_back(fields):
                 num_updated = 0
                 for f in fields:
-                    if note_dict.has_key(f) and note_dict[f] != note[f]:
+                    if f in note_dict and note_dict[f] != note[f]:
                         note[f] = note_dict[f]
                         num_updated+=1
                 return num_updated
@@ -163,10 +158,7 @@ def fill_pinyin(collection, view_key):
 
 ############################################################
 
-def fill_translation(collection, view_key):
-    if view_key == "deckBrowser":
-        return showInfo(u"First select one of your decks")
-
+def fill_translation():
     if not(askUser("<div>This will update the <i>Meaning</i>, <i>Mean Word</i>, and <i>Also Written</i> fields in the current deck, if they exist and are empty.</div><b>Learning tip:</b><div>Automatic dictionary lookup tends to produce very long text, often with multiple translations.</div>\n\n<div>For more effective memorization, it's highly recommended to trim them down to just a few words, only one meaning, and possibly add some mnemonics.</div>\n\n<div>Dictionary lookup is simply meant as a way to save you time when typing; please consider editing each definition by hand when you're done.</div>\n\n<div>Please back-up your Anki deck first!</div>\n\n<div><b>Continue?</b></div>")):
         return False
 
@@ -176,11 +168,11 @@ def fill_translation(collection, view_key):
     d_success = 0
     d_failed = 0
     failed_hanzi = []
-    notes = Finder(collection).findNotes(query_str)
+    notes = Finder(mw.col).findNotes(query_str)
     mw.progress.start(immediate=True, min=0, max=len(notes))
     for noteId in notes:
         d_scanned += 1
-        note = collection.getNote(noteId)
+        note = mw.col.getNote(noteId)
         note_dict = dict(note)      # edit_function routines require a dict
 
         _hf_m = has_field(Meaning_fields, note_dict)
@@ -220,7 +212,7 @@ def fill_translation(collection, view_key):
 
             def write_back(fields):
                 for f in fields:
-                    if note_dict.has_key(f) and note_dict[f] != note[f]:
+                    if f in note_dict and note_dict[f] != note[f]:
                         note[f] = note_dict[f]
                 return
 
@@ -244,9 +236,7 @@ def fill_translation(collection, view_key):
 
 ############################################################
 
-def fill_simp_trad(collection, view_key):
-    if view_key == "deckBrowser":
-        return showInfo(u"First select one of your decks")
+def fill_simp_trad():
     if not(askUser("<div>This will update the <i>Simplified</i> and <i>Traditional</i> fields in the current deck, if they exist and are empty.</div>\n\n<div>Please back-up your Anki deck first!</div>\n\n<div><b>Continue?</b></div>")):
         return False
 
@@ -255,11 +245,11 @@ def fill_simp_trad(collection, view_key):
     d_has_fields = 0
     d_success = 0
     d_failed = 0
-    notes = Finder(collection).findNotes(query_str)
+    notes = Finder(mw.col).findNotes(query_str)
     mw.progress.start(immediate=True, min=0, max=len(notes))
     for noteId in notes:
         d_scanned += 1
-        note = collection.getNote(noteId)
+        note = mw.col.getNote(noteId)
         note_dict = dict(note)      # edit_function routines require a dict
         if (has_field(Simplified_fields, note_dict) or has_field(Traditional_fields, note_dict)) and has_field(Hanzi_fields, note_dict):
             d_has_fields += 1
@@ -277,11 +267,11 @@ def fill_simp_trad(collection, view_key):
 
             # write back to note from dict and flush
             for f in Traditional_fields:
-                if note_dict.has_key(f) and note_dict[f] != note[f]:
+                if f in note_dict and note_dict[f] != note[f]:
                     note[f] = note_dict[f]
                     d_success+=1
             for f in Simplified_fields:
-                if note_dict.has_key(f) and note_dict[f] != note[f]:
+                if f in note_dict and note_dict[f] != note[f]:
                     note[f] = note_dict[f]
                     d_success+=1
             note.flush()
@@ -293,9 +283,7 @@ def fill_simp_trad(collection, view_key):
 
 ############################################################
 
-def fill_silhouette(collection, view_key):
-    if view_key == "deckBrowser":
-        return showInfo(u"First select one of your decks")
+def fill_silhouette():
     if not(askUser("<div>This will update the <i>Silhouette</i> fields in the current deck.</div>\n\n<div>Please back-up your Anki deck first!</div>\n\n<div><b>Continue?</b></div>")):
         return False
 
@@ -304,11 +292,11 @@ def fill_silhouette(collection, view_key):
     d_has_fields = 0
     d_success = 0
     d_failed = 0
-    notes = Finder(collection).findNotes(query_str)
+    notes = Finder(mw.col).findNotes(query_str)
     mw.progress.start(immediate=True, min=0, max=len(notes))
     for noteId in notes:
         d_scanned += 1
-        note = collection.getNote(noteId)
+        note = mw.col.getNote(noteId)
         note_dict = dict(note)      # edit_function routines require a dict
         if has_field(Silhouette_fields, note_dict):
             d_has_fields += 1
@@ -323,7 +311,7 @@ def fill_silhouette(collection, view_key):
 
             # write back to note from dict and flush
             for f in Silhouette_fields:
-                if note_dict.has_key(f) and note_dict[f] != note[f]:
+                if f in note_dict and note_dict[f] != note[f]:
                     note[f] = note_dict[f]
                     d_success+=1
             note.flush()

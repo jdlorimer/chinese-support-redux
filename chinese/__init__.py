@@ -1,19 +1,37 @@
-# -*- coding: utf-8 ; mode: python -*-
-# © 2012: Roland Sieker <ospalh@gmail.com>
-# © 2012: Thomas Tempé <thomas.tempe@alysse.org>
-#
-# License: GNU AGPL, version 3 or later; http://www.gnu.org/copyleft/agpl.html
+# -*- coding: utf-8 -*-
+# Chinese Support Redux; an add-on for Anki <http://ankisrs.net/>
 
-import chinese.edit
-import chinese.graph
-import chinese.models.advanced
-import chinese.models.basic
+# Copyright 2012 Roland Sieker <ospalh@gmail.com>
+# Copyright 2012 Thomas Tempé <thomas.tempe@alysse.org>
+# Copyright 2017 Luo Li-Yan <joseph.lorimer13@gmail.com>
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+from anki.hooks import addHook
+
+from . import edit
+from . import graph
+from .models import advanced
+from .models import basic
+from .templates import chinese
+from .templates import ruby
+from .ui import loadMenu
 # import chinese.models.compatibility
 # import chinese.models.ruby
 # import chinese.models.ruby_synonyms
-import chinese.templates.chinese
-import chinese.templates.ruby
-import chinese.ui
 
-chinese.templates.ruby.install()
-chinese.templates.chinese.install()
+ruby.install()
+chinese.install()
+
+addHook('profileLoaded', loadMenu)

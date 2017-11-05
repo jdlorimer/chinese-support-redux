@@ -13,8 +13,7 @@ import re
 from anki.hooks import addHook
 from anki.utils import stripHTML
 from anki.template.hint import hint
-from ruby import ruby_top, ruby_top_text, ruby_bottom, ruby_bottom_text
-from ruby import no_sound
+from .ruby import ruby_top, ruby_top_text, ruby_bottom_text, no_sound
 
 r = r' ?([^ >]+?)\[(.+?)\]'
 ruby_re = r'<ruby><rb>\1</rb><rt>\2</rt></ruby>'
@@ -65,7 +64,7 @@ def hanzi_context(txt, extra, context, tag, fullname):
     other_hanzi.sort()
     other_hanzi_values = []
     for v in other_hanzi:
-        value = stripHTML(re.sub(r, r'\1', no_sound(context[v]))) 
+        value = stripHTML(re.sub(r, r'\1', no_sound(context[v])))
         if len(value)>0:
             other_hanzi_values += [value]
     if len(other_hanzi_values)<1:

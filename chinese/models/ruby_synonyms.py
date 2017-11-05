@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# 
+#
 # Copyright © 2012 Thomas Tempe <thomas.tempe@alysse.org>
 # Copyright © 2012 Roland Sieker <ospalh@gmail.com>
 #
@@ -10,12 +10,12 @@
 import string
 
 import anki.stdmodels
-from css import style
+from .css import style
 
 # List of fields
 ######################################################################
 
-fields_list = ["Hanzi", "Meaning", "Hanzi2", "Hanzi3", "Hanzi4", 
+fields_list = ["Hanzi", "Meaning", "Hanzi2", "Hanzi3", "Hanzi4",
                "Notes and pictures"]
 
 # Card templates
@@ -61,9 +61,9 @@ card_back = string.Template(u'''
 
 <div class=chinese>
 {{ruby:Hanzi}}
-{{#Hanzi2}} / {{/Hanzi2}}{{ruby:Hanzi2}} 
-{{#Hanzi3}} / {{/Hanzi3}}{{ruby:Hanzi3}} 
-{{#Hanzi4}} / {{/Hanzi4}}{{ruby:Hanzi4}} 
+{{#Hanzi2}} / {{/Hanzi2}}{{ruby:Hanzi2}}
+{{#Hanzi3}} / {{/Hanzi3}}{{ruby:Hanzi3}}
+{{#Hanzi4}} / {{/Hanzi4}}{{ruby:Hanzi4}}
 </div>
 
 {{#Notes and pictures}}
