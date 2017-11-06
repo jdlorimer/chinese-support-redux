@@ -1,55 +1,38 @@
-# -*- mode: python; coding: utf-8 -*-
-#
-# Copyright © 2012 Roland Sieker, ospalh@gmail.com
-# Inspiration and source of the URL: Tymon Warecki
-# Adapted by Thomas TEMPE, thomas.tempe@alysse.org
-#
+# -*- coding: utf-8 -*-
+# Copyright 2012 Roland Sieker <ospalh@gmail.com>o
+# Copyright 2012 Thomas TEMPÉ <thomas.tempe@alysse.org>
+# Copyright 2017 Pu Anlai
+# Copyright 2017 Luo Li-Yan <joseph.lorimer13@gmail.com>
+# Inspiration: Tymon Warecki
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/copyleft/agpl.html
 
 
-'''
-Download Chinese pronunciations from GoogleTTS
-'''
-
+from os.path import exists
 import os
 import re
-import urllib.error
-import urllib.parse
-import urllib.request
 
 from aqt import mw
 
-
-download_file_extension = '.mp3'
-url_gtts = 'http://translate.google.com/translate_tts?client=t&'
-user_agent_string = 'Mozilla/5.0'
+from .lib.gtts import gTTS
 
 
 def get_word_from_google(source, lang='zh'):
-    filename, fullpath = get_filename("_".join([source, "G", lang]),
-                                      download_file_extension)
-    if os.path.exists(fullpath):
+    filename, path = getFilename('_'.join([source, 'G', lang]), '.mp3')
+
+    if exists(path):
         return filename
-    get_url = build_query_url(source, lang)
-    # This may throw an exception
-    request = urllib.request.Request(get_url)
-    request.add_header('User-agent', user_agent_string)
-    response = urllib.request.urlopen(request, timeout=5)
-    if 200 != response.code:
-        raise ValueError(str(response.code) + ': ' + response.msg)
-    with open(fullpath, 'wb') as audio_file:
-        audio_file.write(response.read())
+
+    tts = gTTS(source, lang=lang)
+    tts.save(path)
+
     return filename
 
 
-def build_query_url(source, lang):
-    qdict = dict(tl=lang, q=source.encode('utf-8'))
-    return url_gtts + urllib.parse.urlencode(qdict)
+def getFilename(base, ext):
+    filename = stripInvalidChars(base) + ext
+    path = os.path.join(mw.col.media.dir(), filename)
+    return (filename, path)
 
 
-def get_filename(base, end):
-    """Return the media filename for the given title. """
-    # Basically stripping the 'invalidFilenameChars'. (Not tested too much).
-    base = re.sub('[\\/:\*?"<>\|]', '', base)
-    mdir = mw.col.media.dir()
-    return base + end, os.path.join(mdir, base + end)
+def stripInvalidChars(s):
+    return re.sub('[\\/:\*?"<>\|]', '', s)

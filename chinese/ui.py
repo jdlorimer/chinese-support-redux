@@ -32,8 +32,8 @@ transcriptions = ['Pinyin', 'Pinyin (Taiwan)', 'Cantonese', 'Bopomofo']
 speech_options = [
     'None',
     'Baidu Translate',
-#    'Google TTS Cantonese',
-#    'Google TTS Mandarin',
+    'Google TTS Cantonese',
+    'Google TTS Mandarin',
 ]
 
 msTranslateLanguages = [

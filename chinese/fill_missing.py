@@ -4,6 +4,7 @@
 # Copyright 2017 Luo Li-Yan <joseph.lorimer13@gmail.com>
 # License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
 
+from time import sleep
 import re
 
 from anki.find import Finder
@@ -17,8 +18,18 @@ from .edit_functions import *
 def no_html(txt):
     return re.sub("<.*?>", "", txt)
 
+
 def fill_sounds():
-    if not(askUser("<div>This will update the <i>Sound</i> fields in the current deck, if they exist and are empty, using the selected speech engine.</div>\n\n<div>Please back-up your Anki deck first!</div>\n\n<div><b>Continue?</b></div>")):
+    prompt = '''<div>This will update the <i>Sound</i> fields in the current
+                deck, if they exist and are empty, using the selected speech
+                engine.</div>
+                <div>Please back-up your Anki deck first!</div>
+                <div>(Please also note that there will be a 5 second delay
+                between each sound request, to reduce burden on the server. This
+                may therefore take a while.)</div>
+                <div><b>Continue?</b></div>'''
+
+    if not askUser(prompt):
         return False
 
     query_str = "deck:current"
@@ -58,6 +69,8 @@ def fill_sounds():
                     if f in note_dict and note_dict[f] != note[f]:
                         note[f] = note_dict[f]
                 note.flush()
+                sleep(5)
+
     mw.progress.finish()
     msg_string = '''
 %(d_success)d new pronunciations downloaded

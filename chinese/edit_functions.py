@@ -449,7 +449,7 @@ def sound(text, source=None):
             return ""
     elif "Google TTS Cantonese" == source:
         try:
-            return "[sound:"+google_tts.get_word_from_google(text, 'zh-YUE')+"]"
+            return "[sound:"+google_tts.get_word_from_google(text, 'zh-yue')+"]"
         except:
             return ""
     else:
