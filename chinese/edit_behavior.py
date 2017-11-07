@@ -1,10 +1,20 @@
 # -*- coding: utf-8 -*-
+# Copyright 2012-2015 Thomas TEMPÉ <thomas.tempe@alysse.org>
+# Copyright 2017 Luo Li-Yan <joseph.lorimer13@gmail.com>
 
 # You can read about all available functions at:
 # https://github.com/ttempe/chinese-support-addon/wiki/Edit-behavior
 # Also, see the Python tutorial at http://docs.python.org/2/tutorial
 
+from aqt import mw
+
 from .edit_functions import *
+from .edit_functions import (accentuate_pinyin,
+                             colorize,
+                             get_any,
+                             hide_ruby,
+                             ruby,
+                             translate)
 
 #Define Variables
 
@@ -480,76 +490,78 @@ def erase_fields(dico):
     return
 
 
-def update_fields(field, updated_field, model_name, model_type):
-    #1st case : the new Ruby-based model
-    if model_type == "Chinese Ruby":
-        if updated_field == "Hanzi":
-            #Update the ruby
-            h = colorize(ruby(accentuate_pinyin(field["Hanzi"])))
-            #Add the toneless transcription and hanzi, hidden,
-            #to make them searchable
-            h = hide_ruby(h)
-            field["Hanzi"] = h
-            if field["Hanzi"] == "":
-                field["Meaning"] = ""
-            elif field["Meaning"] == "":
-                field["Meaning"] = translate( field["Hanzi"] )
-        elif updated_field[0:5] == "Hanzi":#Field name starts with "Hanzi"
-            field[updated_field] = \
-                colorize( ruby( accentuate_pinyin( field[updated_field] ) ) )
+def updateFields(note, fieldIndex):
+    fieldNames = mw.col.models.fieldNames(note.model())
+    currentField = fieldNames[fieldIndex]
 
-    #2nd case : use the old Anki1 Pinyin-toolkit rule1s if the deck is
-    #called "Chinese" or was created as "Chinese (compatibility)" from
-    #Anki2.
-    #Note that we accept multiple field names for each field, to ensure
-    #Anki1 compatibility.
+    if 'addon' in note.model():
+        modelType = note.model()['addon']
     else:
+        modelType = None
 
-        #Fields to update after the Hanzi field has been modified:
-        if updated_field in Hanzi_fields:
+    fieldsCopy = dict(note)
 
-            #Erase other fields if the updated field was emptied
-            if field[updated_field]=="":
-                erase_fields(field)
-            else:
-                update_all_Meaning_fields(field[updated_field], field)
-                update_all_Transcription_fields(field[updated_field], field)
-                update_all_Color_fields(field[updated_field], field)
-                update_all_Sound_fields(field[updated_field], field)
-                update_Simplified_fields(field[updated_field], field)
-                update_Traditional_fields(field[updated_field], field)
-                update_all_Ruby_fields(field[updated_field], field)
-                update_Silhouette_fields(field[updated_field], field)
+    if modelType == 'Chinese Ruby':
+        if currentField == 'Hanzi':
+            # Update the ruby
+            h = colorize(ruby(accentuate_pinyin(fieldsCopy['Hanzi'])))
+            # Add the toneless transcription and hanzi, hidden, to make them
+            # searchable
+            h = hide_ruby(h)
+            fieldsCopy['Hanzi'] = h
+            if fieldsCopy['Hanzi'] == '':
+                fieldsCopy['Meaning'] = ''
+            elif fieldsCopy['Meaning'] == '':
+                fieldsCopy['Meaning'] = translate(fieldsCopy['Hanzi'])
+        # Field name starts with 'Hanzi'
+        elif currentField[0:5] == 'Hanzi':
+            fieldsCopy[currentField] = colorize(
+                ruby(accentuate_pinyin(fieldsCopy[currentField])))
+    elif currentField in Hanzi_fields:
+        # Erase other fields if the updated field was emptied
+        if fieldsCopy[currentField] == '':
+            erase_fields(fieldsCopy)
+        else:
+            update_all_Meaning_fields(fieldsCopy[currentField], fieldsCopy)
+            update_all_Transcription_fields(
+                fieldsCopy[currentField], fieldsCopy)
+            update_all_Color_fields(fieldsCopy[currentField], fieldsCopy)
+            update_all_Sound_fields(fieldsCopy[currentField], fieldsCopy)
+            update_Simplified_fields(fieldsCopy[currentField], fieldsCopy)
+            update_Traditional_fields(fieldsCopy[currentField], fieldsCopy)
+            update_all_Ruby_fields(fieldsCopy[currentField], fieldsCopy)
+            update_Silhouette_fields(fieldsCopy[currentField], fieldsCopy)
+    elif currentField in Transcription_fields:
+        hanzi = get_any(Hanzi_fields, fieldsCopy)
+        format_Transcription_fields(fieldsCopy)
+        update_all_Color_fields(hanzi, fieldsCopy)
+        update_all_Ruby_fields(hanzi, fieldsCopy)
+    elif currentField in Pinyin_fields:
+        hanzi = get_any(Hanzi_fields, fieldsCopy)
+        format_Pinyin_fields(fieldsCopy)
+        update_all_Color_fields(hanzi, fieldsCopy)
+        update_all_Ruby_fields(hanzi, fieldsCopy)
+    elif currentField in PinyinTW_fields:
+        hanzi = get_any(Hanzi_fields, fieldsCopy)
+        format_PinyinTW_fields(fieldsCopy)
+        update_all_Color_fields(hanzi, fieldsCopy)
+        update_all_Ruby_fields(hanzi, fieldsCopy)
+    elif currentField in Cantonese_fields:
+        hanzi = get_any(Hanzi_fields, fieldsCopy)
+        format_Cantonese_fields(fieldsCopy)
+        update_all_Color_fields(hanzi, fieldsCopy)
+        update_all_Ruby_fields(hanzi, fieldsCopy)
+    elif currentField in Bopomofo_fields:
+        hanzi = get_any(Hanzi_fields, fieldsCopy)
+        format_Bopomofo_fields(fieldsCopy)
+        update_all_Color_fields(hanzi, fieldsCopy)
+        update_all_Ruby_fields(hanzi, fieldsCopy)
 
-        #If the transcription was modified, update the Color field
-        elif updated_field in Transcription_fields:
-            hanzi = get_any(Hanzi_fields, field)
-            format_Transcription_fields(field)
-            update_all_Color_fields(hanzi, field)
-            update_all_Ruby_fields(hanzi, field)
+    updated = False
 
-        elif updated_field in Pinyin_fields:
-            hanzi = get_any(Hanzi_fields, field)
-            format_Pinyin_fields(field)
-            update_all_Color_fields(hanzi, field)
-            update_all_Ruby_fields(hanzi, field)
+    for f in fieldNames:
+        if note[f] != fieldsCopy[f]:
+            note[f] = fieldsCopy[f]
+            updated = True
 
-        elif updated_field in PinyinTW_fields:
-            hanzi = get_any(Hanzi_fields, field)
-            format_PinyinTW_fields(field)
-            update_all_Color_fields(hanzi, field)
-            update_all_Ruby_fields(hanzi, field)
-
-        elif updated_field in Cantonese_fields:
-            hanzi = get_any(Hanzi_fields, field)
-            format_Cantonese_fields(field)
-            update_all_Color_fields(hanzi, field)
-            update_all_Ruby_fields(hanzi, field)
-
-        elif updated_field in Bopomofo_fields:
-            hanzi = get_any(Hanzi_fields, field)
-            format_Bopomofo_fields(field)
-            update_all_Color_fields(hanzi, field)
-            update_all_Ruby_fields(hanzi, field)
-
-    return field
+    return updated
