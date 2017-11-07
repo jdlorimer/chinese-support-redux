@@ -1,39 +1,64 @@
 # -*- coding: utf-8 -*-
-# Copyright 2012 Thomas TEMPÉ <thomas.tempe@alysse.org>
+# Copyright 2012, 2013 Thomas TEMPÉ <thomas.tempe@alysse.org>
 # Copyright 2012 Roland Sieker <ospalh@gmail.com>
 # Copyright 2017 Luo Li-Yan <joseph.lorimer13@gmail.com>
 # License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
 
-from aqt import mw
 from anki.hooks import addHook
 
 from .config import chinese_support_config as config
-from .edit_behavior import update_fields
+from .edit_behavior import updateFields
 
 
-def updateFields(updated, note, index):
-    if not config.toggleOn:
-        return updated
+class EditManager:
+    def __init__(self):
+        addHook('setupEditorButtons', self.setupButton)
+        addHook('loadNote', self.updateButton)
+        addHook('editFocusLost', self.onFocusLost)
 
-    fieldsCopy = dict(note)
-    fieldNames = mw.col.models.fieldNames(note.model())
+    def setupButton(self, buttons, editor):
+        self.editor = editor
 
-    if 'addon' in note.model():
-        modelType = note.model()['addon']
-    else:
-        modelType = None
+        self.enabled = False
+        editor._links['chineseSupport'] = self.onToggle
 
-    update_fields(fieldsCopy,
-                  fieldNames[index],
-                  note.model()['name'],
-                  modelType)
+        button = editor._addButton(
+            icon=None,
+            cmd='chineseSupport',
+            tip='Chinese Support',
+            label='<b>汉字</b>',
+            id='chineseSupport',
+            toggleable=True)
 
-    for f in fieldNames:
-        if fieldsCopy[f] != note[f]:
-            note[f] = fieldsCopy[f]
-            updated = True
+        return buttons + [button]
 
-    return updated
+    def onToggle(self, editor):
+        self.enabled = not self.enabled
+
+        mid = str(editor.note.model()['id'])
+
+        if self.enabled and mid not in config.options['enabledModels']:
+            config.options['enabledModels'].append(mid)
+        elif not self.enabled and mid in config.options['enabledModels']:
+            config.options['enabledModels'].remove(mid)
+
+        config.save()
+
+    def updateButton(self, editor):
+        enabled = editor.note.model()['id'] in config.options['enabledModels']
+
+        if (enabled and not self.enabled) or (not enabled and self.enabled):
+            editor.web.eval('toggleEditorButton(chineseSupport);')
+            self.onToggle(editor)
+
+    def onFocusLost(self, _, note, fieldIndex):
+        if not self.enabled:
+            return False
+
+        if updateFields(note, fieldIndex):
+            self.editor.loadNote(fieldIndex)
+
+        return False
 
 
 def appendToneStyling(editor):
@@ -47,5 +72,6 @@ def appendToneStyling(editor):
     editor.web.eval(js)
 
 
-addHook('editFocusLost', updateFields)
 addHook('loadNote', appendToneStyling)
+
+EditManager()

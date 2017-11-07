@@ -8,7 +8,6 @@ from aqt.qt import QAction
 from aqt.utils import showInfo, openLink, askUser
 
 from . import edit_behavior
-from . import edit_ui
 from .about import CSR_GITHUB_URL, showAbout
 from .config import chinese_support_config
 from .fill_missing import (fill_pinyin,
