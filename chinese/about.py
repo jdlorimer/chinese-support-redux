@@ -33,6 +33,7 @@ def showAbout():
 ''' % (__version__, ', '.join(contributors), CSR_GITHUB_URL, CSR_GITHUB_URL)
 
     label.setText(text)
+    label.setOpenExternalLinks(True)
 
     buttonBox = QDialogButtonBox(QDialogButtonBox.Ok)
     buttonBox.accepted.connect(dialog.accept)
