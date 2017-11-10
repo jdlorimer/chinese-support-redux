@@ -33,13 +33,17 @@ The core feature of the add-on is the automatic field filling. To take advantage
 
 Then, to use the field filling features:
 1. Add a new note to Anki (press <kbd>a</kbd>)
-2. Selecting `Chinese (basic)` as the note type
+2. Select `Chinese (basic)` as the note type
 3. Enable Chinese Support Redux for this note type (click `汉字`)
 4. Enter a word (e.g., 電話) in the `Hanzi` field
 5. Press <kbd>Tab</kbd>
 6. The remaining fields should then be populated automatically
 
 ### History
+
+#### v0.3.1-beta (2017.11.10)
+* Use built-in configuration facilities
+* Fix minor issues and code formatting
 
 #### v0.3-beta (2017.11.07)
 * Fix issues with automatic field population
