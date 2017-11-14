@@ -41,9 +41,12 @@ Then, to use the field filling features:
 
 ### History
 
+#### v0.4.0-beta (2017.11.14)
+* Fix more issues with automatic field population
+* Move field names into configuration file
+
 #### v0.3.1-beta (2017.11.10)
 * Use built-in configuration facilities
-* Fix minor issues and code formatting
 
 #### v0.3-beta (2017.11.07)
 * Fix issues with automatic field population
@@ -53,4 +56,4 @@ Then, to use the field filling features:
 
 #### v0.1-beta (2017.11.05)
 * Initial port to Anki 2.1 (most features appear to work)
-* Fix tone colours in editor
+* Restore tone colours in editor
