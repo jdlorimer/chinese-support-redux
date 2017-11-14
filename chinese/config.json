@@ -1,1 +1,174 @@
-{"dictionary": "local_en", "enabledModels": [], "show_startup_tips": false, "speech": "Baidu Translate", "startup_tip_number": 0, "transcription": "Pinyin"}
+{
+    "dictionary": "local_en",
+    "enabledModels": [],
+    "show_startup_tips": false,
+    "speech": "Baidu Translate",
+    "startup_tip_number": 0,
+    "transcription": "Pinyin",
+    "fields": {
+        "hanzi": [
+            "Chinese",
+            "Expression",
+            "Hanzi",
+            "中文",
+            "汉字",
+            "漢字"
+        ],
+        "meaning": [
+            "Definition",
+            "Meaning",
+            "意思",
+            "翻譯",
+            "翻译",
+            "解释",
+            "解釋"
+        ],
+        "english": [
+            "English",
+            "英文",
+            "英語",
+            "英语"
+        ],
+        "german": [
+            "Deutsch",
+            "German",
+            "德文",
+            "德語",
+            "德语"
+        ],
+        "french": [
+            "French",
+            "le français",
+            "法文",
+            "法語",
+            "法语"
+        ],
+        "transcription": [
+            "Reading"
+        ],
+        "pinyin": [
+            "PY",
+            "Pinyin",
+            "大陆拼音",
+            "大陸拼音",
+            "拼音"
+        ],
+        "pinyinTaiwan": [
+            "PYTW",
+            "PinyinTW",
+            "台湾拼音",
+            "台灣拼音",
+            "臺灣拼音"
+        ],
+        "cantonese": [
+            "Cantonese",
+            "广东话",
+            "广州话",
+            "廣州話",
+            "廣東話",
+            "粤",
+            "粤拼",
+            "粤语",
+            "粵",
+            "粵拼",
+            "粵語"
+        ],
+        "bopomofo": [
+            "Bopomofo",
+            "ㄅㄆㄇㄈ",
+            "注音符号",
+            "注音符號",
+            "註音符號"
+        ],
+        "sound": [
+            "Audio",
+            "Sound",
+            "Spoken",
+            "声音",
+            "聲音"
+        ],
+        "mandarinSound": [
+            "Sound - Mandarin"
+        ],
+        "cantoneseSound": [
+            "Sound - Cantonese"
+        ],
+        "simplified": [
+            "Simp",
+            "Simp.",
+            "Simplified",
+            "简体",
+            "简体字",
+            "简化",
+            "简化字",
+            "簡化",
+            "簡化字",
+            "簡體",
+            "簡體字"
+        ],
+        "traditional": [
+            "Trad",
+            "Trad.",
+            "Traditional",
+            "繁体",
+            "繁体字",
+            "繁體",
+            "繁體字"
+        ],
+        "classifier": [
+            "Classifier",
+            "MW",
+            "Mean Word",
+            "Mean",
+            "Measure Word",
+            "量詞",
+            "量词"
+        ],
+        "alternative": [
+            "Also writted",
+            "Alt",
+            "Alternative"
+        ],
+        "color": [
+            "Color",
+            "Colored Hanzi",
+            "Colour",
+            "Coloured Hanzi",
+            "彩色"
+        ],
+        "colorPinyin": [
+            "ColorPY",
+            "ColourPY"
+        ],
+        "colorPinyinTaiwan": [
+            "ColorPYTW",
+            "ColourPYTW"
+        ],
+        "colorCantonese": [
+            "ColorCANT",
+            "ColourCANT"
+        ],
+        "colorBopomofo": [
+            "ColorBPMF",
+            "ColourBPMF"
+        ],
+        "ruby": [
+            "Ruby"
+        ],
+        "rubyPinyin": [
+            "RubyPY"
+        ],
+        "rubyPinyinTaiwan": [
+            "RubyPYTW"
+        ],
+        "rubyCantonese": [
+            "RubyCANT"
+        ],
+        "rubyBopomofo": [
+            "RubyBPMF"
+        ],
+        "silhouette": [
+            "Silhouette"
+        ]
+    }
+}

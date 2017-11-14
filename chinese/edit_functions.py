@@ -474,19 +474,14 @@ def get_any(fields, dico):
                 pass
     return ""
 
-def set_all(fields, dico, to):
-    '''Set all existing fields to the same value.
-    (Non-existing fields are ignored)
 
-    Case-insensitive.
-    '''
-    for f in fields:
-        for d, v in dico.items():
-            try:
-                if str(d.lower()) == str(f.lower()):
-                    dico[d] = to
-            except:
-                pass
+def setAll(fields, note, to):
+    fields = [f.lower() for f in fields]
+
+    for f in note.keys():
+        if f.lower() in fields:
+            note[f] = to
+
 
 def has_field(fields, dico):
     '''
