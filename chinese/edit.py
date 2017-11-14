@@ -5,6 +5,7 @@
 # License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
 
 from anki.hooks import addHook
+from aqt import mw
 
 from .config import chinese_support_config as config
 from .edit_behavior import updateFields
@@ -18,8 +19,7 @@ class EditManager:
 
     def setupButton(self, buttons, editor):
         self.editor = editor
-
-        self.enabled = False
+        self.buttonOn = False
         editor._links['chineseSupport'] = self.onToggle
 
         button = editor._addButton(
@@ -33,30 +33,37 @@ class EditManager:
         return buttons + [button]
 
     def onToggle(self, editor):
-        self.enabled = not self.enabled
+        self.buttonOn = not self.buttonOn
 
         mid = str(editor.note.model()['id'])
 
-        if self.enabled and mid not in config.options['enabledModels']:
+        if self.buttonOn and mid not in config.options['enabledModels']:
             config.options['enabledModels'].append(mid)
-        elif not self.enabled and mid in config.options['enabledModels']:
+        elif not self.buttonOn and mid in config.options['enabledModels']:
             config.options['enabledModels'].remove(mid)
 
         config.save()
 
     def updateButton(self, editor):
-        enabled = editor.note.model()['id'] in config.options['enabledModels']
+        enabled = (str(editor.note.model()['id']) in
+                   config.options['enabledModels'])
 
-        if (enabled and not self.enabled) or (not enabled and self.enabled):
+        if (enabled and not self.buttonOn) or (not enabled and self.buttonOn):
             editor.web.eval('toggleEditorButton(chineseSupport);')
-            self.onToggle(editor)
+            self.buttonOn = not self.buttonOn
 
-    def onFocusLost(self, _, note, fieldIndex):
-        if not self.enabled:
+    def onFocusLost(self, _, note, index):
+        if not self.buttonOn:
             return False
 
-        if updateFields(note, fieldIndex):
-            self.editor.loadNote(fieldIndex)
+        allFields = mw.col.models.fieldNames(note.model())
+        field = allFields[index]
+
+        if updateFields(note, field, allFields):
+            if index == len(allFields) - 1:
+                self.editor.loadNote(focusTo=index)
+            else:
+                self.editor.loadNote(focusTo=index+1)
 
         return False
 
