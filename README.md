@@ -41,6 +41,9 @@ Then, to use the field filling features:
 
 ### History
 
+#### v0.4.1-beta (2018.02.17)
+* Fix _Fill incomplete notes_ functionality
+
 #### v0.4.0-beta (2017.11.14)
 * Fix more issues with automatic field population
 * Move field names into configuration file
