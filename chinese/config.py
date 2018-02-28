@@ -15,7 +15,10 @@ class ConfigManager:
         addHook('unloadProfile', self.save)
 
     def save(self):
-        mw.addonManager.writeConfig(__name__, self.options)
+        try:
+            mw.addonManager.writeConfig(__name__, self.options)
+        except FileNotFoundError as e:
+            print(e)
 
     def set_option(self, name, value):
         self.options[name] = value
