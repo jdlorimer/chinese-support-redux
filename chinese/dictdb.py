@@ -86,8 +86,10 @@ class DictDB:
         """
         selectStatement = "select pinyin, pinyin_taiwan from cidian where (traditional=? or simplified=?) "
         if ignoreVariants:
-            selectStatement += "and (english not like '%variant%' and german not like '%variante%' and french not " \
-                               "like '%variante%' and spanish not like '%variante%'); "
+            selectStatement += "and ((english not like '%variant%' or english is null) " \
+                               "and (german not like '%variante%' or german is null) " \
+                               "and (french not like '%variante%' or french is null) " \
+                               "and (spanish not like '%variante%' or spanish is null)); "
 
         self.c.execute(selectStatement, (w, w))
         try:
