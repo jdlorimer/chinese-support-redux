@@ -77,21 +77,27 @@ class DictDB:
         except:
             return None
 
-    def _get_word_pinyin(self, w, taiwan=False):
+    def _get_word_pinyin(self, w, taiwan=False, ignoreVariants=True):
         """Returns the pinyin transcription of a word, from CEDICT.
         If it's not in the dictionary, returns None.
         If there are multiple possibilities, returns one at random.
 
         if taiwan==True then prefer Taiwan variant
         """
+        selectStatement = "select pinyin, pinyin_taiwan from cidian where (traditional=? or simplified=?) "
+        if ignoreVariants:
+            selectStatement += "and (english not like '%variant%' and german not like '%variante%' and french not " \
+                               "like '%variante%' and spanish not like '%variante%'); "
 
-        self.c.execute("select pinyin, pinyin_taiwan from cidian where traditional=? or simplified=?;", (w, w))
+        self.c.execute(selectStatement, (w, w))
         try:
             pinyin, taiwan_pinyin = self.c.fetchone()
             if taiwan and taiwan_pinyin is not None:
                 return taiwan_pinyin
-            else:
+            elif pinyin is not None:
                 return pinyin
+            elif ignoreVariants:
+                return _get_word_pinyin(self, w, taiwan, False)
         except:
             #Not in dictionary
             return None
