@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # Copyright 2013 Chris Hatch <foonugget@gmail.com>
 # Copyright 2014 Thomas TEMPE <thomas.tempe@alysse.org>
-# Copyright 2017 Luo Li-Yan <joseph.lorimer13@gmail.com>
+# Copyright 2017 Joseph Lorimer <luoliyan@posteo.net>
 # License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
 
 from time import sleep

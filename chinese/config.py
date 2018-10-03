@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # Copyright 2012 Roland Sieker <ospalh@gmail.com>
 # Copyright 2012 Thomas TEMPÉ <thomas.tempe@alysse.org>
-# Copyright 2017 Luo Li-Yan <joseph.lorimer13@gmail.com>
+# Copyright 2017 Joseph Lorimer <luoliyan@posteo.net>
 # License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
 
 from anki.hooks import addHook

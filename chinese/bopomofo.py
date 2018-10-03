@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # Copyright 2012 Thomas TEMPÉ <thomas.tempe@alysse.org>
 # Copyright 2014 Alex Griffin <alex@alexjgriffin.com>
-# Copyright 2017 Luo Li-Yan <joseph.lorimer13@gmail.com>
+# Copyright 2017 Joseph Lorimer <luoliyan@posteo.net>
 # License: DWTFYW
 
 # early replacements

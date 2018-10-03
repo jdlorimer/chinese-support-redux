@@ -1,12 +1,6 @@
 # -*- coding: utf-8 -*-
 # Copyright 2012-2015 Thomas TEMPÉ <thomas.tempe@alysse.org>
-# Copyright 2017 Luo Li-Yan <joseph.lorimer13@gmail.com>
-
-# You can read about all available functions at:
-# https://github.com/ttempe/chinese-support-addon/wiki/Edit-behavior
-# Also, see the Python tutorial at http://docs.python.org/2/tutorial
-
-from aqt import mw
+# Copyright 2017 Joseph Lorimer <luoliyan@posteo.net>
 
 from .config import chinese_support_config as config
 from .edit_functions import (accentuate_pinyin,

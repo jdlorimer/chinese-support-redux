@@ -23,7 +23,7 @@ def showAbout():
     text = '''
 <div style="font-weight: bold">Chinese Support Redux v%s</div><br>
 <div><span style="font-weight: bold">
-    Maintainer</span>: Luo Li-Yan &lt;joseph.lorimer13@gmail.com&gt;</div>
+    Maintainer</span>: Joseph Lorimer &lt;luoliyan@posteo.net&gt;</div>
 <div><span style="font-weight: bold">Contributors</span>: %s</div>
 <div><span style="font-weight: bold">Website</span>: <a href="%s">%s</a></div>
 <div style="font-size: 12px">
