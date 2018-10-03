@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # Copyright 2012 Thomas TEMPÉ <thomas.tempe@alysse.org>
-# Copyright 2017 Joseph Lorimer <luoliyan@posteo.net>
+# Copyright 2017-2018 Joseph Lorimer <luoliyan@posteo.net>
 # License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
 
 from functools import reduce

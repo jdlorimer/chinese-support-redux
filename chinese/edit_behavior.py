@@ -1,31 +1,33 @@
 # -*- coding: utf-8 -*-
 # Copyright 2012-2015 Thomas TEMPÉ <thomas.tempe@alysse.org>
-# Copyright 2017 Joseph Lorimer <luoliyan@posteo.net>
+# Copyright 2017-2018 Joseph Lorimer <luoliyan@posteo.net>
 
 from .config import chinese_support_config as config
-from .edit_functions import (accentuate_pinyin,
-                             cleanup,
-                             colorize,
-                             colorize_fuse,
-                             get_alternate_spellings,
-                             get_any,
-                             get_mean_word,
-                             has_field,
-                             hide,
-                             hide_ruby,
-                             no_color,
-                             no_sound,
-                             no_tone,
-                             pinyin_to_bopomofo,
-                             ruby,
-                             separate_pinyin,
-                             setAll,
-                             silhouette,
-                             simplify,
-                             sound,
-                             traditional,
-                             transcribe,
-                             translate)
+from .edit_functions import (
+    accentuate_pinyin,
+    cleanup,
+    colorize,
+    colorize_fuse,
+    get_alternate_spellings,
+    get_any,
+    get_mean_word,
+    has_field,
+    hide,
+    hide_ruby,
+    no_color,
+    no_sound,
+    no_tone,
+    pinyin_to_bopomofo,
+    ruby,
+    separate_pinyin,
+    setAll,
+    silhouette,
+    simplify,
+    sound,
+    traditional,
+    transcribe,
+    translate
+)
 
 
 def get_mean(hanzi, dico):
