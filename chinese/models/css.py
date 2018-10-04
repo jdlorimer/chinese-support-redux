@@ -1,7 +1,5 @@
-# -*- coding: utf-8 -*-
-#
-# Copyright © 2012-2014 Thomas Tempe <thomas.tempe@alysse.org>
-# Copyright © 2012 Roland Sieker <ospalh@gmail.com>
+# Copyright 2012-2014 Thomas Tempe <thomas.tempe@alysse.org>
+# Copyright 2012 Roland Sieker <ospalh@gmail.com>
 
 """
 CSS used by the different Chinese models.

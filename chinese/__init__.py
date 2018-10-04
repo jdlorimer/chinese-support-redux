@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Chinese Support Redux; an add-on for Anki <http://ankisrs.net/>
 
 # Copyright 2012 Roland Sieker <ospalh@gmail.com>
@@ -24,8 +23,6 @@ from . import edit
 from . import graph
 from .models import advanced
 from .models import basic
-from .templates import chinese
-from .templates import ruby
 from .ui import loadMenu
 # import chinese.models.compatibility
 # import chinese.models.ruby

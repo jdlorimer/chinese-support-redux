@@ -1,5 +1,4 @@
-# -*- coding: utf-8 -*-
-# Copyright: Damien Elmes <anki@ichi2.net>, Thomas TEMPE <thomas.tempe@alysse.org>
+# Copyright: Damien Elmes <anki@ichi2.net>
 # Copyright 2012, Thomas TEMPE <thomas.tempe@alysse.org>
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 # Based off Kieran Clancy's initial implementation.
@@ -19,14 +18,13 @@ r = r' ?([^ >]+?)\[(.+?)\]'
 ruby_re = r'<ruby><rb>\1</rb><rt>\2</rt></ruby>'
 
 tone_info= [
-[u'[ɑ̄āĀáɑ́ǎɑ̌ÁǍàɑ̀À]', 'a'],
-[u'[ēĒéÉěĚèÈ]', 'e'],
-[u'[īĪíÍǐǏìÌ]', 'i'],
-[u'[ōŌóÓǒǑòÒ]', 'o'],
-[u'[ūŪúÚǔǓùÙ]', 'u'],
-[u'[ǖǕǘǗǚǙǜǛ]', 'v']
+    [u'[ɑ̄āĀáɑ́ǎɑ̌ÁǍàɑ̀À]', 'a'],
+    [u'[ēĒéÉěĚèÈ]', 'e'],
+    [u'[īĪíÍǐǏìÌ]', 'i'],
+    [u'[ōŌóÓǒǑòÒ]', 'o'],
+    [u'[ūŪúÚǔǓùÙ]', 'u'],
+    [u'[ǖǕǘǗǚǙǜǛ]', 'v']
 ]
-
 
 
 def transcription_no_tones(txt, *args):
@@ -40,6 +38,7 @@ def transcription_no_tones(txt, *args):
     txt = re.sub(r'¹²³⁴', r' ', txt)
     return txt
 
+
 def hanzi_silhouette(txt, *args):
     ''' Hides the chinese characters, ruby annotations and tone colorization.
     Eg: '又[you4]A又B' returns '_ A _ B'.
@@ -48,6 +47,7 @@ def hanzi_silhouette(txt, *args):
         return re.sub(u'[\u4e00-\u9fff]', '_ ', ruby_bottom_text(txt))
     else:
         return ""
+
 
 def hanzi_context(txt, extra, context, tag, fullname):
     '''
@@ -78,11 +78,14 @@ def hanzi_context(txt, extra, context, tag, fullname):
     context_string = re.sub("  ", " ", context_string)
     return context_string
 
+
 def hint_transcription(txt, extra, context, tag, fullname):
     return hint(ruby_top(txt), extra, context, 'Transcription', fullname)
 
+
 def hint_transcription_no_tones(txt, extra, context, tag, fullname):
     return hint(transcription_no_tones(txt), extra, context, 'Transcription', fullname)
+
 
 def install():
     addHook('fmod_transcription_no_tones', transcription_no_tones)

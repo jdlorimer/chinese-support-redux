@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Copyright 2012 Thomas TEMPÉ <thomas.tempe@alysse.org>
 # Copyright 2014 Alex Griffin <alex@alexjgriffin.com>
 # Copyright 2017-2018 Joseph Lorimer <luoliyan@posteo.net>

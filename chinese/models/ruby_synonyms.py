@@ -1,11 +1,7 @@
-# -*- coding: utf-8 -*-
-#
-# Copyright © 2012 Thomas Tempe <thomas.tempe@alysse.org>
-# Copyright © 2012 Roland Sieker <ospalh@gmail.com>
-#
+# Copyright 2012 Thomas Tempe <thomas.tempe@alysse.org>
+# Copyright 2012 Roland Sieker <ospalh@gmail.com>
 # Original: Damien Elmes <anki@ichi2.net> (as japanese/model.py)
 # License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
-#
 
 import string
 
