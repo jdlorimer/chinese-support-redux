@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Copyright 2012 Thomas TEMPÉ <thomas.tempe@alysse.org>
 # Copyright 2017-2018 Joseph Lorimer <luoliyan@posteo.net>
 # License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
@@ -33,48 +32,6 @@ speech_options = [
     'Baidu Translate',
     'Google TTS Cantonese',
     'Google TTS Mandarin',
-]
-
-msTranslateLanguages = [
-    ('Arabic', 'ar'),
-    ('Bulgarian', 'bg'),
-    ('Catalan', 'ca'),
-    ('Czech', 'cs'),
-    ('Danish', 'da'),
-    ('Dutch', 'nl'),
-    ('English', 'en'),
-    ('Estonian', 'et'),
-    ('Finnish', 'fi'),
-    ('French', 'fr'),
-    ('German', 'de'),
-    ('Greek', 'el'),
-    ('Haitian Creole', 'ht'),
-    ('Hebrew', 'he'),
-    ('Hindi', 'hi'),
-    ('Hmong Daw', 'mww'),
-    ('Hungarian', 'hu'),
-    ('Indonesian', 'id'),
-    ('Italian', 'it'),
-    ('Japanese', 'ja'),
-    ('Korean', 'ko'),
-    ('Latvian', 'lv'),
-    ('Lithuanian', 'lt'),
-    ('Malay', 'ms'),
-    ('Norwegian', 'no'),
-    ('Persian (Farsi)', 'fa'),
-    ('Polish', 'pl'),
-    ('Portuguese', 'pt'),
-    ('Romanian', 'ro'),
-    ('Russian', 'ru'),
-    ('Slovak', 'sk'),
-    ('Slovenian', 'sl'),
-    ('Spanish', 'es'),
-    ('Swedish', 'sv'),
-    ('Thai', 'th'),
-    ('Turkish', 'tr'),
-    ('Ukrainian', 'uk'),
-    ('Urdu', 'ur'),
-    ('Vietnamese ', 'vi')
 ]
 
 
@@ -118,10 +75,6 @@ def update_dict_action_checkboxes():
         ui_actions['dict_' + d].setChecked(
             d == chinese_support_config.options['dictionary'])
 
-#    for name, code in msTranslateLanguages:
-#        ui_actions['dict_' + code].setChecked(
-#            code == chinese_support_config.options['dictionary'])
-
     for t in transcriptions:
         ui_actions['transcription_' + t].setChecked(
             t == chinese_support_config.options['transcription'])
@@ -140,11 +93,6 @@ def loadMenu():
     for d, d_names in dictionaries:
         ui_actions['dict_' + d] = add_action(
             d_names, submenu, set_dict_constructor(d), True)
-
-#    submenu = menu.addMenu(_('Use Microsoft Translate'))
-#    for name, code in msTranslateLanguages:
-#        ui_actions['dict_' + code] = add_action(
-#            name, submenu, set_dict_constructor(code), True)
 
     submenu = menu.addMenu(_('Set transcription'))
     for i in transcriptions:
