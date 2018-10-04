@@ -1,5 +1,7 @@
 ## Chinese Support Redux
 
+[![Build Status](https://travis-ci.org/luoliyan/chinese-support-redux.svg?branch=master)](https://travis-ci.org/luoliyan/chinese-support-redux)
+
 A rewrite and port of the Chinese Support add-on to Anki 2.1.
 
 ### Features
