@@ -331,22 +331,18 @@ def colorize_fuse(hanzi, pinyin, ruby=False):
     pinyin = cleanup(no_color(pinyin))+" "*len(hanzi)
     hanzi  = cleanup(hanzi)
     text = ""
-#    print hanzi, "\t", pinyin
     for h in hanzi:
         if len(pinyin)<5:
             pinyin = pinyin+"     "
         if has_hanzi(h):
             [p, pinyin] = pinyin.split(" ", 1)
-#            print "C1\t", h, "\t", p
             if ruby:
                 text +=  '<span class="tone{t}"><ruby>{h}<rt>{p}</rt></span>'.format(t=get_tone_number(p), h=h, p=p)
             else:
                 text +=  '<span class="tone{t}">{h}</span>'.format(t=get_tone_number(p), h=h)
         elif " "==h and " "!=pinyin[0]:
             text += " "
-#            print "C2\t_\t(none)"
         else:
-#            print "C3\t", h, "\t", pinyin[0]
             text += pinyin[0]
             pinyin = pinyin[1:]
             if " " == pinyin[0]:
