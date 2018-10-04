@@ -13,7 +13,6 @@ from . import bopomofo as bopomofo_module
 from . import dictdb
 from . import google_tts
 from .config import chinese_support_config
-from .microsofttranslator import Translator as MSTranslator
 
 # Essential Edit functions
 ##################################################################
@@ -305,18 +304,17 @@ def translate_local(text, lang):
     res = local_dict_colorize(res)
     return res
 
+
 def translate(text, from_lang="zh", to_lang=None, progress_bar=True):
     '''Translate to a different language.
     Eg: '你好' becomes 'Hello'
     Only installed dictionaries can be used.
 
     to_lang possible values : "local_en", "local_de", "local_fr"
-    or a 2-letter ISO language code for MS Translate
 
     if to_lang is unspecified, the default language will be used.
     if progress_bar is True, then will display a progress bar.
     '''
-    global MS_translator_object
     text = cleanup(text)
     if "" == text:
         return ""
@@ -326,23 +324,7 @@ def translate(text, from_lang="zh", to_lang=None, progress_bar=True):
             return ""
     if to_lang.startswith("local_"): #Local dict
         return translate_local(text, to_lang[-2:])
-#    else:  #Ms translate
-#        ret = ""
-#        if progress_bar:
-#            mw.progress.start(label="MS Translator lookup", immediate=True)
-#        if None == MS_translator_object:
-#            MS_translator_object = MSTranslator("chinese-support-add-on", "Mh+X5YY17LZZ8rO9hzJXYD3I02V3E+ltItF15ep7qG8=")
-#        try:
-#            ret = MS_translator_object.translate(text, to_lang)
-#        except:
-#            pass
 
-#        if "ArgumentException:" == ret[:18]:
-#            #Token has probably expired
-#            ret=""
-#        if progress_bar:
-#            mw.progress.finish()
-#        return ret
 
 def cleanup(txt):
     '''Remove all HTML, tags, and others.'''
@@ -560,8 +542,6 @@ def traditional(text):
 
 # Extra support functions and parameters
 ##################################################################
-
-MS_translator_object = None
 
 vowel_tone_dict = {
     'ā':1, 'ā':1, 'ɑ̄':1, 'ē':1, 'ī':1, 'ō':1, 'ū':1,
