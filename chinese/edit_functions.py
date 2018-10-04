@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Copyright 2012 Thomas TEMPÉ <thomas.tempe@alysse.org>
 # Copyright 2017-2018 Joseph Lorimer <luoliyan@posteo.net>
 # License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
@@ -12,12 +11,9 @@ from . import baidu_tts
 from . import bopomofo as bopomofo_module
 from . import dictdb
 from . import google_tts
+from .util import *
 from .config import chinese_support_config
 
-# Essential Edit functions
-##################################################################
-#
-# You may call any of these functions from the edit_behavior.py file.
 
 def colorize(text, ruby_whole=False):
     '''Add tone color info.
@@ -59,16 +55,6 @@ def colorize(text, ruby_whole=False):
     text = text+sound_tags
     return text
 
-def ruby_top(txt):
-    "Extract the top (pronunciation) part of a ruby string."
-    r = r' ?([^ >]+?)\[(.+?)\]'
-    return re.sub(r, r'\2 ', no_sound(txt))
-
-def ruby_bottom(txt):
-    "Extract the bottom part of a ruby string."
-    r = r' ?([^ >]+?)\[(.+?)\]'
-    text = re.sub(r, r'\1 ', no_sound(txt))
-    return text
 
 def no_color(text):
     "Remove tone color info and other HTML pollutions"
@@ -120,10 +106,6 @@ def silhouette(hanzi):
     txt = re.sub("[\u3400-\u9fff]", "_", hanzi)
     return txt
 
-
-def no_hidden(text):
-    """Remove hidden keyword string"""
-    return re.sub(r"<!--.*?-->", "", text)
 
 def accentuate_pinyin(text, force=False):
     '''Add accents to pinyin.
@@ -480,15 +462,6 @@ def has_field(fields, dico):
                 pass
     return False
 
-def no_sound(text):
-    '''
-    Removes the [sound:xxx.mp3] tag that's added by Anki when you record
-    sound into a field.
-
-    If you don't remove it before taking data from one field to another,
-    it will likely be duplicated, and the sound will play twice.
-    '''
-    return re.sub(r'\[sound:.*?]', '', text)
 
 def separate_pinyin(text, force=False, cantonese=False):
     """
