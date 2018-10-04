@@ -23,6 +23,7 @@ from . import edit
 from . import graph
 from .models import advanced
 from .models import basic
+from .templates import chinese, ruby
 from .ui import loadMenu
 # import chinese.models.compatibility
 # import chinese.models.ruby
