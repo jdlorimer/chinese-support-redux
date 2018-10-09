@@ -17,9 +17,11 @@ A rewrite and port of the Chinese Support add-on to Anki 2.1.
 
 ### Status
 
-For now, the vast majority of features have been successfully ported, and the add-on is in a usable state. That said, Microsoft Translator has been disabled.
+The vast majority of features have been successfully ported, and the add-on is in a usable state, albeit with some definite rough edges.
 
-Since the add-on is still in beta, there are likely to be occasional issues. Please report these [here](https://github.com/luoliyan/chinese-support-redux/issues) on GitHub. Feature requests are also welcome.
+The add-on is still in beta. By this I mean “it works, but I wouldn’t trust it with my children”. Expect occasional issues, and please make a back-up before trying it. I use it myself and haven't experienced data loss, but _your_ mileage may vary.
+
+Please report any issues [here](https://github.com/luoliyan/chinese-support-redux/issues) on GitHub. Feature requests are also welcome.
 
 If you are new to the Chinese Support add-on, the wiki from the previous version is still relevant ([here](https://github.com/ttempe/chinese-support-addon/wiki)).
 
@@ -42,6 +44,10 @@ Then, to use the field filling features:
 6. The remaining fields should then be populated automatically
 
 ### History
+
+#### v0.5.0-beta (2018.10.09)
+* Restore Google TTS (again)
+* Begin seriously starting to wrap tests around this old, buggy code
 
 #### v0.4.1-beta (2018.02.17)
 * Fix _Fill incomplete notes_ functionality
