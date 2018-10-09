@@ -17,6 +17,12 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import sys
+from os.path import dirname, join
+
+sys.path.append(join(dirname(__file__), 'lib', 'gTTS'))
+sys.path.append(join(dirname(__file__), 'lib', 'gTTS-token'))
+
 from anki.hooks import addHook
 
 from . import edit

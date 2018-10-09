@@ -371,8 +371,7 @@ def get_alternate_spellings(text):
         return ""
 
 def sound(text, source=None):
-    '''
-    Returns sound tag for a given Hanzi string.
+    """Returns sound tag for a given Hanzi string.
 
     If the sound does not already exist in the media directory, then
     attempt to obtain it from the specified source.
@@ -385,36 +384,39 @@ def sound(text, source=None):
 
     Source is either the TTS speech engine name.
     If empty, taking the one from the menu.
-    '''
+    """
+
     text = cleanup(text)
-    if None==source:
+
+    if not source:
         source = chinese_support_config.options['speech']
 
     text = no_color(no_accents(no_sound(text)))
-    text = re.sub("<.*?>", "", text)
+    text = re.sub(r'<.*?>', '', text)
+
     if has_ruby(text):
         text = hanzi(text)
-    if "" == text:
-        return ""
 
-    if "Google TTS Mandarin" == source:
-        try:
-            return "[sound:"+google_tts.get_word_from_google(text, 'zh')+"]"
-        except:
-            return ""
-    elif "Baidu Translate" == source:
-        try:
-            return "[sound:"+baidu_tts.get_word_from_baidu(text, 'zh')+"]"
-        except:
-            return ""
-    elif "Google TTS Cantonese" == source:
-        try:
-            return "[sound:"+google_tts.get_word_from_google(text, 'zh-yue')+"]"
-        except:
-            return ""
-    else:
-        return ""
+    if not text:
+        return ''
 
+    if source == 'Google TTS Mandarin':
+        try:
+            return '[sound:' + google_tts.downloadSound(text, 'zh-cn') + ']'
+        except:
+            pass
+    elif source == 'Baidu Translate':
+        try:
+            return '[sound:' + baidu_tts.get_word_from_baidu(text, 'zh') + ']'
+        except:
+            pass
+    elif source == 'Google TTS Cantonese':
+        try:
+            return '[sound:' + google_tts.downloadSound(text, 'zh-yue') + ']'
+        except:
+            pass
+
+    return ''
 
 
 def get_any(fields, dico):

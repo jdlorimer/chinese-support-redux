@@ -1,0 +1,6 @@
+[submodule "chinese/lib/gTTS"]
+	path = chinese/lib/gTTS
+	url = https://github.com/pndurette/gTTS
+[submodule "chinese/lib/gTTS-token"]
+	path = chinese/lib/gTTS-token
+	url = https://github.com/Boudewijn26/gTTS-token

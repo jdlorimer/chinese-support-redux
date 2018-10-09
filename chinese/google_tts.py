@@ -6,21 +6,21 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/copyleft/agpl.html
 
 
-from os.path import exists
-import os
-import re
+from os.path import exists, join
+from re import sub
 
 from aqt import mw
 
-from .lib.gtts import gTTS
+from gtts import gTTS
 
 
-def get_word_from_google(source, lang='zh'):
+def downloadSound(source, lang='zh-cn'):
     filename, path = getFilename('_'.join([source, 'G', lang]), '.mp3')
 
     if exists(path):
         return filename
 
+    # should raise ValueError on unsupported lang code
     tts = gTTS(source, lang=lang)
     tts.save(path)
 
@@ -29,9 +29,9 @@ def get_word_from_google(source, lang='zh'):
 
 def getFilename(base, ext):
     filename = stripInvalidChars(base) + ext
-    path = os.path.join(mw.col.media.dir(), filename)
+    path = join(mw.col.media.dir(), filename)
     return (filename, path)
 
 
 def stripInvalidChars(s):
-    return re.sub('[\\/:\*?"<>\|]', '', s)
+    return sub('[\\/:\*?"<>\|]', '', s)
