@@ -15,8 +15,8 @@ class UtilTests(TestCase):
             'aqt': MagicMock(),
             'aqt.qt': MagicMock(),
             'aqt.utils': MagicMock(),
-            'chinese.lib.gtts': MagicMock(),
             'chinese.ui': MagicMock(),
+            'gtts': MagicMock(),
         }
         self.patcher = patch.dict('sys.modules', modules)
         self.patcher.start()
