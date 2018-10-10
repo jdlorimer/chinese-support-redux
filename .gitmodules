@@ -7,3 +7,15 @@
 [submodule "chinese/lib/six"]
 	path = chinese/lib/six
 	url = https://github.com/benjaminp/six
+[submodule "chinese/lib/urllib3"]
+	path = chinese/lib/urllib3
+	url = https://github.com/urllib3/urllib3
+[submodule "chinese/lib/chardet"]
+	path = chinese/lib/chardet
+	url = https://github.com/chardet/chardet
+[submodule "chinese/lib/certifi"]
+	path = chinese/lib/certifi
+	url = https://github.com/certifi/python-certifi
+[submodule "chinese/lib/idna"]
+	path = chinese/lib/idna
+	url = https://github.com/kjd/idna
