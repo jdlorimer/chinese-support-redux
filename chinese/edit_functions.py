@@ -410,11 +410,6 @@ def sound(text, source=None):
             return '[sound:' + baidu_tts.get_word_from_baidu(text, 'zh') + ']'
         except:
             pass
-    elif source == 'Google TTS Cantonese':
-        try:
-            return '[sound:' + google_tts.downloadSound(text, 'zh-yue') + ']'
-        except:
-            pass
 
     return ''
 

@@ -45,6 +45,10 @@ Then, to use the field filling features:
 
 ### History
 
+#### v0.5.1-beta (2018.10.10)
+* Fix Google TTS dependency
+* Remove Cantonese from TTS options (discontinued by Google)
+
 #### v0.5.0-beta (2018.10.09)
 * Restore Google TTS (again)
 * Begin seriously starting to wrap tests around this old, buggy code

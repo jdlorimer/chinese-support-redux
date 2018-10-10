@@ -22,6 +22,7 @@ from os.path import dirname, join
 
 sys.path.append(join(dirname(__file__), 'lib', 'gTTS'))
 sys.path.append(join(dirname(__file__), 'lib', 'gTTS-token'))
+sys.path.append(join(dirname(__file__), 'lib', 'six'))
 
 from anki.hooks import addHook
 
