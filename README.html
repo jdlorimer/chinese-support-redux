@@ -1,0 +1,24 @@
+This is an updated version of the Chinese Support add-on, designed to work with Anki 2.1. If you are new to this add-on, the wiki from the previous version is still relevant (<a href="https://github.com/ttempe/chinese-support-addon/wiki" rel="nofollow">here</a>). The core feature of the add-on is its automatic filling of fields, with audio generation, tone colouring and translation.
+
+<b><i>Features</i></b>
+
+<ul><li>Automatic field filling <ul><li>Translation (from built-in dictionary; supports English, German and French)</li><li>Romanisation (supports <a href="https://en.wikipedia.org/wiki/Pinyin" rel="nofollow">Pinyin</a> and Cantonese <a href="https://en.wikipedia.org/wiki/Jyutping" rel="nofollow">Jyutping</a>)</li><li><a href="https://en.wikipedia.org/wiki/Bopomofo" rel="nofollow">Bopomofo/Zhuyin</a></li><li>Audio (fetched from Google or Baidu; supports Mandarin and Cantonese)</li><li>Simplified and traditional characters</li></ul></li><li>Tone colours (applied to characters, romanisation and Bopomofo)</li><li>Built-in note types (basic and advanced)</li></ul>
+<b><i>Status</i></b>
+
+The vast majority of features have been successfully ported, and the add-on is in a usable state, albeit with some definite rough edges.
+
+The add-on is still in beta. By this I mean “it works, but I wouldn’t trust it with my children”. Expect occasional issues, and please make a back-up before trying it. I use it myself and haven't experienced data loss, but <i>your</i> mileage may vary.
+
+Development code is hosted on GitHub (<a href="https://github.com/luoliyan/chinese-support-redux" rel="nofollow">here</a>). That is the best place to <a href="https://github.com/luoliyan/chinese-support-redux/issues" rel="nofollow">report issues</a>. Feature requests are also welcome.
+
+<b><i>Usage</i></b>
+
+The core feature of the add-on is the automatic field filling. To take advantage of this, you need to have an Anki note type with the appropriate fields (e.g., <b>Hanzi</b>, <b>Meaning</b>, <b>Reading</b>, <b>Sound</b>). If you don't already have such a note type, the easiest way to create one is to use the built-in model:
+
+<ol><li>Navigate to Tools → Manage Note Types (or press <code>Ctrl+Shift+N</code>)</li><li>Click <b>Add</b></li><li>Select <b>Add: Chinese (basic)</b></li><li>Click <b>OK</b></li><li>Click <b>OK</b> again</li><li>Click <b>Close</b></li></ol>
+Then, to use the field filling features:
+
+<ol><li>Add a new note to Anki (press <code>a</code>)</li><li>Select <b>Chinese (basic)</b> as the note type</li><li>Enable Chinese Support Redux for this note type (click <b>汉字</b>)</li><li>Enter a word (e.g., 電話) in the <b>Hanzi</b> field</li><li>Press <code>Tab</code></li><li>The remaining fields should then be populated automatically</li></ol>
+<b><i>History</i></b>
+
+<i>v0.5.1-beta (2018.10.10)</i><ul><li>Fix Google TTS dependency</li><li>Remove Cantonese from list of TTS options (discontinued by Google)</li></ul><i>v0.5.0-beta (2018.10.09)</i><ul><li>Restore Google TTS (again)</li><li>Begin seriously starting to wrap tests around this old, buggy code</li></ul><i>v0.4.1-beta (2018.02.17)</i><ul><li>Fix <i>Fill incomplete notes</i> functionality</li></ul><i>v0.4.0-beta (2017.11.14)</i><ul><li>Fix more issues with automatic field population</li><li>Move field names into configuration file</li></ul><i>v0.3.1-beta (2017.11.10)</i><ul><li>Use built-in configuration facilities</li></ul><i>v0.3-beta (2017.11.07)</i><ul><li>Fix issues with automatic field population</li></ul><i>v0.2-beta (2017.11.06)</i><ul><li>Restore Google TTS (for both Mandarin and Cantonese)</li></ul><i>v0.1-beta (2017.11.05)</i><ul><li>Initial port to Anki 2.1 (most features appear to work)</li><li>Restore tone colours in the editor</li></ul>
