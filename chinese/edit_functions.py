@@ -7,12 +7,11 @@ import re
 
 from aqt import mw
 
-from . import baidu_tts
 from . import bopomofo as bopomofo_module
 from . import dictdb
-from . import google_tts
-from .util import *
+from . import tts
 from .config import chinese_support_config
+from .util import *
 
 
 def colorize(text, ruby_whole=False):
@@ -400,14 +399,15 @@ def sound(text, source=None):
     if not text:
         return ''
 
-    if source == 'Google TTS Mandarin':
+    options = {
+        'Google Mandarin (PRC)': ('google', 'zh-cn'),
+        'Google Mandarin (Taiwan)': ('google', 'zh-tw'),
+        'Baidu Translate': ('baidu', 'zh'),
+    }
+
+    if source in options:
         try:
-            return '[sound:' + google_tts.downloadSound(text, 'zh-cn') + ']'
-        except:
-            pass
-    elif source == 'Baidu Translate':
-        try:
-            return '[sound:' + baidu_tts.get_word_from_baidu(text, 'zh') + ']'
+            return '[sound:%s]' % tts.download_sound(text, options[source])
         except:
             pass
 

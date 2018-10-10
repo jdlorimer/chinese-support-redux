@@ -30,7 +30,8 @@ transcriptions = ['Pinyin', 'Pinyin (Taiwan)', 'Cantonese', 'Bopomofo']
 speech_options = [
     'None',
     'Baidu Translate',
-    'Google TTS Mandarin',
+    'Google Mandarin (PRC)',
+    'Google Mandarin (Taiwan)',
 ]
 
 
