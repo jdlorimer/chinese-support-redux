@@ -1,4 +1,8 @@
 *~
+.coverage
 .mypy_cache/
+.prospector.yaml
+.python-version
 .ropeproject/
 __pycache__
+chinese/meta.json
