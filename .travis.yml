@@ -2,8 +2,18 @@ language: python
 
 python:
   - '3.6'
+  - '3.7'
 
 install:
-  - pip install nose
+  - pip install pytest python-coveralls
 
-script: nosetests ./tests
+before_script:
+  - export PYTHONPATH=.
+
+script:
+  - pytest tests
+
+after_success:
+  - coverage run -m pytest tests
+  - coverage report
+  - coveralls
