@@ -10,9 +10,9 @@ from anki.find import Finder
 from aqt import mw
 from aqt.utils import showInfo, askUser
 
-from .config import chinese_support_config as config
 from .edit_behavior import *
 from .edit_functions import *
+from .main import config_manager as config
 
 
 def no_html(txt):

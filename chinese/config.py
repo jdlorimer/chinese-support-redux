@@ -29,6 +29,3 @@ class ConfigManager:
             return self.tips[self.options['startup_tip_number'] - 1]
         else:
             return (None, None)
-
-
-chinese_support_config = ConfigManager()

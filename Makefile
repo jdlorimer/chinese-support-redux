@@ -1,6 +1,10 @@
+export PYTHONPATH=.
 VERSION = `cat _version.py | grep __version__ | sed "s/.*'\(.*\)'.*/\1/"`
 
-all: prep pack clean
+all: test prep pack clean
+
+test:
+	pytest --cov=chinese tests -v
 
 prep:
 	rm -f chinese-support-redux-v*.zip

@@ -8,12 +8,14 @@ from aqt.utils import showInfo, openLink, askUser
 
 from . import edit_behavior
 from .about import CSR_GITHUB_URL, showAbout
-from .config import chinese_support_config
-from .fill_missing import (fill_pinyin,
-                           fill_silhouette,
-                           fill_simp_trad,
-                           fill_sounds,
-                           fill_translation)
+from .fill_missing import (
+    fill_pinyin,
+    fill_silhouette,
+    fill_simp_trad,
+    fill_sounds,
+    fill_translation
+)
+from .main import config_manager
 
 
 ui_actions = {}
@@ -35,26 +37,16 @@ speech_options = [
 ]
 
 
-def display_next_tip():
-    (tip, link) = chinese_support_config.get_next_tip()
-    if tip:
-        if link:
-            if askUser(tip):
-                openLink(link)
-        else:
-            showInfo(tip)
-
-
-def set_dict_constructor(dict):
+def set_dict_constructor(d):
     def set_dict():
-        chinese_support_config.set_option('dictionary', dict)
+        config_manager.set_option('dictionary', d)
         update_dict_action_checkboxes()
     return set_dict
 
 
 def set_option_constructor(option, value):
     def set_option():
-        chinese_support_config.set_option(option, value)
+        config_manager.set_option(option, value)
         update_dict_action_checkboxes()
     return set_option
 
@@ -73,18 +65,18 @@ def update_dict_action_checkboxes():
 
     for d, d_name in dictionaries:
         ui_actions['dict_' + d].setChecked(
-            d == chinese_support_config.options['dictionary'])
+            d == config_manager.options['dictionary'])
 
     for t in transcriptions:
         ui_actions['transcription_' + t].setChecked(
-            t == chinese_support_config.options['transcription'])
+            t == config_manager.options['transcription'])
 
     for t in speech_options:
         ui_actions['speech_' + t].setChecked(
-            t == chinese_support_config.options['speech'])
+            t == config_manager.options['speech'])
 
 
-def loadMenu():
+def load_menu():
     global ui_actions
 
     menu = mw.form.menuTools.addMenu('Chinese Support')
@@ -121,4 +113,11 @@ def loadMenu():
     update_dict_action_checkboxes()
 
 
-display_next_tip()
+def display_tip():
+    (tip, link) = config_manager.get_next_tip()
+    if tip:
+        if link:
+            if askUser(tip):
+                openLink(link)
+        else:
+            showInfo(tip)

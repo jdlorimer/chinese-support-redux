@@ -1,41 +1,49 @@
-from unittest import TestCase
-from unittest.mock import MagicMock, Mock, patch
+from unittest import skip
+
+from . import ChineseTests
 
 
-class UtilTests(TestCase):
+# consumers: colorize, ruby
+class AccentuatePinyinTests(ChineseTests):
+    def test_accentuate_pinyin(self):
+        from chinese.edit_functions import accentuate_pinyin
+        self.assertEqual(accentuate_pinyin(['xian4'], True), ['xiàn'])
+        self.assertEqual(accentuate_pinyin(['xian4 zai4'], True), ['xiàn zài'])
+        self.assertEqual(
+            accentuate_pinyin(['hen3', 'gao1 xing4'], True),
+            ['hěn', 'gāo xìng']
+        )
+
+
+# consumers: accentuate_pinyin, colorize
+class SeparatePinyinTests(ChineseTests):
     def setUp(self):
-        modules = {
-            'anki': MagicMock(),
-            'anki.find': MagicMock(),
-            'anki.hooks': MagicMock(),
-            'anki.stdmodels': MagicMock(),
-            'anki.template': MagicMock(),
-            'anki.template.hint': MagicMock(),
-            'anki.utils': MagicMock(),
-            'aqt': MagicMock(),
-            'aqt.qt': MagicMock(),
-            'aqt.utils': MagicMock(),
-            'chinese.ui': MagicMock(),
-            'gtts': MagicMock(),
-        }
-        self.patcher = patch.dict('sys.modules', modules)
-        self.patcher.start()
+        super().setUp()
+        from chinese.edit_functions import separate_pinyin
+        self.func = separate_pinyin
 
-    def tearDown(self):
-        self.patcher.stop()
+    def test_tone_mark(self):
+        self.assertEqual(self.func('xiànzài', force=True), ['xiàn zài'])
 
-    def test_no_hidden(self):
-        from chinese.util import no_hidden
-        self.assertEqual(no_hidden('a <!-- b --> c'), 'a  c')
+    def test_tone_number(self):
+        self.assertEqual(self.func('xian4zai4', force=True), ['xian4 zai4'])
 
-    def test_no_sound(self):
-        from chinese.util import no_sound
-        self.assertEqual(no_sound('a [sound:] b'), 'a  b')
+    def test_muliple_words(self):
+        self.assertEqual(
+            self.func('hěn gāoxìng', force=True), ['hěn', 'gāo xìng'])
 
-    def test_ruby_top(self):
-        from chinese.util import ruby_top
-        self.assertEqual(ruby_top('汉[hàn]字[zì]'), 'hàn zì ')
+    def test_multisyllabic_words(self):
+        self.assertEqual(self.func('túshūguǎn', force=True), ['tú shū guǎn'])
 
-    def test_ruby_bottom(self):
-        from chinese.util import ruby_bottom
-        self.assertEqual(ruby_bottom('汉[hàn]字[zì]'), '汉 字 ')
+    @skip
+    def test_er_yuan(self):
+        self.assertEqual(self.func("yòu'éryuán", force=True), ["yòu ér yuán"])
+
+
+# consumers: colorize
+class TranscribeTests(ChineseTests):
+    def test_transcribe(self):
+        from chinese.edit_functions import transcribe
+        self.assertEqual(transcribe(['你'], 'Pinyin'), ['nǐ'])
+        self.assertEqual(
+            transcribe(['图书', '馆'], 'Pinyin'), ['tú shū', 'guǎn'])

@@ -6,8 +6,8 @@
 from anki.hooks import addHook
 from aqt import mw
 
-from .config import chinese_support_config as config
 from .edit_behavior import updateFields
+from .main import config_manager as config
 
 
 class EditManager:
@@ -67,7 +67,7 @@ class EditManager:
         return False
 
 
-def appendToneStyling(editor):
+def append_tone_styling(editor):
     js = 'var css = document.styleSheets[0];'
 
     for line in editor.note.model()['css'].split('\n'):
@@ -76,8 +76,3 @@ def appendToneStyling(editor):
                 line.rstrip())
 
     editor.web.eval(js)
-
-
-addHook('loadNote', appendToneStyling)
-
-EditManager()

@@ -3,7 +3,6 @@
 # Original: Damien Elmes <anki@ichi2.net> (as japanese/model.py)
 # License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
 
-import anki.stdmodels
 from .css import style
 
 # List of fields
@@ -73,5 +72,3 @@ def add_model(col):
     mm.add(m)
     # recognition card
     return m
-
-anki.stdmodels.models.append(("Chinese (advanced)", add_model))

@@ -10,49 +10,87 @@ from aqt import mw
 from . import bopomofo as bopomofo_module
 from . import dictdb
 from . import tts
-from .config import chinese_support_config
+from .main import config_manager
 from .util import *
 
 
-def colorize(text, ruby_whole=False):
-    '''Add tone color info.
-    (can be seen in the card preview, but not the note edit view).
-    Works on transcription, hanzi or ruby.
+def colorize(words, ruby_whole=False):
+    """Add tone color info. Works on transcription, hanzi or ruby.
+
+    Note: Can be seen in the card preview, but not the note edit view.
 
     In the case of ruby, it will colorize only the annotation by default.
     If ruby_whole = True, then it will colorize the whole character.
 
-    Warning : it's not recommended to use this function on hanzi directly,
-    since it cannot choose the correct color in the case of
-    多音字 (characters with multiple pronunciations).'''
-    text = no_color(text)
-    (text, sound_tags) = extract_sound_tags(text)
+    Warning: it's not recommended to use this function on hanzi directly,
+    since it cannot choose the correct color in the case of 多音字."""
+
+    def colorize_ruby_sub(p):
+        return '<span class="tone{t}">{r}</span>'.format(
+            t=get_tone_number(p.group(2)),
+            r=p.group()
+        )
 
     def colorize_hanzi_sub(p):
-        return '<span class="tone{t}">{r}</span>'.format(t=get_tone_number(transcribe(p.group(1), only_one=True)), r=p.group())
+        return '<span class="tone{t}">{r}</span>'.format(
+            t=get_tone_number(transcribe(p.group(1), only_one=True)),
+            r=p.group()
+        )
 
-    def colorize_pinyin_sub(p):
-        pinyin = p.group()
-        if pinyin[0] in '&<"/':
-            return pinyin
+    def colorize_pinyin_sub(text, pattern):
+        def repl(p):
+            if p.group()[0] in '&<"/':
+                return p.group()
+            return '<span class="tone{t}">{r}</span>'.format(
+                t=get_tone_number(p.group(1)),
+                r=p.group()
+            )
+
+        return re.sub(pattern, repl, text, flags=re.I).replace('> <', '><')
+
+    whole_ruby_pattern = (
+        r'([\u3400-\u9fff]\[\s*)([a-zü' +
+        accents +
+        r']+1?[0-9¹²³⁴]?)(.*?\])'
+    )
+    half_ruby_pattern = r'([a-zü' + accents + r']+1?[0-9¹²³⁴]?)'
+    hanzi_pattern = r'([\u3400-\u9fff])'
+    pinyin_pattern = (
+        r'([&<"/]?[a-zü\u3100-\u312F' +
+        accents +
+        r']+1?[0-9¹²³⁴ˊˇˋ˙]?)'
+    )
+
+    print('WORDS')
+    print(words)
+
+
+    colorized = []
+    for text in words:
+        text = no_color(text)
+        (text, sound_tags) = extract_sound_tags(text)
+
+        if has_ruby(text):
+            if ruby_whole:
+                text = re.sub(
+                    whole_ruby_pattern,
+                    colorize_ruby_sub,
+                    text,
+                    flags=re.I
+                )
+            else:
+                text = colorize_pinyin_sub(text, half_ruby_pattern)
+        elif has_hanzi(text):
+            text = re.sub(hanzi_pattern, colorize_hanzi_sub, text)
         else:
-            return '<span class="tone{t}">{r}</span>'.format(t=get_tone_number(p.group(1)), r=pinyin)
+            text = colorize_pinyin_sub(text, pinyin_pattern)
 
+        colorized.append(text + sound_tags)
 
-    if has_ruby(text): #Treat like ruby
-        if ruby_whole:
-            def colorize_ruby_sub(p):
-                return '<span class="tone{t}">{r}</span>'.format(t=get_tone_number(p.group(2)), r=p.group())
-
-            text = re.sub('([\u3400-\u9fff]\[\s*)([a-zü'+accents+']+1?[0-9¹²³⁴]?)(.*?\])', colorize_ruby_sub, text, flags=re.I)
-        else:
-            text = re.sub('([a-zü'+accents+']+1?[0-9¹²³⁴]?)', colorize_pinyin_sub, text, flags=re.I)
-    elif has_hanzi(text):
-        text = re.sub('([\u3400-\u9fff])', colorize_hanzi_sub, text)
-    else:
-        text = re.sub('([&<"/]?[a-zü\u3100-\u312F'+accents+']+1?[0-9¹²³⁴ˊˇˋ˙]?)', colorize_pinyin_sub, text, flags=re.I)
-    text = text+sound_tags
-    return text
+    from pprint import pprint
+    print('COLORIZED')
+    pprint(colorized)
+    return ' '.join(colorized)
 
 
 def no_color(text):
@@ -69,6 +107,7 @@ def no_color(text):
     text = re.sub(r'<span style=.*?>(.*?)</span>', r'\1', text)
     return text
 
+
 def hide(text, hidden):
     """Add hidden keyword to string (typically Hanzi and toneless pinyin),
     to make a note searchable in the 'browse' window
@@ -79,6 +118,7 @@ def hide(text, hidden):
     hidden = hidden.replace("<.*?>", "")
     hidden = hidden.replace(r"[<!->]", "")
     return text + "<!--"+hidden+"-->"
+
 
 def hide_ruby(text):
     """Append hidden hanzi and toneless pinyin to a ruby string,
@@ -106,37 +146,52 @@ def silhouette(hanzi):
     return txt
 
 
-def accentuate_pinyin(text, force=False):
-    '''Add accents to pinyin.
-    Eg: ni2 becomes ní.
-    Eg: ní4 becomes nì. (to make correction easier)
+def accentuate_pinyin(syllables, force=False):
+    """Add accents to pinyin.
 
-    Does nothing if the default transcription is not Pinyin or Pinyin (Taiwan),
-    unless force=True.
-    Nota : also removes coloring. If you want color, please add it last.
-   '''
+    Examples:
+        - ni2 becomes ní
+        - ní4 becomes nì (to make correction easier)
+
+    Note: also removes coloring.
+    """
+
     def accentuate_pinyin_sub(p):
         pinyin = p.group(1)
         tone = p.group(2)
-        if "tone"==pinyin:
-            return pinyin+tone
-#        for v in accents:
-#            re.sub(v, base_letters[v], pinyin)
+        if pinyin == 'tone':
+            return pinyin + tone
         pinyin = no_tone(pinyin)
-        for v in "aeouüviAEOUÜVI":
-            if pinyin.find(v)>-1:
+        for v in 'aeouüviAEOUÜVI':
+            if pinyin.find(v) > -1:
                 try:
-                    return re.sub(v, vowel_decorations[int(tone)][v.lower()], pinyin, count=1)
+                    return re.sub(
+                        v,
+                        vowel_decorations[int(tone)][v.lower()],
+                        pinyin,
+                        count=1
+                    )
                 except (KeyError, IndexError):
                     pass
         return pinyin
 
-    if chinese_support_config.options['transcription'] \
-            not in ['Pinyin', 'Pinyin (Taiwan)'] and not force:
-        return text
-    text = no_color(text)
-    text = re.sub('([a-z]*[aeiouüÜv'+accents+'][a-zü]*)([1-5])', accentuate_pinyin_sub, text, flags=re.I)
-    return text
+    accentuated = []
+    for text in syllables:
+        if config_manager.options['transcription'] \
+                not in ['Pinyin', 'Pinyin (Taiwan)'] and not force:
+            return text
+
+        text = no_color(text)
+        text = re.sub(
+            r'([a-z]*[aeiouüÜv' + accents + r'][a-zü]*)([1-5])',
+            accentuate_pinyin_sub,
+            text,
+            flags=re.I
+        )
+        accentuated.append(text)
+
+    return accentuated
+
 
 def no_accents(text):
     'Eg: ní becomes ni2.'
@@ -147,12 +202,13 @@ def no_accents(text):
     #Remove +u'aeiouüvAEIOUÜV' if you want 5th tone to be ignored
     return re.sub('([a-zü]*)(['+'aeiouüvAEIOUÜV'+accents+'])([a-zü]*)', desaccentuate_pinyin_sub, text, flags=re.I)
 
-def ruby(text, transcription=None, only_one=False, try_dict_first=True):
-    '''Convert hanzi to ruby notation, eg: '你' becomes '你[nǐ]'.
-    This can in turn be used with the {{Ruby:fieldname}} card template,
-    to generate beautiful ruby-annotated cards.
 
-    If not specified, use the transcription type set in the menubar (eg pinyin).
+def ruby(words, transcription=None, only_one=False, try_dict_first=True):
+    '''Convert hanzi to ruby notation.
+
+    For use with {{Ruby:fieldname}} on the card template.
+
+    If not specified, use the transcription type set in the menubar.
 
     if try_dict_first, looks up sequences of characters in the
     selected words dictionary to supply a better transcription.
@@ -160,46 +216,53 @@ def ruby(text, transcription=None, only_one=False, try_dict_first=True):
     If not specified, insert all possible pinyin words for characters not found
     in words dictionary.
     '''
-    if transcription == None:
-        transcription = chinese_support_config.options['transcription']
+    if not transcription:
+        transcription = config_manager.options['transcription']
 
-    #Replace Chinese typography with its ASCII counterpart
-    text = re.sub('[［【]', '[', text)
-    text = re.sub('[］】]', ']', text)
-    #Strip former HTML tone marking and comments
-    text = no_color(text)
-    text = no_sound(text)
-    #Make sure sound tag isn't confused with Hanzi
-    text = re.sub('([\u3400-\u9fff])(\[sound:)', r'\1 \2', text)
+    rubified = []
+    for text in words:
+        text = re.sub(r'[［【]', '[', text)
+        text = re.sub(r'[］】]', ']', text)
+        text = no_color(text)
+        text = no_sound(text)
+        # make sure sound tag isn't confused with hanzi
+        text = re.sub(r'([\u3400-\u9fff])(\[sound:)', r'\1 \2', text)
 
-    def insert_multiple_pinyin_sub(p):
-        hanzi=p.group(1)
-        transc = db.get_pinyin(hanzi)
-        if not transc:
-            return p.group()
-        transc = transc.split(" ")
-        ret = ""
-        hanzi = p.group(1)
-        while len(hanzi):
-            if "Pinyin" == transcription:
-                ret += hanzi[0] + "["+transc.pop(0)+"]"
-            elif "Bopomofo" == transcription:
-                ret += hanzi[0] + "["
-                ret += bopomofo_module.bopomofo(no_accents(transc.pop(0)))+"]"
-            hanzi = hanzi[1:]
-        return ret+p.group(2)
+        def insert_multiple_pinyin_sub(p):
+            hanzi = p.group(1)
+            t = db.get_pinyin(hanzi)
+            if not t:
+                return p.group()
+            t = t.split(' ')
+            s = ''
+            hanzi = p.group(1)
+            while hanzi:
+                if transcription == 'Pinyin':
+                    s += hanzi[0] + '[' + t.pop(0) + ']'
+                elif transcription == 'Bopomofo':
+                    s += hanzi[0] + '['
+                    s += bopomofo_module.bopomofo(no_accents(t.pop(0))) + ']'
+                hanzi = hanzi[1:]
+            return s + p.group(2)
 
-    def insert_pinyin_sub(p):
-        return p.group(1)+'['+get_character_transcription(p.group(1), transcription, only_one)+']'+p.group(2)
+        def insert_pinyin_sub(p):
+            t = get_char_transcription(p.group(1), transcription, only_one)
+            return p.group(1) + '[' + t + ']' + p.group(2)
 
-    text += '%'
-    if try_dict_first and transcription in ["Pinyin", "Bopomofo"]:
-        text = re.sub('([\u3400-\u9fff]+)([^[])', insert_multiple_pinyin_sub, text)
-    text = re.sub('([\u3400-\u9fff])([^[])', insert_pinyin_sub, text)
-    text = re.sub('([\u3400-\u9fff])([^[])', insert_pinyin_sub, text)
-    text = text[:-1]
-    text += sound(text)
-    return text
+        text += '%'
+        if try_dict_first and transcription in ['Pinyin', 'Bopomofo']:
+            text = re.sub(
+                r'([\u3400-\u9fff]+)([^[])',
+                insert_multiple_pinyin_sub,
+                text
+            )
+        text = re.sub(r'([\u3400-\u9fff])([^[])', insert_pinyin_sub, text)
+        text = re.sub(r'([\u3400-\u9fff])([^[])', insert_pinyin_sub, text)
+        text = text[:-1]
+        rubified.append(text + sound(text))
+
+    return rubified
+
 
 def no_tone(text):
     '''Removes tone information and coloring.
@@ -210,53 +273,61 @@ def no_tone(text):
     def no_tone_marks_sub(p):
         return ""+p.group(1)+re.sub(r'1?[0-9¹²³⁴]', '', p.group(2))+"]"
     if has_ruby(text):
-        text = re.sub('([\u3400-\u9fff]\[)([^[]+?)\]', no_tone_marks_sub, text)
+        text = re.sub(r'([\u3400-\u9fff]\[)([^[]+?)\]', no_tone_marks_sub, text)
     else:
-        text = re.sub('([a-zü]+)1?[0-9¹²³⁴]', r'\1', text)
+        text = re.sub(r'([a-zü]+)1?[0-9¹²³⁴]', r'\1', text)
     return text
 
+
 def hanzi(text):
-    '''Returns just the anzi from a Ruby notation.
-    Eg: '你[nǐ][You]' becomes '你'.
-    '''
-    text = re.sub('([\u3400-\u9fff])(\[[^[]+?\])', r'\1', text)
+    """Returns just the hanzi from a Ruby notation.
+
+    Example: '你[nǐ][You]' becomes '你'.
+    """
+    text = re.sub(r'([\u3400-\u9fff])(\[[^[]+?\])', r'\1', text)
     text = re.sub(r'\[sound:.[^[]+?\]', '', text)
     text = re.sub(r'([^\u3400-\u9fff])\[[^[]+?\]\s*$', r'\1', text)
     return text
 
-def transcribe(text, transcription=None, only_one=True):
-    '''
-    Converts to specified transcription.
-    Eg : 你 becomes nǐ (transcription="Pinyin", only_one=True)
+
+def transcribe(words, transcription=None, only_one=True):
+    """Converts to specified transcription.
+
+    Example: 你 becomes nǐ (transcription="Pinyin", only_one=True)
 
     Pinyin, Taiwan Pinyin and Bopomofo: lookup in local words dictionaries
     first, and use characters dictionary as a backup.
 
     If no transcription is specified, use the transcription set in the menu.
-    '''
-    text = cleanup(text)
-    if text == "":
-        return ""
-    if None == transcription:
-        transcription = chinese_support_config.options["transcription"]
-    if "Pinyin" == transcription:
-        r = db.get_pinyin(text, taiwan=False)
-    elif "Pinyin (Taiwan)" == transcription:
-        r = db.get_pinyin(text, taiwan=True)
-    elif "Cantonese" == transcription:
-        r = db.get_cantonese(text, only_one)
-    elif "Bopomofo" == transcription:
-        r = db.get_pinyin(text, taiwan=True)
-        r = bopomofo_module.bopomofo(no_accents(r))
-    else:
-        r = ""
-    return r
+    """
+    if not isinstance(words, list):
+        words = [words]
+
+    transcribed = []
+    for text in words:
+        text = cleanup(text)
+        if not text:
+            transcribed.append('')
+        if not transcription:
+            transcription = config_manager.options['transcription']
+        if transcription == 'Pinyin':
+            transcribed.append(db.get_pinyin(text, taiwan=False))
+        elif transcription == 'Pinyin (Taiwan)':
+            transcribed.append(db.get_pinyin(text, taiwan=True))
+        elif transcription == 'Cantonese':
+            transcribed.append(db.get_cantonese(text, only_one))
+        elif transcription == 'Bopomofo':
+            r = db.get_pinyin(text, taiwan=True)
+            transcribed.append(bopomofo_module.bopomofo(no_accents(r)))
+        else:
+            transcribed.append('')
+
+    return transcribed
+
 
 def pinyin_to_bopomofo(pinyin):
-    '''
-    Converts Pinyin to Bopomofo.
-    '''
     return bopomofo_module.bopomofo(no_accents(cleanup(pinyin)))
+
 
 def translate_local(text, lang):
     """Translate using local dictionary.
@@ -300,7 +371,7 @@ def translate(text, from_lang="zh", to_lang=None, progress_bar=True):
     if "" == text:
         return ""
     if None == to_lang:
-        to_lang = chinese_support_config.options["dictionary"]
+        to_lang = config_manager.options["dictionary"]
         if "None" == to_lang:
             return ""
     if to_lang.startswith("local_"): #Local dict
@@ -321,35 +392,34 @@ def cleanup(txt):
 
 
 def colorize_fuse(hanzi, pinyin, ruby=False):
-    '''Gives color to a Hanzi phrase based on the tone info from a
-    corresponding Pinyin phrase.
-    If ruby = True, then annotate with pinyin on top of each character
+    """Colorize hanzi based on pinyin tone.
 
-    Eg: "你好" and "ni3 hao3" ->  你好 (both colorized as 3rd tone).
-    '''
-    pinyin = cleanup(no_color(pinyin))+" "*len(hanzi)
-    hanzi  = cleanup(hanzi)
-    text = ""
-    for h in hanzi:
-        if len(pinyin)<5:
-            pinyin = pinyin+"     "
-        if has_hanzi(h):
-            [p, pinyin] = pinyin.split(" ", 1)
-            if ruby:
-                text +=  '<span class="tone{t}"><ruby>{h}<rt>{p}</rt></span>'.format(t=get_tone_number(p), h=h, p=p)
-            else:
-                text +=  '<span class="tone{t}">{h}</span>'.format(t=get_tone_number(p), h=h)
-        elif " "==h and " "!=pinyin[0]:
-            text += " "
+    If ruby=True, then annotate hanzi with pinyin.
+    """
+
+    standard_fmt = '<span class="tone{tone}">{hanzi}</span>'
+    ruby_fmt = '<span class="tone{tone}"><ruby>{hanzi}<rt>{pinyin}</rt></span>'
+
+    hanzi = [h for h in cleanup(hanzi)]
+
+    pinyin = ' '.join(
+        separate_pinyin(cleanup(no_color(pinyin)), force=True)
+    ).split()
+
+    text = ''
+
+    for h, p in zip(hanzi, pinyin):
+        if ruby:
+            text += ruby_fmt.format(tone=get_tone_number(p), hanzi=h, pinyin=p)
         else:
-            text += pinyin[0]
-            pinyin = pinyin[1:]
-            if " " == pinyin[0]:
-                pinyin = pinyin[1:]
+            text += standard_fmt.format(tone=get_tone_number(p), hanzi=h)
+
     return text
 
+
 def pinyin(text):
-    return transcribe(text, transcription="Pinyin")
+    return transcribe(text, transcription='Pinyin')
+
 
 def get_mean_word(text):
     if text == "":
@@ -360,6 +430,7 @@ def get_mean_word(text):
     else:
         return ""
 
+
 def get_alternate_spellings(text):
     if text == "":
         return ""
@@ -368,6 +439,7 @@ def get_alternate_spellings(text):
         return local_dict_colorize(", ".join(alt))
     else:
         return ""
+
 
 def sound(text, source=None):
     """Returns sound tag for a given Hanzi string.
@@ -388,7 +460,7 @@ def sound(text, source=None):
     text = cleanup(text)
 
     if not source:
-        source = chinese_support_config.options['speech']
+        source = config_manager.options['speech']
 
     text = no_color(no_accents(no_sound(text)))
     text = re.sub(r'<.*?>', '', text)
@@ -456,54 +528,45 @@ def has_field(fields, dico):
     return False
 
 
-def separate_pinyin(text, force=False, cantonese=False):
-    """
-    Separate pinyin syllables with whitespace.
-    Eg: "Yīlù píng'ān" becomes "Yī lù píng ān"
+def separate_pinyin(pinyin, force=False, cantonese=False):
+    """Separate pinyin syllables.
 
-    Does nothing if the default transcription is not Pinyin or Pinyin (Taiwan),
-    unless force="Pinyin" or force="Pinyin (Taiwan)" or force=True
-    Cantonese sets whether or not the text being separated is cantonese (if force=True).
-    Useful for people pasting Pinyin from Google Translate.
+    Example: "Yīlù píng'ān" => "Yī lù píng ān"
     """
 
-    if (chinese_support_config.options['transcription'] \
-            in ['Pinyin', 'Pinyin (Taiwan)'] and not force) or (force and not cantonese):
-        def clean(t):
-            'remove leading apostrophe'
-            if "'" == t[0]:
-                return t[1:]
-            return t
-        def separate_pinyin_sub(p):
-            return clean(p.group("one"))+" "+clean(p.group("two"))
-        text =  pinyin_two_re.sub(separate_pinyin_sub, text)
-        return text
-    elif (chinese_support_config.options['transcription'] \
-            in ['Cantonese'] and not force) or (force and cantonese):
-        def clean(t):
-            'remove leading apostrophe'
-            if "'" == t[0]:
-                return t[1:]
-            return t
-        def separate_jyutping_sub(p):
-            return clean(p.group("one"))+" "+clean(p.group("two"))
-        text =  jyutping_two_re.sub(separate_jyutping_sub, text)
-        text =  jyutping_two_re.sub(separate_jyutping_sub, text)
-        return text
-    else:
-        return text
+    def clean(t):
+        if t.startswith("'"):
+            return t[1:]
+        return t
+
+    def separate_sub(p):
+        return clean(p.group('one')) + ' ' + clean(p.group('two'))
+
+    transcription = config_manager.options['transcription']
+
+    separated = []
+    for text in pinyin.split():
+        if ((transcription in ['Pinyin', 'Pinyin (Taiwan)'] and not force) or
+                (force and not cantonese)):
+            text = pinyin_two_re.sub(separate_sub, text)
+            text = pinyin_two_re.sub(separate_sub, text)
+
+        if ((transcription in ['Cantonese'] and not force) or
+                (force and cantonese)):
+            text = jyutping_two_re.sub(separate_sub, text)
+            text = jyutping_two_re.sub(separate_sub, text)
+
+        separated.append(text)
+
+    return separated
+
 
 def simplify(text):
-    '''Converts to simplified variants
-    '''
-    r = db.get_simplified(text)
-    return r
+    return db.get_simplified(text)
+
 
 def traditional(text):
-    '''Converts to traditional variants
-    '''
-    r = db.get_traditional(text)
-    return r
+    return db.get_traditional(text)
 
 
 # Extra support functions and parameters
@@ -538,7 +601,6 @@ base_letters = {
 }
 
 accents = 'ɑ̄āĀáɑ́ǎɑ̌ÁǍàɑ̀ÀēĒéÉěĚèÈīĪíÍǐǏìÌōŌóÓǒǑòÒūŪúÚǔǓùÙǖǕǘǗǚǙǜǛ'
-
 
 def pinyin_re_sub():
     inits = "zh|sh|ch|[bpmfdtnlgkhjqxrzscwy]"
@@ -595,15 +657,16 @@ def get_tone_number(pinyin):
 
 
 def has_ruby(text):
-    return re.search("[\u3400-\u9fff]\[.+\]", text)
+    return re.search(r'[\u3400-\u9fff]\[.+\]', text)
+
 
 def has_hanzi(text):
-    return re.search("[\u3400-\u9fff]", text)
+    return re.search(r'[\u3400-\u9fff]', text)
 
 
-def get_character_transcription(hanzi, transcription=None):
+def get_char_transcription(hanzi, transcription=None):
     if transcription == None:
-        transcription = chinese_support_config.options['transcription']
+        transcription = config_manager.options['transcription']
 
     if "Pinyin" == transcription:
         text = db.get_pinyin(hanzi)

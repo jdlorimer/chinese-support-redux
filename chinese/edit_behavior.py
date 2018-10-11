@@ -1,7 +1,6 @@
 # Copyright 2012-2015 Thomas TEMPÉ <thomas.tempe@alysse.org>
 # Copyright 2017-2018 Joseph Lorimer <luoliyan@posteo.net>
 
-from .config import chinese_support_config as config
 from .edit_functions import (
     accentuate_pinyin,
     cleanup,
@@ -27,6 +26,7 @@ from .edit_functions import (
     transcribe,
     translate
 )
+from .main import config_manager as config
 
 
 def get_mean(hanzi, dico):
@@ -165,9 +165,8 @@ def update_Pinyin_fields(hanzi, dico):
         t = hide(t, no_tone(t))
         setAll(config.options['fields']['pinyin'], dico, to=t)
         return 1
-    else:
-        format_Pinyin_fields(dico)
-        return 0
+    format_Pinyin_fields(dico)
+    return 0
 
 
 def format_PinyinTW_fields(dico):

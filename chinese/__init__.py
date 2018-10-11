@@ -28,16 +28,6 @@ sys.path.append(join(dirname(__file__), 'lib', 'idna'))
 sys.path.append(join(dirname(__file__), 'lib', 'six'))
 sys.path.append(join(dirname(__file__), 'lib', 'urllib3', 'src'))
 
-from anki.hooks import addHook
+from . import main
 
-from . import edit
-from . import graph
-from .models import advanced
-from .models import basic
-from .templates import chinese, ruby
-from .ui import loadMenu
-
-ruby.install()
-chinese.install()
-
-addHook('profileLoaded', loadMenu)
+main.load()

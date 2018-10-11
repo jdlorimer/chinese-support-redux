@@ -19,16 +19,13 @@ never show a decrease in your vocabulary.
 * No distinction is made on note types. All notes are counted, either
 from the whole collection, or from the active deck, depending on your
 selection (bottom of the window).
-
-
 '''
 
-from anki import stats
-from anki.hooks import wrap
-
-import time, re, sys
+import re
+import time
 
 now = time.mktime(time.localtime())
+
 
 def addchars(chars, txt, date):
     "List each chinese character, with its earliest study date"
@@ -42,6 +39,7 @@ def addchars(chars, txt, date):
     except:
         pass
 
+
 def addword(words, txt, date):
     "List each card containing at least one chinese character"
     try:
@@ -49,6 +47,7 @@ def addword(words, txt, date):
             words[txt] = date
     except:
         pass
+
 
 def history(data, chunks=None, chunk_size=1):
     #Compute history
@@ -77,7 +76,7 @@ def history(data, chunks=None, chunk_size=1):
         date+=1
     return cumul, delta
 
-##################################################
+
 def chineseGraphs(self, chunks, chunk_size, chunk_name):
     txt=""
     chars = {} #dictionary, in the form { "character":earliest review date, ...}
@@ -124,20 +123,20 @@ def chineseGraphs(self, chunks, chunk_size, chunk_name):
 
     return txt
 
-def myTodayStats(self, _old):
+
+def todayStats(self, _old):
     if self.type == 0:
-        chunks = 30; chunk_size = 1; chunk_name="day"
+        chunks = 30
+        chunk_size = 1
+        chunk_name='day'
     elif self.type == 1:
-        chunks = 52; chunk_size = 7; chunk_name="week"
+        chunks = 52
+        chunk_size = 7
+        chunk_name='week'
     else:
-        chunks = None; chunk_size = 30; chunk_name="month"
-    txt = _old(self)
-    txt+= chineseGraphs(self, chunks, chunk_size, chunk_name)
-    return txt
-
-try:
-    stats.CollectionStats.todayStats = wrap(stats.CollectionStats.todayStats, myTodayStats, "around")
-except AttributeError:
-    #Happens on Anki 2.0.0, fixed at least in 2.0.14
-    pass
-
+        chunks = None
+        chunk_size = 30
+        chunk_name='month'
+    text = _old(self)
+    text += chineseGraphs(self, chunks, chunk_size, chunk_name)
+    return text

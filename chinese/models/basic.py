@@ -3,7 +3,6 @@
 # Original: Damien Elmes <anki@ichi2.net> (as japanese/model.py)
 # License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
 
-import anki.stdmodels
 from .css import style
 
 # List of fields
@@ -39,26 +38,17 @@ card_back = u'''\
 # Add model for chinese word to Anki
 ######################################################################
 
-def add_model_simp(col):
+def add_model(col):
     mm = col.models
     m = mm.new("Chinese (basic)")
-    # Add fields
     for f in fields_list:
         fm = mm.newField(f)
         mm.addField(m, fm)
-#    t = mm.newTemplate(u"Recognition")
-#    t['qfmt'] = recognition_front
-#    t['afmt'] = card_back
-#    mm.addTemplate(m, t)
     t = mm.newTemplate(u"Recall")
     t['qfmt'] = recall_front
     t['afmt'] = card_back
     mm.addTemplate(m, t)
-
     m['css'] += style
     m['addon'] = 'Chinese (basic)'
     mm.add(m)
-    # recognition card
     return m
-
-anki.stdmodels.models.append(("Chinese (basic)", add_model_simp))

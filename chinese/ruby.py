@@ -4,14 +4,12 @@
 
 from re import sub
 
-
-def no_hidden(text):
-    return sub(r'<!--.*?-->', '', text)
+from .util import no_sound
 
 
-def no_sound(text):
-    """Remove Anki [sound:xxx.mp3] tag.
+def ruby_top(text):
+    return sub(r' ?([^ >]+?)\[(.+?)\]', r'\2 ', no_sound(text))
 
-    If it isn't removed, it can be duplicated.
-    """
-    return sub(r'\[sound:.*?]', '', text)
+
+def ruby_bottom(text):
+    return sub(r' ?([^ >]+?)\[(.+?)\]', r'\1 ', no_sound(text))
