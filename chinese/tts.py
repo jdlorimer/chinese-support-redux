@@ -13,6 +13,9 @@ from urllib.request import Request, urlopen
 from aqt import mw
 
 from gtts import gTTS
+import requests
+
+requests.packages.urllib3.disable_warnings()
 
 
 def download_sound(text, source=('google', 'zh-cn')):
