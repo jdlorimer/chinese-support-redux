@@ -8,12 +8,12 @@ A rewrite and port of the Chinese Support add-on to Anki 2.1.
 
 * Automatic field filling
   * Translation (from built-in dictionary; supports English, German and French)
-  * Romanisation (supports [Pinyin](https://en.wikipedia.org/wiki/Pinyin) and Cantonese [Jyutping](https://en.wikipedia.org/wiki/Jyutping))
-  * Audio (fetched from Google or Baidu; supports Mandarin and Cantonese)
-  * Simplified and traditional characters
-  * [Bopomofo/Zhuyin](https://en.wikipedia.org/wiki/Bopomofo)
+  * Romanisation (supports [Pīnyīn (拼音)](https://en.wikipedia.org/wiki/Pinyin) and Cantonese [Jyutping (粵拼)](https://en.wikipedia.org/wiki/Jyutping))
+  * Mandarin Audio (fetched from Google or Baidu)
+  * Traditional (繁體字) and simplified (簡體字) characters
+  * [Bopomofo (ㄅㄆㄇㄈ)](https://en.wikipedia.org/wiki/Bopomofo), also known as Zhuyin (注音)
 * Tone colours (applied to characters, romanisation and Bopomofo)
-* Built-in note types (basic and advanced)
+* Built-in note types (Basic and Advanced)
 
 ## Status
 
