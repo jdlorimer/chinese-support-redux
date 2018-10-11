@@ -47,6 +47,10 @@ Then, to use the field filling features:
 
 ## History
 
+- **2018.10.12**
+  - Improve handling of pinyin (will no longer split)
+  - Refactor start-up code
+  - Expand and refactor tests
 - **2018.10.11**
   - Bundle Google TTS dependencies
   - Improve character selection (courtesy of infernalis)

@@ -2,7 +2,6 @@
 
 from re import MULTILINE, sub
 
-from bs4 import BeautifulSoup
 from markdown2 import markdown
 
 
