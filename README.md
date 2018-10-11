@@ -47,24 +47,26 @@ Then, to use the field filling features:
 
 ## History
 
-- **v0.5.3-beta (2018.10.10)**
-  - Refactor TTS code
+- **2018.10.11**
   - Bundle Google TTS dependencies
+  - Improve character selection (courtesy of infernalis)
+- **2018.10.10**
+  - Refactor TTS code
   - Remove Cantonese TTS (discontinued by Google)
-- **v0.5.0-beta (2018.10.09)**
+- **2018.10.09**
   - Restore Google TTS (again)
   - Begin seriously starting to wrap tests around this old, buggy code
-- **v0.4.1-beta (2018.02.17)**
+- **2018.02.17**
   - Fix _Fill Incomplete Notes_ functionality
-- **v0.4.0-beta (2017.11.14)**
+- **2017.11.14**
   - Fix more issues with automatic field population
   - Move field names into configuration file
-- **v0.3.1-beta (2017.11.10)**
-  - Use built-in configuration facilities
-- **v0.3-beta (2017.11.07)**
+- **2017.11.10**
+  - Use Anki 2.1 built-in config facilities
+- **2017.11.07**
   - Fix issues with automatic field population
-- **v0.2-beta (2017.11.06)**
+- **2017.11.06**
   - Restore Google TTS (for Mandarin and Cantonese)
-- **v0.1-beta (2017.11.05)**
+- **2017.11.05**
   - Initial port to Anki 2.1 (most features working)
   - Restore tone colours in editor
