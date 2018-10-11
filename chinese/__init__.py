@@ -20,9 +20,13 @@
 import sys
 from os.path import dirname, join
 
+sys.path.append(join(dirname(__file__), 'lib', 'certifi'))
+sys.path.append(join(dirname(__file__), 'lib', 'chardet'))
 sys.path.append(join(dirname(__file__), 'lib', 'gTTS'))
 sys.path.append(join(dirname(__file__), 'lib', 'gTTS-token'))
+sys.path.append(join(dirname(__file__), 'lib', 'idna'))
 sys.path.append(join(dirname(__file__), 'lib', 'six'))
+sys.path.append(join(dirname(__file__), 'lib', 'urllib3', 'src'))
 
 from anki.hooks import addHook
 
@@ -32,9 +36,6 @@ from .models import advanced
 from .models import basic
 from .templates import chinese, ruby
 from .ui import loadMenu
-# import chinese.models.compatibility
-# import chinese.models.ruby
-# import chinese.models.ruby_synonyms
 
 ruby.install()
 chinese.install()
