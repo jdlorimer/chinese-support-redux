@@ -15,10 +15,31 @@
 # You should have received a copy of the GNU General Public License along with
 # Chinese Support Redux.  If not, see <https://www.gnu.org/licenses/>.
 
+from unittest import skip
+
 from . import ChineseTests
 
 
-class UtilTests(ChineseTests):
-    def test_no_hidden(self):
-        from chinese.util import no_hidden
-        self.assertEqual(no_hidden('a <!-- b --> c'), 'a  c')
+class BopomofoTests(ChineseTests):
+    def setUp(self):
+        super().setUp()
+        from chinese.bopomofo import bopomofo
+        self.func = bopomofo
+
+    def test_pinyin_no_tone(self):
+        self.assertEqual(self.func('zhu yin'), 'ㄓㄨ ㄧㄣ')
+
+    def test_pinyin_tone_number(self):
+        self.assertEqual(self.func('zhu4 yin1'), 'ㄓㄨˋ ㄧㄣ')
+
+    @skip
+    def test_pinyin_tone_mark(self):
+        self.assertEqual(self.func('zhù yīn'), '')
+
+    @skip
+    def test_joined_word(self):
+        self.assertEqual(self.func('zhùyīn'), '')
+
+    @skip
+    def test_hanzi(self):
+        self.assertEqual(self.func('注音'), '')

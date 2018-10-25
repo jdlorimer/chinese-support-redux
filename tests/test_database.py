@@ -15,29 +15,19 @@
 # You should have received a copy of the GNU General Public License along with
 # Chinese Support Redux.  If not, see <https://www.gnu.org/licenses/>.
 
-from unittest.mock import Mock
-
 from . import ChineseTests
 
 
-class RubyTests(ChineseTests):
-    def test_single_char(self):
-        from chinese.ruby import ruby
-        self.dictionary.get_pinyin = Mock(return_value='nǐ')
-        self.assertEqual(ruby('你', 'Pinyin'), ['你[nǐ]'])
+class DictionaryTests(ChineseTests):
+    def setUp(self):
+        super().setUp()
+        from chinese.database import DictDB
+        self.db = DictDB()
 
-    def test_multiple_chars(self):
-        from chinese.ruby import ruby
-        self.dictionary.get_pinyin = Mock(side_effect=['tú', 'shū', 'guǎn'])
+    def test_get_classifier(self):
+        self.assertEqual(self.db.get_classifiers('猫'), ['隻|只[zhi1]'])
+        self.assertEqual(self.db.get_classifiers('签证'), ['個|个[ge4]'])
         self.assertEqual(
-            ruby('图书馆', 'Pinyin'),
-            ['图[tú]', '书[shū]', '馆[guǎn]']
+            self.db.get_classifiers('筷子'),
+            ['對|对[dui4]', '根[gen1]', '把[ba3]', '雙|双[shuang1]']
         )
-
-    def test_ruby_top(self):
-        from chinese.ruby import ruby_top
-        self.assertEqual(ruby_top('汉[hàn]字[zì]'), 'hàn zì ')
-
-    def test_ruby_bottom(self):
-        from chinese.ruby import ruby_bottom
-        self.assertEqual(ruby_bottom('汉[hàn]字[zì]'), '汉 字 ')

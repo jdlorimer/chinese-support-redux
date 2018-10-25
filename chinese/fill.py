@@ -4,19 +4,14 @@
 # License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
 
 from time import sleep
-import re
+from re import sub
 
 from anki.find import Finder
 from aqt import mw
 from aqt.utils import showInfo, askUser
 
-from .edit_behavior import *
-from .edit_functions import *
+from .behavior import *
 from .main import config_manager as config
-
-
-def no_html(txt):
-    return re.sub("<.*?>", "", txt)
 
 
 def fill_sounds():
@@ -44,7 +39,7 @@ def fill_sounds():
     for noteId in notes:
         d_scanned += 1
         note = mw.col.getNote(noteId)
-        note_dict = dict(note)      # edit_function routines require a dict
+        note_dict = dict(note)
 
         _hf_s = has_field(config.options['fields']['sound'], note_dict)
         _hf_sm = has_field(config.options['fields']['mandarinSound'], note_dict)
@@ -101,7 +96,7 @@ def fill_pinyin():
     for noteId in notes:
         d_scanned += 1
         note = mw.col.getNote(noteId)
-        note_dict = dict(note)      # edit_function routines require a dict
+        note_dict = dict(note)
 
         _hf_t = has_field(config.options['fields']['transcription'], note_dict)
         _hf_py = has_field(config.options['fields']['pinyin'], note_dict)
@@ -132,10 +127,7 @@ def fill_pinyin():
             if results != 0:
                 d_added_pinyin+=1
 
-            #Always overwrite, as in the default edit_behavior
             update_all_Color_fields(hanzi, note_dict)
-
-            #Update ruby field
             update_all_Ruby_fields(hanzi, note_dict)
 
             def write_back(fields):
@@ -186,7 +178,7 @@ def fill_translation():
     for noteId in notes:
         d_scanned += 1
         note = mw.col.getNote(noteId)
-        note_dict = dict(note)      # edit_function routines require a dict
+        note_dict = dict(note)
 
         _hf_m = has_field(config.options['fields']['meaning'], note_dict)
         _hf_e = has_field(config.options['fields']['english'], note_dict)
@@ -263,7 +255,7 @@ def fill_simp_trad():
     for noteId in notes:
         d_scanned += 1
         note = mw.col.getNote(noteId)
-        note_dict = dict(note)      # edit_function routines require a dict
+        note_dict = dict(note)
         if (has_field(config.options['fields']['simplified'], note_dict) or has_field(config.options['fields']['traditional'], note_dict)) and has_field(config.options['fields']['hanzi'], note_dict):
             d_has_fields += 1
 
@@ -310,7 +302,7 @@ def fill_silhouette():
     for noteId in notes:
         d_scanned += 1
         note = mw.col.getNote(noteId)
-        note_dict = dict(note)      # edit_function routines require a dict
+        note_dict = dict(note)
         if has_field(config.options['fields']['silhouette'], note_dict):
             d_has_fields += 1
 

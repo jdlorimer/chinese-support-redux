@@ -1,3 +1,6 @@
+# Copyright 2017-2018 Joseph Lorimer <luoliyan@posteo.net>
+# License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
+
 from anki.stats import CollectionStats
 from anki.hooks import addHook, wrap
 from anki.stdmodels import models
@@ -5,6 +8,10 @@ from anki.stdmodels import models
 from .config import ConfigManager
 
 config_manager = ConfigManager()
+
+from .database import DictDB
+
+dictionary = DictDB()
 
 from .edit import append_tone_styling, EditManager
 from .graph import todayStats

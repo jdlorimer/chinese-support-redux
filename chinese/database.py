@@ -1,27 +1,13 @@
-# Copyright 2014 Thomas TEMPÉ <thomas.tempe@alysse.org>
+# Copyright 2012-2014 Thomas TEMPÉ <thomas.tempe@alysse.org>
+# Copyright 2017-2018 Joseph Lorimer <luoliyan@posteo.net>
 # License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
 
-"""Interface to the db/chinese_dict.sql SQLite database containing the local dictionaries
-
-Available dictionaries:
-* Chinese characters (Unihan)
-* Chinese words (CEDICT), including:
-  * simplified and traditional spellings
-  * pinyin and Taiwan variant pronunciations
-  * English, German and French translations
-
-
-unihan table structure:
-["cp", "kMandarin", "kCantonese", "kFrequency", "kHangul", "kJapaneseKun", "kSimplifiedVariant", "kTraditionalVariant", "Vietnamese"]
-
-cidian table structure:
-["traditional", "simplified", "pinyin", "pinyin_taiwan", "classifiers", "alternates", "english", "german", "french", "spanish"]
-
-"""
-
+from logging import debug
 from os.path import dirname, realpath
 import os.path
 import sqlite3
+
+from .util import add_with_space
 
 
 class DictDB:
@@ -282,27 +268,19 @@ class DictDB:
         except:
             return []
 
-    def get_classifiers(self, txt):
-        r = []
-        self.c.execute("select distinct classifiers from cidian where (traditional=? or simplified=?);", (txt, txt))
-        try:
-            #fetchall returns a list of tuples, converts to a list of strings
-            return filter(lambda a:a, map(lambda a:a[0], self.c.fetchall()))
-        except:
-            return []
+    def get_classifiers(self, word):
+        self.c.execute(
+            ('SELECT DISTINCT classifiers FROM cidian '
+             'WHERE (traditional = :word or simplified = :word)'),
+            {'word': word}
+        )
+        cs = list(filter(None, [a for (a,) in self.c.fetchall()]))
+        debug('Classifiers returned from DB: %s' % str(cs))
+        return ','.join(cs).split(',')
 
     def get_alt_spellings(self, txt):
         self.c.execute("select distinct alternates from cidian where (traditional=? or simplified=?);", (txt, txt))
         try:
-            #fetchall returns a list of tuples, converts to a list of strings
             return filter(lambda a:a, map(lambda a:a[0], self.c.fetchall()))
         except:
             return []
-
-
-
-def add_with_space(a, b):
-    if len(a)>0 and " " != a[-1]:
-        return a+" "+b
-    return a+b
-

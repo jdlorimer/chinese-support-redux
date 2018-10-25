@@ -6,7 +6,7 @@
 from anki.hooks import addHook
 from aqt import mw
 
-from .edit_behavior import updateFields
+from .behavior import updateFields
 from .main import config_manager as config
 
 

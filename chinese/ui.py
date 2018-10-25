@@ -6,9 +6,8 @@ from aqt import mw
 from aqt.qt import QAction
 from aqt.utils import showInfo, openLink, askUser
 
-from . import edit_behavior
 from .about import CSR_GITHUB_URL, showAbout
-from .fill_missing import (
+from .fill import (
     fill_pinyin,
     fill_silhouette,
     fill_simp_trad,

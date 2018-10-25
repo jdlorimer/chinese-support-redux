@@ -6,14 +6,14 @@ A rewrite and port of the Chinese Support add-on to Anki 2.1.
 
 ## Features
 
-* Automatic field filling
-  * Translation (from built-in dictionary; supports English, German and French)
-  * Romanisation (supports [Pīnyīn (拼音)](https://en.wikipedia.org/wiki/Pinyin) and Cantonese [Jyutping (粵拼)](https://en.wikipedia.org/wiki/Jyutping))
-  * Mandarin Audio (fetched from Google or Baidu)
-  * Traditional (繁體字) and simplified (簡體字) characters
-  * [Bopomofo (ㄅㄆㄇㄈ)](https://en.wikipedia.org/wiki/Bopomofo), also known as Zhuyin (注音)
-* Tone colours (applied to characters, romanisation and Bopomofo)
-* Built-in note types (Basic and Advanced)
+- Automatic field filling
+    - Translation (from built-in dictionary; supports English, German and French)
+    - Romanisation (supports [Pīnyīn (拼音)](https://en.wikipedia.org/wiki/Pinyin) and Cantonese [Jyutping (粵拼)](https://en.wikipedia.org/wiki/Jyutping))
+    - Mandarin Audio (fetched from Google or Baidu)
+    - Traditional (繁體字) and simplified (簡體字) characters
+    - [Bopomofo (ㄅㄆㄇㄈ)](https://en.wikipedia.org/wiki/Bopomofo), also known as Zhuyin (注音)
+- Tone colours (applied to characters, romanisation and Bopomofo)
+- Built-in note types (Basic and Advanced)
 
 ## Status
 
@@ -45,32 +45,45 @@ Then, to use the field filling features:
 5. Press <kbd>Tab</kbd>
 6. The remaining fields should then be populated automatically
 
+## Screenshots
+
+![Screenshot #1](https://raw.githubusercontent.com/luoliyan/chinese-support/master/screenshots/add-card.png)
+
+![Screenshot #2](https://raw.githubusercontent.com/luoliyan/chinese-support/master/screenshots/view-card.png)
+
 ## History
 
+- **2018.10.25**
+    - Major refactoring and test expansion
+        - Functions under test should be more reliable
+        - Functions not under test are still black magic
+    - Fix several issues with Bopomofo handling
+    - Fix filling of classifier field
+    - Make splitting of Pinyin optional (internally)
 - **2018.10.12**
-  - Improve handling of pinyin (will no longer split)
-  - Refactor start-up code
-  - Expand and refactor tests
+    - Improve handling of Pinyin (will no longer split)
+    - Refactor start-up code
+    - Expand and refactor tests
 - **2018.10.11**
-  - Bundle Google TTS dependencies
-  - Improve character selection (courtesy of infernalis)
+    - Bundle Google TTS dependencies
+    - Improve character selection (courtesy of infernalis)
 - **2018.10.10**
-  - Refactor TTS code
-  - Remove Cantonese TTS (discontinued by Google)
+    - Refactor TTS code
+    - Remove Cantonese TTS (discontinued by Google)
 - **2018.10.09**
-  - Restore Google TTS (again)
-  - Begin seriously starting to wrap tests around this old, buggy code
+    - Restore Google TTS (again)
+    - Begin seriously starting to wrap tests around this old, buggy code
 - **2018.02.17**
-  - Fix _Fill Incomplete Notes_ functionality
+    - Fix _Fill Incomplete Notes_ functionality
 - **2017.11.14**
-  - Fix more issues with automatic field population
-  - Move field names into configuration file
+    - Fix more issues with automatic field population
+    - Move field names into configuration file
 - **2017.11.10**
-  - Use Anki 2.1 built-in config facilities
+    - Use Anki 2.1 built-in config facilities
 - **2017.11.07**
-  - Fix issues with automatic field population
+    - Fix issues with automatic field population
 - **2017.11.06**
-  - Restore Google TTS (for Mandarin and Cantonese)
+    - Restore Google TTS (for Mandarin and Cantonese)
 - **2017.11.05**
-  - Initial port to Anki 2.1 (most features working)
-  - Restore tone colours in editor
+    - Initial port to Anki 2.1 (most features working)
+    - Restore tone colours in editor

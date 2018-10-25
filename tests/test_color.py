@@ -1,12 +1,30 @@
-from . import ChineseTests
+# Copyright © 2018 Joseph Lorimer <luoliyan@posteo.net>
+#
+# This file is part of Chinese Support Redux.
+#
+# Chinese Support Redux is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by the Free
+# Software Foundation, either version 3 of the License, or (at your option) any
+# later version.
+#
+# Chinese Support Redux is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+# FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+# more details.
+#
+# You should have received a copy of the GNU General Public License along with
+# Chinese Support Redux.  If not, see <https://www.gnu.org/licenses/>.
 
 from random import randint
+from unittest.mock import Mock, patch
+
+from . import ChineseTests
 
 
 class ColorizeTests(ChineseTests):
     def setUp(self):
         super().setUp()
-        from chinese.edit_functions import colorize
+        from chinese.color import colorize
         self.func = colorize
 
     def test_add_whitespace(self):
@@ -31,7 +49,7 @@ class ColorizeTests(ChineseTests):
 class ColorizeFuseTests(ChineseTests):
     def setUp(self):
         super().setUp()
-        from chinese.edit_functions import colorize_fuse
+        from chinese.color import colorize_fuse
         self.func = colorize_fuse
 
     def test_tone_number(self):
@@ -54,8 +72,25 @@ class ColorizeFuseTests(ChineseTests):
         )
 
     def test_unseparated(self):
+        m = Mock(return_value=['tú', 'shū', 'guǎn'])
+        with patch('chinese.transcribe.separate', m):
+            self.assertEqual(
+                self.func('图书馆', 'túshūguǎn'),
+                ('<span class="tone2">图</span>'
+                 '<span class="tone1">书</span>'
+                 '<span class="tone3">馆</span>')
+            )
+
+
+class LocalDictColorizeTests(ChineseTests):
+    def setUp(self):
+        super().setUp()
+        from chinese.color import local_dict_colorize
+        self.func = local_dict_colorize
+
+    def test_local(self):
         self.assertEqual(
-            self.func('图书馆', 'túshūguǎn'),
+            self.func('图书馆[tu2 shu1 gwan3]'),
             ('<span class="tone2">图</span>'
              '<span class="tone1">书</span>'
              '<span class="tone3">馆</span>')

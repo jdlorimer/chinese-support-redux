@@ -1,3 +1,6 @@
+# Copyright 2017-2018 Joseph Lorimer <luoliyan@posteo.net>
+# License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
+
 from PyQt5.QtWidgets import QDialog, QDialogButtonBox, QLabel, QVBoxLayout
 
 from aqt import mw
