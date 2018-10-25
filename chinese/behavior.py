@@ -200,16 +200,17 @@ def update_bopomofo(hanzi, d):
     field = get_any(config.options['fields']['bopomofo'], d)
 
     if field:
-        t = [no_color(cleanup(field))]
-        ret = 0
+        syllables = no_color(cleanup(field)).split()
+        n_added = 0
     else:
-        t = transcribe(no_sound(hanzi), 'Bopomofo')
-        ret = 1
+        syllables = transcribe(list(no_sound(hanzi)), 'Bopomofo')
+        n_added = 1
 
-    t = colorize(t)
-    t = hide(t, no_tone(t))
-    set_all(config.options['fields']['bopomofo'], d, to=t)
-    return ret
+    text = colorize(syllables)
+    text = hide(text, no_tone(text))
+    set_all(config.options['fields']['bopomofo'], d, to=text)
+
+    return n_added
 
 
 def update_all_Transcription_fields(hanzi, d):

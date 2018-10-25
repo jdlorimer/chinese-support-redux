@@ -45,6 +45,14 @@ class ColorizeTests(ChineseTests):
         self.assertEqual(
             self.func(['你[nǐ]'], True), '<span class="tone3">你[nǐ]</span>')
 
+    def test_bopomofo(self):
+        self.assertEqual(
+            self.func(['ㄊㄨˊ', 'ㄕㄨ', 'ㄍㄨㄢˇ']),
+            ('<span class="tone2">ㄊㄨˊ</span> '
+             '<span class="tone1">ㄕㄨ</span> '
+             '<span class="tone3">ㄍㄨㄢˇ</span>')
+        )
+
 
 class ColorizeFuseTests(ChineseTests):
     def setUp(self):

@@ -6,7 +6,7 @@ from re import IGNORECASE, sub
 
 from .consts import accents
 from .hanzi import has_hanzi
-from .util import cleanup, hide, no_hidden
+from .util import cleanup, no_hidden
 from .sound import extract_sound_tags
 
 
