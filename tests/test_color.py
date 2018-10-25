@@ -96,10 +96,17 @@ class LocalDictColorizeTests(ChineseTests):
         from chinese.color import local_dict_colorize
         self.func = local_dict_colorize
 
-    def test_local(self):
+    def test_word(self):
         self.assertEqual(
             self.func('图书馆[tu2 shu1 gwan3]'),
-            ('<span class="tone2">图</span>'
-             '<span class="tone1">书</span>'
-             '<span class="tone3">馆</span>')
+            ('<span class="tone2"><ruby>图<rt>tu2</rt></ruby></span>'
+             '<span class="tone1"><ruby>书<rt>shu1</rt></ruby></span>'
+             '<span class="tone3"><ruby>馆<rt>gwan3</rt></ruby></span>')
+        )
+
+    def test_classifier(self):
+        self.assertEqual(
+            self.func('個|个[ge4]'),
+            ('<span class="tone4"><ruby>個<rt>ge4</rt></ruby></span>|'
+             '<span class="tone4">个</span>')
         )

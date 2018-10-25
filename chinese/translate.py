@@ -59,15 +59,6 @@ def translate(text, to_lang=None):
         return translate_local(text, to_lang[-2:])
 
 
-def get_classifier(word):
-    if not word:
-        return ''
-    cs = dictionary.get_classifiers(word)
-    if not cs:
-        return ''
-    return local_dict_colorize(', '.join(cs))
-
-
 def get_alternate_spellings(text):
     if not text:
         return ''

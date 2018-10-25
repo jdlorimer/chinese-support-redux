@@ -94,7 +94,7 @@ def colorize_fuse(hanzi, pinyin, ruby=False):
     from .transcribe import get_tone_number, separate
 
     standard_fmt = '<span class="tone{tone}">{hanzi}</span>'
-    ruby_fmt = '<span class="tone{tone}"><ruby>{hanzi}<rt>{pinyin}</rt></span>'
+    ruby_fmt = '<span class="tone{tone}"><ruby>{hanzi}<rt>{pinyin}</rt></ruby></span>'
 
     hanzi = [h for h in cleanup(hanzi)]
 
@@ -113,7 +113,7 @@ def colorize_fuse(hanzi, pinyin, ruby=False):
     return text
 
 
-def local_dict_colorize(txt, ruby=True):
+def local_dict_colorize(text, ruby=True):
     """
     Colorize text in the form:
     "Hello is written 你好[ni3 hao]"
@@ -135,15 +135,15 @@ def local_dict_colorize(txt, ruby=True):
             c += delimiter
             c += colorize_fuse(hanzi[1], pinyin, False)
         else:
-            c += colorize_fuse(hanzi, pinyin, False)
+            c += colorize_fuse(hanzi, pinyin, True)
 
         if not ruby:
             c += '[' + colorize(separate(pinyin)) + ']'
 
         return c
 
-    txt = sub(r'([\u3400-\u9fff|]+)\[(.*?)\]', _sub, txt)
-    return txt
+    text = sub(r'([\u3400-\u9fff|]+)\[(.*?)\]', _sub, text)
+    return text
 
 
 def no_color(text):

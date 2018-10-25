@@ -1,4 +1,5 @@
 {
+    "firstRun": true,
     "dictionary": "local_en",
     "enabledModels": [],
     "show_startup_tips": false,

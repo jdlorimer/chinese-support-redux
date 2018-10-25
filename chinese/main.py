@@ -12,6 +12,9 @@ config_manager = ConfigManager()
 from .database import DictDB
 
 dictionary = DictDB()
+if config_manager.options['firstRun']:
+    dictionary.create_indices()
+    config_manager.options['firstRun'] = False
 
 from .edit import append_tone_styling, EditManager
 from .graph import todayStats
@@ -26,6 +29,7 @@ def load():
     chinese.install()
     addHook('profileLoaded', load_menu)
     addHook('loadNote', append_tone_styling)
+    addHook('unloadProfile', dictionary.conn.close)
     models.append(('Chinese (Basic)', basic.add_model))
     models.append(('Chinese (Advanced)', advanced.add_model))
     CollectionStats.todayStats = wrap(

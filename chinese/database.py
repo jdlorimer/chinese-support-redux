@@ -2,39 +2,30 @@
 # Copyright 2017-2018 Joseph Lorimer <luoliyan@posteo.net>
 # License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
 
-from logging import debug
-from os.path import dirname, realpath
-import os.path
-import sqlite3
+from os.path import dirname, join, realpath
+from sqlite3 import connect
 
 from .util import add_with_space
 
 
 class DictDB:
-    conn = None
-    c = None
-
     def __init__(self):
         try:
             from aqt import mw
-            db_file = os.path.join(
-                dirname(realpath(__file__)), "db", "chinese_dict.sqlite")
-        except: #Used for local debugging
-            db_file = "db/chinese_dict.sqlite"
+            db_path = join(dirname(realpath(__file__)), 'db', 'chinese.db')
+        except ImportError:
+            db_path = 'db/chinese.db'
 
-        self.conn=sqlite3.connect(db_file)
+        self.conn = connect(db_path)
         self.c = self.conn.cursor()
 
-        #Create the DB indexes.
-        #Only works the first time.
-        #These indexes are removed from the distribution files, in order to save space
-        try:
-            self.c.execute("create index isimplified on cidian ( simplified );")
-            self.c.execute("create unique index itraditional on cidian ( traditional, pinyin );")
-            self.conn.commit()
-        except:
-            pass
-
+    def create_indices(self):
+        self.c.execute(
+            'CREATE INDEX IF NOT EXISTS isimplified ON cidian (simplified)')
+        self.c.execute(
+            'CREATE UNIQUE INDEX IF NOT EXISTS itraditional ON cidian '
+            '(traditional, pinyin)')
+        self.conn.commit()
 
     def _get_char_pinyin(self, c):
         """returns the pinyin transcription of a given Hanzi from Unihan.
@@ -269,14 +260,15 @@ class DictDB:
             return []
 
     def get_classifiers(self, word):
+        if not word:
+            return []
         self.c.execute(
             ('SELECT DISTINCT classifiers FROM cidian '
              'WHERE (traditional = :word or simplified = :word)'),
             {'word': word}
         )
         cs = list(filter(None, [a for (a,) in self.c.fetchall()]))
-        debug('Classifiers returned from DB: %s' % str(cs))
-        return ','.join(cs).split(',')
+        return ','.join(cs).split(',') if cs else []
 
     def get_alt_spellings(self, txt):
         self.c.execute("select distinct alternates from cidian where (traditional=? or simplified=?);", (txt, txt))

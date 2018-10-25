@@ -21,6 +21,7 @@ from unittest.mock import MagicMock, patch
 import unittest
 
 unittest.util._MAX_LENGTH = 160
+NO_INTEGRATION = False
 
 
 class ChineseTests(TestCase):

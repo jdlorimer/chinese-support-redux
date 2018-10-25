@@ -2,28 +2,31 @@
 # Copyright 2017-2018 Joseph Lorimer <luoliyan@posteo.net>
 # License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
 
+
 from .bopomofo import bopomofo
-from .color import colorize, colorize_fuse, no_color
+from .color import colorize, colorize_fuse, local_dict_colorize, no_color
 from .hanzi import silhouette, simplify, traditional
-from .main import config_manager as config
+from .main import config_manager as config, dictionary
 from .ruby import hide_ruby, ruby
 from .sound import no_sound, sound
 from .transcribe import accentuate, no_tone, separate, transcribe
-from .translate import get_alternate_spellings, get_classifier, translate
+from .translate import get_alternate_spellings, translate
 from .util import cleanup, get_any, has_field, hide, set_all
 
 
 def get_mean(hanzi, d):
-    c = get_classifier(hanzi)
-    if c and not has_field(config.options['fields']['classifier'], d):
-        return '<br>Cl: ' + c
-    return str()
+    cs = dictionary.get_classifiers(hanzi)
+    text = ', '.join(local_dict_colorize(c) for c in cs)
+    if text and not has_field(config.options['fields']['classifier'], d):
+        return '<br>Cl: ' + text
+    return ''
 
 
 def set_classifier_fields(hanzi, d):
-    c = get_classifier(hanzi)
-    if c and has_field(config.options['fields']['classifier'], d):
-        set_all(config.options['fields']['classifier'], d, to=c)
+    cs = dictionary.get_classifiers(hanzi)
+    text = ', '.join(local_dict_colorize(c) for c in cs)
+    if text and has_field(config.options['fields']['classifier'], d):
+        set_all(config.options['fields']['classifier'], d, to=text)
 
 
 def get_alt(hanzi, d):
