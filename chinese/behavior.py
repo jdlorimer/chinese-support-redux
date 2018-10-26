@@ -432,6 +432,7 @@ def updateFields(note, currentField, fieldNames):
         modelType = None
 
     fieldsCopy = dict(note)
+    hanzi = cleanup(get_any(config.options['fields']['hanzi'], fieldsCopy))
 
     if modelType == 'Chinese Ruby':
         if currentField == 'Hanzi':
@@ -450,39 +451,33 @@ def updateFields(note, currentField, fieldNames):
                 ruby(accentuate(fieldsCopy[currentField])))
     elif currentField in config.options['fields']['hanzi']:
         if fieldsCopy[currentField]:
-            update_all_Meaning_fields(fieldsCopy[currentField], fieldsCopy)
-            update_all_Transcription_fields(
-                fieldsCopy[currentField], fieldsCopy)
-            update_all_Color_fields(fieldsCopy[currentField], fieldsCopy)
-            update_all_Sound_fields(fieldsCopy[currentField], fieldsCopy)
-            update_Simplified_fields(fieldsCopy[currentField], fieldsCopy)
-            update_Traditional_fields(fieldsCopy[currentField], fieldsCopy)
-            update_all_Ruby_fields(fieldsCopy[currentField], fieldsCopy)
-            update_Silhouette_fields(fieldsCopy[currentField], fieldsCopy)
+            update_all_Meaning_fields(hanzi, fieldsCopy)
+            update_all_Transcription_fields(hanzi, fieldsCopy)
+            update_all_Color_fields(hanzi, fieldsCopy)
+            update_all_Sound_fields(hanzi, fieldsCopy)
+            update_Simplified_fields(hanzi, fieldsCopy)
+            update_Traditional_fields(hanzi, fieldsCopy)
+            update_all_Ruby_fields(hanzi, fieldsCopy)
+            update_Silhouette_fields(hanzi, fieldsCopy)
         else:
             eraseFields(fieldsCopy)
     elif currentField in config.options['fields']['transcription']:
-        hanzi = get_any(config.options['fields']['hanzi'], fieldsCopy)
         format_Transcription_fields(fieldsCopy)
         update_all_Color_fields(hanzi, fieldsCopy)
         update_all_Ruby_fields(hanzi, fieldsCopy)
     elif currentField in config.options['fields']['pinyin']:
-        hanzi = get_any(config.options['fields']['hanzi'], fieldsCopy)
         format_Pinyin_fields(fieldsCopy)
         update_all_Color_fields(hanzi, fieldsCopy)
         update_all_Ruby_fields(hanzi, fieldsCopy)
     elif currentField in config.options['fields']['pinyinTaiwan']:
-        hanzi = get_any(config.options['fields']['hanzi'], fieldsCopy)
         format_PinyinTW_fields(fieldsCopy)
         update_all_Color_fields(hanzi, fieldsCopy)
         update_all_Ruby_fields(hanzi, fieldsCopy)
     elif currentField in config.options['fields']['cantonese']:
-        hanzi = get_any(config.options['fields']['hanzi'], fieldsCopy)
         format_Cantonese_fields(fieldsCopy)
         update_all_Color_fields(hanzi, fieldsCopy)
         update_all_Ruby_fields(hanzi, fieldsCopy)
     elif currentField in config.options['fields']['bopomofo']:
-        hanzi = get_any(config.options['fields']['hanzi'], fieldsCopy)
         # format_bopomofo_fields(fieldsCopy)
         update_all_Color_fields(hanzi, fieldsCopy)
         update_all_Ruby_fields(hanzi, fieldsCopy)
