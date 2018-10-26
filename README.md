@@ -53,6 +53,11 @@ Then, to use the field filling features:
 
 ## History
 
+- **2018.10.26**
+    - Fix Pinyin and Bopomofo coloring
+    - Fix classifier rubies (show one ruby per classifier)
+    - Handle non-hanzi in Hanzi field _slightly_ more gracefully
+    - Only attempt to add DB indices on first run
 - **2018.10.25**
     - Major refactoring and test expansion
         - Functions under test should be more reliable
