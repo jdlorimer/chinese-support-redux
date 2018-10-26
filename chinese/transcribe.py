@@ -17,6 +17,7 @@ from .consts import (
     vowel_decorations,
     vowel_tone_dict,
 )
+from .hanzi import has_hanzi
 from .main import config_manager, dictionary
 from .ruby import has_ruby
 from .util import cleanup
@@ -48,10 +49,13 @@ def transcribe(words, transcription=None, only_one=True):
 
     If no transcription is specified, use the transcription set in the menu.
     """
-    if not isinstance(words, list):
-        words = [words]
 
+    words = list(filter(has_hanzi, words))
     transcribed = []
+
+    if not words:
+        return transcribed
+
     for text in words:
         text = cleanup(text)
         if not text:

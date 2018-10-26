@@ -73,16 +73,26 @@ class SeparateTests(ChineseTests):
 
 
 class TranscribeTests(ChineseTests):
-    def test_transcribe_single(self):
+    def setUp(self):
+        super().setUp()
         from chinese.transcribe import transcribe
-        self.dictionary.get_pinyin = Mock(return_value='nǐ')
-        self.assertEqual(transcribe(['你'], 'Pinyin'), ['nǐ'])
+        self.func = transcribe
 
-    def test_transcribe_multiple(self):
-        from chinese.transcribe import transcribe
+    def test_single_word(self):
+        self.dictionary.get_pinyin = Mock(return_value='nǐ')
+        self.assertEqual(self.func(['你'], 'Pinyin'), ['nǐ'])
+
+    def test_multiple_words(self):
         self.dictionary.get_pinyin = Mock(side_effect=['tú shū', 'guǎn'])
         self.assertEqual(
-            transcribe(['图书', '馆'], 'Pinyin'), ['tú shū', 'guǎn'])
+            self.func(['图书', '馆'], 'Pinyin'), ['tú shū', 'guǎn'])
+
+    def test_no_chinese(self):
+        self.assertEqual(self.func(['foo'], 'Pinyin'), [])
+
+    def test_some_chinese(self):
+        self.dictionary.get_pinyin = Mock(return_value='nǐ')
+        self.assertEqual(self.func(['foo', '你'], 'Pinyin'), ['nǐ'])
 
 
 class NoAccentsTests(ChineseTests):
