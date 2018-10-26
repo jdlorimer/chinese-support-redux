@@ -6,8 +6,8 @@ from re import IGNORECASE, sub
 
 from .consts import accents
 from .hanzi import has_hanzi
-from .util import cleanup, no_hidden
 from .sound import extract_sound_tags
+from .util import cleanup, no_hidden
 
 
 def colorize(words, ruby_whole=False):
@@ -22,7 +22,10 @@ def colorize(words, ruby_whole=False):
     since it cannot choose the correct color in the case of 多音字."""
 
     from .ruby import has_ruby
-    from .transcribe import get_tone_number, transcribe
+    from .transcribe import get_tone_number, separate, transcribe
+
+    if not isinstance(words, list):
+        words = separate(words)
 
     def colorize_ruby_sub(p):
         return '<span class="tone{t}">{r}</span>'.format(
