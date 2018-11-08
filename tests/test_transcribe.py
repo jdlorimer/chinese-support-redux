@@ -26,7 +26,7 @@ class AccentuateTests(ChineseTests):
         super().setUp()
         from chinese.transcribe import accentuate
         self.func = accentuate
-        self.config.options = {'transcription': 'Pinyin'}
+        self.config['transcription'] = 'Pinyin'
 
     def test_pinyin(self):
         self.assertEqual(self.func(['xian4']), ['xiàn'])
@@ -37,7 +37,7 @@ class AccentuateTests(ChineseTests):
         )
 
     def test_cantonese(self):
-        self.config.options = {'transcription': 'Cantonese'}
+        self.config['transcription'] = 'Cantonese'
         self.assertEqual(self.func(['xian4']), ['xian4'])
 
 
@@ -46,7 +46,7 @@ class SeparateTests(ChineseTests):
         super().setUp()
         from chinese.transcribe import separate
         self.func = separate
-        self.config.options = {'transcription': 'Pinyin'}
+        self.config['transcription'] = 'Pinyin'
 
     def test_tone_mark(self):
         self.assertEqual(self.func('xiànzài'), ['xiàn zài'])
@@ -55,8 +55,7 @@ class SeparateTests(ChineseTests):
         self.assertEqual(self.func('xian4zai4'), ['xian4 zai4'])
 
     def test_muliple_words(self):
-        self.assertEqual(
-            self.func('hěn gāoxìng'), ['hěn', 'gāo xìng'])
+        self.assertEqual(self.func('hěn gāoxìng'), ['hěn', 'gāo xìng'])
 
     def test_multisyllabic_words(self):
         self.assertEqual(self.func('túshūguǎn'), ['tú shū guǎn'])

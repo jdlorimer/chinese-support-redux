@@ -3,7 +3,7 @@
 # License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
 
 from .color import local_dict_colorize
-from .main import config_manager, dictionary
+from .main import config, dictionary
 from .util import cleanup
 
 
@@ -52,7 +52,7 @@ def translate(text, to_lang=None):
     if not text:
         return ''
     if not to_lang:
-        to_lang = config_manager.options['dictionary']
+        to_lang = config['dictionary']
         if to_lang == 'None':
             return ''
     if to_lang.startswith('local_'):  # local dictionary

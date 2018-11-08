@@ -32,7 +32,7 @@ from .fill import (
     fill_sounds,
     fill_translation
 )
-from .main import config_manager
+from .main import config
 
 
 dictionaries = [
@@ -62,27 +62,27 @@ def load_menu():
         add_menu_item(
             'Chinese::Set Dictionary',
             name,
-            partial(config_manager.options.update, {'dictionary': d}),
+            partial(config.update, {'dictionary': d}),
             checkable=True,
-            checked=bool(config_manager.options['dictionary'] == d)
+            checked=bool(config['dictionary'] == d)
         )
 
     for t in transcriptions:
         add_menu_item(
             'Chinese::Set Transcription',
             t,
-            partial(config_manager.options.update, {'transcription': t}),
+            partial(config.update, {'transcription': t}),
             checkable=True,
-            checked=bool(config_manager.options['transcription'] == t)
+            checked=bool(config['transcription'] == t)
         )
 
     for s in speech_engines:
         add_menu_item(
             'Chinese::Set Speech Engine',
             s,
-            partial(config_manager.options.update, {'speech': s}),
+            partial(config.update, {'speech': s}),
             checkable=True,
-            checked=bool(config_manager.options['speech'] == s)
+            checked=bool(config['speech'] == s)
         )
 
     add_menu('Chinese::Fill Notes')
@@ -129,7 +129,7 @@ def unload_menu():
 
 
 def display_tip():
-    (tip, link) = config_manager.get_next_tip()
+    (tip, link) = config.get_tip()
     if tip:
         if link:
             if askUser(tip):

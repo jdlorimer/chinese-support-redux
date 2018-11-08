@@ -1,13 +1,28 @@
-# Copyright 2012 Thomas TEMPÉ <thomas.tempe@alysse.org>
-# Copyright 2017-2018 Joseph Lorimer <luoliyan@posteo.net>
-# License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
+# Copyright © 2012 Thomas TEMPÉ <thomas.tempe@alysse.org>
+# Copyright © 2017-2018 Joseph Lorimer <luoliyan@posteo.net>
+#
+# This file is part of Chinese Support Redux.
+#
+# Chinese Support Redux is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by the Free
+# Software Foundation, either version 3 of the License, or (at your option) any
+# later version.
+#
+# Chinese Support Redux is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+# FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+# more details.
+#
+# You should have received a copy of the GNU General Public License along with
+# Chinese Support Redux.  If not, see <https://www.gnu.org/licenses/>.
 
 from re import IGNORECASE, sub
 
 from .consts import accents
 from .hanzi import has_hanzi
 from .sound import extract_sound_tags
-from .util import cleanup, no_hidden
+from .transcribe import accentuate, get_tone_number, separate, transcribe
+from .util import cleanup, no_color, no_hidden
 
 
 def colorize(words, ruby_whole=False):
@@ -22,10 +37,9 @@ def colorize(words, ruby_whole=False):
     since it cannot choose the correct color in the case of 多音字."""
 
     from .ruby import has_ruby
-    from .transcribe import get_tone_number, separate, transcribe
 
     if not isinstance(words, list):
-        words = separate(words)
+        words = sanitize_pinyin(words)
 
     def colorize_ruby_sub(p):
         return '<span class="tone{t}">{r}</span>'.format(
@@ -94,17 +108,11 @@ def colorize_fuse(hanzi, pinyin, ruby=False):
     If ruby=True, then annotate hanzi with pinyin.
     """
 
-    from .transcribe import get_tone_number, separate
-
     standard_fmt = '<span class="tone{tone}">{hanzi}</span>'
     ruby_fmt = '<span class="tone{tone}"><ruby>{hanzi}<rt>{pinyin}</rt></ruby></span>'
 
     hanzi = [h for h in cleanup(hanzi)]
-
-    pinyin = ' '.join(
-        separate(cleanup(no_color(pinyin)), grouped=False)
-    ).split()
-
+    pinyin = sanitize_pinyin(pinyin)
     text = ''
 
     for h, p in zip(hanzi, pinyin):
@@ -117,19 +125,15 @@ def colorize_fuse(hanzi, pinyin, ruby=False):
 
 
 def local_dict_colorize(text, ruby=True):
-    """
-    Colorize text in the form:
-    "Hello is written 你好[ni3 hao]"
-    (as used in the local dictionaries)
-    """
+    """Colorize text in the form: 你好[ni3 hao].
 
-    from .transcribe import accentuate, separate
+    As used in the local dictionaries.
+    """
 
     def _sub(p):
         c = ''
         hanzi = p.group(1)
         pinyin = p.group(2)
-        pinyin = ' '.join(accentuate(separate(pinyin)))
         delimiter = '|'
 
         if hanzi.count(delimiter) == 1:
@@ -141,7 +145,7 @@ def local_dict_colorize(text, ruby=True):
             c += colorize_fuse(hanzi, pinyin, True)
 
         if not ruby:
-            c += '[' + colorize(separate(pinyin)) + ']'
+            c += '[' + colorize(pinyin) + ']'
 
         return c
 
@@ -149,15 +153,7 @@ def local_dict_colorize(text, ruby=True):
     return text
 
 
-def no_color(text):
-    "Remove tone color info and other HTML pollutions"
-    if not text:
-        return ''
-    text = text.replace(r'&nbsp;', '')
-    text = no_hidden(text)
-    text = sub(r'<span class="tone1?[0-9]">(.*?)</span>', r'\1', text)
-    # sometimes added by Anki
-    text = sub(r'<font color="#000000">(.*?)</font>', r'\1', text)
-    # pinyin toolkit coloring
-    text = sub(r'<span style=.*?>(.*?)</span>', r'\1', text)
-    return text
+def sanitize_pinyin(pinyin, grouped=False):
+    return ' '.join(
+        accentuate(separate(cleanup(no_color(pinyin)), grouped))
+    ).split()

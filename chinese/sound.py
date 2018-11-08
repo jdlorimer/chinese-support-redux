@@ -1,20 +1,31 @@
-# Copyright 2012 Thomas TEMPÉ <thomas.tempe@alysse.org>
-# Copyright 2017-2018 Joseph Lorimer <luoliyan@posteo.net>
-# License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
+# Copyright © 2012 Thomas TEMPÉ <thomas.tempe@alysse.org>
+# Copyright © 2017-2018 Joseph Lorimer <luoliyan@posteo.net>
+#
+# This file is part of Chinese Support Redux.
+#
+# Chinese Support Redux is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by the Free
+# Software Foundation, either version 3 of the License, or (at your option) any
+# later version.
+#
+# Chinese Support Redux is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+# FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+# more details.
+#
+# You should have received a copy of the GNU General Public License along with
+# Chinese Support Redux.  If not, see <https://www.gnu.org/licenses/>.
 
 from functools import reduce
 from re import findall, sub
 
 from .hanzi import has_hanzi
-from .main import config_manager
+from .main import config
 from .tts import download_sound
-from .util import cleanup
+from .util import cleanup, no_color
 
 
 def sound(text, source=None):
-    from .color import no_color
-    from .ruby import hanzi, has_ruby
-    from .transcribe import no_accents
     """Returns sound tag for a given Hanzi string.
 
     If the sound does not already exist in the media directory, then
@@ -30,13 +41,16 @@ def sound(text, source=None):
     If empty, taking the one from the menu.
     """
 
+    from .ruby import hanzi, has_ruby
+    from .transcribe import no_accents
+
     if not has_hanzi(text):
         return ''
 
     text = cleanup(text)
 
     if not source:
-        source = config_manager.options['speech']
+        source = config['speech']
 
     text = no_color(no_accents(no_sound(text)))
     text = sub(r'<.*?>', '', text)

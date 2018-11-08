@@ -21,14 +21,14 @@ from anki.stdmodels import models
 
 from .config import ConfigManager
 
-config_manager = ConfigManager()
+config = ConfigManager()
 
 from .database import DictDB
 
 dictionary = DictDB()
-if config_manager.options['firstRun']:
+if config['firstRun']:
     dictionary.create_indices()
-    config_manager.options['firstRun'] = False
+    config['firstRun'] = False
 
 from .edit import append_tone_styling, EditManager
 from .graph import todayStats

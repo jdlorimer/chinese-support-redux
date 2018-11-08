@@ -60,11 +60,7 @@ def no_html(text):
 
 
 def hide(text, hidden):
-    """Add hidden keyword to string.
-
-    For searching purposes.
-    """
-    from .color import no_color
+    """Add hidden keyword to string to allow search."""
 
     if not text or text == '<br />':
         return ''
@@ -74,6 +70,19 @@ def hide(text, hidden):
     hidden = hidden.replace(r'[<!->]', '')
 
     return text + '<!--' + hidden + '-->'
+
+
+def no_color(text):
+    if not text:
+        return ''
+    text = text.replace(r'&nbsp;', '')
+    text = no_hidden(text)
+    text = sub(r'<span class="tone1?[0-9]">(.*?)</span>', r'\1', text)
+    # sometimes added by Anki
+    text = sub(r'<font color="#000000">(.*?)</font>', r'\1', text)
+    # pinyin toolkit coloring
+    text = sub(r'<span style=.*?>(.*?)</span>', r'\1', text)
+    return text
 
 
 def no_hidden(text):

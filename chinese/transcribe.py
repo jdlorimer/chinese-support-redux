@@ -1,6 +1,20 @@
-# Copyright 2012 Thomas TEMPÉ <thomas.tempe@alysse.org>
-# Copyright 2017-2018 Joseph Lorimer <luoliyan@posteo.net>
-# License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
+# Copyright © 2012 Thomas TEMPÉ <thomas.tempe@alysse.org>
+# Copyright © 2017-2018 Joseph Lorimer <luoliyan@posteo.net>
+#
+# This file is part of Chinese Support Redux.
+#
+# Chinese Support Redux is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by the Free
+# Software Foundation, either version 3 of the License, or (at your option) any
+# later version.
+#
+# Chinese Support Redux is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+# FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+# more details.
+#
+# You should have received a copy of the GNU General Public License along with
+# Chinese Support Redux.  If not, see <https://www.gnu.org/licenses/>.
 
 from re import compile, IGNORECASE, match, search, sub
 
@@ -18,9 +32,9 @@ from .consts import (
     vowel_tone_dict,
 )
 from .hanzi import has_hanzi
-from .main import config_manager, dictionary
+from .main import config, dictionary
 from .ruby import has_ruby
-from .util import cleanup
+from .util import cleanup, no_color
 
 
 def pinyin_re_sub():
@@ -61,7 +75,7 @@ def transcribe(words, transcription=None, only_one=True):
         if not text:
             transcribed.append('')
         if not transcription:
-            transcription = config_manager.options['transcription']
+            transcription = config['transcription']
         if transcription == 'Pinyin':
             transcribed.append(dictionary.get_pinyin(text, taiwan=False))
         elif transcription == 'Pinyin (Taiwan)':
@@ -79,7 +93,7 @@ def transcribe(words, transcription=None, only_one=True):
 
 def get_char_transcription(hanzi, transcription=None):
     if not transcription:
-        transcription = config_manager.options['transcription']
+        transcription = config['transcription']
     if transcription == 'Pinyin':
         return dictionary.get_pinyin(hanzi)
     if transcription == 'Pinyin (Taiwan)':
@@ -105,10 +119,7 @@ def accentuate(syllables):
     Note: also removes coloring.
     """
 
-    from .color import no_color
-
-    if (config_manager.options['transcription']
-            not in ['Pinyin', 'Pinyin (Taiwan)']):
+    if config['transcription'] not in ['Pinyin', 'Pinyin (Taiwan)']:
         return syllables
 
     def _accentuate(p):
@@ -180,7 +191,7 @@ def separate(pinyin, grouped=True):
     def _separate(p):
         return _clean(p.group('one')) + ' ' + _clean(p.group('two'))
 
-    transcription = config_manager.options['transcription']
+    transcription = config['transcription']
 
     separated = []
     for text in pinyin.split():
@@ -223,8 +234,6 @@ def get_tone_number(pinyin):
 
 def no_tone(text):
     """Remove tone information and coloring."""
-
-    from .color import no_color
 
     text = no_color(text)
     text = no_accents(text)

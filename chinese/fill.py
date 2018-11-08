@@ -1,7 +1,21 @@
-# Copyright 2013 Chris Hatch <foonugget@gmail.com>
-# Copyright 2014 Thomas TEMPE <thomas.tempe@alysse.org>
-# Copyright 2017-2018 Joseph Lorimer <luoliyan@posteo.net>
-# License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
+# Copyright © 2013 Chris Hatch <foonugget@gmail.com>
+# Copyright © 2014 Thomas TEMPÉ <thomas.tempe@alysse.org>
+# Copyright © 2017-2018 Joseph Lorimer <luoliyan@posteo.net>
+#
+# This file is part of Chinese Support Redux.
+#
+# Chinese Support Redux is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by the Free
+# Software Foundation, either version 3 of the License, or (at your option) any
+# later version.
+#
+# Chinese Support Redux is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+# FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+# more details.
+#
+# You should have received a copy of the GNU General Public License along with
+# Chinese Support Redux.  If not, see <https://www.gnu.org/licenses/>.
 
 from time import sleep
 from re import sub
@@ -11,7 +25,7 @@ from aqt import mw
 from aqt.utils import showInfo, askUser
 
 from .behavior import *
-from .main import config_manager as config
+from .main import config
 
 
 def fill_sounds():
@@ -41,26 +55,26 @@ def fill_sounds():
         note = mw.col.getNote(noteId)
         note_dict = dict(note)
 
-        _hf_s = has_field(config.options['fields']['sound'], note_dict)
-        _hf_sm = has_field(config.options['fields']['mandarinSound'], note_dict)
-        _hf_sc = has_field(config.options['fields']['cantoneseSound'], note_dict)
+        _hf_s = has_field(config['fields']['sound'], note_dict)
+        _hf_sm = has_field(config['fields']['mandarinSound'], note_dict)
+        _hf_sc = has_field(config['fields']['cantoneseSound'], note_dict)
 
-        if (_hf_s or _hf_sm or _hf_sc) and has_field(config.options['fields']['hanzi'], note_dict):
+        if (_hf_s or _hf_sm or _hf_sc) and has_field(config['fields']['hanzi'], note_dict):
             d_has_fields += 1
 
-            hanzi = get_any(config.options['fields']['hanzi'], note_dict)
+            hanzi = get_any(config['fields']['hanzi'], note_dict)
 
-            if get_any(config.options['fields']['sound'], note_dict) or get_any(config.options['fields']['mandarinSound'], note_dict) or get_any(config.options['fields']['cantoneseSound'], note_dict):
+            if get_any(config['fields']['sound'], note_dict) or get_any(config['fields']['mandarinSound'], note_dict) or get_any(config['fields']['cantoneseSound'], note_dict):
                 d_already_had_sound += 1
             else:
-                msg_string = "<b>Processing:</b> %(hanzi)s<br><b>Updated:</b> %(d_success)d notes<br><b>Failed:</b> %(d_failed)d notes"% {"hanzi":cleanup(no_html(get_any(config.options['fields']['hanzi'], note_dict))), "d_success":d_success, "d_failed":d_failed}
+                msg_string = "<b>Processing:</b> %(hanzi)s<br><b>Updated:</b> %(d_success)d notes<br><b>Failed:</b> %(d_failed)d notes"% {"hanzi":cleanup(no_html(get_any(config['fields']['hanzi'], note_dict))), "d_success":d_success, "d_failed":d_failed}
                 mw.progress.update(label=msg_string, value=d_scanned)
                 s, f = update_all_Sound_fields(hanzi, note_dict)
                 d_success += s
                 d_failed += f
 
                 # write back to note from dict and flush
-                for f in config.options['fields']['sound'] + config.options['fields']['mandarinSound'] + config.options['fields']['cantoneseSound']:
+                for f in config['fields']['sound'] + config['fields']['mandarinSound'] + config['fields']['cantoneseSound']:
                     if f in note_dict and note_dict[f] != note[f]:
                         note[f] = note_dict[f]
                 note.flush()
@@ -98,19 +112,19 @@ def fill_pinyin():
         note = mw.col.getNote(noteId)
         note_dict = dict(note)
 
-        _hf_t = has_field(config.options['fields']['transcription'], note_dict)
-        _hf_py = has_field(config.options['fields']['pinyin'], note_dict)
-        _hf_pytw = has_field(config.options['fields']['pinyinTaiwan'], note_dict)
-        _hf_cant = has_field(config.options['fields']['cantonese'], note_dict)
-        _hf_bpmf = has_field(config.options['fields']['bopomofo'], note_dict)
+        _hf_t = has_field(config['fields']['transcription'], note_dict)
+        _hf_py = has_field(config['fields']['pinyin'], note_dict)
+        _hf_pytw = has_field(config['fields']['pinyinTaiwan'], note_dict)
+        _hf_cant = has_field(config['fields']['cantonese'], note_dict)
+        _hf_bpmf = has_field(config['fields']['bopomofo'], note_dict)
 
-        if (_hf_t or _hf_py or _hf_pytw or _hf_cant or _hf_bpmf) and has_field(config.options['fields']['hanzi'], note_dict):
+        if (_hf_t or _hf_py or _hf_pytw or _hf_cant or _hf_bpmf) and has_field(config['fields']['hanzi'], note_dict):
             d_has_fields += 1
 
-            msg_string = "<b>Processing:</b> %(hanzi)s<br><b>Filled pinyin:</b> %(pinyin)d notes<br><b>Updated: </b>%(updated)d fields"% {"hanzi":cleanup(no_html(get_any(config.options['fields']['hanzi'], note_dict))), "pinyin":d_added_pinyin, "updated":d_updated}
+            msg_string = "<b>Processing:</b> %(hanzi)s<br><b>Filled pinyin:</b> %(pinyin)d notes<br><b>Updated: </b>%(updated)d fields"% {"hanzi":cleanup(no_html(get_any(config['fields']['hanzi'], note_dict))), "pinyin":d_added_pinyin, "updated":d_updated}
             mw.progress.update(label=msg_string, value=d_scanned)
 
-            hanzi = get_any(config.options['fields']['hanzi'], note_dict)
+            hanzi = get_any(config['fields']['hanzi'], note_dict)
             results = 0
 
             if _hf_t:
@@ -139,26 +153,26 @@ def fill_pinyin():
                 return num_updated
 
             # write back to note from dict and flush
-            d_updated += write_back(config.options['fields']['transcription'])
-            d_updated += write_back(config.options['fields']['pinyin'])
-            d_updated += write_back(config.options['fields']['pinyinTaiwan'])
-            d_updated += write_back(config.options['fields']['cantonese'])
-            d_updated += write_back(config.options['fields']['bopomofo'])
-            d_updated += write_back(config.options['fields']['color'])
-            d_updated += write_back(config.options['fields']['colorPinyin'])
-            d_updated += write_back(config.options['fields']['colorPinyinTaiwan'])
-            d_updated += write_back(config.options['fields']['colorCantonese'])
-            d_updated += write_back(config.options['fields']['colorBopomofo'])
-            d_updated += write_back(config.options['fields']['ruby'])
-            d_updated += write_back(config.options['fields']['rubyPinyin'])
-            d_updated += write_back(config.options['fields']['rubyPinyinTaiwan'])
-            d_updated += write_back(config.options['fields']['rubyCantonese'])
-            d_updated += write_back(config.options['fields']['rubyBopomofo'])
+            d_updated += write_back(config['fields']['transcription'])
+            d_updated += write_back(config['fields']['pinyin'])
+            d_updated += write_back(config['fields']['pinyinTaiwan'])
+            d_updated += write_back(config['fields']['cantonese'])
+            d_updated += write_back(config['fields']['bopomofo'])
+            d_updated += write_back(config['fields']['color'])
+            d_updated += write_back(config['fields']['colorPinyin'])
+            d_updated += write_back(config['fields']['colorPinyinTaiwan'])
+            d_updated += write_back(config['fields']['colorCantonese'])
+            d_updated += write_back(config['fields']['colorBopomofo'])
+            d_updated += write_back(config['fields']['ruby'])
+            d_updated += write_back(config['fields']['rubyPinyin'])
+            d_updated += write_back(config['fields']['rubyPinyinTaiwan'])
+            d_updated += write_back(config['fields']['rubyCantonese'])
+            d_updated += write_back(config['fields']['rubyBopomofo'])
             note.flush()
 
 
     mw.progress.finish()
-    msg_string = "<b>Processing:</b> %(hanzi)s<br><b>Filled pinyin:</b> %(pinyin)d notes<br><b>Updated: </b>%(updated)d fields"% {"hanzi":cleanup(no_html(get_any(config.options['fields']['hanzi'], note_dict))), "pinyin":d_added_pinyin, "updated":d_updated}
+    msg_string = "<b>Processing:</b> %(hanzi)s<br><b>Filled pinyin:</b> %(pinyin)d notes<br><b>Updated: </b>%(updated)d fields"% {"hanzi":cleanup(no_html(get_any(config['fields']['hanzi'], note_dict))), "pinyin":d_added_pinyin, "updated":d_updated}
     showInfo(msg_string)
 
 ############################################################
@@ -180,22 +194,22 @@ def fill_translation():
         note = mw.col.getNote(noteId)
         note_dict = dict(note)
 
-        _hf_m = has_field(config.options['fields']['meaning'], note_dict)
-        _hf_e = has_field(config.options['fields']['english'], note_dict)
-        _hf_g = has_field(config.options['fields']['german'], note_dict)
-        _hf_f = has_field(config.options['fields']['french'], note_dict)
+        _hf_m = has_field(config['fields']['meaning'], note_dict)
+        _hf_e = has_field(config['fields']['english'], note_dict)
+        _hf_g = has_field(config['fields']['german'], note_dict)
+        _hf_f = has_field(config['fields']['french'], note_dict)
 
-        if (_hf_m or _hf_e or _hf_g or _hf_f) and has_field(config.options['fields']['hanzi'], note_dict):
+        if (_hf_m or _hf_e or _hf_g or _hf_f) and has_field(config['fields']['hanzi'], note_dict):
             d_has_fields += 1
 
-            msg_string = "<b>Processing:</b> %(hanzi)s<br><b>Chinese notes:</b> %(has_fields)d<br><b>Translated:</b> %(filled)d<br><b>Failed:</b> %(failed)d"% {"hanzi":cleanup(no_html(get_any(config.options['fields']['hanzi'], note_dict))), "has_fields":d_has_fields, "filled":d_success, "failed":d_failed}
+            msg_string = "<b>Processing:</b> %(hanzi)s<br><b>Chinese notes:</b> %(has_fields)d<br><b>Translated:</b> %(filled)d<br><b>Failed:</b> %(failed)d"% {"hanzi":cleanup(no_html(get_any(config['fields']['hanzi'], note_dict))), "has_fields":d_has_fields, "filled":d_success, "failed":d_failed}
             mw.progress.update(label=msg_string, value=d_scanned)
 
-            hanzi = get_any(config.options['fields']['hanzi'], note_dict)
-            empty = len(get_any(config.options['fields']['meaning'], note_dict))
-            empty += len(get_any(config.options['fields']['english'], note_dict))
-            empty += len(get_any(config.options['fields']['german'], note_dict))
-            empty += len(get_any(config.options['fields']['french'], note_dict))
+            hanzi = get_any(config['fields']['hanzi'], note_dict)
+            empty = len(get_any(config['fields']['meaning'], note_dict))
+            empty += len(get_any(config['fields']['english'], note_dict))
+            empty += len(get_any(config['fields']['german'], note_dict))
+            empty += len(get_any(config['fields']['french'], note_dict))
             if not(empty):
                 result=0
                 if _hf_m:
@@ -211,7 +225,7 @@ def fill_translation():
                 if result == 0:
                     d_failed+=1
                     if d_failed<20:
-                        failed_hanzi += [cleanup(no_html(get_any(config.options['fields']['hanzi'], note_dict)))]
+                        failed_hanzi += [cleanup(no_html(get_any(config['fields']['hanzi'], note_dict)))]
                 else:
                     d_success+=1
 
@@ -222,12 +236,12 @@ def fill_translation():
                 return
 
             # write back to note from dict and flush
-            write_back(config.options['fields']['meaning'])
-            write_back(config.options['fields']['english'])
-            write_back(config.options['fields']['german'])
-            write_back(config.options['fields']['french'])
-            write_back(config.options['fields']['classifier'])
-            write_back(config.options['fields']['alternative'])
+            write_back(config['fields']['meaning'])
+            write_back(config['fields']['english'])
+            write_back(config['fields']['german'])
+            write_back(config['fields']['french'])
+            write_back(config['fields']['classifier'])
+            write_back(config['fields']['alternative'])
             note.flush()
 
     msg_string = "<b>Translation complete</b> <br><b>Chinese notes:</b> %(has_fields)d<br><b>Translated:</b> %(filled)d<br><b>Failed:</b> %(failed)d"% {"has_fields":d_has_fields, "filled":d_success, "failed":d_failed}
@@ -256,32 +270,32 @@ def fill_simp_trad():
         d_scanned += 1
         note = mw.col.getNote(noteId)
         note_dict = dict(note)
-        if (has_field(config.options['fields']['simplified'], note_dict) or has_field(config.options['fields']['traditional'], note_dict)) and has_field(config.options['fields']['hanzi'], note_dict):
+        if (has_field(config['fields']['simplified'], note_dict) or has_field(config['fields']['traditional'], note_dict)) and has_field(config['fields']['hanzi'], note_dict):
             d_has_fields += 1
 
-            msg_string = "<b>Processing:</b> %(hanzi)s<br><b>Updated:</b> %(filled)d"% {"hanzi":cleanup(no_html(get_any(config.options['fields']['hanzi'], note_dict))), "filled":d_success}
+            msg_string = "<b>Processing:</b> %(hanzi)s<br><b>Updated:</b> %(filled)d"% {"hanzi":cleanup(no_html(get_any(config['fields']['hanzi'], note_dict))), "filled":d_success}
             mw.progress.update(label=msg_string, value=d_scanned)
 
             #Update simplified/traditional fields
             #If it's the same, leave empty,
             #so as to make this feature unobtrusive to simplified chinese users
-            hanzi = get_any(config.options['fields']['hanzi'], note_dict)
+            hanzi = get_any(config['fields']['hanzi'], note_dict)
 
             update_Simplified_fields(hanzi, note_dict)
             update_Traditional_fields(hanzi, note_dict)
 
             # write back to note from dict and flush
-            for f in config.options['fields']['traditional']:
+            for f in config['fields']['traditional']:
                 if f in note_dict and note_dict[f] != note[f]:
                     note[f] = note_dict[f]
                     d_success+=1
-            for f in config.options['fields']['simplified']:
+            for f in config['fields']['simplified']:
                 if f in note_dict and note_dict[f] != note[f]:
                     note[f] = note_dict[f]
                     d_success+=1
             note.flush()
 
-    msg_string = "<b>Update complete!</b> %(hanzi)s<br><b>Updated:</b> %(filled)d notes"% {"hanzi":cleanup(no_html(get_any(config.options['fields']['hanzi'], note_dict))), "filled":d_success}
+    msg_string = "<b>Update complete!</b> %(hanzi)s<br><b>Updated:</b> %(filled)d notes"% {"hanzi":cleanup(no_html(get_any(config['fields']['hanzi'], note_dict))), "filled":d_success}
     mw.progress.finish()
     showInfo(msg_string)
 
@@ -303,24 +317,24 @@ def fill_silhouette():
         d_scanned += 1
         note = mw.col.getNote(noteId)
         note_dict = dict(note)
-        if has_field(config.options['fields']['silhouette'], note_dict):
+        if has_field(config['fields']['silhouette'], note_dict):
             d_has_fields += 1
 
-            msg_string = "<b>Processing:</b> %(hanzi)s<br><b>Updated:</b> %(filled)d"% {"hanzi":cleanup(no_html(get_any(config.options['fields']['hanzi'], note_dict))), "filled":d_success}
+            msg_string = "<b>Processing:</b> %(hanzi)s<br><b>Updated:</b> %(filled)d"% {"hanzi":cleanup(no_html(get_any(config['fields']['hanzi'], note_dict))), "filled":d_success}
             mw.progress.update(label=msg_string, value=d_scanned)
 
-            hanzi = get_any(config.options['fields']['hanzi'], note_dict)
+            hanzi = get_any(config['fields']['hanzi'], note_dict)
 
             #Update Silhouette
             update_Silhouette_fields(hanzi, note_dict)
 
             # write back to note from dict and flush
-            for f in config.options['fields']['silhouette']:
+            for f in config['fields']['silhouette']:
                 if f in note_dict and note_dict[f] != note[f]:
                     note[f] = note_dict[f]
                     d_success+=1
             note.flush()
 
-    msg_string = "<b>Update complete!</b> %(hanzi)s<br><b>Updated:</b> %(filled)d notes"% {"hanzi":cleanup(no_html(get_any(config.options['fields']['hanzi'], note_dict))), "filled":d_success}
+    msg_string = "<b>Update complete!</b> %(hanzi)s<br><b>Updated:</b> %(filled)d notes"% {"hanzi":cleanup(no_html(get_any(config['fields']['hanzi'], note_dict))), "filled":d_success}
     mw.progress.finish()
     showInfo(msg_string)

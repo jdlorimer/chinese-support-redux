@@ -1,13 +1,27 @@
-# Copyright 2012 Thomas TEMPÉ <thomas.tempe@alysse.org>
-# Copyright 2017-2018 Joseph Lorimer <luoliyan@posteo.net>
-# License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
+# Copyright © 2012 Thomas TEMPÉ <thomas.tempe@alysse.org>
+# Copyright © 2017-2018 Joseph Lorimer <luoliyan@posteo.net>
+#
+# This file is part of Chinese Support Redux.
+#
+# Chinese Support Redux is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by the Free
+# Software Foundation, either version 3 of the License, or (at your option) any
+# later version.
+#
+# Chinese Support Redux is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+# FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+# more details.
+#
+# You should have received a copy of the GNU General Public License along with
+# Chinese Support Redux.  If not, see <https://www.gnu.org/licenses/>.
 
 from re import search, sub
 
 from .bopomofo import bopomofo
-from .color import no_color
-from .main import dictionary
-from .sound import no_sound, sound
+from .main import config, dictionary
+from .sound import no_sound
+from .util import hide, no_color
 
 
 def ruby(words, transcription=None, only_one=False, try_dict_first=True):
@@ -24,7 +38,7 @@ def ruby(words, transcription=None, only_one=False, try_dict_first=True):
     in words dictionary.
     '''
     if not transcription:
-        transcription = config_manager.options['transcription']
+        transcription = config['transcription']
 
     rubified = []
     for text in words:
@@ -32,8 +46,6 @@ def ruby(words, transcription=None, only_one=False, try_dict_first=True):
         text = sub(r'[］】]', ']', text)
         text = no_color(text)
         text = no_sound(text)
-        # make sure sound tag isn't confused with hanzi
-        text = sub(r'([\u3400-\u9fff])(\[sound:)', r'\1 \2', text)
 
         def insert_multiple_pinyin_sub(p):
             hanzi = p.group(1)
@@ -66,7 +78,7 @@ def ruby(words, transcription=None, only_one=False, try_dict_first=True):
         text = sub(r'([\u3400-\u9fff])([^[])', insert_pinyin_sub, text)
         text = sub(r'([\u3400-\u9fff])([^[])', insert_pinyin_sub, text)
         text = text[:-1]
-        rubified.append(text + sound(text))
+        rubified.append(text)
 
     return rubified
 
@@ -76,10 +88,10 @@ def has_ruby(text):
 
 
 def hide_ruby(text):
-    from .transcribe import no_tone
     """Append hidden hanzi and toneless pinyin to a ruby string,
     to make a note searchable in the 'browse' window.
     """
+    from .transcribe import no_tone
     t = no_tone(ruby_top(text))
     t += no_color(ruby_bottom(text)).replace(' ', '')
     return hide(text, t)

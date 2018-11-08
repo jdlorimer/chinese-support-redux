@@ -24,17 +24,26 @@ from aqt import mw
 class ConfigManager:
     def __init__(self):
         self.tips = []
-        self.options = mw.addonManager.getConfig(__name__)
+        self.config = mw.addonManager.getConfig(__name__)
         addHook('unloadProfile', self.save)
+
+    def __setitem__(self, key, value):
+        self.config[key] = value
+
+    def __getitem__(self, key):
+        return self.config[key]
+
+    def update(self, d):
+        self.config.update(d)
 
     def save(self):
         try:
-            mw.addonManager.writeConfig(__name__, self.options)
+            mw.addonManager.writeConfig(__name__, self.config)
         except FileNotFoundError as e:
             print(e)
 
-    def get_next_tip(self):
-        if self.options['startup_tip_number'] < len(self.tips):
-            self.options['startup_tip_number'] += 1
-            return self.tips[self.options['startup_tip_number'] - 1]
+    def get_tip(self):
+        if self.config['tip_number'] < len(self.tips):
+            self.config['tip_number'] += 1
+            return self.tips[self.config['tip_number'] - 1]
         return (None, None)

@@ -28,6 +28,7 @@ class ChineseTests(TestCase):
     def setUp(self):
         self.logger = getLogger()
         self.logger.setLevel('DEBUG')
+
         modules = {
             'anki': MagicMock(),
             'aqt': MagicMock(),
@@ -37,9 +38,10 @@ class ChineseTests(TestCase):
         }
         self.module_patcher = patch.dict('sys.modules', modules)
         self.module_patcher.start()
-        self.config_patcher = patch('chinese.main.config_manager', MagicMock())
-        self.config = self.config_patcher.start()
+
+        self.config_patcher = patch('chinese.main.config', dict())
         self.dictionary_patcher = patch('chinese.main.dictionary', MagicMock())
+        self.config = self.config_patcher.start()
         self.dictionary = self.dictionary_patcher.start()
 
     def tearDown(self):

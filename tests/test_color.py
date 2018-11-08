@@ -59,6 +59,15 @@ class ColorizeFuseTests(ChineseTests):
         super().setUp()
         from chinese.color import colorize_fuse
         self.func = colorize_fuse
+        self.sanitize = patch(
+            'chinese.color.sanitize_pinyin',
+            lambda a: a.split()
+        )
+        self.sanitize.start()
+
+    def tearDown(self):
+        super().tearDown()
+        self.sanitize.stop()
 
     def test_tone_number(self):
         a = randint(0, 9)
@@ -81,13 +90,14 @@ class ColorizeFuseTests(ChineseTests):
 
     def test_unseparated(self):
         m = Mock(return_value=['tú', 'shū', 'guǎn'])
-        with patch('chinese.transcribe.separate', m):
-            self.assertEqual(
-                self.func('图书馆', 'túshūguǎn'),
-                ('<span class="tone2">图</span>'
-                 '<span class="tone1">书</span>'
-                 '<span class="tone3">馆</span>')
-            )
+        self.sanitize = patch('chinese.color.sanitize_pinyin', m)
+        self.sanitize.start()
+        self.assertEqual(
+            self.func('图书馆', 'túshūguǎn'),
+            ('<span class="tone2">图</span>'
+             '<span class="tone1">书</span>'
+             '<span class="tone3">馆</span>')
+        )
 
 
 class LocalDictColorizeTests(ChineseTests):
@@ -95,6 +105,15 @@ class LocalDictColorizeTests(ChineseTests):
         super().setUp()
         from chinese.color import local_dict_colorize
         self.func = local_dict_colorize
+        self.sanitize = patch(
+            'chinese.color.sanitize_pinyin',
+            lambda a: a.split()
+        )
+        self.sanitize.start()
+
+    def tearDown(self):
+        super().tearDown()
+        self.sanitize.stop()
 
     def test_word(self):
         self.assertEqual(
