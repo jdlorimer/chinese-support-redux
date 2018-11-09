@@ -53,6 +53,13 @@ Then, to use the field filling features:
 
 ## History
 
+- **2018.11.09**
+    - Fix field filling for alternative forms
+    - Fix bulk field filling
+    - Fix and relocate menu
+    - Add models automatically on start-up
+    - Refactor tests
+    - Tweak configuration
 - **2018.10.26**
     - Fix Pinyin and Bopomofo coloring
     - Fix classifier rubies (show one ruby per classifier)
