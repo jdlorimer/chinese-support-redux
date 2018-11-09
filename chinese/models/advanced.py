@@ -5,21 +5,27 @@
 
 from .css import style
 
-# List of fields
-######################################################################
+fields_list = [
+    'Hanzi',
+    'Meaning',
+    'Reading',
+    'Color',
+    'Classifier',
+    'Sound',
+    'Simplified',
+    'Traditional',
+    'Also Written',
+    'Ruby',
+    'Silhouette'
+]
 
-fields_list = ["Hanzi",  "Meaning", "Reading", "Color", "Mean Word", "Sound", "Simplified", "Traditional", "Also Written", "Ruby", "Silhouette"]
-
-# Card templates
-######################################################################
-
-recognition_front = u'''\
+recognition_front = '''\
 <div class=tags>{{Deck}} {{#Tags}} -- {{/Tags}}{{Tags}}</div>
 
 <span class=chinese>{{Hanzi}}</span>
 '''
 
-recall_front = u'''\
+recall_front = '''\
 <div class=tags>{{Deck}} {{#Tags}} -- {{/Tags}}{{Tags}}</div>
 
 <div>{{Meaning}}</div>
@@ -27,7 +33,7 @@ recall_front = u'''\
 <div class=hint>{{hint_transcription:Reading}}</div>
 '''
 
-card_back = u'''\
+card_back = '''\
 <div class=tags>{{Deck}} {{#Tags}} -- {{/Tags}}{{Tags}}</div>
 
 <div class=answer>
@@ -36,7 +42,7 @@ card_back = u'''\
 <div class=chinese>{{Color}}</div>
 {{#Simplified}}<div class=chinese><span class=comment>Simplified:</span> {{Simplified}}</div>{{/Simplified}}
 {{#Traditional}}<div class=chinese><span class=comment>Traditional:</span> {{Traditional}}</div>{{/Traditional}}
-{{#Mean Word}}<div class=chinese><span class=comment>Mean Word:</span> {{Mean Word}}</div>{{/Mean Word}}
+{{#Classifier}}<div class=chinese><span class=comment>Classifier:</span> {{Classifier}}</div>{{/Classifier}}
 {{#Also Written}}<div class=chinese><span class=comment>Also written:</span> {{Also Written}}</div>{{/Also Written}}<!-- {{Sound}}-->
 </div>
 
@@ -48,27 +54,21 @@ card_back = u'''\
 '''
 
 
-# Add model for chinese word to Anki
-######################################################################
-
 def add_model(col):
     mm = col.models
     m = mm.new("Chinese (advanced)")
-    # Add fields
     for f in fields_list:
         fm = mm.newField(f)
         mm.addField(m, fm)
-    t = mm.newTemplate(u"Recognition")
+    t = mm.newTemplate("Recognition")
     t['qfmt'] = recognition_front
     t['afmt'] = card_back
     mm.addTemplate(m, t)
-    t = mm.newTemplate(u"Recall")
+    t = mm.newTemplate("Recall")
     t['qfmt'] = recall_front
     t['afmt'] = card_back
     mm.addTemplate(m, t)
-
     m['css'] += style
     m['addon'] = 'Chinese (advanced)'
     mm.add(m)
-    # recognition card
     return m

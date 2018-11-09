@@ -178,8 +178,21 @@ def fill_pinyin():
 ############################################################
 
 def fill_translation():
-    if not(askUser("<div>This will update the <i>Meaning</i>, <i>Mean Word</i>, and <i>Also Written</i> fields in the current deck, if they exist and are empty.</div><b>Learning tip:</b><div>Automatic dictionary lookup tends to produce very long text, often with multiple translations.</div>\n\n<div>For more effective memorization, it's highly recommended to trim them down to just a few words, only one meaning, and possibly add some mnemonics.</div>\n\n<div>Dictionary lookup is simply meant as a way to save you time when typing; please consider editing each definition by hand when you're done.</div>\n\n<div>Please back-up your Anki deck first!</div>\n\n<div><b>Continue?</b></div>")):
-        return False
+    prompt = '''\
+<div>This will update the <i>Meaning</i>, <i>Classifier</i>, and <i>Also
+Written</i> fields in the current deck, if they exist and are empty.</div>
+<b>Learning tip:</b><div>Automatic dictionary lookup tends to produce very long
+text, often with multiple translations.</div>
+<div>For more effective memorization, it's highly recommended to trim them down
+to just a few words, only one meaning, and possibly add some mnemonics.</div>
+<div>Dictionary lookup is simply meant as a way to save you time when typing;
+please consider editing each definition by hand when you're done.</div>
+<div>Please back-up your Anki deck first!</div>
+<div><b>Continue?</b></div>\
+'''
+
+    if not askUser(prompt):
+        return
 
     query_str = "deck:current"
     d_scanned = 0

@@ -18,14 +18,17 @@
 from anki.stats import CollectionStats
 from anki.hooks import addHook, wrap
 from anki.stdmodels import models
+from aqt import mw
 
 from .config import ConfigManager
 
 config = ConfigManager()
 
 from .database import DictDB
+from .models import advanced, basic
 
 dictionary = DictDB()
+
 if config['firstRun']:
     dictionary.create_indices()
     config['firstRun'] = False
@@ -33,8 +36,6 @@ if config['firstRun']:
 from .edit import append_tone_styling, EditManager
 from .graph import todayStats
 from .gui import display_tip, load_menu, unload_menu
-from .models import advanced
-from .models import basic
 from .templates import chinese, ruby
 
 
@@ -42,12 +43,19 @@ def load():
     ruby.install()
     chinese.install()
     addHook('profileLoaded', load_menu)
+    addHook('profileLoaded', add_models)
     addHook('loadNote', append_tone_styling)
     addHook('unloadProfile', dictionary.conn.close)
     addHook('unloadProfile', unload_menu)
-    models.append(('Chinese (Basic)', basic.add_model))
-    models.append(('Chinese (Advanced)', advanced.add_model))
     CollectionStats.todayStats = wrap(
         CollectionStats.todayStats, todayStats, 'around')
     EditManager()
     display_tip()
+
+def add_models():
+    models.append(('Chinese (Advanced)', advanced.add_model))
+    models.append(('Chinese (Basic)', basic.add_model))
+    if not mw.col.models.byName('Chinese (Advanced)'):
+        advanced.add_model(mw.col)
+    if not mw.col.models.byName('Chinese (Basic)'):
+        basic.add_model(mw.col)
