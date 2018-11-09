@@ -19,27 +19,24 @@ from unittest import skip
 
 from . import ChineseTests
 
+from chinese.bopomofo import bopomofo
+
 
 class BopomofoTests(ChineseTests):
-    def setUp(self):
-        super().setUp()
-        from chinese.bopomofo import bopomofo
-        self.func = bopomofo
-
     def test_pinyin_no_tone(self):
-        self.assertEqual(self.func('zhu yin'), 'ㄓㄨ ㄧㄣ')
+        self.assertEqual(bopomofo('zhu yin'), 'ㄓㄨ ㄧㄣ')
 
     def test_pinyin_tone_number(self):
-        self.assertEqual(self.func('zhu4 yin1'), 'ㄓㄨˋ ㄧㄣ')
+        self.assertEqual(bopomofo('zhu4 yin1'), 'ㄓㄨˋ ㄧㄣ')
 
     @skip
     def test_pinyin_tone_mark(self):
-        self.assertEqual(self.func('zhù yīn'), '')
+        self.assertEqual(bopomofo('zhù yīn'), '')
 
     @skip
     def test_joined_word(self):
-        self.assertEqual(self.func('zhùyīn'), '')
+        self.assertEqual(bopomofo('zhùyīn'), '')
 
     @skip
     def test_hanzi(self):
-        self.assertEqual(self.func('注音'), '')
+        self.assertEqual(bopomofo('注音'), '')

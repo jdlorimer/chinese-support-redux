@@ -1,6 +1,20 @@
-# Copyright 2012-2014 Thomas TEMPÉ <thomas.tempe@alysse.org>
-# Copyright 2017-2018 Joseph Lorimer <luoliyan@posteo.net>
-# License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
+# Copyright © 2012-2014 Thomas TEMPÉ <thomas.tempe@alysse.org>
+# Copyright © 2017-2018 Joseph Lorimer <luoliyan@posteo.net>
+#
+# This file is part of Chinese Support Redux.
+#
+# Chinese Support Redux is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by the Free
+# Software Foundation, either version 3 of the License, or (at your option) any
+# later version.
+#
+# Chinese Support Redux is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+# FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+# more details.
+#
+# You should have received a copy of the GNU General Public License along with
+# Chinese Support Redux.  If not, see <https://www.gnu.org/licenses/>.
 
 from os.path import dirname, join, realpath
 from sqlite3 import connect
@@ -10,12 +24,7 @@ from .util import add_with_space
 
 class DictDB:
     def __init__(self):
-        try:
-            from aqt import mw
-            db_path = join(dirname(realpath(__file__)), 'db', 'chinese.db')
-        except ImportError:
-            db_path = 'db/chinese.db'
-
+        db_path = join(dirname(realpath(__file__)), 'db', 'chinese.db')
         self.conn = connect(db_path)
         self.c = self.conn.cursor()
 
@@ -267,12 +276,14 @@ class DictDB:
              'WHERE (traditional = :word or simplified = :word)'),
             {'word': word}
         )
-        cs = list(filter(None, [a for (a,) in self.c.fetchall()]))
+        cs = list(filter(None, [c for (c,) in self.c.fetchall()]))
         return ','.join(cs).split(',') if cs else []
 
-    def get_alt_spellings(self, txt):
-        self.c.execute("select distinct alternates from cidian where (traditional=? or simplified=?);", (txt, txt))
-        try:
-            return filter(lambda a:a, map(lambda a:a[0], self.c.fetchall()))
-        except:
-            return []
+    def get_alt_spellings(self, word):
+        self.c.execute(
+            ('SELECT DISTINCT alternates FROM cidian '
+             'WHERE (traditional = :word or simplified = :word);'),
+            {'word': word}
+        )
+        alts = list(filter(None, [a for (a,) in self.c.fetchall()]))
+        return ','.join(alts).split(',') if alts else []

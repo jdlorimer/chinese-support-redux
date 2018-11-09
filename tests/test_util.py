@@ -15,10 +15,11 @@
 # You should have received a copy of the GNU General Public License along with
 # Chinese Support Redux.  If not, see <https://www.gnu.org/licenses/>.
 
+from chinese.util import no_hidden
+
 from . import ChineseTests
 
 
 class UtilTests(ChineseTests):
     def test_no_hidden(self):
-        from chinese.util import no_hidden
         self.assertEqual(no_hidden('a <!-- b --> c'), 'a  c')

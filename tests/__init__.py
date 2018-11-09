@@ -15,36 +15,44 @@
 # You should have received a copy of the GNU General Public License along with
 # Chinese Support Redux.  If not, see <https://www.gnu.org/licenses/>.
 
+from gettext import NullTranslations
 from logging import getLogger
 from unittest import TestCase
 from unittest.mock import MagicMock, patch
 import unittest
 
+NullTranslations().install()
 unittest.util._MAX_LENGTH = 160
 NO_INTEGRATION = False
+
+modules = {
+    'PyQt5.QtGui': MagicMock(),
+    'PyQt5.QtWidgets': MagicMock(),
+    'anki': MagicMock(),
+    'anki.find': MagicMock(),
+    'anki.hooks': MagicMock(),
+    'anki.stats': MagicMock(),
+    'anki.stdmodels': MagicMock(),
+    'anki.template': MagicMock(),
+    'anki.template.hint': MagicMock(),
+    'anki.utils': MagicMock(),
+    'aqt': MagicMock(),
+    'aqt.utils': MagicMock(),
+    'gtts': MagicMock(),
+    'requests': MagicMock(),
+}
+patch.dict('sys.modules', modules).start()
+patch(
+    'aqt.mw.addonManager.getConfig',
+    lambda a: {
+        'firstRun': False,
+        'tip_number': 0,
+        'transcription': 'Pinyin',
+    }
+).start()
 
 
 class ChineseTests(TestCase):
     def setUp(self):
         self.logger = getLogger()
         self.logger.setLevel('DEBUG')
-
-        modules = {
-            'anki': MagicMock(),
-            'aqt': MagicMock(),
-            'chinese.main': MagicMock(),
-            'gtts': MagicMock(),
-            'requests': MagicMock(),
-        }
-        self.module_patcher = patch.dict('sys.modules', modules)
-        self.module_patcher.start()
-
-        self.config_patcher = patch('chinese.main.config', dict())
-        self.dictionary_patcher = patch('chinese.main.dictionary', MagicMock())
-        self.config = self.config_patcher.start()
-        self.dictionary = self.dictionary_patcher.start()
-
-    def tearDown(self):
-        self.module_patcher.stop()
-        self.config_patcher.stop()
-        self.dictionary_patcher.stop()

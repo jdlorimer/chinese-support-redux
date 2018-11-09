@@ -19,7 +19,7 @@
 from functools import partial
 
 from PyQt5.QtGui import QKeySequence
-from PyQt5.QtWidgets import QAction, QActionGroup, QMenu, QSpinBox
+from PyQt5.QtWidgets import QAction, QActionGroup, QMenu
 
 from aqt import mw
 from aqt.utils import showInfo, openLink, askUser
@@ -158,16 +158,6 @@ def add_menu(path):
         child = QMenu('&' + child_path, mw)
         mw.custom_menus[path] = child
         mw.custom_menus[parent_path].addMenu(child)
-
-
-def toggle_menu_vis(path):
-    if path not in mw.custom_menus:
-        return
-
-    if mw.custom_menus[path].isEmpty():
-        mw.custom_menus[path].menuAction().setVisible(False)
-    else:
-        mw.custom_menus[path].menuAction().setVisible(True)
 
 
 def add_menu_item(path, text, func, keys=None, checkable=False, checked=False):

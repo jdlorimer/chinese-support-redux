@@ -23,7 +23,7 @@ from .main import config, dictionary
 from .ruby import hide_ruby, ruby
 from .sound import no_sound, sound
 from .transcribe import accentuate, no_tone, separate, transcribe
-from .translate import get_alternate_spellings, translate
+from .translate import translate
 from .util import cleanup, get_any, has_field, hide, no_color, set_all
 
 
@@ -43,13 +43,12 @@ def set_classifier_fields(hanzi, d):
 
 
 def get_alt(hanzi, d):
-    alt = get_alternate_spellings(hanzi)
+    alts = dictionary.get_alt_spellings(hanzi)
+    alt = ', '.join(local_dict_colorize(a) for a in alts)
     if alt:
-        # If there's no alt spelling field, then add it here
         if not has_field(config['fields']['alternative'], d):
             return '<br>Also written: ' + alt
-        # Otherwise add it to the alt spelling field
-        elif get_any(config['fields']['alternative'], d) == '':
+        if get_any(config['fields']['alternative'], d) == '':
             set_all(config['fields']['alternative'], d, to=alt)
     return ''
 

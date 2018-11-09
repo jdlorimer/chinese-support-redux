@@ -19,32 +19,25 @@ from unittest.mock import Mock
 
 from . import ChineseTests
 
+from chinese.hanzi import has_hanzi, simplify, traditional
+
 
 class HasHanziTests(ChineseTests):
-    def setUp(self):
-        super().setUp()
-        from chinese.hanzi import has_hanzi
-        self.func = has_hanzi
-
     def test_all_hanzi(self):
-        self.assertTrue(self.func('现在'))
+        self.assertTrue(has_hanzi('现在'))
 
     def test_no_hanzi(self):
-        self.assertFalse(self.func('now'))
+        self.assertFalse(has_hanzi('now'))
 
     def test_mixed(self):
-        self.assertTrue(self.func('现在now'))
+        self.assertTrue(has_hanzi('现在now'))
 
 
 class SimplifyTests(ChineseTests):
     def test_simplify(self):
-        from chinese.hanzi import simplify
-        self.dictionary.get_simplified = Mock(return_value='simp')
-        self.assertEqual(simplify('繁體字'), 'simp')
+        self.assertEqual(simplify('繁體字'), '繁体字')
 
 
 class TraditionalTests(ChineseTests):
     def test_traditional(self):
-        from chinese.hanzi import traditional
-        self.dictionary.get_traditional = Mock(return_value='trad')
-        self.assertEqual(traditional('簡體字'), 'trad')
+        self.assertEqual(traditional('简体字'), '簡體字')

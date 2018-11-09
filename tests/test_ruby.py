@@ -17,27 +17,23 @@
 
 from unittest.mock import Mock
 
+from chinese.ruby import ruby, ruby_bottom, ruby_top
+
 from . import ChineseTests
 
 
 class RubyTests(ChineseTests):
     def test_single_char(self):
-        from chinese.ruby import ruby
-        self.dictionary.get_pinyin = Mock(return_value='nǐ')
         self.assertEqual(ruby('你', 'Pinyin'), ['你[nǐ]'])
 
     def test_multiple_chars(self):
-        from chinese.ruby import ruby
-        self.dictionary.get_pinyin = Mock(side_effect=['tú', 'shū', 'guǎn'])
         self.assertEqual(
             ruby('图书馆', 'Pinyin'),
             ['图[tú]', '书[shū]', '馆[guǎn]']
         )
 
     def test_ruby_top(self):
-        from chinese.ruby import ruby_top
         self.assertEqual(ruby_top('汉[hàn]字[zì]'), 'hàn zì ')
 
     def test_ruby_bottom(self):
-        from chinese.ruby import ruby_bottom
         self.assertEqual(ruby_bottom('汉[hàn]字[zì]'), '汉 字 ')

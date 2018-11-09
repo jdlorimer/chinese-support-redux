@@ -57,12 +57,3 @@ def translate(text, to_lang=None):
             return ''
     if to_lang.startswith('local_'):  # local dictionary
         return translate_local(text, to_lang[-2:])
-
-
-def get_alternate_spellings(text):
-    if not text:
-        return ''
-    alt = dictionary.get_alt_spellings(text)
-    if list(alt):
-        return local_dict_colorize(', '.join(alt))
-    return ''
