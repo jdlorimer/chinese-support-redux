@@ -22,10 +22,8 @@ from aqt import mw
 
 
 class ConfigManager:
-    def __init__(self):
-        self.tips = []
-        self.config = mw.addonManager.getConfig(__name__)
-        addHook('unloadProfile', self.save)
+    tips = []
+    config = mw.addonManager.getConfig(__name__)
 
     def __setitem__(self, key, value):
         self.config[key] = value
@@ -37,10 +35,7 @@ class ConfigManager:
         self.config.update(d)
 
     def save(self):
-        try:
-            mw.addonManager.writeConfig(__name__, self.config)
-        except FileNotFoundError as e:
-            print(e)
+        mw.addonManager.writeConfig(__name__, self.config)
 
     def get_tip(self):
         if self.config['tip_number'] < len(self.tips):
