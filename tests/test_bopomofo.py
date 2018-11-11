@@ -26,7 +26,9 @@ class BopomofoTests(ChineseTests):
     def test_pinyin_no_tone(self):
         self.assertEqual(bopomofo('zhu yin'), 'ㄓㄨ ㄧㄣ')
 
-    def test_pinyin_tone_number(self):
+    def test_pinyin_tone_numbers(self):
+        self.assertEqual(bopomofo('ni3 ne5'), 'ㄋㄧˇ ㄋㄜ˙')
+        self.assertEqual(bopomofo('ru2 guo3'), 'ㄖㄨˊ ㄍㄨㄛˇ')
         self.assertEqual(bopomofo('zhu4 yin1'), 'ㄓㄨˋ ㄧㄣ')
 
     @skip

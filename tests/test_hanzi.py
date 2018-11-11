@@ -15,11 +15,9 @@
 # You should have received a copy of the GNU General Public License along with
 # Chinese Support Redux.  If not, see <https://www.gnu.org/licenses/>.
 
-from unittest.mock import Mock
-
 from . import ChineseTests
 
-from chinese.hanzi import has_hanzi, simplify, traditional
+from chinese.hanzi import has_hanzi, silhouette, simplify, traditional
 
 
 class HasHanziTests(ChineseTests):
@@ -31,6 +29,14 @@ class HasHanziTests(ChineseTests):
 
     def test_mixed(self):
         self.assertTrue(has_hanzi('现在now'))
+
+
+class SilhouetteTests(ChineseTests):
+    def test_hanzi_only(self):
+        self.assertEqual(silhouette('以A为B'), '_A_B')
+
+    def test_mixed_chars(self):
+        self.assertEqual(silhouette('哈密瓜'), '_ _ _')
 
 
 class SimplifyTests(ChineseTests):

@@ -16,20 +16,20 @@
 # You should have received a copy of the GNU General Public License along with
 # Chinese Support Redux.  If not, see <https://www.gnu.org/licenses/>.
 
-from re import compile, IGNORECASE, match, search, sub
+from re import compile, IGNORECASE, search, sub
+from unicodedata import name, normalize
 
 from .bopomofo import bopomofo
 from .consts import (
     accents,
-    base_letters,
+    bopomofo_regex,
     jyutping_finals,
     jyutping_inits,
     jyutping_standalones,
     pinyin_finals,
     pinyin_inits,
     pinyin_standalones,
-    vowel_decorations,
-    vowel_tone_dict,
+    vowel_decorations
 )
 from .hanzi import has_hanzi
 from .main import config, dictionary
@@ -41,13 +41,14 @@ def pinyin_re_sub():
     return '(({})({})[1-5]?|({})[1-5]?)'.format(
         pinyin_inits, pinyin_finals, pinyin_standalones)
 
-pinyin_re = pinyin_re_sub()
-pinyin_two_re = compile("(?P<one>"+pinyin_re+")(?P<two>"+pinyin_re+")", IGNORECASE)
-
 
 def jyutping_re_sub():
     return '(({})({})[1-6]?|({})[1-6]?)'.format(
         jyutping_inits, jyutping_finals, jyutping_standalones)
+
+
+pinyin_re = pinyin_re_sub()
+pinyin_two_re = compile("(?P<one>"+pinyin_re+")(?P<two>"+pinyin_re+")", IGNORECASE)
 
 jyutping_re = jyutping_re_sub()
 jyutping_two_re = compile("(?P<one>"+jyutping_re+")(?P<two>"+jyutping_re+")", IGNORECASE)
@@ -84,7 +85,7 @@ def transcribe(words, transcription=None, only_one=True):
             transcribed.append(dictionary.get_cantonese(text, only_one))
         elif transcription == 'Bopomofo':
             r = dictionary.get_pinyin(text, taiwan=True)
-            transcribed.append(bopomofo(no_accents(r)))
+            transcribed.append(bopomofo(replace_tone_marks(r)))
         else:
             transcribed.append('')
 
@@ -103,10 +104,6 @@ def get_char_transcription(hanzi, transcription=None):
     if transcription == 'Bopomofo':
         return bopomofo(dictionary.get_pinyin(hanzi, taiwan=True))
     return str()
-
-
-def add_diaeresis(text):
-    return sub('v', 'ü', text)
 
 
 def accentuate(syllables):
@@ -155,33 +152,38 @@ def accentuate(syllables):
     return accentuated
 
 
-def no_accents(text):
-    """Replace tone marks with tone numbers."""
+def replace_tone_marks(text):
+    """Replace Pinyin tone marks with tone numbers."""
 
     if search('[0-9¹²³⁴⁵⁶⁷⁸⁹]', text):
         return text
 
-    def _deaccentuate(p):
-        return (
-            p.group(1) +
-            base_letters[p.group(2).lower()] +
-            p.group(3) +
-            get_tone_number(p.group(2).lower())
-        )
+    if search(bopomofo_regex, text):
+        return text
 
-    return sub(
-        '([a-zü]*)([' + 'aeiouüvAEIOUÜV' + accents + '])([a-zü]*)',
-        _deaccentuate,
-        text,
-        flags=IGNORECASE
-    )
+    d = {
+        'COMBINING MACRON'      : '1',
+        'COMBINING ACUTE ACCENT': '2',
+        'COMBINING CARON'       : '3',
+        'COMBINING GRAVE ACCENT': '4',
+    }
+
+    done = []
+    for syllable in text.split():
+        s = str()
+        tone = '5'
+        for c in normalize('NFD', syllable):
+            if name(c) in d:
+                tone = d[name(c)]
+            else:
+                s += c
+        done.append(normalize('NFC', s) + tone)
+
+    return ' '.join(done)
 
 
 def separate(pinyin, grouped=True):
-    """Separate pinyin syllables.
-
-    Example: "Yīlù píng'ān" => "Yī lù píng ān"
-    """
+    """Separate pinyin syllables."""
 
     def _clean(t):
         if t.startswith("'"):
@@ -211,32 +213,28 @@ def separate(pinyin, grouped=True):
     return separated
 
 
-def get_tone_number(pinyin):
-    if match(r".+1[0-9]$", pinyin):
-        return pinyin[-2:]
-    elif match(r".+[0-9]$", pinyin):
-        return pinyin[-1:]
-    elif match(".+[¹²³⁴]$", pinyin):
-        return str(" ¹²³⁴".index(pinyin[-1:]))
-    elif match("[\u3100-\u312F]", pinyin):#Bopomofo
-        if match("[ˊˇˋ˙]", pinyin[-1:]):
-            return str("  ˊˇˋ˙".index(pinyin[-1:]))
-        else:
-            return "1"
-    else:
-        for c in pinyin:
-            try:
-                return str(vowel_tone_dict[c])
-            except KeyError:
-                continue
-        return "5"
+def tone_number(s):
+    s = replace_tone_marks(cleanup(s))
+
+    if search(r'[0-9]$', s):
+        return s[-1]
+
+    if search(r'[¹²³⁴]$', s):
+        return str(' ¹²³⁴'.index(s[-1:]))
+
+    if search(bopomofo_regex, s):
+        if search(r'[ˊˇˋ˙]$', s):
+            return str('  ˊˇˋ˙'.index(s[-1]))
+        return '1'
+
+    return '5'
 
 
 def no_tone(text):
     """Remove tone information and coloring."""
 
     text = no_color(text)
-    text = no_accents(text)
+    text = replace_tone_marks(text)
 
     def _remove_tone_number(p):
         return p.group(1) + sub(r'1?[0-9¹²³⁴]', '', p.group(2)) + ']'

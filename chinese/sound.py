@@ -42,7 +42,7 @@ def sound(text, source=None):
     """
 
     from .ruby import hanzi, has_ruby
-    from .transcribe import no_accents
+    from .transcribe import replace_tone_marks
 
     if not has_hanzi(text):
         return ''
@@ -52,7 +52,7 @@ def sound(text, source=None):
     if not source:
         source = config['speech']
 
-    text = no_color(no_accents(no_sound(text)))
+    text = no_color(replace_tone_marks(no_sound(text)))
     text = sub(r'<.*?>', '', text)
 
     if has_ruby(text):

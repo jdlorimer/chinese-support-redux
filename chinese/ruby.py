@@ -25,7 +25,7 @@ from .util import hide, no_color
 
 
 def ruby(words, transcription=None, only_one=False, try_dict_first=True):
-    '''Convert hanzi to ruby notation.
+    """Convert hanzi to ruby notation.
 
     For use with {{Ruby:fieldname}} on the card template.
 
@@ -36,7 +36,10 @@ def ruby(words, transcription=None, only_one=False, try_dict_first=True):
 
     If not specified, insert all possible pinyin words for characters not found
     in words dictionary.
-    '''
+    """
+
+    from .transcribe import replace_tone_marks
+
     if not transcription:
         transcription = config['transcription']
 
@@ -60,7 +63,7 @@ def ruby(words, transcription=None, only_one=False, try_dict_first=True):
                     s += hanzi[0] + '[' + t.pop(0) + ']'
                 elif transcription == 'Bopomofo':
                     s += hanzi[0] + '['
-                    s += bopomofo(no_accents(t.pop(0))) + ']'
+                    s += bopomofo(replace_tone_marks(t.pop(0))) + ']'
                 hanzi = hanzi[1:]
             return s + p.group(2)
 

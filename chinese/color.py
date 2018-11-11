@@ -19,9 +19,8 @@
 from re import IGNORECASE, sub
 
 from .consts import accents
-from .hanzi import has_hanzi
 from .sound import extract_sound_tags
-from .transcribe import accentuate, get_tone_number, separate, transcribe
+from .transcribe import accentuate, separate, tone_number, transcribe
 from .util import cleanup, no_color, no_hidden
 
 
@@ -32,9 +31,7 @@ def colorize(words, ruby_whole=False):
 
     In the case of ruby, it will colorize only the annotation by default.
     If ruby_whole = True, then it will colorize the whole character.
-
-    Warning: it's not recommended to use this function on hanzi directly,
-    since it cannot choose the correct color in the case of 多音字."""
+    """
 
     from .ruby import has_ruby
 
@@ -43,22 +40,14 @@ def colorize(words, ruby_whole=False):
 
     def colorize_ruby_sub(p):
         return '<span class="tone{t}">{r}</span>'.format(
-            t=get_tone_number(p.group(2)),
-            r=p.group()
-        )
-
-    def colorize_hanzi_sub(p):
-        return '<span class="tone{t}">{r}</span>'.format(
-            t=get_tone_number(transcribe(p.group(1), only_one=True)),
+            t=tone_number(p.group(2)),
             r=p.group()
         )
 
     def colorize_pinyin_sub(text, pattern):
         def repl(p):
-            if p.group()[0] in '&<"/':
-                return p.group()
             return '<span class="tone{t}">{r}</span>'.format(
-                t=get_tone_number(p.group(1)),
+                t=tone_number(p.group(1)),
                 r=p.group()
             )
 
@@ -70,7 +59,6 @@ def colorize(words, ruby_whole=False):
         r']+1?[0-9¹²³⁴]?)(.*?\])'
     )
     half_ruby_pattern = r'([a-zü' + accents + r']+1?[0-9¹²³⁴]?)'
-    hanzi_pattern = r'([\u3400-\u9fff])'
     pinyin_pattern = (
         r'([&<"/]?[a-zü\u3100-\u312F' +
         accents +
@@ -92,8 +80,6 @@ def colorize(words, ruby_whole=False):
                 )
             else:
                 text = colorize_pinyin_sub(text, half_ruby_pattern)
-        elif has_hanzi(text):
-            text = sub(hanzi_pattern, colorize_hanzi_sub, text)
         else:
             text = colorize_pinyin_sub(text, pinyin_pattern)
 
@@ -117,9 +103,9 @@ def colorize_fuse(hanzi, pinyin, ruby=False):
 
     for h, p in zip(hanzi, pinyin):
         if ruby:
-            text += ruby_fmt.format(tone=get_tone_number(p), hanzi=h, pinyin=p)
+            text += ruby_fmt.format(tone=tone_number(p), hanzi=h, pinyin=p)
         else:
-            text += standard_fmt.format(tone=get_tone_number(p), hanzi=h)
+            text += standard_fmt.format(tone=tone_number(p), hanzi=h)
 
     return text
 

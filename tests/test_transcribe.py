@@ -22,9 +22,10 @@ from . import ChineseTests
 
 from chinese.transcribe import (
     accentuate,
-    no_accents,
     no_tone,
+    replace_tone_marks,
     separate,
+    tone_number,
     transcribe
 )
 
@@ -68,6 +69,9 @@ class SeparateTests(ChineseTests):
                 ['hěn', 'gāo', 'xìng']
             )
 
+    def test_apostrophe(self):
+        self.assertEqual(separate("yīlù píng'ān"), ['yī lù', 'píng ān'])
+
     @skip
     def test_you_er_yuan(self):
         self.assertEqual(separate("yòu'éryuán"), ["yòu ér yuán"])
@@ -88,19 +92,28 @@ class TranscribeTests(ChineseTests):
         self.assertEqual(transcribe(['foo', '你'], 'Pinyin'), ['nǐ'])
 
 
-class NoAccentsTests(ChineseTests):
+class ReplaceToneMarksTests(ChineseTests):
     def test_split_words(self):
-        self.assertEqual(no_accents('hàn yǔ pīn yīn'), 'han4 yu3 pin1 yin1')
+        self.assertEqual(
+            replace_tone_marks('hàn yǔ pīn yīn'),
+            'han4 yu3 pin1 yin1'
+        )
 
     @skip
     def test_joined_words(self):
-        self.assertEqual(no_accents('hànyǔ pīnyīn'), 'han4yu3 pin1yin1')
+        self.assertEqual(replace_tone_marks('hànyǔ pīnyīn'), 'han4yu3 pin1yin1')
 
     def test_tone_number(self):
-        self.assertEqual(no_accents('pin1 yin1'), 'pin1 yin1')
+        self.assertEqual(replace_tone_marks('pin1 yin1'), 'pin1 yin1')
 
     def test_tone_superscript(self):
-        self.assertEqual(no_accents('pin¹ yin¹'), 'pin¹ yin¹')
+        self.assertEqual(replace_tone_marks('pin¹ yin¹'), 'pin¹ yin¹')
+
+    def test_neutral_tone(self):
+        self.assertEqual(replace_tone_marks('ne'), 'ne5')
+
+    def test_umlaut(self):
+        self.assertEqual(replace_tone_marks('lǘ'), 'lü2')
 
 
 class NoToneTests(ChineseTests):
@@ -115,3 +128,24 @@ class NoToneTests(ChineseTests):
 
     def test_tone_styling(self):
         self.assertEqual(no_tone('<span class="tone2">má</span>'), 'ma')
+
+
+class ToneNumberTests(ChineseTests):
+    def test_tone_number(self):
+        self.assertEqual(tone_number('ni3'), '3')
+
+    def test_tone_superscript(self):
+        self.assertEqual(tone_number('ni³'), '3')
+
+    def test_tone_mark(self):
+        self.assertEqual(tone_number('nǐ'), '3')
+
+    def test_tone_styling(self):
+        self.assertEqual(tone_number('<span class="tone2">nǐ</span>'), '3')
+
+    def test_bopomofo(self):
+        self.assertEqual(tone_number('ㄧㄣ'), '1')
+        self.assertEqual(tone_number('ㄖㄨˊ'), '2')
+        self.assertEqual(tone_number('ㄋㄧˇ'), '3')
+        self.assertEqual(tone_number('ㄓㄨˋ'), '4')
+        self.assertEqual(tone_number('ㄋㄜ˙'), '5')
