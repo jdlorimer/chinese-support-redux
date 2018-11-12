@@ -20,7 +20,7 @@ from unittest.mock import Mock, patch
 
 from . import ChineseTests
 
-from chinese.color import colorize, colorize_fuse, local_dict_colorize
+from chinese.color import colorize, colorize_dict, colorize_fuse
 
 
 class ColorizeTests(ChineseTests):
@@ -51,6 +51,23 @@ class ColorizeTests(ChineseTests):
         )
 
 
+class ColorizeDictTests(ChineseTests):
+    def test_word(self):
+        self.assertEqual(
+            colorize_dict('图书馆[tu2 shu1 guan3]'),
+            ('<span class="tone2"><ruby>图<rt>tú</rt></ruby></span>'
+             '<span class="tone1"><ruby>书<rt>shū</rt></ruby></span>'
+             '<span class="tone3"><ruby>馆<rt>guǎn</rt></ruby></span>')
+        )
+
+    def test_classifier(self):
+        self.assertEqual(
+            colorize_dict('個|个[ge4]'),
+            ('<span class="tone4"><ruby>個<rt>gè</rt></ruby></span>|'
+             '<span class="tone4">个</span>')
+        )
+
+
 class ColorizeFuseTests(ChineseTests):
     def test_tone_number(self):
         a = randint(0, 9)
@@ -77,21 +94,4 @@ class ColorizeFuseTests(ChineseTests):
             ('<span class="tone2">图</span>'
              '<span class="tone1">书</span>'
              '<span class="tone3">馆</span>')
-        )
-
-
-class LocalDictColorizeTests(ChineseTests):
-    def test_word(self):
-        self.assertEqual(
-            local_dict_colorize('图书馆[tu2 shu1 guan3]'),
-            ('<span class="tone2"><ruby>图<rt>tú</rt></ruby></span>'
-             '<span class="tone1"><ruby>书<rt>shū</rt></ruby></span>'
-             '<span class="tone3"><ruby>馆<rt>guǎn</rt></ruby></span>')
-        )
-
-    def test_classifier(self):
-        self.assertEqual(
-            local_dict_colorize('個|个[ge4]'),
-            ('<span class="tone4"><ruby>個<rt>gè</rt></ruby></span>|'
-             '<span class="tone4">个</span>')
         )

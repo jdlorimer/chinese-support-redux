@@ -86,7 +86,7 @@ def no_color(text):
 
 
 def no_hidden(text):
-    return sub(r'<!--.*?-->', '', text)
+    return sub(r' *<!--.*?--> *', ' ', text)
 
 
 def add_with_space(a, b):

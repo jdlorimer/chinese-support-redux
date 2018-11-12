@@ -17,7 +17,7 @@
 # Chinese Support Redux.  If not, see <https://www.gnu.org/licenses/>.
 
 from .bopomofo import bopomofo
-from .color import colorize, colorize_fuse, local_dict_colorize
+from .color import colorize, colorize_dict, colorize_fuse
 from .hanzi import silhouette, simplify, traditional
 from .main import config, dictionary
 from .ruby import hide_ruby, ruby
@@ -29,7 +29,7 @@ from .util import cleanup, get_any, has_field, hide, no_color, set_all
 
 def get_mean(hanzi, d):
     cs = dictionary.get_classifiers(hanzi)
-    text = ', '.join(local_dict_colorize(c) for c in cs)
+    text = ', '.join(colorize_dict(c) for c in cs)
     if text and not has_field(config['fields']['classifier'], d):
         return '<br>Cl: ' + text
     return ''
@@ -37,14 +37,14 @@ def get_mean(hanzi, d):
 
 def set_classifier_fields(hanzi, d):
     cs = dictionary.get_classifiers(hanzi)
-    text = ', '.join(local_dict_colorize(c) for c in cs)
+    text = ', '.join(colorize_dict(c) for c in cs)
     if text and has_field(config['fields']['classifier'], d):
         set_all(config['fields']['classifier'], d, to=text)
 
 
 def get_alt(hanzi, d):
     alts = dictionary.get_alt_spellings(hanzi)
-    alt = ', '.join(local_dict_colorize(a) for a in alts)
+    alt = ', '.join(colorize_dict(a) for a in alts)
     if alt:
         if not has_field(config['fields']['alternative'], d):
             return '<br>Also written: ' + alt

@@ -41,7 +41,7 @@ def sound(text, source=None):
     If empty, taking the one from the menu.
     """
 
-    from .ruby import hanzi, has_ruby
+    from .ruby import ruby_bottom, has_ruby
     from .transcribe import replace_tone_marks
 
     if not has_hanzi(text):
@@ -56,7 +56,7 @@ def sound(text, source=None):
     text = sub(r'<.*?>', '', text)
 
     if has_ruby(text):
-        text = hanzi(text)
+        text = ruby_bottom(text)
 
     if not text:
         return ''

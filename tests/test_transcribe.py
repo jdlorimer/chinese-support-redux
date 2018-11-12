@@ -91,6 +91,9 @@ class TranscribeTests(ChineseTests):
     def test_some_chinese(self):
         self.assertEqual(transcribe(['foo', '你'], 'Pinyin'), ['nǐ'])
 
+    def test_bopomofo(self):
+        self.assertEqual(transcribe(['你'], 'Bopomofo'), ['ㄋㄧˇ'])
+
 
 class ReplaceToneMarksTests(ChineseTests):
     def test_split_words(self):
@@ -115,6 +118,9 @@ class ReplaceToneMarksTests(ChineseTests):
     def test_umlaut(self):
         self.assertEqual(replace_tone_marks('lǘ'), 'lü2')
 
+    def test_ruby(self):
+        self.assertEqual(replace_tone_marks('你[nǐ]'), '你[ni3]')
+
 
 class NoToneTests(ChineseTests):
     def test_tone_number(self):
@@ -128,6 +134,9 @@ class NoToneTests(ChineseTests):
 
     def test_tone_styling(self):
         self.assertEqual(no_tone('<span class="tone2">má</span>'), 'ma')
+
+    def test_ruby(self):
+        self.assertEqual(no_tone('你[nǐ]'), '你[ni]')
 
 
 class ToneNumberTests(ChineseTests):

@@ -23,17 +23,20 @@ from .bopomofo import bopomofo
 from .consts import (
     accents,
     bopomofo_regex,
+    hanzi_regex,
     jyutping_finals,
     jyutping_inits,
     jyutping_standalones,
     pinyin_finals,
     pinyin_inits,
     pinyin_standalones,
+    tone_number_regex,
+    tone_superscript_regex,
     vowel_decorations
 )
 from .hanzi import has_hanzi
 from .main import config, dictionary
-from .ruby import has_ruby
+from .ruby import has_ruby, ruby_bottom, ruby_top
 from .util import cleanup, no_color
 
 
@@ -109,10 +112,6 @@ def get_char_transcription(hanzi, transcription=None):
 def accentuate(syllables):
     """Add accents to pinyin.
 
-    Examples:
-        - ni2 becomes ní
-        - ní4 becomes nì (to make correction easier)
-
     Note: also removes coloring.
     """
 
@@ -122,8 +121,6 @@ def accentuate(syllables):
     def _accentuate(p):
         pinyin = p.group(1)
         tone = p.group(2)
-        if pinyin == 'tone':
-            return pinyin + tone
         pinyin = no_tone(pinyin)
         for v in 'aeouüviAEOUÜVI':
             if pinyin.find(v) > -1:
@@ -155,10 +152,7 @@ def accentuate(syllables):
 def replace_tone_marks(text):
     """Replace Pinyin tone marks with tone numbers."""
 
-    if search('[0-9¹²³⁴⁵⁶⁷⁸⁹]', text):
-        return text
-
-    if search(bopomofo_regex, text):
+    if search(tone_number_regex, text) or search(bopomofo_regex, text):
         return text
 
     d = {
@@ -170,14 +164,25 @@ def replace_tone_marks(text):
 
     done = []
     for syllable in text.split():
-        s = str()
         tone = '5'
+
+        if has_ruby(syllable):
+            s = ruby_bottom(syllable) + '['
+            syllable = ruby_top(syllable)
+        else:
+            s = str()
+
         for c in normalize('NFD', syllable):
             if name(c) in d:
                 tone = d[name(c)]
             else:
                 s += c
-        done.append(normalize('NFC', s) + tone)
+
+        s += tone
+        if '[' in s:
+            s += ']'
+
+        done.append(normalize('NFC', s))
 
     return ' '.join(done)
 
@@ -236,10 +241,10 @@ def no_tone(text):
     text = no_color(text)
     text = replace_tone_marks(text)
 
-    def _remove_tone_number(p):
-        return p.group(1) + sub(r'1?[0-9¹²³⁴]', '', p.group(2)) + ']'
+    def _remove_tone(p):
+        return p.group(1) + sub(tone_number_regex, '', p.group(2)) + ']'
 
     if has_ruby(text):
-        return sub(r'([\u3400-\u9fff]\[)([^[]+?)\]', _remove_tone_number, text)
+        return sub(r'(%s\[)([^[]+?)\]' % hanzi_regex, _remove_tone, text)
 
-    return sub(r'([a-zü]+)1?[0-9¹²³⁴]', r'\1', text)
+    return sub(r'([a-zü]+)%s' % tone_number_regex, r'\1', text)

@@ -33,7 +33,7 @@ class RubyTests(ChineseTests):
         )
 
     def test_ruby_top(self):
-        self.assertEqual(ruby_top('汉[hàn]字[zì]'), 'hàn zì ')
+        self.assertEqual(ruby_top('汉[hàn]字[zì]'), 'hàn zì')
 
     def test_ruby_bottom(self):
-        self.assertEqual(ruby_bottom('汉[hàn]字[zì]'), '汉 字 ')
+        self.assertEqual(ruby_bottom('汉[hàn]字[zì]'), '汉 字')

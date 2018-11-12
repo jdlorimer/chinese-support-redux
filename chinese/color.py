@@ -18,7 +18,7 @@
 
 from re import IGNORECASE, sub
 
-from .consts import accents
+from .consts import pinyin_regex, half_ruby_regex, ruby_regex
 from .sound import extract_sound_tags
 from .transcribe import accentuate, separate, tone_number, transcribe
 from .util import cleanup, no_color, no_hidden
@@ -53,18 +53,6 @@ def colorize(words, ruby_whole=False):
 
         return sub(pattern, repl, text, IGNORECASE).replace('> <', '><')
 
-    whole_ruby_pattern = (
-        r'([\u3400-\u9fff]\[\s*)([a-zü' +
-        accents +
-        r']+1?[0-9¹²³⁴]?)(.*?\])'
-    )
-    half_ruby_pattern = r'([a-zü' + accents + r']+1?[0-9¹²³⁴]?)'
-    pinyin_pattern = (
-        r'([&<"/]?[a-zü\u3100-\u312F' +
-        accents +
-        r']+1?[0-9¹²³⁴ˊˇˋ˙]?)'
-    )
-
     colorized = []
     for text in words:
         text = no_color(text)
@@ -72,16 +60,11 @@ def colorize(words, ruby_whole=False):
 
         if has_ruby(text):
             if ruby_whole:
-                text = sub(
-                    whole_ruby_pattern,
-                    colorize_ruby_sub,
-                    text,
-                    flags=IGNORECASE
-                )
+                text = sub(ruby_regex, colorize_ruby_sub, text, flags=IGNORECASE)
             else:
-                text = colorize_pinyin_sub(text, half_ruby_pattern)
+                text = colorize_pinyin_sub(text, half_ruby_regex)
         else:
-            text = colorize_pinyin_sub(text, pinyin_pattern)
+            text = colorize_pinyin_sub(text, pinyin_regex)
 
         colorized.append(text + sound_tags)
 
@@ -110,33 +93,29 @@ def colorize_fuse(hanzi, pinyin, ruby=False):
     return text
 
 
-def local_dict_colorize(text, ruby=True):
+def colorize_dict(text):
     """Colorize text in the form: 你好[ni3 hao].
 
     As used in the local dictionaries.
     """
 
     def _sub(p):
-        c = ''
+        s = ''
         hanzi = p.group(1)
         pinyin = p.group(2)
-        delimiter = '|'
+        delim = '|'
 
-        if hanzi.count(delimiter) == 1:
-            hanzi = hanzi.split(delimiter)
-            c += colorize_fuse(hanzi[0], pinyin, True)
-            c += delimiter
-            c += colorize_fuse(hanzi[1], pinyin, False)
+        if hanzi.count(delim) == 1:
+            hanzi = hanzi.split(delim)
+            s += colorize_fuse(hanzi[0], pinyin, True)
+            s += delim
+            s += colorize_fuse(hanzi[1], pinyin, False)
         else:
-            c += colorize_fuse(hanzi, pinyin, True)
+            s += colorize_fuse(hanzi, pinyin, True)
 
-        if not ruby:
-            c += '[' + colorize(pinyin) + ']'
+        return s
 
-        return c
-
-    text = sub(r'([\u3400-\u9fff|]+)\[(.*?)\]', _sub, text)
-    return text
+    return sub(r'([\u3400-\u9fff|]+)\[(.*?)\]', _sub, text)
 
 
 def sanitize_pinyin(pinyin, grouped=False):

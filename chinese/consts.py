@@ -35,6 +35,15 @@ jyutping_finals = "i|ip|it|ik|im|in|ing|iu|yu|yut|yun|u|up|ut|uk|um|un|ung|ui|e|
 jyutping_standalones = "'uk|'ung|'e|'ei|'oe|'o|'ok|'om|'on|'ong|'oi|'ou|'ap|'at|'ak|'am|'an|'ang|'ai|'au|'aa|'aap|'aat|'aak|'aam|'aan|'aang|'aai|'aau|'m|'ng"
 
 bopomofo_regex = r'[\u3100-\u312F]'
+hanzi_regex = r'[\u3400-\u9fff]'
+tone_number_regex = r'[0-9¹²³⁴⁵⁶⁷⁸⁹]'
+tone_superscript_regex = r'[¹²³⁴⁵⁶⁷⁸⁹]'
+
+ruby_regex = r'(%s\[\s*)([a-zü%s]+%s?)(.*?\])' % (
+    hanzi_regex, accents, tone_number_regex
+)
+half_ruby_regex = r'([a-zü%s]+%s?)' % (accents, tone_number_regex)
+pinyin_regex = r'([&<"/]?[a-zü\u3100-\u312F%s]+[0-9¹²³⁴ˊˇˋ˙]?)' % accents
 
 # early replacements
 bopomofo_replacements = [

@@ -35,13 +35,6 @@ from .fill import (
 from .main import config
 
 
-dictionaries = [
-    ('None', _('None')),
-    ('local_de', _('German')),
-    ('local_en', _('English')),
-    ('local_fr', _('French')),
-]
-
 transcriptions = [
     'Pinyin',
     'Pinyin (Taiwan)',
@@ -58,6 +51,13 @@ speech_engines = [
 
 
 def load_menu():
+    dictionaries = [
+        ('None', _('None')),
+        ('local_de', _('German')),
+        ('local_en', _('English')),
+        ('local_fr', _('French')),
+    ]
+
     for d, name in dictionaries:
         add_menu_item(
             'Chinese::Set Dictionary',

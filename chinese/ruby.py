@@ -19,6 +19,7 @@
 from re import search, sub
 
 from .bopomofo import bopomofo
+from .consts import hanzi_regex
 from .main import config, dictionary
 from .sound import no_sound
 from .util import hide, no_color
@@ -74,12 +75,12 @@ def ruby(words, transcription=None, only_one=False, try_dict_first=True):
         text += '%'
         if try_dict_first and transcription in ['Pinyin', 'Bopomofo']:
             text = sub(
-                r'([\u3400-\u9fff]+)([^[])',
+                r'(%s+)([^[])' % hanzi_regex,
                 insert_multiple_pinyin_sub,
                 text
             )
-        text = sub(r'([\u3400-\u9fff])([^[])', insert_pinyin_sub, text)
-        text = sub(r'([\u3400-\u9fff])([^[])', insert_pinyin_sub, text)
+        text = sub(r'(%s)([^[])' % hanzi_regex, insert_pinyin_sub, text)
+        text = sub(r'(%s)([^[])' % hanzi_regex, insert_pinyin_sub, text)
         text = text[:-1]
         rubified.append(text)
 
@@ -87,7 +88,7 @@ def ruby(words, transcription=None, only_one=False, try_dict_first=True):
 
 
 def has_ruby(text):
-    return search(r'[\u3400-\u9fff]\[.+\]', text)
+    return search(r'%s\[.+\]' % hanzi_regex, text)
 
 
 def hide_ruby(text):
@@ -101,19 +102,12 @@ def hide_ruby(text):
 
 
 def ruby_top(text):
-    return sub(r' ?([^ >]+?)\[(.+?)\]', r'\2 ', no_sound(text))
+    return sub(
+        '(%s+)\\[([^\\]]+)\\]' % hanzi_regex, r'\2 ', no_sound(text)
+    ).rstrip()
 
 
 def ruby_bottom(text):
-    return sub(r' ?([^ >]+?)\[(.+?)\]', r'\1 ', no_sound(text))
-
-
-def hanzi(text):
-    """Returns just the hanzi from a Ruby notation.
-
-    Example: '你[nǐ][You]' becomes '你'.
-    """
-    text = sub(r'([\u3400-\u9fff])(\[[^[]+?\])', r'\1', text)
-    text = sub(r'\[sound:.[^[]+?\]', '', text)
-    text = sub(r'([^\u3400-\u9fff])\[[^[]+?\]\s*$', r'\1', text)
-    return text
+    return sub(
+        '(%s+)\\[([^\\]]+)\\]' % hanzi_regex, r'\1 ', no_sound(text)
+    ).rstrip()
