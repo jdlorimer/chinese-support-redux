@@ -56,19 +56,19 @@ card_back = '''\
 
 def add_model(col):
     mm = col.models
-    m = mm.new("Chinese (advanced)")
+    m = mm.new('Chinese (Advanced)')
     for f in fields_list:
         fm = mm.newField(f)
         mm.addField(m, fm)
-    t = mm.newTemplate("Recognition")
+    t = mm.newTemplate('Recognition')
     t['qfmt'] = recognition_front
     t['afmt'] = card_back
     mm.addTemplate(m, t)
-    t = mm.newTemplate("Recall")
+    t = mm.newTemplate('Recall')
     t['qfmt'] = recall_front
     t['afmt'] = card_back
     mm.addTemplate(m, t)
     m['css'] += style
-    m['addon'] = 'Chinese (advanced)'
+    m['addon'] = 'Chinese (Advanced)'
     mm.add(m)
     return m
