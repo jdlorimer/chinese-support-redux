@@ -26,11 +26,13 @@ prep:
 	rm -f $(PROJECT_LONG)-v*.zip
 	find . -name '*.pyc' -type f -delete
 	find . -name '*~' -type f -delete
+	find . -name '.python-version' -type f -delete
 	find . -name .mypy_cache -type d -exec rm -rf {} +
 	find . -name .ropeproject -type d -exec rm -rf {} +
 	find . -name __pycache__ -type d -exec rm -rf {} +
 	mv "$(PROJECT_SHORT)/meta.json" .
 	cp LICENSE "$(PROJECT_SHORT)/LICENSE.txt"
+	git checkout chinese/db/chinese.db
 
 pack:
 	(cd "$(PROJECT_SHORT)" && zip -r ../$(PROJECT_LONG)-v$(VERSION).zip *)
