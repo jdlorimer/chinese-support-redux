@@ -53,6 +53,9 @@ Then, to use the field filling features:
 
 ## History
 
+- **2018.11.13**
+    - Fix incorrect model names
+    - Expand and refactor tests
 - **2018.11.09**
     - Fix field filling for alternative forms
     - Fix bulk field filling
