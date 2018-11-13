@@ -18,13 +18,7 @@
 import sys
 from os.path import dirname, join
 
-sys.path.append(join(dirname(__file__), 'lib', 'certifi'))
-sys.path.append(join(dirname(__file__), 'lib', 'chardet'))
-sys.path.append(join(dirname(__file__), 'lib', 'gTTS'))
-sys.path.append(join(dirname(__file__), 'lib', 'gTTS-token'))
-sys.path.append(join(dirname(__file__), 'lib', 'idna'))
-sys.path.append(join(dirname(__file__), 'lib', 'six'))
-sys.path.append(join(dirname(__file__), 'lib', 'urllib3', 'src'))
+sys.path.append(join(dirname(__file__), 'lib'))
 
 from . import main
 
