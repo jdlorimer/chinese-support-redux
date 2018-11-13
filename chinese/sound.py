@@ -25,40 +25,23 @@ from .tts import download_sound
 from .util import cleanup, no_color
 
 
-def sound(text, source=None):
-    """Returns sound tag for a given Hanzi string.
-
-    If the sound does not already exist in the media directory, then
-    attempt to obtain it from the specified source.
-
-    if the specified source is omitted, use the one selected in the
-    tools menu.
-
-    If it fails (eg: no network connexion while trying to retrieve
-    speech from Google TTS), return empty string.
-
-    Source is either the TTS speech engine name.
-    If empty, taking the one from the menu.
-    """
+def sound(hanzi, source=None):
+    """Returns sound tag for a given Hanzi string."""
 
     from .ruby import ruby_bottom, has_ruby
-    from .transcribe import replace_tone_marks
 
-    if not has_hanzi(text):
+    if not has_hanzi(hanzi):
         return ''
-
-    text = cleanup(text)
 
     if not source:
         source = config['speech']
 
-    text = no_color(replace_tone_marks(no_sound(text)))
-    text = sub(r'<.*?>', '', text)
+    if has_ruby(hanzi):
+        hanzi = ruby_bottom(hanzi)
 
-    if has_ruby(text):
-        text = ruby_bottom(text)
+    hanzi = cleanup(no_color(no_sound(hanzi)))
 
-    if not text:
+    if not hanzi:
         return ''
 
     options = {
@@ -68,7 +51,7 @@ def sound(text, source=None):
     }
 
     if source in options:
-        return '[sound:%s]' % download_sound(text, options[source])
+        return '[sound:%s]' % download_sound(hanzi, options[source])
 
     return ''
 
