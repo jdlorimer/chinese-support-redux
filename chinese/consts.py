@@ -36,6 +36,7 @@ jyutping_standalones = "'uk|'ung|'e|'ei|'oe|'o|'ok|'om|'on|'ong|'oi|'ou|'ap|'at|
 
 bopomofo_regex = r'[\u3100-\u312F]'
 hanzi_regex = r'[\u3400-\u9fff]'
+sound_tag_regex = r'\[sound:.*?\]'
 tone_number_regex = r'[0-9¹²³⁴⁵⁶⁷⁸⁹]'
 tone_superscript_regex = r'[¹²³⁴⁵⁶⁷⁸⁹]'
 

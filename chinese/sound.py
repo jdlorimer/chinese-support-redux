@@ -19,6 +19,7 @@
 from functools import reduce
 from re import findall, sub
 
+from .consts import sound_tag_regex
 from .hanzi import has_hanzi
 from .main import config
 from .tts import download_sound
@@ -57,18 +58,11 @@ def sound(hanzi, source=None):
 
 
 def extract_sound_tags(text):
-    sound_tags = findall(r'\[sound:.*?\]', text)
-    if [] == sound_tags:
-        sound_tags=''
-    else:
-        sound_tags = reduce(lambda a,b:a+b, sound_tags)
-    nosound = sub(r'\[sound:.*?\]', r'', text)
-    return nosound, sound_tags
+    tags = findall(sound_tag_regex, text)
+    if not tags:
+        return text, ''
+    return no_sound(text), ''.join(tags)
 
 
 def no_sound(text):
-    """Remove Anki [sound:xxx.mp3] tag.
-
-    If it isn't removed, it can be duplicated.
-    """
-    return sub(r'\[sound:.*?]', '', text)
+    return sub(sound_tag_regex, '', text)

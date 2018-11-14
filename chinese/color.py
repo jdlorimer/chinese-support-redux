@@ -27,8 +27,6 @@ from .util import cleanup, no_color, no_hidden
 def colorize(words, ruby_whole=False):
     """Add tone color info. Works on transcription, hanzi or ruby.
 
-    Note: Can be seen in the card preview, but not the note edit view.
-
     In the case of ruby, it will colorize only the annotation by default.
     If ruby_whole = True, then it will colorize the whole character.
     """
