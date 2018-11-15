@@ -53,6 +53,10 @@ Then, to use the field filling features:
 
 ## History
 
+- **2018.11.15**
+    - Expand tests
+    - Refactor definition filling code
+    - Fix incorrect fill counts
 - **2018.11.14**
     - Remove bogus tone number from TTS input
     - Simplify inclusion of required libs

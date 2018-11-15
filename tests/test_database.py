@@ -15,29 +15,27 @@
 # You should have received a copy of the GNU General Public License along with
 # Chinese Support Redux.  If not, see <https://www.gnu.org/licenses/>.
 
-from unittest.mock import Mock, patch
+from tests import ChineseTests
 
-from . import ChineseTests
-
-from chinese.database import DictDB
+from chinese.database import Dictionary as D
 
 
 class DictionaryTests(ChineseTests):
     def test_no_word(self):
-        self.assertEqual(DictDB().get_classifiers(''), [])
+        self.assertEqual(D().get_classifiers(''), [])
 
     def test_no_classifier(self):
-        self.assertEqual(DictDB().get_classifiers('foo'), [])
+        self.assertEqual(D().get_classifiers('foo'), [])
 
     def test_single_classifier(self):
-        self.assertEqual(DictDB().get_classifiers('猫'), ['隻|只[zhi1]'])
-        self.assertEqual(DictDB().get_classifiers('签证'), ['個|个[ge4]'])
+        self.assertEqual(D().get_classifiers('猫'), ['隻|只[zhi1]'])
+        self.assertEqual(D().get_classifiers('签证'), ['個|个[ge4]'])
 
     def test_multiple_classifiers(self):
         self.assertEqual(
-            DictDB().get_classifiers('筷子'),
+            D().get_classifiers('筷子'),
             ['對|对[dui4]', '根[gen1]', '把[ba3]', '雙|双[shuang1]']
         )
 
     def test_get_alt_spellings(self):
-        self.assertEqual(DictDB().get_alt_spellings('阿斯匹林'), ['阿司匹林'])
+        self.assertEqual(D().get_alt_spellings('阿斯匹林'), ['阿司匹林'])

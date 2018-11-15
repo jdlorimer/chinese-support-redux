@@ -24,10 +24,10 @@ from .config import ConfigManager
 
 config = ConfigManager()
 
-from .database import DictDB
+from .database import Dictionary
 from .models import advanced, basic
 
-dictionary = DictDB()
+dictionary = Dictionary()
 
 if config['firstRun']:
     dictionary.create_indices()

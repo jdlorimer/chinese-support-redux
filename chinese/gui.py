@@ -30,7 +30,7 @@ from .fill import (
     fill_silhouette,
     fill_simp_trad,
     fill_sounds,
-    fill_translation
+    fill_definitions
 )
 from .main import config
 
@@ -52,10 +52,10 @@ speech_engines = [
 
 def load_menu():
     dictionaries = [
-        ('None', _('None')),
-        ('local_de', _('German')),
-        ('local_en', _('English')),
-        ('local_fr', _('French')),
+        ('en', _('English')),
+        ('de', _('German')),
+        ('fr', _('French')),
+        (None, _('None')),
     ]
 
     for d, name in dictionaries:
@@ -98,8 +98,8 @@ def load_menu():
     )
     add_menu_item(
         'Chinese::Fill Notes',
-        _('Fill Translation'),
-        fill_translation
+        _('Fill Definitions'),
+        fill_definitions
     )
     add_menu_item(
         'Chinese::Fill Notes',

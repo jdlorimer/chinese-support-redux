@@ -17,17 +17,17 @@
 # Chinese Support Redux.  If not, see <https://www.gnu.org/licenses/>.
 
 from .color import colorize_dict
-from .main import config, dictionary
+from .main import dictionary
 from .util import cleanup
 
 
-def translate_local(text, lang):
+def translate_local(hanzi, lang):
     """Translate using local dictionary.
 
     lang is one of 'en', 'fr', 'de', 'es'.
     """
 
-    defs = dictionary.get_definitions(text, lang)
+    defs = dictionary.get_definitions(hanzi, lang)
 
     if not defs:
         return ''
@@ -43,29 +43,17 @@ def translate_local(text, lang):
 
     for pinyin, definition, _, _ in defs:
         if multiple_pinyins(defs):
-            res += '❖ %s[%s] %s\n' % (text, pinyin, definition)
+            res += '❖ %s[%s] %s\n' % (hanzi, pinyin, definition)
         else:
             res += ' \t' + definition + '\n'
 
     return colorize_dict(res.replace('\n', '\n<br>'))
 
 
-def translate(text, to_lang=None):
-    """Translate to a different language.
+def translate(hanzi, lang):
+    hanzi = cleanup(hanzi)
 
-    Example: '你好' becomes 'hello'
-
-    to_lang is one of 'local_en', 'local_de', 'local_fr'.
-
-    If to_lang is unspecified, the default language will be used.
-    """
-
-    text = cleanup(text)
-    if not text:
+    if not hanzi or not lang:
         return ''
-    if not to_lang:
-        to_lang = config['dictionary']
-        if to_lang == 'None':
-            return ''
-    if to_lang.startswith('local_'):  # local dictionary
-        return translate_local(text, to_lang[-2:])
+
+    return translate_local(hanzi, lang)

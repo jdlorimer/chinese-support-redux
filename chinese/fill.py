@@ -24,11 +24,8 @@ from aqt import mw
 from aqt.utils import showInfo, askUser
 
 from .behavior import (
+    fill_all_definitions,
     update_Cantonese_fields,
-    update_English_fields,
-    update_French_fields,
-    update_German_fields,
-    update_Meaning_fields,
     update_PinyinTW_fields,
     update_Pinyin_fields,
     update_Silhouette_fields,
@@ -41,7 +38,7 @@ from .behavior import (
     update_bopomofo
 )
 from .main import config
-from .util import cleanup, get_any, has_field, no_html
+from .util import cleanup, get_first, has_field, no_html
 
 
 def fill_sounds():
@@ -80,11 +77,11 @@ def fill_sounds():
         if (_hf_s or _hf_sm or _hf_sc) and has_field(config['fields']['hanzi'], note_dict):
             d_has_fields += 1
 
-            hanzi = get_any(config['fields']['hanzi'], note_dict)
+            hanzi = get_first(config['fields']['hanzi'], note_dict)
 
-            if (get_any(config['fields']['sound'], note_dict) or
-                    get_any(config['fields']['mandarinSound'], note_dict) or
-                    get_any(config['fields']['cantoneseSound'], note_dict)):
+            if (get_first(config['fields']['sound'], note_dict) or
+                    get_first(config['fields']['mandarinSound'], note_dict) or
+                    get_first(config['fields']['cantoneseSound'], note_dict)):
                 d_already_had_sound += 1
             else:
                 msg = '''
@@ -179,7 +176,7 @@ def fill_pinyin():
             }
             mw.progress.update(label=msg, value=d_scanned)
 
-            hanzi = get_any(config['fields']['hanzi'], note_dict)
+            hanzi = get_first(config['fields']['hanzi'], note_dict)
             results = 0
 
             if _hf_t:
@@ -236,7 +233,7 @@ def fill_pinyin():
     showInfo(msg)
 
 
-def fill_translation():
+def fill_definitions():
     prompt = '''
     <div>This will update the <i>Meaning</i>, <i>Classifier</i>, and <i>Also
     Written</i> fields in the current deck, if they exist and are empty.</div>
@@ -280,29 +277,21 @@ def fill_translation():
             }
             mw.progress.update(label=msg, value=d_scanned)
 
-            hanzi = get_any(config['fields']['hanzi'], note_dict)
-            empty = len(get_any(config['fields']['meaning'], note_dict))
-            empty += len(get_any(config['fields']['english'], note_dict))
-            empty += len(get_any(config['fields']['german'], note_dict))
-            empty += len(get_any(config['fields']['french'], note_dict))
+            hanzi = get_first(config['fields']['hanzi'], note_dict)
+            empty = len(get_first(config['fields']['meaning'], note_dict))
+            empty += len(get_first(config['fields']['english'], note_dict))
+            empty += len(get_first(config['fields']['german'], note_dict))
+            empty += len(get_first(config['fields']['french'], note_dict))
 
             if not empty:
-                result = 0
-                if _hf_m:
-                    result += update_Meaning_fields(hanzi, note_dict)
-                if _hf_e:
-                    result += update_English_fields(hanzi, note_dict)
-                if _hf_g:
-                    result += update_German_fields(hanzi, note_dict)
-                if _hf_f:
-                    result += update_French_fields(hanzi, note_dict)
+                result = fill_all_definitions(hanzi, note_dict)
 
-                if result == 0:
+                if result:
+                    d_success += 1
+                else:
                     d_failed += 1
                     if d_failed < 20:
                         failed_hanzi += [sanitize_hanzi(note_dict)]
-                else:
-                    d_success += 1
 
             def write_back(fields):
                 for f in fields:
@@ -374,7 +363,7 @@ def fill_simp_trad():
             # Update simplified/traditional fields
             # If it's the same, leave empty,
             # so as to make this feature unobtrusive to simplified chinese users
-            hanzi = get_any(config['fields']['hanzi'], note_dict)
+            hanzi = get_first(config['fields']['hanzi'], note_dict)
 
             update_Simplified_fields(hanzi, note_dict)
             update_Traditional_fields(hanzi, note_dict)
@@ -429,7 +418,7 @@ def fill_silhouette():
                 'filled': d_success
             }
             mw.progress.update(label=msg, value=d_scanned)
-            hanzi = get_any(config['fields']['hanzi'], note_dict)
+            hanzi = get_first(config['fields']['hanzi'], note_dict)
             update_Silhouette_fields(hanzi, note_dict)
 
             # write back to note from dict and flush
@@ -450,4 +439,4 @@ def fill_silhouette():
 
 
 def sanitize_hanzi(note):
-    return cleanup(no_html(get_any(config['fields']['hanzi'], note)))
+    return cleanup(no_html(get_first(config['fields']['hanzi'], note)))
