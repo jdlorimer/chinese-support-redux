@@ -17,9 +17,8 @@
 
 from unittest.mock import Mock, patch
 
-from . import ChineseTests
-
 from chinese.sound import extract_sound_tags, no_sound, sound
+from tests import ChineseTests
 
 
 class SoundTests(ChineseTests):

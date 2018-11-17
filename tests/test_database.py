@@ -15,9 +15,8 @@
 # You should have received a copy of the GNU General Public License along with
 # Chinese Support Redux.  If not, see <https://www.gnu.org/licenses/>.
 
-from tests import ChineseTests
-
 from chinese.database import Dictionary as D
+from tests import ChineseTests
 
 
 class DictionaryTests(ChineseTests):

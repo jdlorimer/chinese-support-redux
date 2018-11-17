@@ -31,7 +31,6 @@ from .consts import (
     pinyin_inits,
     pinyin_standalones,
     tone_number_regex,
-    tone_superscript_regex,
     vowel_decorations
 )
 from .hanzi import has_hanzi

@@ -15,9 +15,8 @@
 # You should have received a copy of the GNU General Public License along with
 # Chinese Support Redux.  If not, see <https://www.gnu.org/licenses/>.
 
-from tests import ChineseTests
-
 from chinese.util import get_first, hide, no_hidden, set_all
+from tests import ChineseTests
 
 
 class UtilTests(ChineseTests):

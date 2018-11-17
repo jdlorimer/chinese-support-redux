@@ -18,8 +18,6 @@
 from unittest import skip
 from unittest.mock import patch
 
-from . import ChineseTests
-
 from chinese.transcribe import (
     accentuate,
     no_tone,
@@ -28,6 +26,7 @@ from chinese.transcribe import (
     tone_number,
     transcribe
 )
+from tests import ChineseTests
 
 
 class AccentuateTests(ChineseTests):

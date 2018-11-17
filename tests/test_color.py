@@ -16,11 +16,9 @@
 # Chinese Support Redux.  If not, see <https://www.gnu.org/licenses/>.
 
 from random import randint
-from unittest.mock import Mock, patch
-
-from . import ChineseTests
 
 from chinese.color import colorize, colorize_dict, colorize_fuse
+from tests import ChineseTests
 
 
 class ColorizeTests(ChineseTests):

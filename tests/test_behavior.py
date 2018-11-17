@@ -17,9 +17,8 @@
 
 from unittest.mock import patch
 
-from tests import ChineseTests
-
 from chinese.behavior import fill_all_definitions
+from tests import ChineseTests
 
 
 class FillAllDefinitionsTests(ChineseTests):

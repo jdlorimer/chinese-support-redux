@@ -16,7 +16,6 @@
 # You should have received a copy of the GNU General Public License along with
 # Chinese Support Redux.  If not, see <https://www.gnu.org/licenses/>.
 
-from functools import reduce
 from re import findall, sub
 
 from .consts import sound_tag_regex

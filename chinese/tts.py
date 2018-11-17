@@ -10,10 +10,10 @@ from re import sub
 from urllib.parse import urlencode
 from urllib.request import Request, urlopen
 
-from aqt import mw
-
-from gtts import gTTS
 import requests
+from aqt import mw
+from gtts import gTTS
+
 
 requests.packages.urllib3.disable_warnings()
 

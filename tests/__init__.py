@@ -15,15 +15,15 @@
 # You should have received a copy of the GNU General Public License along with
 # Chinese Support Redux.  If not, see <https://www.gnu.org/licenses/>.
 
+import unittest
 from gettext import NullTranslations
 from logging import getLogger
 from unittest import TestCase
 from unittest.mock import MagicMock, patch
-import unittest
+
 
 NullTranslations().install()
 unittest.util._MAX_LENGTH = 160
-NO_INTEGRATION = False
 
 modules = {
     'PyQt5.QtGui': MagicMock(),

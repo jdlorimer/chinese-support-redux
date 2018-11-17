@@ -20,7 +20,6 @@ from functools import partial
 
 from PyQt5.QtGui import QKeySequence
 from PyQt5.QtWidgets import QAction, QActionGroup, QMenu
-
 from aqt import mw
 from aqt.utils import showInfo, openLink, askUser
 

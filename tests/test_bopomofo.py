@@ -17,9 +17,8 @@
 
 from unittest import skip
 
-from . import ChineseTests
-
 from chinese.bopomofo import bopomofo
+from tests import ChineseTests
 
 
 class BopomofoTests(ChineseTests):

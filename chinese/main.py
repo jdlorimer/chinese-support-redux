@@ -15,28 +15,27 @@
 # You should have received a copy of the GNU General Public License along with
 # Chinese Support Redux.  If not, see <https://www.gnu.org/licenses/>.
 
-from anki.stats import CollectionStats
 from anki.hooks import addHook, wrap
+from anki.stats import CollectionStats
 from anki.stdmodels import models
 from aqt import mw
 
 from .config import ConfigManager
+from .database import Dictionary
 
 config = ConfigManager()
-
-from .database import Dictionary
-from .models import advanced, basic
-
 dictionary = Dictionary()
-
-if config['firstRun']:
-    dictionary.create_indices()
-    config['firstRun'] = False
 
 from .edit import append_tone_styling, EditManager
 from .graph import todayStats
 from .gui import display_tip, load_menu, unload_menu
+from .models import advanced, basic
 from .templates import chinese, ruby
+
+
+if config['firstRun']:
+    dictionary.create_indices()
+    config['firstRun'] = False
 
 
 def load():

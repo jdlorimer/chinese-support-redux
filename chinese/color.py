@@ -20,8 +20,8 @@ from re import IGNORECASE, sub
 
 from .consts import pinyin_regex, half_ruby_regex, ruby_regex
 from .sound import extract_sound_tags
-from .transcribe import accentuate, separate, tone_number, transcribe
-from .util import cleanup, no_color, no_hidden
+from .transcribe import accentuate, separate, tone_number
+from .util import cleanup, no_color
 
 
 def colorize(words, ruby_whole=False):

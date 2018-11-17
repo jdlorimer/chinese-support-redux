@@ -15,11 +15,8 @@
 # You should have received a copy of the GNU General Public License along with
 # Chinese Support Redux.  If not, see <https://www.gnu.org/licenses/>.
 
-from unittest.mock import Mock
-
 from chinese.ruby import ruby, ruby_bottom, ruby_top
-
-from . import ChineseTests
+from tests import ChineseTests
 
 
 class RubyTests(ChineseTests):

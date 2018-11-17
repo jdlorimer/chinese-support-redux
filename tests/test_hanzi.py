@@ -15,9 +15,8 @@
 # You should have received a copy of the GNU General Public License along with
 # Chinese Support Redux.  If not, see <https://www.gnu.org/licenses/>.
 
-from . import ChineseTests
-
 from chinese.hanzi import has_hanzi, silhouette, simplify, traditional
+from tests import ChineseTests
 
 
 class HasHanziTests(ChineseTests):
