@@ -53,6 +53,8 @@ Then, to use the field filling features:
 
 ## History
 
+- **2018.11.30**
+    - Update gTTS-token (fixes TTS error)
 - **2018.11.15**
     - Expand tests
     - Fix and refactor definition filling code
