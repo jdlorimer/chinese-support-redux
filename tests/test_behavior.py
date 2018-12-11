@@ -17,7 +17,7 @@
 
 from unittest.mock import patch
 
-from chinese.behavior import fill_all_definitions
+from chinese.behavior import fill_all_definitions, update_Pinyin_fields
 from tests import ChineseTests
 
 
@@ -71,3 +71,26 @@ class FillAllDefinitionsTests(ChineseTests):
             self.assertEqual(fill_all_definitions(hanzi, note), 1)
             self.assertEqual(note['Meaning'], ' \tlibrary\n<br>')
             self.assertEqual(note['Classifier'], classifier)
+
+class UpdatePinyinFieldsTest(ChineseTests):
+    config = {
+        'dictionary': 'en',
+        'fields': {
+            'pinyin': ["Pinyin"]
+        }
+    }
+
+    def test_twocharacterword(self):
+        with patch('chinese.behavior.config', self.config):
+            hanzi = '中国'
+            note = {
+                'Pinyin': '',
+            }
+            # mind the spaces here
+            # if there are spaces between the spans and zhongguo in the comment,
+            # then transcribe was treating 中 and 国 as two separate words, what we do not want
+            pinyin = (
+                '<span class="tone1">zhōng</span><span class="tone2">guó</span><!--zhongguo-->'
+            )
+            self.assertEqual(update_Pinyin_fields(hanzi, note), 1)
+            self.assertEqual(note['Pinyin'], pinyin)

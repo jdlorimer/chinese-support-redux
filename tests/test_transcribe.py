@@ -93,6 +93,10 @@ class TranscribeTests(ChineseTests):
     def test_bopomofo(self):
         self.assertEqual(transcribe(['你'], 'Bopomofo'), ['ㄋㄧˇ'])
 
+    def test_multiple_words_single(self):
+        self.assertEqual(
+            transcribe('中国', 'Pinyin'), ['zhōng guó'])
+
 
 class ReplaceToneMarksTests(ChineseTests):
     def test_split_words(self):

@@ -67,6 +67,12 @@ def transcribe(words, transcription=None, only_one=True):
     If no transcription is specified, use the transcription set in the menu.
     """
 
+    # if words is not a list, but a string like "中国"
+    # filter down below would break the string up into a list of two characters
+    # but this would break searching for words in the dictionary
+    if not isinstance(words, (list,)):
+        words = [words]
+
     words = list(filter(has_hanzi, words))
     transcribed = []
 
