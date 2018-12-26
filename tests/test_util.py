@@ -15,13 +15,13 @@
 # You should have received a copy of the GNU General Public License along with
 # Chinese Support Redux.  If not, see <https://www.gnu.org/licenses/>.
 
-from chinese.util import get_first, hide, no_hidden, set_all
+from chinese.util import align, get_first, hide, no_hidden, set_all
 from tests import ChineseTests
 
 
 class UtilTests(ChineseTests):
     def test_hide(self):
-        self.assertEqual(hide('foo', 'bar'), 'foo<!--bar-->')
+        self.assertEqual(hide('foo', 'bar'), 'foo <!-- bar -->')
 
     def test_no_hidden(self):
         self.assertEqual(no_hidden('foo <!-- bar --> baz'), 'foo baz')
@@ -47,3 +47,16 @@ class GetAnyTests(ChineseTests):
         note = {'foo': 'bar', 'baz': 'qux'}
         self.assertEqual(get_first(['foo', 'baz'], note), 'bar')
         self.assertEqual(get_first(['baz', 'foo'], note), 'qux')
+
+
+class AlignTests(ChineseTests):
+    def test_align(self):
+        self.assertEqual(
+            align(['(', '我', ')'], ['wǒ']),
+            [('(', None), ('我', 'wǒ'), (')', None)],
+        )
+
+    def test_empty(self):
+        self.assertEqual(align([], []), [])
+        self.assertEqual(align(['我'], []), [('我', None)])
+        self.assertEqual(align([], ['我']), [(None, '我')])

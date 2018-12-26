@@ -44,12 +44,15 @@ def load():
     addHook('profileLoaded', load_menu)
     addHook('profileLoaded', add_models)
     addHook('loadNote', append_tone_styling)
+    addHook('unloadProfile', config.save)
     addHook('unloadProfile', dictionary.conn.close)
     addHook('unloadProfile', unload_menu)
     CollectionStats.todayStats = wrap(
-        CollectionStats.todayStats, todayStats, 'around')
+        CollectionStats.todayStats, todayStats, 'around'
+    )
     EditManager()
     display_tip()
+
 
 def add_models():
     models.append(('Chinese (Advanced)', advanced.add_model))

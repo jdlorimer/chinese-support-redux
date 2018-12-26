@@ -16,7 +16,7 @@
 # You should have received a copy of the GNU General Public License along with
 # Chinese Support Redux.  If not, see <https://www.gnu.org/licenses/>.
 
-from re import compile, IGNORECASE, search, sub
+from re import compile, IGNORECASE, search, split, sub
 from unicodedata import name, normalize
 
 from .bopomofo import bopomofo
@@ -27,71 +27,97 @@ from .consts import (
     jyutping_finals,
     jyutping_inits,
     jyutping_standalones,
+    not_pinyin_regex,
     pinyin_finals,
     pinyin_inits,
     pinyin_standalones,
+    punc_map,
     tone_number_regex,
-    vowel_decorations
+    vowel_decorations,
 )
 from .hanzi import has_hanzi
 from .main import config, dictionary
 from .ruby import has_ruby, ruby_bottom, ruby_top
-from .util import cleanup, no_color
+from .util import cleanup, is_punc, no_color
 
 
 def pinyin_re_sub():
     return '(({})({})[1-5]?|({})[1-5]?)'.format(
-        pinyin_inits, pinyin_finals, pinyin_standalones)
+        pinyin_inits, pinyin_finals, pinyin_standalones
+    )
 
 
 def jyutping_re_sub():
     return '(({})({})[1-6]?|({})[1-6]?)'.format(
-        jyutping_inits, jyutping_finals, jyutping_standalones)
+        jyutping_inits, jyutping_finals, jyutping_standalones
+    )
 
 
 pinyin_re = pinyin_re_sub()
-pinyin_two_re = compile("(?P<one>"+pinyin_re+")(?P<two>"+pinyin_re+")", IGNORECASE)
+pinyin_two_re = compile(
+    '(?P<one>' + pinyin_re + ')(?P<two>' + pinyin_re + ')', IGNORECASE
+)
 
 jyutping_re = jyutping_re_sub()
-jyutping_two_re = compile("(?P<one>"+jyutping_re+")(?P<two>"+jyutping_re+")", IGNORECASE)
+jyutping_two_re = compile(
+    '(?P<one>' + jyutping_re + ')(?P<two>' + jyutping_re + ')', IGNORECASE
+)
 
 
-def transcribe(words, transcription=None, only_one=True):
-    """Converts to specified transcription.
+def convert_punc(a):
+    converted = []
+    for s in a:
+        if s in punc_map:
+            converted.append(punc_map[s])
+        else:
+            converted.append(s)
+    return converted
 
-    Example: 你 becomes nǐ (transcription="Pinyin", only_one=True)
 
-    Pinyin, Taiwan Pinyin and Bopomofo: lookup in local words dictionaries
-    first, and use characters dictionary as a backup.
+def is_sentence(s):
+    if len(s) > 6:
+        return True
+    for c in s:
+        if is_punc(c):
+            return True
+    return False
 
-    If no transcription is specified, use the transcription set in the menu.
-    """
 
-    words = list(filter(has_hanzi, words))
+def transcribe(words, target=None, only_one=True):
+    assert isinstance(words, list)
+
     transcribed = []
 
-    if not words:
+    if not list(filter(has_hanzi, words)):
         return transcribed
+
+    if len(words) == 1 and is_sentence(words[0]):
+        if len(words[0].split()) > 1:
+            words = separate_chars(words[0])
+        else:
+            words = [c for c in words[0]]
+
+    if not target:
+        target = config['transcription']
 
     for text in words:
         text = cleanup(text)
-        if not text:
-            transcribed.append('')
-        if not transcription:
-            transcription = config['transcription']
-        if transcription == 'Pinyin':
+        if not has_hanzi(text):
+            transcribed.append(text)
+            continue
+        if target == 'Pinyin':
             transcribed.append(dictionary.get_pinyin(text, taiwan=False))
-        elif transcription == 'Pinyin (Taiwan)':
+        elif target == 'Pinyin (Taiwan)':
             transcribed.append(dictionary.get_pinyin(text, taiwan=True))
-        elif transcription == 'Cantonese':
+        elif target == 'Cantonese':
             transcribed.append(dictionary.get_cantonese(text, only_one))
-        elif transcription == 'Bopomofo':
+        elif target == 'Bopomofo':
             r = dictionary.get_pinyin(text, taiwan=True)
             transcribed.append(bopomofo(replace_tone_marks(r)))
         else:
             transcribed.append('')
 
-    return transcribed
+    return convert_punc(transcribed)
 
 
 def get_char_transcription(hanzi, transcription=None):
@@ -105,14 +131,11 @@ def get_char_transcription(hanzi, transcription=None):
         return dictionary.get_cantonese(hanzi)
     if transcription == 'Bopomofo':
         return bopomofo(dictionary.get_pinyin(hanzi, taiwan=True))
-    return str()
+    return ''
 
 
 def accentuate(syllables):
-    """Add accents to pinyin.
-
-    Note: also removes coloring.
-    """
+    """Add accents to Pinyin."""
 
     if config['transcription'] not in ['Pinyin', 'Pinyin (Taiwan)']:
         return syllables
@@ -128,7 +151,7 @@ def accentuate(syllables):
                         v,
                         vowel_decorations[int(tone)][v.lower()],
                         pinyin,
-                        count=1
+                        count=1,
                     )
                 except (KeyError, IndexError):
                     pass
@@ -141,7 +164,7 @@ def accentuate(syllables):
             r'([a-z]*[aeiouüÜv' + accents + r'][a-zü]*)([1-5])',
             _accentuate,
             text,
-            flags=IGNORECASE
+            flags=IGNORECASE,
         )
         accentuated.append(text)
 
@@ -155,15 +178,17 @@ def replace_tone_marks(text):
         return text
 
     d = {
-        'COMBINING MACRON'      : '1',
+        'COMBINING MACRON': '1',
         'COMBINING ACUTE ACCENT': '2',
-        'COMBINING CARON'       : '3',
+        'COMBINING CARON': '3',
         'COMBINING GRAVE ACCENT': '4',
     }
 
     done = []
     for syllable in text.split():
-        tone = '5'
+        if is_punc(syllable):
+            done.append(syllable)
+            continue
 
         if has_ruby(syllable):
             s = ruby_bottom(syllable) + '['
@@ -171,6 +196,7 @@ def replace_tone_marks(text):
         else:
             s = str()
 
+        tone = '5'
         for c in normalize('NFD', syllable):
             if name(c) in d:
                 tone = d[name(c)]
@@ -186,8 +212,8 @@ def replace_tone_marks(text):
     return ' '.join(done)
 
 
-def separate(pinyin, grouped=True):
-    """Separate pinyin syllables."""
+def separate_trans(trans, grouped=True):
+    """Separate transcription syllables."""
 
     def _clean(t):
         if t.startswith("'"):
@@ -197,15 +223,14 @@ def separate(pinyin, grouped=True):
     def _separate(p):
         return _clean(p.group('one')) + ' ' + _clean(p.group('two'))
 
-    transcription = config['transcription']
-
     separated = []
-    for text in pinyin.split():
-        if transcription in ['Pinyin', 'Pinyin (Taiwan)']:
+
+    for text in split(not_pinyin_regex, trans):
+        if config['transcription'] in ['Pinyin', 'Pinyin (Taiwan)']:
             text = pinyin_two_re.sub(_separate, text)
             text = pinyin_two_re.sub(_separate, text)
 
-        if transcription in ['Cantonese']:
+        if config['transcription'] in ['Cantonese']:
             text = jyutping_two_re.sub(_separate, text)
             text = jyutping_two_re.sub(_separate, text)
 
@@ -214,7 +239,16 @@ def separate(pinyin, grouped=True):
         else:
             separated.extend(text.split())
 
-    return separated
+    return list(filter(lambda s: s.strip(), separated))
+
+
+def separate_chars(chars, grouped=True):
+    separated = []
+    if not grouped:
+        return list(filter(lambda s: s.strip(), chars))
+    for s in split('([ ,.，。])', chars):
+        separated.append(' '.join(s))
+    return list(filter(lambda s: s.strip(), separated))
 
 
 def tone_number(s):

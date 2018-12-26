@@ -27,11 +27,11 @@ from .behavior import (
     fill_all_definitions,
     update_Cantonese_fields,
     update_PinyinTW_fields,
-    update_Pinyin_fields,
+    fill_pinyin,
     update_Silhouette_fields,
     update_Simplified_fields,
     update_Traditional_fields,
-    update_Transcription_fields,
+    fill_transcription,
     update_all_Color_fields,
     update_all_Ruby_fields,
     update_all_Sound_fields,
@@ -180,9 +180,9 @@ def fill_pinyin():
             results = 0
 
             if _hf_t:
-                results += update_Transcription_fields(hanzi, note_dict)
+                results += fill_transcription(hanzi, note_dict)
             if _hf_py:
-                results += update_Pinyin_fields(hanzi, note_dict)
+                results += fill_pinyin(hanzi, note_dict)
             if _hf_pytw:
                 results += update_PinyinTW_fields(hanzi, note_dict)
             if _hf_cant:

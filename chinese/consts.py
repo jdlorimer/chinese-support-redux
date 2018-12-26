@@ -43,8 +43,9 @@ tone_superscript_regex = r'[¹²³⁴⁵⁶⁷⁸⁹]'
 ruby_regex = r'(%s\[\s*)([a-zü%s]+%s?)(.*?\])' % (
     hanzi_regex, accents, tone_number_regex
 )
-half_ruby_regex = r'([a-zü%s]+%s?)' % (accents, tone_number_regex)
-pinyin_regex = r'([&<"/]?[a-zü\u3100-\u312F%s]+[0-9¹²³⁴ˊˇˋ˙]?)' % accents
+half_ruby_regex = r'([A-Za-zü%s]+%s?)' % (accents, tone_number_regex)
+pinyin_regex = r'([A-Za-zü\u3100-\u312F%s]+[1-5¹²³⁴⁵ˊˇˋ˙]?)' % accents
+not_pinyin_regex = r'([^A-Za-zü\u3100-\u312F%s1-5¹²³⁴⁵ˊˇˋ˙])' % accents
 
 # early replacements
 bopomofo_replacements = [
@@ -155,3 +156,8 @@ bopomofo_tones = [
 table = bopomofo_special + bopomofo_initials + bopomofo_finals + bopomofo_tones
 table.sort(key=lambda pair: len(pair[0]), reverse=True)
 bopomofo_replacements.extend(table)
+
+punc_map = {
+    '。': '.',
+    '，': ','
+}

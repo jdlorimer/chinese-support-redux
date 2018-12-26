@@ -20,8 +20,8 @@ from re import IGNORECASE, sub
 
 from .consts import pinyin_regex, half_ruby_regex, ruby_regex
 from .sound import extract_sound_tags
-from .transcribe import accentuate, separate, tone_number
-from .util import cleanup, no_color
+from .transcribe import accentuate, separate_chars, separate_trans, tone_number
+from .util import align, cleanup, is_punc, no_color
 
 
 def colorize(words, ruby_whole=False):
@@ -33,23 +33,25 @@ def colorize(words, ruby_whole=False):
 
     from .ruby import has_ruby
 
+    assert isinstance(words, list)
     if not isinstance(words, list):
         words = sanitize_pinyin(words)
 
     def colorize_ruby_sub(p):
         return '<span class="tone{t}">{r}</span>'.format(
-            t=tone_number(p.group(2)),
-            r=p.group()
+            t=tone_number(p.group(2)), r=p.group()
         )
 
     def colorize_pinyin_sub(text, pattern):
         def repl(p):
             return '<span class="tone{t}">{r}</span>'.format(
-                t=tone_number(p.group(1)),
-                r=p.group()
+                t=tone_number(p.group(1)), r=p.group()
             )
 
-        return sub(pattern, repl, text, IGNORECASE).replace('> <', '><')
+        colorized = ''
+        for s in text.split():
+            colorized += sub(pattern, repl, s, IGNORECASE)
+        return colorized
 
     colorized = []
     for text in words:
@@ -58,7 +60,7 @@ def colorize(words, ruby_whole=False):
 
         if has_ruby(text):
             if ruby_whole:
-                text = sub(ruby_regex, colorize_ruby_sub, text, flags=IGNORECASE)
+                text = sub(ruby_regex, colorize_ruby_sub, text, IGNORECASE)
             else:
                 text = colorize_pinyin_sub(text, half_ruby_regex)
         else:
@@ -69,24 +71,31 @@ def colorize(words, ruby_whole=False):
     return ' '.join(colorized)
 
 
-def colorize_fuse(hanzi, pinyin, ruby=False):
+def colorize_fuse(chars, trans, ruby=False):
     """Colorize hanzi based on pinyin tone.
 
     If ruby=True, then annotate hanzi with pinyin.
     """
 
-    standard_fmt = '<span class="tone{tone}">{hanzi}</span>'
-    ruby_fmt = '<span class="tone{tone}"><ruby>{hanzi}<rt>{pinyin}</rt></ruby></span>'
+    standard_fmt = '<span class="tone{tone}">{chars}</span>'
+    ruby_fmt = (
+        '<span class="tone{tone}"><ruby>{chars}<rt>{trans}</rt></ruby></span>'
+    )
 
-    hanzi = [h for h in cleanup(hanzi)]
-    pinyin = sanitize_pinyin(pinyin)
+    chars = separate_chars(cleanup(chars), grouped=False)
+    trans = sanitize_pinyin(trans)
     text = ''
 
-    for h, p in zip(hanzi, pinyin):
+    for c, t in align(chars, trans):
+        if c is None or t is None:
+            continue
+        if is_punc(c) and is_punc(t):
+            text += c
+            continue
         if ruby:
-            text += ruby_fmt.format(tone=tone_number(p), hanzi=h, pinyin=p)
+            text += ruby_fmt.format(tone=tone_number(t), chars=c, trans=t)
         else:
-            text += standard_fmt.format(tone=tone_number(p), hanzi=h)
+            text += standard_fmt.format(tone=tone_number(t), chars=c)
 
     return text
 
@@ -118,5 +127,5 @@ def colorize_dict(text):
 
 def sanitize_pinyin(pinyin, grouped=False):
     return ' '.join(
-        accentuate(separate(cleanup(no_color(pinyin)), grouped))
+        accentuate(separate_trans(cleanup(no_color(pinyin)), grouped))
     ).split()

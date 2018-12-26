@@ -17,6 +17,7 @@
 # Chinese Support Redux.  If not, see <https://www.gnu.org/licenses/>.
 
 from re import DOTALL, sub
+from unicodedata import category
 
 
 def has_field(fields, d):
@@ -83,7 +84,7 @@ def hide(text, hidden):
     hidden = hidden.replace(r'<.*?>', '')
     hidden = hidden.replace(r'[<!->]', '')
 
-    return text + '<!--' + hidden + '-->'
+    return '{} <!-- {} -->'.format(text, hidden)
 
 
 def no_color(text):
@@ -107,3 +108,37 @@ def add_with_space(a, b):
     if a and not a.endswith(' '):
         return a + ' ' + b
     return a + b
+
+
+def is_punc(s):
+    if s is None:
+        return False
+    return all(category(c).startswith('P') for c in s)
+
+
+def align(a, b):
+    done = []
+    i = j = 0
+    m = max([len(a), len(b)])
+    if a and not b:
+        return list(zip(a, [None] * len(a)))
+    if not a and b:
+        return list(zip([None] * len(b), b))
+    if not a and not b:
+        return []
+    a += [None] * (m - len(a))
+    b += [None] * (m - len(b))
+    for x in range(m):
+        if (is_punc(a[i]) and is_punc(b[j])) or (
+            not is_punc(a[i]) and not is_punc(b[j])
+        ):
+            done.append((a[i], b[j]))
+            i += 1
+            j += 1
+        elif is_punc(a[i]) and not is_punc(b[j]):
+            done.append((a[i], None))
+            i += 1
+        elif not is_punc(a[i]) and is_punc(b[j]):
+            done.append((None, b[j]))
+            j += 1
+    return done
