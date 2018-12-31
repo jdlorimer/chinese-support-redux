@@ -1,4 +1,4 @@
-# Copyright © 2018 Joseph Lorimer <luoliyan@posteo.net>
+# Copyright © 2018-2019 Joseph Lorimer <luoliyan@posteo.net>
 #
 # This file is part of Chinese Support Redux.
 #
@@ -16,10 +16,10 @@
 # Chinese Support Redux.  If not, see <https://www.gnu.org/licenses/>.
 
 from chinese.hanzi import has_hanzi, silhouette, simplify, traditional
-from tests import ChineseTests
+from tests import ChineseTest
 
 
-class HasHanziTests(ChineseTests):
+class HasHanzi(ChineseTest):
     def test_all_hanzi(self):
         self.assertTrue(has_hanzi('现在'))
 
@@ -30,7 +30,7 @@ class HasHanziTests(ChineseTests):
         self.assertTrue(has_hanzi('现在now'))
 
 
-class SilhouetteTests(ChineseTests):
+class Silhouette(ChineseTest):
     def test_hanzi_only(self):
         self.assertEqual(silhouette('以A为B'), '_A_B')
 
@@ -38,11 +38,11 @@ class SilhouetteTests(ChineseTests):
         self.assertEqual(silhouette('哈密瓜'), '_ _ _')
 
 
-class SimplifyTests(ChineseTests):
+class Simplify(ChineseTest):
     def test_simplify(self):
         self.assertEqual(simplify('繁體字'), '繁体字')
 
 
-class TraditionalTests(ChineseTests):
+class Traditional(ChineseTest):
     def test_traditional(self):
         self.assertEqual(traditional('简体字'), '簡體字')

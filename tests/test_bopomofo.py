@@ -1,4 +1,4 @@
-# Copyright © 2018 Joseph Lorimer <luoliyan@posteo.net>
+# Copyright © 2018-2019 Joseph Lorimer <luoliyan@posteo.net>
 #
 # This file is part of Chinese Support Redux.
 #
@@ -18,10 +18,10 @@
 from unittest import skip
 
 from chinese.bopomofo import bopomofo
-from tests import ChineseTests
+from tests import ChineseTest
 
 
-class BopomofoTests(ChineseTests):
+class Bopomofo(ChineseTest):
     def test_pinyin_no_tone(self):
         self.assertEqual(bopomofo('zhu yin'), 'ㄓㄨ ㄧㄣ')
 

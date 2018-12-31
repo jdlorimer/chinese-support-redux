@@ -1,4 +1,4 @@
-# Copyright © 2018 Joseph Lorimer <luoliyan@posteo.net>
+# Copyright © 2018-2019 Joseph Lorimer <luoliyan@posteo.net>
 #
 # This file is part of Chinese Support Redux.
 #
@@ -16,18 +16,15 @@
 # Chinese Support Redux.  If not, see <https://www.gnu.org/licenses/>.
 
 from chinese.ruby import ruby, ruby_bottom, ruby_top
-from tests import ChineseTests
+from tests import ChineseTest
 
 
-class RubyTests(ChineseTests):
+class Ruby(ChineseTest):
     def test_single_char(self):
         self.assertEqual(ruby('你', 'Pinyin'), ['你[nǐ]'])
 
     def test_multiple_chars(self):
-        self.assertEqual(
-            ruby('图书馆', 'Pinyin'),
-            ['图[tú]', '书[shū]', '馆[guǎn]']
-        )
+        self.assertEqual(ruby('图书馆', 'Pinyin'), ['图[tú]', '书[shū]', '馆[guǎn]'])
 
     def test_ruby_top(self):
         self.assertEqual(ruby_top('汉[hàn]字[zì]'), 'hàn zì')

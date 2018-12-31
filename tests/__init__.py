@@ -1,4 +1,4 @@
-# Copyright © 2018 Joseph Lorimer <luoliyan@posteo.net>
+# Copyright © 2018-2019 Joseph Lorimer <luoliyan@posteo.net>
 #
 # This file is part of Chinese Support Redux.
 #
@@ -40,17 +40,38 @@ modules = {
     'requests': MagicMock(),
 }
 patch.dict('sys.modules', modules).start()
-patch(
-    'aqt.mw.addonManager.getConfig',
-    lambda a: {
-        'firstRun': False,
-        'tip_number': 0,
-        'transcription': 'Pinyin',
-    }
-).start()
+
+config = {
+    'dictionary': 'en',
+    'firstRun': False,
+    'speech': None,
+    'tip_number': 0,
+    'transcription': 'Pinyin',
+    'fields': {
+        'bopomofo': [],
+        'cantonese': [],
+        'cantoneseSound': ['Sound (Cantonese)'],
+        'classifier': ['Classifier'],
+        'color': ['Color'],
+        'colorBopomofo': [],
+        'colorCantonese': [],
+        'colorPinyin': [],
+        'colorPinyinTaiwan': [],
+        'english': ['English'],
+        'french': ['French'],
+        'german': ['German'],
+        'mandarinSound': ['Sound (Mandarin)'],
+        'meaning': ['Meaning'],
+        'pinyin': ['Pinyin'],
+        'pinyinTaiwan': [],
+        'sound': ['Sound'],
+        'transcription': ['Reading'],
+    },
+}
+patch('aqt.mw.addonManager.getConfig', lambda a: config).start()
 
 
-class ChineseTests(TestCase):
+class ChineseTest(TestCase):
     def setUp(self):
         self.maxDiff = None
         self.logger = getLogger()

@@ -1,5 +1,5 @@
 # Copyright © 2012-2015 Thomas TEMPÉ <thomas.tempe@alysse.org>
-# Copyright © 2017-2018 Joseph Lorimer <luoliyan@posteo.net>
+# Copyright © 2017-2019 Joseph Lorimer <luoliyan@posteo.net>
 #
 # This file is part of Chinese Support Redux.
 #
@@ -27,33 +27,33 @@ from .translate import translate
 from .util import cleanup, get_first, has_field, hide, no_color, set_all
 
 
-def get_classifier(hanzi, d):
+def get_classifier(hanzi, note):
     cs = dictionary.get_classifiers(hanzi)
     text = ', '.join(colorize_dict(c) for c in cs)
-    if text and not has_field(config['fields']['classifier'], d):
+    if text and not has_field(config['fields']['classifier'], note):
         return '<br>Cl: ' + text
     return ''
 
 
-def fill_classifier(hanzi, d):
+def fill_classifier(hanzi, note):
     cs = dictionary.get_classifiers(hanzi)
     text = ', '.join(colorize_dict(c) for c in cs)
-    if text and has_field(config['fields']['classifier'], d):
-        set_all(config['fields']['classifier'], d, to=text)
+    if text and has_field(config['fields']['classifier'], note):
+        set_all(config['fields']['classifier'], note, to=text)
 
 
-def get_alt(hanzi, d):
+def get_alt(hanzi, note):
     alts = dictionary.get_alt_spellings(hanzi)
     alt = ', '.join(colorize_dict(a) for a in alts)
     if alt:
-        if not has_field(config['fields']['alternative'], d):
+        if not has_field(config['fields']['alternative'], note):
             return '<br>Also written: ' + alt
-        if get_first(config['fields']['alternative'], d) == '':
-            set_all(config['fields']['alternative'], d, to=alt)
+        if get_first(config['fields']['alternative'], note) == '':
+            set_all(config['fields']['alternative'], note, to=alt)
     return ''
 
 
-def fill_definition(hanzi, note, lang=None):
+def fill_def(hanzi, note, lang=None):
     classifier = get_classifier(hanzi, note)
     alt = get_alt(hanzi, note)
 
@@ -81,34 +81,34 @@ def fill_definition(hanzi, note, lang=None):
     return filled
 
 
-def fill_all_definitions(hanzi, note):
+def fill_all_defs(hanzi, note):
     n_filled = sum(
         [
-            fill_definition(hanzi, note),
-            fill_definition(hanzi, note, lang='en'),
-            fill_definition(hanzi, note, lang='de'),
-            fill_definition(hanzi, note, lang='fr'),
+            fill_def(hanzi, note),
+            fill_def(hanzi, note, lang='en'),
+            fill_def(hanzi, note, lang='de'),
+            fill_def(hanzi, note, lang='fr'),
         ]
     )
     fill_classifier(hanzi, note)
     return n_filled
 
 
-def update_Silhouette_fields(hanzi, d):
+def fill_silhouette(hanzi, note):
     m = silhouette(hanzi)
-    set_all(config['fields']['silhouette'], d, to=m)
+    set_all(config['fields']['silhouette'], note, to=m)
 
 
-def format_Transcription_fields(d):
+def format_transcription(note):
     t = colorize(
         accentuate(
             separate_trans(
-                cleanup(get_first(config['fields']['transcription'], d))
+                cleanup(get_first(config['fields']['transcription'], note))
             )
         )
     )
     t = hide(t, no_tone(t))
-    set_all(config['fields']['transcription'], d, to=t)
+    set_all(config['fields']['transcription'], note, to=t)
 
 
 def fill_transcription(hanzi, note):
@@ -118,20 +118,20 @@ def fill_transcription(hanzi, note):
         set_all(config['fields']['transcription'], note, to=trans)
         return 1
 
-    format_Transcription_fields(note)
+    format_transcription(note)
     return 0
 
 
-def format_Pinyin_fields(d):
+def format_pinyin(note):
     t = colorize(
         accentuate(
             separate_trans(
-                cleanup(get_first(config['fields']['pinyin'], d)), True
+                cleanup(get_first(config['fields']['pinyin'], note)), True
             )
         )
     )
     t = hide(t, no_tone(t))
-    set_all(config['fields']['pinyin'], d, to=t)
+    set_all(config['fields']['pinyin'], note, to=t)
 
 
 def fill_pinyin(hanzi, note):
@@ -140,57 +140,57 @@ def fill_pinyin(hanzi, note):
         t = hide(t, no_tone(t))
         set_all(config['fields']['pinyin'], note, to=t)
         return 1
-    format_Pinyin_fields(note)
+    format_pinyin(note)
     return 0
 
 
-def format_PinyinTW_fields(d):
+def format_taiwan_pinyin(note):
     t = colorize(
         accentuate(
             separate_trans(
-                cleanup(get_first(config['fields']['pinyinTaiwan'], d)), True
+                cleanup(get_first(config['fields']['pinyinTaiwan'], note)), True
             )
         )
     )
     t = hide(t, no_tone(t))
-    set_all(config['fields']['pinyinTaiwan'], d, to=t)
+    set_all(config['fields']['pinyinTaiwan'], note, to=t)
 
-    if has_field(config['fields']['bopomofo'], d):
-        set_all(config['fields']['bopomofo'], d, to=bopomofo(t))
+    if has_field(config['fields']['bopomofo'], note):
+        set_all(config['fields']['bopomofo'], note, to=bopomofo(t))
 
 
-def update_PinyinTW_fields(hanzi, d):
-    if get_first(config['fields']['pinyinTaiwan'], d) == '':
+def fill_taiwan_pinyin(hanzi, note):
+    if get_first(config['fields']['pinyinTaiwan'], note) == '':
         t = colorize(transcribe([no_sound(hanzi)], 'Pinyin (Taiwan)'))
         t = hide(t, no_tone(t))
-        set_all(config['fields']['pinyinTaiwan'], d, to=t)
+        set_all(config['fields']['pinyinTaiwan'], note, to=t)
         return 1
-    else:
-        format_PinyinTW_fields(d)
-        return 0
+
+    format_taiwan_pinyin(note)
+    return 0
 
 
-def format_Cantonese_fields(d):
+def format_cantonese(note):
     t = colorize(
-        separate_trans(cleanup(get_first(config['fields']['cantonese'], d)))
+        separate_trans(cleanup(get_first(config['fields']['cantonese'], note)))
     )
     t = hide(t, no_tone(t))
-    set_all(config['fields']['cantonese'], d, to=t)
+    set_all(config['fields']['cantonese'], note, to=t)
 
 
-def update_Cantonese_fields(hanzi, d):
-    if get_first(config['fields']['cantonese'], d) == '':
+def fill_cantonese(hanzi, note):
+    if get_first(config['fields']['cantonese'], note) == '':
         t = colorize(transcribe([no_sound(hanzi)], 'Cantonese', False))
         t = hide(t, no_tone(t))
-        set_all(config['fields']['cantonese'], d, to=t)
+        set_all(config['fields']['cantonese'], note, to=t)
         return 1
-    else:
-        format_Cantonese_fields(d)
-        return 0
+
+    format_cantonese(note)
+    return 0
 
 
-def update_bopomofo(hanzi, d):
-    field = get_first(config['fields']['bopomofo'], d)
+def fill_bopomofo(hanzi, note):
+    field = get_first(config['fields']['bopomofo'], note)
 
     if field:
         syllables = no_color(cleanup(field)).split()
@@ -201,7 +201,7 @@ def update_bopomofo(hanzi, d):
 
     text = colorize(syllables)
     text = hide(text, no_tone(text))
-    set_all(config['fields']['bopomofo'], d, to=text)
+    set_all(config['fields']['bopomofo'], note, to=text)
 
     return n_added
 
@@ -209,274 +209,180 @@ def update_bopomofo(hanzi, d):
 def fill_all_transcriptions(hanzi, note):
     fill_transcription(hanzi, note)
     fill_pinyin(hanzi, note)
-    update_PinyinTW_fields(hanzi, note)
-    update_Cantonese_fields(hanzi, note)
-    update_bopomofo(hanzi, note)
+    fill_taiwan_pinyin(hanzi, note)
+    fill_bopomofo(hanzi, note)
+    fill_cantonese(hanzi, note)
 
 
-def fill_color(hanzi, d):
-    h = no_sound(hanzi)
+def fill_color(hanzi, note):
+    hanzi = no_sound(hanzi)
 
-    # get tone from transcription field
-    if has_field(config['fields']['transcription'], d):
-        t = no_sound(no_color(get_first(config['fields']['transcription'], d)))
-    elif has_field(config['fields']['pinyin'], d):
-        t = no_sound(no_color(get_first(config['fields']['pinyin'], d)))
-    elif has_field(config['fields']['pinyinTaiwan'], d):
-        t = no_sound(no_color(get_first(config['fields']['pinyinTaiwan'], d)))
-    elif has_field(config['fields']['cantonese'], d):
-        t = no_sound(no_color(get_first(config['fields']['cantonese'], d)))
-    elif has_field(config['fields']['bopomofo'], d):
-        t = no_sound(no_color(get_first(config['fields']['bopomofo'], d)))
-    else:
-        t = ''
-
-    c = colorize_fuse(h, t)
-    set_all(config['fields']['color'], d, to=c)
+    for trans_field, color_field in [
+        ('transcription', 'color'),
+        ('bopomofo', 'colorBopomofo'),
+        ('cantonese', 'colorCantonese'),
+        ('pinyinTaiwan', 'colorPinyinTaiwan'),
+        ('pinyin', 'colorPinyin'),
+    ]:
+        trans = get_first(config['fields'][trans_field], note)
+        trans = no_sound(no_color(trans))
+        colorized = colorize_fuse(hanzi, trans)
+        set_all(config['fields'][color_field], note, to=colorized)
 
 
-def update_ColorPY_fields(hanzi, d):
-    h = no_sound(hanzi)
-    t = no_sound(no_color(get_first(config['fields']['pinyin'], d)))
-    c = colorize_fuse(h, t)
-    set_all(config['fields']['colorPinyin'], d, to=c)
+def fill_sound(hanzi, note):
+    updated = 0
+    errors = 0
 
-
-def update_ColorPYTW_fields(hanzi, d):
-    h = no_sound(hanzi)
-    t = no_sound(no_color(get_first(config['fields']['pinyinTaiwan'], d)))
-    c = colorize_fuse(h, t)
-    set_all(config['fields']['colorPinyinTaiwan'], d, to=c)
-
-
-def update_ColorCANT_fields(hanzi, d):
-    h = no_sound(hanzi)
-    t = no_sound(no_color(get_first(config['fields']['cantonese'], d)))
-    c = colorize_fuse(h, t)
-    set_all(config['fields']['colorCantonese'], d, to=c)
-
-
-def update_ColorBPMF_fields(hanzi, d):
-    h = no_sound(hanzi)
-    t = no_sound(no_color(get_first(config['fields']['bopomofo'], d)))
-    c = colorize_fuse(h, t)
-    set_all(config['fields']['colorBopomofo'], d, to=c)
-
-
-def update_all_Color_fields(hanzi, d):
-    fill_color(hanzi, d)
-    update_ColorPY_fields(hanzi, d)
-    update_ColorPYTW_fields(hanzi, d)
-    update_ColorCANT_fields(hanzi, d)
-    update_ColorBPMF_fields(hanzi, d)
-
-
-# Returns 1 if a sound was added, otherwise returns 0
-def update_Sound_fields(hanzi, d):
-    # Update Sound field from Hanzi field if non-empty (only if field actually
-    # exists, as it implies downloading a soundfile from Internet)
-    if (
-        has_field(config['fields']['sound'], d)
-        and get_first(config['fields']['sound'], d) == ''
-    ):
-        s = sound(hanzi)
+    for field_group, tts_engine in [
+        ('sound', None),
+        ('mandarinSound', 'Google TTS Mandarin'),
+        ('cantoneseSound', 'Google TTS Cantonese'),
+    ]:
+        field = get_first(config['fields'][field_group], note)
+        if field != '':
+            continue
+        s = sound(hanzi, tts_engine)
         if s:
-            set_all(config['fields']['sound'], d, to=s)
-            return 1, 0  # 1 field filled, 0 errors
-        return 0, 1
-    return 0, 0
+            set_all(config['fields'][field_group], note, to=s)
+            updated += 1
+        else:
+            errors += 1
+
+    return updated, errors
 
 
-def update_Sound_Mandarin_fields(hanzi, d):
-    # Update Sound field from Hanzi field if non-empty (only if field actually
-    # exists, as it implies downloading a soundfile from Internet)
-    if (
-        has_field(config['fields']['mandarinSound'], d)
-        and get_first(config['fields']['mandarinSound'], d) == ''
-    ):
-        s = sound(hanzi, 'Google TTS Mandarin')
-        if s:
-            set_all(config['fields']['mandarinSound'], d, to=s)
-            return 1, 0  # 1 field filled, 0 errors
-        return 0, 1
-    return 0, 0
-
-
-def update_Sound_Cantonese_fields(hanzi, d):
-    # Update Sound field from Hanzi field if non-empty (only if field actually
-    # exists, as it implies downloading a soundfile from Internet)
-    if (
-        has_field(config['fields']['cantoneseSound'], d)
-        and get_first(config['fields']['cantoneseSound'], d) == ''
-    ):
-        s = sound(hanzi, 'Google TTS Cantonese')
-        if s:
-            set_all(config['fields']['cantoneseSound'], d, to=s)
-            return 1, 0  # 1 field filled, 0 errors
-        return 0, 1
-    return 0, 0
-
-
-def update_all_Sound_fields(hanzi, d):
-    updated1, errors1 = update_Sound_fields(hanzi, d)
-    updated2, errors2 = update_Sound_Mandarin_fields(hanzi, d)
-    updated3, errors3 = update_Sound_Cantonese_fields(hanzi, d)
-    return updated1 + updated2 + updated3, errors1 + errors2 + errors3
-
-
-def update_Simplified_fields(hanzi, d):
-    if not get_first(config['fields']['simplified'], d) == '':
+def fill_simp(hanzi, note):
+    if not get_first(config['fields']['simplified'], note) == '':
         return
 
     s = simplify(hanzi)
     if s != hanzi:
-        set_all(config['fields']['simplified'], d, to=s)
+        set_all(config['fields']['simplified'], note, to=s)
     else:
-        set_all(config['fields']['simplified'], d, to='')
+        set_all(config['fields']['simplified'], note, to='')
 
 
-def update_Traditional_fields(hanzi, d):
-    if not get_first(config['fields']['traditional'], d) == '':
+def fill_trad(hanzi, note):
+    if not get_first(config['fields']['traditional'], note) == '':
         return
 
     t = traditional(hanzi)
     if t != hanzi:
-        set_all(config['fields']['traditional'], d, to=t)
+        set_all(config['fields']['traditional'], note, to=t)
     else:
-        set_all(config['fields']['traditional'], d, to='')
+        set_all(config['fields']['traditional'], note, to='')
 
 
-def update_Ruby_fields(hanzi, d):
-    # Ruby field will fill as long as either a Transcription, Pinyin, PinyinTW
-    # Cantonese or Bopomofo field exists
-    if has_field(config['fields']['transcription'], d):
+def fill_ruby(hanzi, note):
+    if has_field(config['fields']['transcription'], note):
         m = colorize_fuse(
-            hanzi, get_first(config['fields']['transcription'], d), ruby=True
+            hanzi,
+            get_first(config['fields']['transcription'], note),
+            ruby=True,
         )
-    elif has_field(config['fields']['pinyin'], d):
+    elif has_field(config['fields']['pinyin'], note):
         m = colorize_fuse(
-            hanzi, get_first(config['fields']['pinyin'], d), ruby=True
+            hanzi, get_first(config['fields']['pinyin'], note), ruby=True
         )
-    elif has_field(config['fields']['pinyinTaiwan'], d):
+    elif has_field(config['fields']['pinyinTaiwan'], note):
         m = colorize_fuse(
-            hanzi, get_first(config['fields']['pinyinTaiwan'], d), ruby=True
+            hanzi, get_first(config['fields']['pinyinTaiwan'], note), ruby=True
         )
-    elif has_field(config['fields']['cantonese'], d):
+    elif has_field(config['fields']['cantonese'], note):
         m = colorize_fuse(
-            hanzi, get_first(config['fields']['cantonese'], d), ruby=True
+            hanzi, get_first(config['fields']['cantonese'], note), ruby=True
         )
-    elif has_field(config['fields']['bopomofo'], d):
+    elif has_field(config['fields']['bopomofo'], note):
         m = colorize_fuse(
-            hanzi, get_first(config['fields']['bopomofo'], d), ruby=True
+            hanzi, get_first(config['fields']['bopomofo'], note), ruby=True
         )
     else:
         m = ''
-    set_all(config['fields']['ruby'], d, to=m)
+
+    set_all(config['fields']['ruby'], note, to=m)
 
 
-def update_RubyPY_fields(hanzi, d):
-    m = colorize_fuse(
-        hanzi, get_first(config['fields']['pinyin'], d), ruby=True
-    )
-    set_all(config['fields']['rubyPinyin'], d, to=m)
+def fill_all_rubies(hanzi, note):
+    fill_ruby(hanzi, note)
+
+    for trans_field, ruby_field in [
+        ('pinyin', 'rubyPinyin'),
+        ('pinyinTaiwan', 'rubyPinyinTaiwan'),
+        ('cantonese', 'rubyCantonese'),
+        ('bopomofo', 'rubyBopomofo'),
+    ]:
+        rubified = colorize_fuse(
+            hanzi, get_first(config['fields'][trans_field], note), ruby=True
+        )
+        set_all(config['fields'][ruby_field], note, to=rubified)
 
 
-def update_RubyPYTW_fields(hanzi, d):
-    m = colorize_fuse(
-        hanzi, get_first(config['fields']['pinyinTaiwan'], d), ruby=True
-    )
-    set_all(config['fields']['rubyPinyinTaiwan'], d, to=m)
+def erase_fields(note):
+    for f in config['fields'].values():
+        set_all(f, note, to='')
 
 
-def update_RubyCANT_fields(hanzi, d):
-    m = colorize_fuse(
-        hanzi, get_first(config['fields']['cantonese'], d), ruby=True
-    )
-    set_all(config['fields']['rubyCantonese'], d, to=m)
-
-
-def update_RubyBPMF_fields(hanzi, d):
-    m = colorize_fuse(
-        hanzi, get_first(config['fields']['bopomofo'], d), ruby=True
-    )
-    set_all(config['fields']['rubyBopomofo'], d, to=m)
-
-
-def update_all_Ruby_fields(hanzi, d):
-    update_Ruby_fields(hanzi, d)
-    update_RubyPY_fields(hanzi, d)
-    update_RubyPYTW_fields(hanzi, d)
-    update_RubyCANT_fields(hanzi, d)
-    update_RubyBPMF_fields(hanzi, d)
-
-
-def eraseFields(note):
-    for fields in config['fields'].values():
-        set_all(fields, note, to='')
-
-
-def updateFields(note, currentField, fieldNames):
+def update_fields(note, focus_field, fields):
     if 'addon' in note.model():
-        modelType = note.model()['addon']
+        model = note.model()['addon']
     else:
-        modelType = None
+        model = None
 
-    fieldsCopy = dict(note)
-    hanzi = cleanup(get_first(config['fields']['hanzi'], fieldsCopy))
+    copy = dict(note)
+    hanzi = cleanup(get_first(config['fields']['hanzi'], copy))
 
-    if modelType == 'Chinese Ruby':
-        if currentField == 'Hanzi':
-            h = colorize(ruby(accentuate(fieldsCopy['Hanzi'])))
+    if model == 'Chinese Ruby':
+        if focus_field == 'Hanzi':
+            h = colorize(ruby(accentuate(copy['Hanzi'])))
             h = hide_ruby(h)
-            fieldsCopy['Hanzi'] = h
-            if fieldsCopy['Hanzi'] == '':
-                fieldsCopy['Meaning'] = ''
-            elif fieldsCopy['Meaning'] == '':
-                fieldsCopy['Meaning'] = translate(
-                    fieldsCopy['Hanzi'], config['dictionary']
+            copy['Hanzi'] = h
+            if copy['Hanzi'] == '':
+                copy['Meaning'] = ''
+            elif copy['Meaning'] == '':
+                copy['Meaning'] = translate(
+                    copy['Hanzi'], config['dictionary']
                 )
-        elif currentField[0:5] == 'Hanzi':
-            fieldsCopy[currentField] = colorize(
-                ruby(accentuate(fieldsCopy[currentField]))
-            )
-    elif currentField in config['fields']['hanzi']:
-        if fieldsCopy[currentField]:
-            fill_all_definitions(hanzi, fieldsCopy)
-            fill_all_transcriptions(hanzi, fieldsCopy)
-            update_all_Color_fields(hanzi, fieldsCopy)
-            update_all_Sound_fields(hanzi, fieldsCopy)
-            update_Simplified_fields(hanzi, fieldsCopy)
-            update_Traditional_fields(hanzi, fieldsCopy)
-            update_all_Ruby_fields(hanzi, fieldsCopy)
-            update_Silhouette_fields(hanzi, fieldsCopy)
+        elif focus_field[0:5] == 'Hanzi':
+            copy[focus_field] = colorize(ruby(accentuate(copy[focus_field])))
+    elif focus_field in config['fields']['hanzi']:
+        if copy[focus_field]:
+            fill_all_defs(hanzi, copy)
+            fill_all_transcriptions(hanzi, copy)
+            fill_color(hanzi, copy)
+            fill_sound(hanzi, copy)
+            fill_simp(hanzi, copy)
+            fill_trad(hanzi, copy)
+            fill_all_rubies(hanzi, copy)
+            fill_silhouette(hanzi, copy)
         else:
-            eraseFields(fieldsCopy)
-    elif currentField in config['fields']['transcription']:
-        format_Transcription_fields(fieldsCopy)
-        update_all_Color_fields(hanzi, fieldsCopy)
-        update_all_Ruby_fields(hanzi, fieldsCopy)
-    elif currentField in config['fields']['pinyin']:
-        format_Pinyin_fields(fieldsCopy)
-        update_all_Color_fields(hanzi, fieldsCopy)
-        update_all_Ruby_fields(hanzi, fieldsCopy)
-    elif currentField in config['fields']['pinyinTaiwan']:
-        format_PinyinTW_fields(fieldsCopy)
-        update_all_Color_fields(hanzi, fieldsCopy)
-        update_all_Ruby_fields(hanzi, fieldsCopy)
-    elif currentField in config['fields']['cantonese']:
-        format_Cantonese_fields(fieldsCopy)
-        update_all_Color_fields(hanzi, fieldsCopy)
-        update_all_Ruby_fields(hanzi, fieldsCopy)
-    elif currentField in config['fields']['bopomofo']:
-        # format_bopomofo_fields(fieldsCopy)
-        update_all_Color_fields(hanzi, fieldsCopy)
-        update_all_Ruby_fields(hanzi, fieldsCopy)
+            erase_fields(copy)
+    elif focus_field in config['fields']['transcription']:
+        format_transcription(copy)
+        fill_color(hanzi, copy)
+        fill_all_rubies(hanzi, copy)
+    elif focus_field in config['fields']['pinyin']:
+        format_pinyin(copy)
+        fill_color(hanzi, copy)
+        fill_all_rubies(hanzi, copy)
+    elif focus_field in config['fields']['pinyinTaiwan']:
+        format_taiwan_pinyin(copy)
+        fill_color(hanzi, copy)
+        fill_all_rubies(hanzi, copy)
+    elif focus_field in config['fields']['cantonese']:
+        format_cantonese(copy)
+        fill_color(hanzi, copy)
+        fill_all_rubies(hanzi, copy)
+    elif focus_field in config['fields']['bopomofo']:
+        # format_bopomofo_fields(copy)
+        fill_color(hanzi, copy)
+        fill_all_rubies(hanzi, copy)
 
     updated = False
 
-    for f in fieldNames:
-        if note[f] != fieldsCopy[f]:
-            note[f] = fieldsCopy[f]
+    for f in fields:
+        if note[f] != copy[f]:
+            note[f] = copy[f]
             updated = True
 
     return updated

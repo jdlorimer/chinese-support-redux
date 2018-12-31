@@ -1,4 +1,4 @@
-# Copyright © 2018 Joseph Lorimer <luoliyan@posteo.net>
+# Copyright © 2018-2019 Joseph Lorimer <luoliyan@posteo.net>
 #
 # This file is part of Chinese Support Redux.
 #
@@ -16,10 +16,10 @@
 # Chinese Support Redux.  If not, see <https://www.gnu.org/licenses/>.
 
 from chinese.util import align, get_first, hide, no_hidden, set_all
-from tests import ChineseTests
+from tests import ChineseTest
 
 
-class UtilTests(ChineseTests):
+class Util(ChineseTest):
     def test_hide(self):
         self.assertEqual(hide('foo', 'bar'), 'foo <!-- bar -->')
 
@@ -33,7 +33,7 @@ class UtilTests(ChineseTests):
         self.assertEqual(d, {'foo': 'qux', 'bar': '', 'baz': 'qux'})
 
 
-class GetAnyTests(ChineseTests):
+class GetAny(ChineseTest):
     def test_content(self):
         self.assertEqual(get_first(['foo'], {'foo': 'bar'}), 'bar')
 
@@ -49,7 +49,7 @@ class GetAnyTests(ChineseTests):
         self.assertEqual(get_first(['baz', 'foo'], note), 'qux')
 
 
-class AlignTests(ChineseTests):
+class Align(ChineseTest):
     def test_align(self):
         self.assertEqual(
             align(['(', '我', ')'], ['wǒ']),

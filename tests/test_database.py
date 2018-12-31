@@ -1,4 +1,4 @@
-# Copyright © 2018 Joseph Lorimer <luoliyan@posteo.net>
+# Copyright © 2018-2019 Joseph Lorimer <luoliyan@posteo.net>
 #
 # This file is part of Chinese Support Redux.
 #
@@ -16,10 +16,10 @@
 # Chinese Support Redux.  If not, see <https://www.gnu.org/licenses/>.
 
 from chinese.database import Dictionary as D
-from tests import ChineseTests
+from tests import ChineseTest
 
 
-class DictionaryTests(ChineseTests):
+class Dictionary(ChineseTest):
     def test_no_word(self):
         self.assertEqual(D().get_classifiers(''), [])
 
@@ -33,7 +33,7 @@ class DictionaryTests(ChineseTests):
     def test_multiple_classifiers(self):
         self.assertEqual(
             D().get_classifiers('筷子'),
-            ['對|对[dui4]', '根[gen1]', '把[ba3]', '雙|双[shuang1]']
+            ['對|对[dui4]', '根[gen1]', '把[ba3]', '雙|双[shuang1]'],
         )
 
     def test_get_alt_spellings(self):

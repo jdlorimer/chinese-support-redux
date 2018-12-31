@@ -1,6 +1,6 @@
 # Copyright © 2012 Roland Sieker <ospalh@gmail.com>
 # Copyright © 2012-2013 Thomas TEMPÉ <thomas.tempe@alysse.org>
-# Copyright © 2017-2018 Joseph Lorimer <luoliyan@posteo.net>
+# Copyright © 2017-2019 Joseph Lorimer <luoliyan@posteo.net>
 #
 # This file is part of Chinese Support Redux.
 #
@@ -20,7 +20,7 @@
 from anki.hooks import addHook
 from aqt import mw
 
-from .behavior import updateFields
+from .behavior import update_fields
 from .main import config
 
 
@@ -71,7 +71,7 @@ class EditManager:
         allFields = mw.col.models.fieldNames(note.model())
         field = allFields[index]
 
-        if updateFields(note, field, allFields):
+        if update_fields(note, field, allFields):
             if index == len(allFields) - 1:
                 self.editor.loadNote(focusTo=index)
             else:

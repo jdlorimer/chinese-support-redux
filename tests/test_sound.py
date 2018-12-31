@@ -1,4 +1,4 @@
-# Copyright © 2018 Joseph Lorimer <luoliyan@posteo.net>
+# Copyright © 2018-2019 Joseph Lorimer <luoliyan@posteo.net>
 #
 # This file is part of Chinese Support Redux.
 #
@@ -18,10 +18,10 @@
 from unittest.mock import Mock, patch
 
 from chinese.sound import extract_sound_tags, no_sound, sound
-from tests import ChineseTests
+from tests import ChineseTest
 
 
-class SoundTests(ChineseTests):
+class Sound(ChineseTest):
     def setUp(self):
         super().setUp()
         self.patcher = patch('chinese.sound.download_sound', Mock())
@@ -32,11 +32,11 @@ class SoundTests(ChineseTests):
         self.patcher.stop()
 
     def test_hanzi(self):
-        m = Mock(return_value='foo.mp3')
-        with patch('chinese.sound.download_sound', m):
+        with patch(
+            'chinese.sound.download_sound', Mock(return_value='foo.mp3')
+        ):
             self.assertEqual(
-                sound('图书馆', 'Baidu Translate'),
-                '[sound:foo.mp3]'
+                sound('图书馆', 'Baidu Translate'), '[sound:foo.mp3]'
             )
 
     def test_no_hanzi(self):
@@ -52,35 +52,33 @@ class SoundTests(ChineseTests):
         self.mock.assert_not_called()
 
 
-class ExtractSoundTagsTests(ChineseTests):
+class ExtractSoundTags(ChineseTest):
     def test_single_tag(self):
         self.assertEqual(
-            extract_sound_tags('foo[sound:bar]'),
-            ('foo', '[sound:bar]')
+            extract_sound_tags('foo[sound:bar]'), ('foo', '[sound:bar]')
         )
 
     def test_multiple_tags(self):
         self.assertEqual(
             extract_sound_tags('foo[sound:bar]baz[sound:qux]'),
-            ('foobaz', '[sound:bar][sound:qux]')
+            ('foobaz', '[sound:bar][sound:qux]'),
         )
 
     def test_no_tags(self):
         self.assertEqual(extract_sound_tags('foo'), ('foo', ''))
 
     def test_empty_tag(self):
-        self.assertEqual(extract_sound_tags('foo[sound:]'), ('foo', '[sound:]'))
+        self.assertEqual(
+            extract_sound_tags('foo[sound:]'), ('foo', '[sound:]')
+        )
 
 
-class NoSoundTests(ChineseTests):
+class NoSound(ChineseTest):
     def test_single_tag(self):
         self.assertEqual(no_sound('foo[sound:bar]'), 'foo')
 
     def test_multiple_tags(self):
-        self.assertEqual(
-            no_sound('foo[sound:bar]baz[sound:qux]'),
-            'foobaz'
-        )
+        self.assertEqual(no_sound('foo[sound:bar]baz[sound:qux]'), 'foobaz')
 
     def test_no_tags(self):
         self.assertEqual(no_sound('foo'), 'foo')

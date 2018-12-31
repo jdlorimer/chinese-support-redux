@@ -1,4 +1,4 @@
-# Copyright © 2018 Joseph Lorimer <luoliyan@posteo.net>
+# Copyright © 2018-2019 Joseph Lorimer <luoliyan@posteo.net>
 #
 # This file is part of Chinese Support Redux.
 #
@@ -18,10 +18,10 @@
 from random import randint
 
 from chinese.color import colorize, colorize_dict, colorize_fuse
-from tests import ChineseTests
+from tests import ChineseTest
 
 
-class ColorizeTests(ChineseTests):
+class Colorize(ChineseTest):
     def test_separate_syllables(self):
         self.assertEqual(
             colorize(['xiàn', 'zài']),
@@ -53,7 +53,7 @@ class ColorizeTests(ChineseTests):
         )
 
 
-class ColorizeDictTests(ChineseTests):
+class ColorizeDict(ChineseTest):
     def test_word(self):
         self.assertEqual(
             colorize_dict('图书馆[tu2 shu1 guan3]'),
@@ -74,7 +74,7 @@ class ColorizeDictTests(ChineseTests):
         )
 
 
-class ColorizeFuseTests(ChineseTests):
+class ColorizeFuse(ChineseTest):
     def test_tone_number(self):
         a = randint(1, 5)
         b = randint(1, 5)

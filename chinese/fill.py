@@ -1,6 +1,6 @@
 # Copyright © 2013 Chris Hatch <foonugget@gmail.com>
 # Copyright © 2014 Thomas TEMPÉ <thomas.tempe@alysse.org>
-# Copyright © 2017-2018 Joseph Lorimer <luoliyan@posteo.net>
+# Copyright © 2017-2019 Joseph Lorimer <luoliyan@posteo.net>
 #
 # This file is part of Chinese Support Redux.
 #
@@ -24,24 +24,24 @@ from aqt import mw
 from aqt.utils import showInfo, askUser
 
 from .behavior import (
-    fill_all_definitions,
-    update_Cantonese_fields,
-    update_PinyinTW_fields,
+    fill_all_defs,
+    fill_all_rubies,
+    fill_bopomofo,
+    fill_cantonese,
+    fill_color,
     fill_pinyin,
-    update_Silhouette_fields,
-    update_Simplified_fields,
-    update_Traditional_fields,
+    fill_silhouette,
+    fill_simp,
+    fill_sound,
+    fill_taiwan_pinyin,
+    fill_trad,
     fill_transcription,
-    update_all_Color_fields,
-    update_all_Ruby_fields,
-    update_all_Sound_fields,
-    update_bopomofo
 )
 from .main import config
 from .util import cleanup, get_first, has_field, no_html
 
 
-def fill_sounds():
+def bulk_fill_sound():
     prompt = '''
     <div>This will update the <i>Sound</i> fields in the current
     deck, if they exist and are empty, using the selected speech
@@ -63,50 +63,44 @@ def fill_sounds():
     d_success = 0
     d_failed = 0
 
-    notes = Finder(mw.col).findNotes(query_str)
-    mw.progress.start(immediate=True, min=0, max=len(notes))
-    for noteId in notes:
+    note_ids = Finder(mw.col).findNotes(query_str)
+    mw.progress.start(immediate=True, min=0, max=len(note_ids))
+    for nid in note_ids:
         d_scanned += 1
-        note = mw.col.getNote(noteId)
-        note_dict = dict(note)
+        orig = mw.col.getNote(nid)
+        copy = dict(orig)
 
-        _hf_s = has_field(config['fields']['sound'], note_dict)
-        _hf_sm = has_field(config['fields']['mandarinSound'], note_dict)
-        _hf_sc = has_field(config['fields']['cantoneseSound'], note_dict)
+        _hf_s = has_field(config['fields']['sound'], copy)
+        _hf_sm = has_field(config['fields']['mandarinSound'], copy)
+        _hf_sc = has_field(config['fields']['cantoneseSound'], copy)
 
-        if (_hf_s or _hf_sm or _hf_sc) and has_field(config['fields']['hanzi'], note_dict):
+        if (_hf_s or _hf_sm or _hf_sc) and has_field(
+            config['fields']['hanzi'], copy
+        ):
             d_has_fields += 1
 
-            hanzi = get_first(config['fields']['hanzi'], note_dict)
+            hanzi = get_first(config['fields']['hanzi'], copy)
 
-            if (get_first(config['fields']['sound'], note_dict) or
-                    get_first(config['fields']['mandarinSound'], note_dict) or
-                    get_first(config['fields']['cantoneseSound'], note_dict)):
+            if (
+                get_first(config['fields']['sound'], copy)
+                or get_first(config['fields']['mandarinSound'], copy)
+                or get_first(config['fields']['cantoneseSound'], copy)
+            ):
                 d_already_had_sound += 1
             else:
                 msg = '''
                 <b>Processing:</b> %(hanzi)s<br>
                 <b>Updated:</b> %(d_success)d notes<br>
                 <b>Failed:</b> %(d_failed)d notes''' % {
-                    'hanzi': sanitize_hanzi(note_dict),
+                    'hanzi': sanitize_hanzi(copy),
                     'd_success': d_success,
-                    'd_failed': d_failed
+                    'd_failed': d_failed,
                 }
                 mw.progress.update(label=msg, value=d_scanned)
-                s, f = update_all_Sound_fields(hanzi, note_dict)
+                s, f = fill_sound(hanzi, copy)
                 d_success += s
                 d_failed += f
-
-                # write back to note from dict and flush
-                fields = (
-                    config['fields']['sound'] +
-                    config['fields']['mandarinSound'] +
-                    config['fields']['cantoneseSound']
-                )
-                for f in fields:
-                    if f in note_dict and note_dict[f] != note[f]:
-                        note[f] = note_dict[f]
-                note.flush()
+                save_note(orig, copy)
                 sleep(5)
 
     mw.progress.finish()
@@ -116,11 +110,11 @@ def fill_sounds():
 %(d_failed)d downloads failed
 
 %(have)d/%(d_has_fields)d notes now have pronunciation''' % {
-    'd_success': d_success,
-    'd_failed': d_failed,
-    'have': d_already_had_sound+d_success,
-    'd_has_fields': d_has_fields
-}
+        'd_success': d_success,
+        'd_failed': d_failed,
+        'have': d_already_had_sound + d_success,
+        'd_has_fields': d_has_fields,
+    }
     if d_failed > 0:
         msg += (
             'TTS is taken from an online source. '
@@ -130,7 +124,14 @@ def fill_sounds():
     showInfo(msg)
 
 
-def fill_pinyin():
+def save_note(orig, copy):
+    for f in orig.keys():
+        if f in copy and copy[f] != orig[f]:
+            orig[f] = copy[f]
+    orig.flush()
+
+
+def bulk_fill_pinyin():
     prompt = '''
     <div>This will update the <i>Pinyin</i> (or <i>Transcription</i>),
     <i>Color</i> and <i>Ruby</i> fields in the current deck, if they exist.</div>
@@ -162,8 +163,9 @@ def fill_pinyin():
         _hf_cant = has_field(config['fields']['cantonese'], note_dict)
         _hf_bpmf = has_field(config['fields']['bopomofo'], note_dict)
 
-        if ((_hf_t or _hf_py or _hf_pytw or _hf_cant or _hf_bpmf) and
-                has_field(config['fields']['hanzi'], note_dict)):
+        if (_hf_t or _hf_py or _hf_pytw or _hf_cant or _hf_bpmf) and has_field(
+            config['fields']['hanzi'], note_dict
+        ):
             d_has_fields += 1
 
             msg = '''
@@ -172,7 +174,7 @@ def fill_pinyin():
             <b>Updated: </b>%(updated)d fields''' % {
                 'hanzi': sanitize_hanzi(note_dict),
                 'pinyin': d_added_pinyin,
-                'updated': d_updated
+                'updated': d_updated,
             }
             mw.progress.update(label=msg, value=d_scanned)
 
@@ -182,19 +184,19 @@ def fill_pinyin():
             if _hf_t:
                 results += fill_transcription(hanzi, note_dict)
             if _hf_py:
-                results += fill_pinyin(hanzi, note_dict)
+                results += bulk_fill_pinyin(hanzi, note_dict)
             if _hf_pytw:
-                results += update_PinyinTW_fields(hanzi, note_dict)
+                results += fill_taiwan_pinyin(hanzi, note_dict)
             if _hf_cant:
-                results += update_Cantonese_fields(hanzi, note_dict)
+                results += fill_cantonese(hanzi, note_dict)
             if _hf_bpmf:
-                results += update_bopomofo(hanzi, note_dict)
+                results += fill_bopomofo(hanzi, note_dict)
 
             if results != 0:
                 d_added_pinyin += 1
 
-            update_all_Color_fields(hanzi, note_dict)
-            update_all_Ruby_fields(hanzi, note_dict)
+            fill_color(hanzi, note_dict)
+            fill_all_rubies(hanzi, note_dict)
 
             def write_back(fields):
                 num_updated = 0
@@ -228,12 +230,12 @@ def fill_pinyin():
     <b>Updated: </b>%(updated)d fields''' % {
         'hanzi': sanitize_hanzi(note_dict),
         'pinyin': d_added_pinyin,
-        'updated': d_updated
+        'updated': d_updated,
     }
     showInfo(msg)
 
 
-def fill_definitions():
+def bulk_fill_defs():
     prompt = '''
     <div>This will update the <i>Meaning</i>, <i>Classifier</i>, and <i>Also
     Written</i> fields in the current deck, if they exist and are empty.</div>
@@ -262,7 +264,9 @@ def fill_definitions():
         _hf_g = has_field(config['fields']['german'], note_dict)
         _hf_f = has_field(config['fields']['french'], note_dict)
 
-        if (_hf_m or _hf_e or _hf_g or _hf_f) and has_field(config['fields']['hanzi'], note_dict):
+        if (_hf_m or _hf_e or _hf_g or _hf_f) and has_field(
+            config['fields']['hanzi'], note_dict
+        ):
             d_has_fields += 1
 
             msg = '''
@@ -273,7 +277,7 @@ def fill_definitions():
                 'hanzi': sanitize_hanzi(note_dict),
                 'has_fields': d_has_fields,
                 'filled': d_success,
-                'failed': d_failed
+                'failed': d_failed,
             }
             mw.progress.update(label=msg, value=d_scanned)
 
@@ -284,7 +288,7 @@ def fill_definitions():
             empty += len(get_first(config['fields']['french'], note_dict))
 
             if not empty:
-                result = fill_all_definitions(hanzi, note_dict)
+                result = fill_all_defs(hanzi, note_dict)
 
                 if result:
                     d_success += 1
@@ -313,20 +317,22 @@ def fill_definitions():
     <b>Failed:</b> %(failed)d''' % {
         'has_fields': d_has_fields,
         'filled': d_success,
-        'failed': d_failed
+        'failed': d_failed,
     }
     if d_failed > 0:
         msg += (
             '<div>Translation failures may come either from connection issues '
             "(if you're using an online translation service), or because some "
             'words are not it the dictionary (for local dictionaries).</div>'
-            '<div>The following notes failed: ' + ', '.join(failed_hanzi) + '</div>'
+            '<div>The following notes failed: '
+            + ', '.join(failed_hanzi)
+            + '</div>'
         )
     mw.progress.finish()
     showInfo(msg)
 
 
-def fill_simp_trad():
+def bulk_fill_hanzi():
     prompt = '''
     <div>This will update the <i>Simplified</i> and <i>Traditional</i> fields
     in the current deck, if they exist and are empty.</div>
@@ -347,49 +353,48 @@ def fill_simp_trad():
         d_scanned += 1
         note = mw.col.getNote(noteId)
         note_dict = dict(note)
-        if ((has_field(config['fields']['simplified'], note_dict) or
-             has_field(config['fields']['traditional'], note_dict)) and
-                has_field(config['fields']['hanzi'], note_dict)):
+        if (
+            has_field(config['fields']['simplified'], note_dict)
+            or has_field(config['fields']['traditional'], note_dict)
+        ) and has_field(config['fields']['hanzi'], note_dict):
             d_has_fields += 1
 
             msg = '''
             <b>Processing:</b> %(hanzi)s<br>
             <b>Updated:</b> %(filled)d''' % {
                 'hanzi': sanitize_hanzi(note_dict),
-                'filled': d_success
+                'filled': d_success,
             }
             mw.progress.update(label=msg, value=d_scanned)
 
-            # Update simplified/traditional fields
-            # If it's the same, leave empty,
-            # so as to make this feature unobtrusive to simplified chinese users
             hanzi = get_first(config['fields']['hanzi'], note_dict)
 
-            update_Simplified_fields(hanzi, note_dict)
-            update_Traditional_fields(hanzi, note_dict)
+            fill_simp(hanzi, note_dict)
+            fill_trad(hanzi, note_dict)
 
-            # write back to note from dict and flush
             for f in config['fields']['traditional']:
                 if f in note_dict and note_dict[f] != note[f]:
                     note[f] = note_dict[f]
                     d_success += 1
+
             for f in config['fields']['simplified']:
                 if f in note_dict and note_dict[f] != note[f]:
                     note[f] = note_dict[f]
                     d_success += 1
+
             note.flush()
 
     msg = '''
     <b>Update complete!</b> %(hanzi)s<br>
     <b>Updated:</b> %(filled)d notes''' % {
         'hanzi': sanitize_hanzi(note_dict),
-        'filled': d_success
+        'filled': d_success,
     }
     mw.progress.finish()
     showInfo(msg)
 
 
-def fill_silhouette():
+def bulk_fill_silhouette():
     prompt = '''
     <div>This will update the <i>Silhouette</i> fields in the current deck.</div>
     <div>Please back-up your Anki deck first!</div>
@@ -415,24 +420,24 @@ def fill_silhouette():
             <b>Processing:</b> %(hanzi)s<br>
             <b>Updated:</b> %(filled)d''' % {
                 'hanzi': sanitize_hanzi(note_dict),
-                'filled': d_success
+                'filled': d_success,
             }
             mw.progress.update(label=msg, value=d_scanned)
             hanzi = get_first(config['fields']['hanzi'], note_dict)
-            update_Silhouette_fields(hanzi, note_dict)
+            fill_silhouette(hanzi, note_dict)
 
-            # write back to note from dict and flush
             for f in config['fields']['silhouette']:
                 if f in note_dict and note_dict[f] != note[f]:
                     note[f] = note_dict[f]
                     d_success += 1
+
             note.flush()
 
     msg = '''
     <b>Update complete!</b> %(hanzi)s<br>
     <b>Updated:</b> %(filled)d notes''' % {
         'hanzi': sanitize_hanzi(note_dict),
-        'filled': d_success
+        'filled': d_success,
     }
     mw.progress.finish()
     showInfo(msg)

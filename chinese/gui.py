@@ -1,5 +1,5 @@
 # Copyright © 2012 Thomas TEMPÉ <thomas.tempe@alysse.org>
-# Copyright © 2017-2018 Joseph Lorimer <luoliyan@posteo.net>
+# Copyright © 2017-2019 Joseph Lorimer <luoliyan@posteo.net>
 #
 # This file is part of Chinese Support Redux.
 #
@@ -25,21 +25,16 @@ from aqt.utils import showInfo, openLink, askUser
 
 from .about import CSR_GITHUB_URL, showAbout
 from .fill import (
-    fill_pinyin,
-    fill_silhouette,
-    fill_simp_trad,
-    fill_sounds,
-    fill_definitions
+    bulk_fill_defs,
+    bulk_fill_hanzi,
+    bulk_fill_pinyin,
+    bulk_fill_silhouette,
+    bulk_fill_sound,
 )
 from .main import config
 
 
-transcriptions = [
-    'Pinyin',
-    'Pinyin (Taiwan)',
-    'Cantonese',
-    'Bopomofo',
-]
+transcriptions = ['Pinyin', 'Pinyin (Taiwan)', 'Cantonese', 'Bopomofo']
 
 speech_engines = [
     'None',
@@ -63,7 +58,7 @@ def load_menu():
             name,
             partial(config.update, {'dictionary': d}),
             checkable=True,
-            checked=bool(config['dictionary'] == d)
+            checked=bool(config['dictionary'] == d),
         )
 
     for t in transcriptions:
@@ -72,7 +67,7 @@ def load_menu():
             t,
             partial(config.update, {'transcription': t}),
             checkable=True,
-            checked=bool(config['transcription'] == t)
+            checked=bool(config['transcription'] == t),
         )
 
     for s in speech_engines:
@@ -81,41 +76,27 @@ def load_menu():
             s,
             partial(config.update, {'speech': s}),
             checkable=True,
-            checked=bool(config['speech'] == s)
+            checked=bool(config['speech'] == s),
         )
 
     add_menu('Chinese::Fill Notes')
-    add_menu_item(
-        'Chinese::Fill Notes',
-        _('Fill Sounds'),
-        fill_sounds
-    )
+    add_menu_item('Chinese::Fill Notes', _('Fill Sounds'), bulk_fill_sound)
     add_menu_item(
         'Chinese::Fill Notes',
         _('Fill Transcription and Color'),
-        fill_pinyin
+        bulk_fill_pinyin,
     )
+    add_menu_item('Chinese::Fill Notes', _('Fill Definitions'), bulk_fill_defs)
+    add_menu_item('Chinese::Fill Notes', _('Fill Characters'), bulk_fill_hanzi)
     add_menu_item(
-        'Chinese::Fill Notes',
-        _('Fill Definitions'),
-        fill_definitions
-    )
-    add_menu_item(
-        'Chinese::Fill Notes',
-        _('Fill Characters'),
-        fill_simp_trad
-    )
-    add_menu_item(
-        'Chinese::Fill Notes',
-        _('Fill Silhouette'),
-        fill_silhouette
+        'Chinese::Fill Notes', _('Fill Silhouette'), bulk_fill_silhouette
     )
 
     add_menu('Chinese::Help')
     add_menu_item(
         'Chinese::Help',
         _('Report a bug or make a feature request'),
-        lambda: openLink(CSR_GITHUB_URL + '/issues')
+        lambda: openLink(CSR_GITHUB_URL + '/issues'),
     )
     add_menu_item('Chinese::Help', _('About...'), showAbout)
 

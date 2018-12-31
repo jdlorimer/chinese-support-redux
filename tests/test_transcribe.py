@@ -1,4 +1,4 @@
-# Copyright © 2018 Joseph Lorimer <luoliyan@posteo.net>
+# Copyright © 2018-2019 Joseph Lorimer <luoliyan@posteo.net>
 #
 # This file is part of Chinese Support Redux.
 #
@@ -28,10 +28,10 @@ from chinese.transcribe import (
     tone_number,
     transcribe,
 )
-from tests import ChineseTests
+from tests import ChineseTest
 
 
-class AccentuateTests(ChineseTests):
+class Accentuate(ChineseTest):
     def test_pinyin(self):
         with patch('chinese.transcribe.config', {'transcription': 'Pinyin'}):
             self.assertEqual(accentuate(['xian4']), ['xiàn'])
@@ -47,7 +47,7 @@ class AccentuateTests(ChineseTests):
             self.assertEqual(accentuate(['xian4']), ['xian4'])
 
 
-class SeparateTransTests(ChineseTests):
+class SeparateTrans(ChineseTest):
     def test_tone_mark(self):
         with patch('chinese.transcribe.config', {'transcription': 'Pinyin'}):
             self.assertEqual(separate_trans('xiànzài'), ['xiàn zài'])
@@ -95,7 +95,7 @@ class SeparateTransTests(ChineseTests):
         )
 
 
-class SeparateCharsTests(ChineseTests):
+class SeparateChars(ChineseTest):
     def test_grouped_input_spaced_punc(self):
         self.assertEqual(
             separate_chars('没有 ，是 我 第一次 来 上海 旅游 。'),
@@ -130,7 +130,7 @@ class SeparateCharsTests(ChineseTests):
         )
 
 
-class TranscribeTests(ChineseTests):
+class Transcribe(ChineseTest):
     def test_single_word(self):
         self.assertEqual(transcribe(['你'], 'Pinyin'), ['nǐ'])
 
@@ -160,7 +160,7 @@ class TranscribeTests(ChineseTests):
         self.assertEqual(transcribe(['没有。'], 'Pinyin'), ['méi', 'yǒu', '.'])
 
 
-class ReplaceToneMarksTests(ChineseTests):
+class ReplaceToneMarks(ChineseTest):
     def test_split_words(self):
         self.assertEqual(
             replace_tone_marks('hàn yǔ pīn yīn'), 'han4 yu3 pin1 yin1'
@@ -188,7 +188,7 @@ class ReplaceToneMarksTests(ChineseTests):
         self.assertEqual(replace_tone_marks('你[nǐ]'), '你[ni3]')
 
 
-class NoToneTests(ChineseTests):
+class NoTone(ChineseTest):
     def test_tone_number(self):
         self.assertEqual(no_tone('ni3'), 'ni')
 
@@ -218,7 +218,7 @@ class NoToneTests(ChineseTests):
         self.assertEqual(no_tone('你[nǐ]'), '你[ni]')
 
 
-class ToneNumberTests(ChineseTests):
+class ToneNumber(ChineseTest):
     def test_tone_number(self):
         self.assertEqual(tone_number('ni3'), '3')
 
@@ -239,7 +239,7 @@ class ToneNumberTests(ChineseTests):
         self.assertEqual(tone_number('ㄋㄜ˙'), '5')
 
 
-class IsSentenceTests(ChineseTests):
+class IsSentence(ChineseTest):
     def test_length(self):
         self.assertFalse(is_sentence('你' * 6))
         self.assertTrue(is_sentence('你' * 7))
