@@ -53,6 +53,10 @@ Then, to use the field filling features:
 
 ## History
 
+- **2019.01.01**
+  - Fix bulk filling of Pinyin
+  - Refactor several near-duplicate functions
+  - Expand tests
 - **2018.12.25**
   - Fix accentuate call errors
   - Fix handling of punctuation by colorize functions
