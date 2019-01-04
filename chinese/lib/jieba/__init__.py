@@ -52,6 +52,10 @@ def setLogLevel(log_level):
     global logger
     default_logger.setLevel(log_level)
 
+
+setLogLevel(60)
+
+
 class Tokenizer(object):
 
     def __init__(self, dictionary=DEFAULT_DICT):
