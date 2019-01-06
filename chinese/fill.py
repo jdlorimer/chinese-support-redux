@@ -27,13 +27,10 @@ from .behavior import (
     fill_all_defs,
     fill_all_rubies,
     fill_bopomofo,
-    fill_cantonese,
     fill_color,
-    fill_pinyin,
     fill_silhouette,
     fill_simp,
     fill_sound,
-    fill_taiwan_pinyin,
     fill_trad,
     fill_transcription,
 )

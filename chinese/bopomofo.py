@@ -1,6 +1,6 @@
 # Copyright © 2012 Thomas TEMPÉ <thomas.tempe@alysse.org>
 # Copyright © 2014 Alex Griffin <alex@alexjgriffin.com>
-# Copyright © 2017-2018 Joseph Lorimer <luoliyan@posteo.net>
+# Copyright © 2017-2019 Joseph Lorimer <luoliyan@posteo.net>
 #
 # This file is part of Chinese Support Redux.
 #
@@ -22,13 +22,11 @@ from .util import cleanup
 
 
 def bopomofo(pinyin):
-    """Convert a pinyin string to Bopomofo.
-
-    Optional tone info must be given as a number suffix, e.g.: 'ni3'.
-    """
-
-    pinyin = cleanup(pinyin).lower()
-    for (a, b) in bopomofo_replacements:
-        pinyin = pinyin.replace(a, b)
-
-    return pinyin
+    assert isinstance(pinyin, list)
+    result = []
+    for word in pinyin:
+        s = cleanup(word).lower()
+        for (a, b) in bopomofo_replacements:
+            s = s.replace(a, b)
+        result.append(s)
+    return result

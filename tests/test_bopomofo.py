@@ -23,12 +23,17 @@ from tests import ChineseTest
 
 class Bopomofo(ChineseTest):
     def test_pinyin_no_tone(self):
-        self.assertEqual(bopomofo('zhu yin'), 'ㄓㄨ ㄧㄣ')
+        self.assertEqual(bopomofo(['zhu yin']), ['ㄓㄨ ㄧㄣ'])
+        self.assertEqual(bopomofo(['zhu', 'yin']), ['ㄓㄨ', 'ㄧㄣ'])
+        self.assertEqual(bopomofo(['zhuyin']), ['ㄓㄨㄧㄣ'])
 
     def test_pinyin_tone_numbers(self):
-        self.assertEqual(bopomofo('ni3 ne5'), 'ㄋㄧˇ ㄋㄜ˙')
-        self.assertEqual(bopomofo('ru2 guo3'), 'ㄖㄨˊ ㄍㄨㄛˇ')
-        self.assertEqual(bopomofo('zhu4 yin1'), 'ㄓㄨˋ ㄧㄣ')
+        self.assertEqual(
+            bopomofo(['ni3', 'ne5', 'ru2guo3 zhu4 yin1']),
+            ['ㄋㄧˇ', 'ㄋㄜ˙', 'ㄖㄨˊㄍㄨㄛˇ ㄓㄨˋ ㄧㄣ'],
+        )
+
+        self.assertEqual(bopomofo(['mei2 you3']), ['ㄇㄟˊ ㄧㄡˇ'])
 
     @skip
     def test_pinyin_tone_mark(self):

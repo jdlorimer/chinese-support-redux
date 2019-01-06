@@ -1,5 +1,5 @@
 # Copyright © 2012 Thomas TEMPÉ <thomas.tempe@alysse.org>
-# Copyright © 2017-2018 Joseph Lorimer <luoliyan@posteo.net>
+# Copyright © 2017-2019 Joseph Lorimer <luoliyan@posteo.net>
 #
 # This file is part of Chinese Support Redux.
 #
@@ -22,6 +22,7 @@ from unicodedata import name, normalize
 from .bopomofo import bopomofo
 from .consts import (
     accents,
+    DIACRITIC_TO_TONE,
     bopomofo_regex,
     hanzi_regex,
     jyutping_finals,
@@ -37,7 +38,7 @@ from .consts import (
 )
 from .hanzi import has_hanzi
 from .main import config, dictionary
-from .ruby import has_ruby, ruby_bottom, ruby_top
+from .ruby import has_ruby, ruby_bottom, ruby_top, separate_ruby
 from .util import cleanup, is_punc, no_color
 
 
@@ -91,12 +92,6 @@ def transcribe(words, target=None, only_one=True):
     if not list(filter(has_hanzi, words)):
         return transcribed
 
-    if len(words) == 1 and is_sentence(words[0]):
-        if len(words[0].split()) > 1:
-            words = separate_chars(words[0])
-        else:
-            words = [c for c in words[0]]
-
     if not target:
         target = config['transcription']
 
@@ -113,7 +108,7 @@ def transcribe(words, target=None, only_one=True):
             transcribed.append(dictionary.get_cantonese(text, only_one))
         elif target == 'Bopomofo':
             r = dictionary.get_pinyin(text, taiwan=True)
-            transcribed.append(bopomofo(replace_tone_marks(r)))
+            transcribed.extend(bopomofo(replace_tone_marks([r])))
         else:
             transcribed.append('')
 
@@ -135,7 +130,7 @@ def get_char_transcription(hanzi, transcription=None):
 
 
 def accentuate(syllables):
-    """Add accents to Pinyin."""
+    assert isinstance(syllables, list)
 
     if config['transcription'] not in ['Pinyin', 'Pinyin (Taiwan)']:
         return syllables
@@ -171,49 +166,51 @@ def accentuate(syllables):
     return accentuated
 
 
-def replace_tone_marks(text):
-    """Replace Pinyin tone marks with tone numbers."""
+def replace_tone_marks(pinyin):
+    assert isinstance(pinyin, list)
+    result = []
+    for bottom, top in separate_ruby(pinyin):
+        a = []
+        for syllable in separate_trans(top, grouped=False):
+            s = get_tone_number_pinyin(syllable)
+            if bottom:
+                s = f'{bottom}[{s}]'
+            a.append(s)
+        result.append(' '.join(a))
+    return result
 
-    if search(tone_number_regex, text) or search(bopomofo_regex, text):
-        return text
 
-    d = {
-        'COMBINING MACRON': '1',
-        'COMBINING ACUTE ACCENT': '2',
-        'COMBINING CARON': '3',
-        'COMBINING GRAVE ACCENT': '4',
-    }
+def get_tone_number_pinyin(syllable):
+    assert isinstance(syllable, str)
 
-    done = []
-    for syllable in text.split():
-        if is_punc(syllable):
-            done.append(syllable)
-            continue
+    if (
+        search(tone_number_regex, syllable)
+        or search(bopomofo_regex, syllable)
+        or is_punc(syllable)
+    ):
+        return syllable
 
-        if has_ruby(syllable):
-            s = ruby_bottom(syllable) + '['
-            syllable = ruby_top(syllable)
+    if has_ruby(syllable):
+        s = ruby_bottom(syllable) + '['
+        syllable = ruby_top(syllable)
+    else:
+        s = ''
+
+    tone = '5'
+    for c in normalize('NFD', syllable):
+        if name(c) in DIACRITIC_TO_TONE:
+            tone = DIACRITIC_TO_TONE[name(c)]
         else:
-            s = str()
+            s += c
 
-        tone = '5'
-        for c in normalize('NFD', syllable):
-            if name(c) in d:
-                tone = d[name(c)]
-            else:
-                s += c
+    if '[' in s:
+        s += ']'
 
-        s += tone
-        if '[' in s:
-            s += ']'
-
-        done.append(normalize('NFC', s))
-
-    return ' '.join(done)
+    return normalize('NFC', s + tone)
 
 
 def separate_trans(trans, grouped=True):
-    """Separate transcription syllables."""
+    assert isinstance(trans, str)
 
     def _clean(t):
         if t.startswith("'"):
@@ -242,17 +239,9 @@ def separate_trans(trans, grouped=True):
     return list(filter(lambda s: s.strip(), separated))
 
 
-def separate_chars(chars, grouped=True):
-    separated = []
-    if not grouped:
-        return list(filter(lambda s: s.strip(), chars))
-    for s in split('([ ,.，。])', chars):
-        separated.append(' '.join(s))
-    return list(filter(lambda s: s.strip(), separated))
-
-
 def tone_number(s):
-    s = replace_tone_marks(cleanup(s))
+    assert isinstance(s, str)
+    s, *_ = replace_tone_marks([cleanup(s)])
 
     if search(r'[0-9]$', s):
         return s[-1]
@@ -269,10 +258,10 @@ def tone_number(s):
 
 
 def no_tone(text):
-    """Remove tone information and coloring."""
+    assert isinstance(text, str)
 
     text = no_color(text)
-    text = replace_tone_marks(text)
+    text, *_ = replace_tone_marks([text])
 
     def _remove_tone(p):
         return p.group(1) + sub(tone_number_regex, '', p.group(2)) + ']'

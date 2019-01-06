@@ -1,5 +1,5 @@
 # Copyright © 2012 Thomas TEMPÉ <thomas.tempe@alysse.org>
-# Copyright © 2017-2018 Joseph Lorimer <luoliyan@posteo.net>
+# Copyright © 2017-2019 Joseph Lorimer <luoliyan@posteo.net>
 #
 # This file is part of Chinese Support Redux.
 #
@@ -15,6 +15,8 @@
 #
 # You should have received a copy of the GNU General Public License along with
 # Chinese Support Redux.  If not, see <https://www.gnu.org/licenses/>.
+
+from .consts import CLOZE
 
 from re import DOTALL, sub
 from unicodedata import category
@@ -65,10 +67,8 @@ def cleanup(text):
     text = text.replace('&nbsp;', ' ')
     text = sub(r'^\s*', '', text)
     text = sub(r'\s*$', '', text)
-    # cloze
-    text = sub(r'\{\{c[0-9]+::(.*?)(::.*?)?\}\}', r'\1', text)
+    text = CLOZE.sub(r'\1', text)
     return text
-
 
 def no_html(text):
     return sub(r'<.*?>', '', text, flags=DOTALL)
@@ -93,9 +93,7 @@ def no_color(text):
     text = text.replace(r'&nbsp;', '')
     text = no_hidden(text)
     text = sub(r'<span class="tone1?[0-9]">(.*?)</span>', r'\1', text)
-    # sometimes added by Anki
     text = sub(r'<font color="#000000">(.*?)</font>', r'\1', text)
-    # pinyin toolkit coloring
     text = sub(r'<span style=.*?>(.*?)</span>', r'\1', text)
     return text
 
@@ -128,7 +126,7 @@ def align(a, b):
         return []
     a += [None] * (m - len(a))
     b += [None] * (m - len(b))
-    for x in range(m):
+    for _ in range(m):
         if (is_punc(a[i]) and is_punc(b[j])) or (
             not is_punc(a[i]) and not is_punc(b[j])
         ):
