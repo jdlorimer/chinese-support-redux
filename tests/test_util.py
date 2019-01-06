@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License along with
 # Chinese Support Redux.  If not, see <https://www.gnu.org/licenses/>.
 
-from chinese.util import align, get_first, hide, no_hidden, set_all
+from chinese.util import align, cleanup, get_first, hide, no_hidden, set_all
 from tests import ChineseTest
 
 
@@ -31,6 +31,11 @@ class Util(ChineseTest):
         d = {'foo': '', 'bar': '', 'baz': ''}
         set_all(['foo', 'baz'], d, 'qux')
         self.assertEqual(d, {'foo': 'qux', 'bar': '', 'baz': 'qux'})
+
+
+class Cleanup(ChineseTest):
+    def test_cloze(self):
+        self.assertEqual(cleanup('{{c1::foo::bar}}'), 'foo')
 
 
 class GetAny(ChineseTest):

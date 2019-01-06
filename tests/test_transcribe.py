@@ -20,10 +20,10 @@ from unittest.mock import patch
 
 from chinese.transcribe import (
     accentuate,
+    get_tone_number_pinyin,
     is_sentence,
     no_tone,
     replace_tone_marks,
-    separate_chars,
     separate_trans,
     tone_number,
     transcribe,
@@ -95,41 +95,6 @@ class SeparateTrans(ChineseTest):
         )
 
 
-class SeparateChars(ChineseTest):
-    def test_grouped_input_spaced_punc(self):
-        self.assertEqual(
-            separate_chars('没有 ，是 我 第一次 来 上海 旅游 。'),
-            ['没 有', '，', '是', '我', '第 一 次', '来', '上 海', '旅 游', '。'],
-        )
-
-    def test_grouped_input_unspaced_punc(self):
-        self.assertEqual(
-            separate_chars('没有，是 我 第一次 来 上海 旅游。'),
-            ['没 有', '，', '是', '我', '第 一 次', '来', '上 海', '旅 游', '。'],
-        )
-
-    def test_grouped_input_ungrouped_output(self):
-        self.assertEqual(
-            separate_chars('没有，是 我 第一次 来 上海 旅游。', grouped=False),
-            [
-                '没',
-                '有',
-                '，',
-                '是',
-                '我',
-                '第',
-                '一',
-                '次',
-                '来',
-                '上',
-                '海',
-                '旅',
-                '游',
-                '。',
-            ],
-        )
-
-
 class Transcribe(ChineseTest):
     def test_single_word(self):
         self.assertEqual(transcribe(['你'], 'Pinyin'), ['nǐ'])
@@ -151,41 +116,56 @@ class Transcribe(ChineseTest):
             transcribe(['没有', '，', '没有', '。'], 'Pinyin'),
             ['méi yǒu', ',', 'méi yǒu', '.'],
         )
+
+    def test_grouped_chars(self):
         self.assertEqual(
-            transcribe(['没有', '。', '没有', '。'], 'Pinyin'),
-            ['méi yǒu', '.', 'méi yǒu', '.'],
+            transcribe(['你', '什么', '时候', '能', '来', '？']),
+            ['nǐ', 'shén me', 'shí hou', 'néng', 'lái', '？'],
         )
 
-    def test_split_sentence(self):
-        self.assertEqual(transcribe(['没有。'], 'Pinyin'), ['méi', 'yǒu', '.'])
+    def test_ungrouped_chars(self):
+        self.assertEqual(
+            transcribe(['你什么时候能来？']),
+            ['nǐ shén me shí hou néng lái ？'],
+        )
 
 
 class ReplaceToneMarks(ChineseTest):
-    def test_split_words(self):
+    def test_split_syllables(self):
         self.assertEqual(
-            replace_tone_marks('hàn yǔ pīn yīn'), 'han4 yu3 pin1 yin1'
+            replace_tone_marks(['hàn', 'yǔ', 'pīn', 'yīn']),
+            ['han4', 'yu3', 'pin1', 'yin1'],
         )
 
-    @skip
-    def test_joined_words(self):
+    def test_joined_syllables_spaced(self):
         self.assertEqual(
-            replace_tone_marks('hànyǔ pīnyīn'), 'han4yu3 pin1yin1'
+            replace_tone_marks(['hàn yǔ', 'pīn yīn']),
+            ['han4 yu3', 'pin1 yin1'],
+        )
+
+    def test_joined_syllables_unspaced(self):
+        self.assertEqual(
+            replace_tone_marks(['hànyǔ', 'pīnyīn']), ['han4 yu3', 'pin1 yin1']
         )
 
     def test_tone_number(self):
-        self.assertEqual(replace_tone_marks('pin1 yin1'), 'pin1 yin1')
+        self.assertEqual(
+            replace_tone_marks(['pin1', 'yin1']), ['pin1', 'yin1']
+        )
 
     def test_tone_superscript(self):
-        self.assertEqual(replace_tone_marks('pin¹ yin¹'), 'pin¹ yin¹')
+        self.assertEqual(
+            replace_tone_marks(['pin¹', 'yin¹']), ['pin¹', 'yin¹']
+        )
 
     def test_neutral_tone(self):
-        self.assertEqual(replace_tone_marks('ne'), 'ne5')
+        self.assertEqual(replace_tone_marks(['ne']), ['ne5'])
 
     def test_umlaut(self):
-        self.assertEqual(replace_tone_marks('lǘ'), 'lü2')
+        self.assertEqual(replace_tone_marks(['lǘ']), ['lü2'])
 
     def test_ruby(self):
-        self.assertEqual(replace_tone_marks('你[nǐ]'), '你[ni3]')
+        self.assertEqual(replace_tone_marks(['你[nǐ]']), ['你[ni3]'])
 
 
 class NoTone(ChineseTest):
@@ -206,6 +186,7 @@ class NoTone(ChineseTest):
             'mei you',
         )
 
+    @skip
     def test_tone_styling_unspaced(self):
         self.assertEqual(
             no_tone(
@@ -247,3 +228,10 @@ class IsSentence(ChineseTest):
     def test_punc(self):
         self.assertFalse(is_sentence('你'))
         self.assertTrue(is_sentence('你。'))
+
+
+class GetToneNumberPinyin(ChineseTest):
+    def test_get_tone_number_pinyin(self):
+        self.assertEqual(get_tone_number_pinyin('hàn yǔ'), 'han yu3')
+        self.assertEqual(get_tone_number_pinyin('hànyǔ'), 'hanyu3')
+        self.assertEqual(get_tone_number_pinyin('hàn'), 'han4')

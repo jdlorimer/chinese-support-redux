@@ -1,5 +1,5 @@
 # Copyright © 2012 Thomas TEMPÉ <thomas.tempe@alysse.org>
-# Copyright © 2017-2018 Joseph Lorimer <luoliyan@posteo.net>
+# Copyright © 2017-2019 Joseph Lorimer <luoliyan@posteo.net>
 #
 # This file is part of Chinese Support Redux.
 #
@@ -16,7 +16,9 @@
 # You should have received a copy of the GNU General Public License along with
 # Chinese Support Redux.  If not, see <https://www.gnu.org/licenses/>.
 
-from re import search, sub
+from re import search, split, sub
+
+from jieba import cut
 
 from .main import dictionary
 
@@ -44,3 +46,16 @@ def traditional(text):
 
 def has_hanzi(text):
     return search(r'[\u3400-\u9fff]', text)
+
+
+def separate_chars(chars, grouped=True):
+    assert isinstance(chars, str)
+
+    if not grouped:
+        return list(filter(lambda s: s.strip(), chars))
+
+    if len(chars.split()) > 1:
+        separated = split('([ ,.，。])', chars)
+        return list(filter(lambda s: s.strip(), separated))
+
+    return list(cut(chars))

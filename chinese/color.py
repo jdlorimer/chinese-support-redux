@@ -1,5 +1,5 @@
 # Copyright © 2012 Thomas TEMPÉ <thomas.tempe@alysse.org>
-# Copyright © 2017-2018 Joseph Lorimer <luoliyan@posteo.net>
+# Copyright © 2017-2019 Joseph Lorimer <luoliyan@posteo.net>
 #
 # This file is part of Chinese Support Redux.
 #
@@ -19,23 +19,16 @@
 from re import IGNORECASE, sub
 
 from .consts import pinyin_regex, half_ruby_regex, ruby_regex
+from .hanzi import separate_chars
 from .sound import extract_sound_tags
-from .transcribe import accentuate, separate_chars, separate_trans, tone_number
+from .transcribe import accentuate, separate_trans, tone_number
 from .util import align, cleanup, is_punc, no_color
 
 
 def colorize(words, ruby_whole=False):
-    """Add tone color info. Works on transcription, hanzi or ruby.
-
-    In the case of ruby, it will colorize only the annotation by default.
-    If ruby_whole = True, then it will colorize the whole character.
-    """
-
     from .ruby import has_ruby
 
     assert isinstance(words, list)
-    if not isinstance(words, list):
-        words = sanitize_pinyin(words)
 
     def colorize_ruby_sub(p):
         return '<span class="tone{t}">{r}</span>'.format(

@@ -18,13 +18,13 @@
 
 from .bopomofo import bopomofo
 from .color import colorize, colorize_dict, colorize_fuse
-from .hanzi import silhouette, simplify, traditional
+from .hanzi import separate_chars, silhouette, simplify, traditional
 from .main import config, dictionary
 from .ruby import hide_ruby, ruby
 from .sound import no_sound, sound
 from .transcribe import accentuate, no_tone, separate_trans, transcribe
 from .translate import translate
-from .util import cleanup, get_first, has_field, hide, no_color, set_all
+from .util import cleanup, get_first, has_field, hide, set_all
 
 
 def get_classifier(hanzi, note):
@@ -112,14 +112,25 @@ def format_transcription(note):
 
 
 def fill_transcription(hanzi, note):
-    if get_first(config['fields']['transcription'], note) == '':
-        trans = colorize(transcribe([no_sound(hanzi)]))
-        trans = hide(trans, no_tone(trans))
-        set_all(config['fields']['transcription'], note, to=trans)
-        return 1
+    n_filled = 0
+    separated = separate_chars(hanzi)
 
-    format_transcription(note)
-    return 0
+    for key, target, func, only_one in [
+        ('transcription', None, format_transcription, True),
+        ('pinyin', 'Pinyin', format_pinyin, True),
+        ('pinyinTaiwan', 'Pinyin (Taiwan)', format_taiwan_pinyin, True),
+        ('cantonese', 'Cantonese', format_cantonese, False),
+    ]:
+        if get_first(config['fields'][key], note) == '':
+            trans = colorize(transcribe(separated, target, only_one))
+            trans = hide(trans, no_tone(trans))
+            set_all(config['fields'][key], note, to=trans)
+            n_filled += 1
+        else:
+            func(note)
+
+    n_filled += fill_bopomofo(hanzi, note)
+    return n_filled
 
 
 def format_pinyin(note):
@@ -134,40 +145,17 @@ def format_pinyin(note):
     set_all(config['fields']['pinyin'], note, to=t)
 
 
-def fill_pinyin(hanzi, note):
-    if get_first(config['fields']['pinyin'], note) == '':
-        t = colorize(transcribe([no_sound(hanzi)], 'Pinyin'))
-        t = hide(t, no_tone(t))
-        set_all(config['fields']['pinyin'], note, to=t)
-        return 1
-    format_pinyin(note)
-    return 0
-
-
 def format_taiwan_pinyin(note):
     t = colorize(
         accentuate(
             separate_trans(
-                cleanup(get_first(config['fields']['pinyinTaiwan'], note)), True
+                cleanup(get_first(config['fields']['pinyinTaiwan'], note)),
+                True,
             )
         )
     )
     t = hide(t, no_tone(t))
     set_all(config['fields']['pinyinTaiwan'], note, to=t)
-
-    if has_field(config['fields']['bopomofo'], note):
-        set_all(config['fields']['bopomofo'], note, to=bopomofo(t))
-
-
-def fill_taiwan_pinyin(hanzi, note):
-    if get_first(config['fields']['pinyinTaiwan'], note) == '':
-        t = colorize(transcribe([no_sound(hanzi)], 'Pinyin (Taiwan)'))
-        t = hide(t, no_tone(t))
-        set_all(config['fields']['pinyinTaiwan'], note, to=t)
-        return 1
-
-    format_taiwan_pinyin(note)
-    return 0
 
 
 def format_cantonese(note):
@@ -178,56 +166,28 @@ def format_cantonese(note):
     set_all(config['fields']['cantonese'], note, to=t)
 
 
-def fill_cantonese(hanzi, note):
-    if get_first(config['fields']['cantonese'], note) == '':
-        t = colorize(transcribe([no_sound(hanzi)], 'Cantonese', False))
-        t = hide(t, no_tone(t))
-        set_all(config['fields']['cantonese'], note, to=t)
-        return 1
-
-    format_cantonese(note)
-    return 0
-
-
 def fill_bopomofo(hanzi, note):
     field = get_first(config['fields']['bopomofo'], note)
 
     if field:
-        syllables = no_color(cleanup(field)).split()
-        n_added = 0
+        syllables = cleanup(field).split()
+        n_filled = 0
     else:
-        syllables = transcribe(list(no_sound(hanzi)), 'Bopomofo')
-        n_added = 1
+        syllables = transcribe(separate_chars(hanzi), 'Bopomofo')
+        n_filled = 1
 
     text = colorize(syllables)
     text = hide(text, no_tone(text))
     set_all(config['fields']['bopomofo'], note, to=text)
 
-    return n_added
-
-
-def fill_all_transcriptions(hanzi, note):
-    fill_transcription(hanzi, note)
-    fill_pinyin(hanzi, note)
-    fill_taiwan_pinyin(hanzi, note)
-    fill_bopomofo(hanzi, note)
-    fill_cantonese(hanzi, note)
+    return n_filled
 
 
 def fill_color(hanzi, note):
-    hanzi = no_sound(hanzi)
-
-    for trans_field, color_field in [
-        ('transcription', 'color'),
-        ('bopomofo', 'colorBopomofo'),
-        ('cantonese', 'colorCantonese'),
-        ('pinyinTaiwan', 'colorPinyinTaiwan'),
-        ('pinyin', 'colorPinyin'),
-    ]:
-        trans = get_first(config['fields'][trans_field], note)
-        trans = no_sound(no_color(trans))
-        colorized = colorize_fuse(hanzi, trans)
-        set_all(config['fields'][color_field], note, to=colorized)
+    trans = get_first(config['fields']['transcription'], note)
+    trans = no_sound(trans)
+    colorized = colorize_fuse(hanzi, trans)
+    set_all(config['fields']['color'], note, to=colorized)
 
 
 def fill_sound(hanzi, note):
@@ -330,7 +290,7 @@ def update_fields(note, focus_field, fields):
         model = None
 
     copy = dict(note)
-    hanzi = cleanup(get_first(config['fields']['hanzi'], copy))
+    hanzi = no_sound(cleanup(get_first(config['fields']['hanzi'], copy)))
 
     if model == 'Chinese Ruby':
         if focus_field == 'Hanzi':
@@ -348,7 +308,7 @@ def update_fields(note, focus_field, fields):
     elif focus_field in config['fields']['hanzi']:
         if copy[focus_field]:
             fill_all_defs(hanzi, copy)
-            fill_all_transcriptions(hanzi, copy)
+            fill_transcription(hanzi, copy)
             fill_color(hanzi, copy)
             fill_sound(hanzi, copy)
             fill_simp(hanzi, copy)
@@ -374,7 +334,6 @@ def update_fields(note, focus_field, fields):
         fill_color(hanzi, copy)
         fill_all_rubies(hanzi, copy)
     elif focus_field in config['fields']['bopomofo']:
-        # format_bopomofo_fields(copy)
         fill_color(hanzi, copy)
         fill_all_rubies(hanzi, copy)
 

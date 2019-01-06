@@ -1,5 +1,5 @@
 # Copyright © 2012 Thomas TEMPÉ <thomas.tempe@alysse.org>
-# Copyright © 2017-2018 Joseph Lorimer <luoliyan@posteo.net>
+# Copyright © 2017-2019 Joseph Lorimer <luoliyan@posteo.net>
 #
 # This file is part of Chinese Support Redux.
 #
@@ -22,7 +22,7 @@ from .consts import sound_tag_regex
 from .hanzi import has_hanzi
 from .main import config
 from .tts import download_sound
-from .util import cleanup, no_color
+from .util import cleanup
 
 
 def sound(hanzi, source=None):
@@ -38,8 +38,6 @@ def sound(hanzi, source=None):
 
     if has_ruby(hanzi):
         hanzi = ruby_bottom(hanzi)
-
-    hanzi = cleanup(no_color(no_sound(hanzi)))
 
     if not hanzi:
         return ''

@@ -1,5 +1,5 @@
 # Copyright © 2012 Thomas TEMPÉ <thomas.tempe@alysse.org>
-# Copyright © 2017-2018 Joseph Lorimer <luoliyan@posteo.net>
+# Copyright © 2017-2019 Joseph Lorimer <luoliyan@posteo.net>
 #
 # This file is part of Chinese Support Redux.
 #
@@ -15,6 +15,8 @@
 #
 # You should have received a copy of the GNU General Public License along with
 # Chinese Support Redux.  If not, see <https://www.gnu.org/licenses/>.
+
+from re import compile
 
 vowel_decorations = [
     {},
@@ -41,7 +43,9 @@ tone_number_regex = r'[0-9¹²³⁴⁵⁶⁷⁸⁹]'
 tone_superscript_regex = r'[¹²³⁴⁵⁶⁷⁸⁹]'
 
 ruby_regex = r'(%s\[\s*)([a-zü%s]+%s?)(.*?\])' % (
-    hanzi_regex, accents, tone_number_regex
+    hanzi_regex,
+    accents,
+    tone_number_regex,
 )
 half_ruby_regex = r'([A-Za-zü%s]+%s?)' % (accents, tone_number_regex)
 pinyin_regex = r'([A-Za-zü\u3100-\u312F%s]+[1-5¹²³⁴⁵ˊˇˋ˙]?)' % accents
@@ -76,22 +80,24 @@ bopomofo_replacements = [
 
 bopomofo_special = [
     ('chi', 'ㄔ'),
+    ('shi', 'ㄕ'),
+    ('zhi', 'ㄓ'),
     ('ci', 'ㄘ'),
     ('ju', 'ㄐㄩ'),
     ('qu', 'ㄑㄩ'),
     ('r5', 'ㄦ'),
     ('ri', 'ㄖ'),
-    ('shi', 'ㄕ'),
     ('si', 'ㄙ'),
     ('xu', 'ㄒㄩ'),
-    ('zhi', 'ㄓ'),
     ('zi', 'ㄗ'),
 ]
 
 bopomofo_initials = [
+    ('ch', 'ㄔ'),
+    ('sh', 'ㄕ'),
+    ('zh', 'ㄓ'),
     ('b', 'ㄅ'),
     ('c', 'ㄘ'),
-    ('ch', 'ㄔ'),
     ('d', 'ㄉ'),
     ('f', 'ㄈ'),
     ('g', 'ㄍ'),
@@ -105,67 +111,65 @@ bopomofo_initials = [
     ('q', 'ㄑ'),
     ('r', 'ㄖ'),
     ('s', 'ㄙ'),
-    ('sh', 'ㄕ'),
     ('t', 'ㄊ'),
     ('x', 'ㄒ'),
     ('z', 'ㄗ'),
-    ('zh', 'ㄓ'),
 ]
 
 bopomofo_finals = [
-    ('a', 'ㄚ'),
-    ('ai', 'ㄞ'),
-    ('an', 'ㄢ'),
+    ('iang', 'ㄧㄤ'),
+    ('iong', 'ㄩㄥ'),
+    ('uang', 'ㄨㄤ'),
+    ('u:an', 'ㄩㄢ'),
     ('ang', 'ㄤ'),
-    ('ao', 'ㄠ'),
-    ('e', 'ㄜ'),
-    ('ei', 'ㄟ'),
-    ('en', 'ㄣ'),
     ('eng', 'ㄥ'),
-    ('er', 'ㄦ'),
-    ('i', 'ㄧ'),
-    ('ia', 'ㄧㄚ'),
     ('iai', 'ㄧㄞ'),
     ('ian', 'ㄧㄢ'),
-    ('iang', 'ㄧㄤ'),
     ('iao', 'ㄧㄠ'),
-    ('ie', 'ㄧㄝ'),
-    ('in', 'ㄧㄣ'),
     ('ing', 'ㄧㄥ'),
-    ('io', 'ㄧㄛ'),
-    ('iong', 'ㄩㄥ'),
-    ('iu', 'ㄧㄡ'),
-    ('o', 'ㄛ'),
     ('ong', 'ㄨㄥ'),
-    ('ou', 'ㄡ'),
-    ('u', 'ㄨ'),
-    ('u:', 'ㄩ'),
-    ('u:an', 'ㄩㄢ'),
-    ('u:e', 'ㄩㄝ'),
-    ('u:n', 'ㄩㄣ'),
-    ('ua', 'ㄨㄚ'),
     ('uai', 'ㄨㄞ'),
     ('uan', 'ㄨㄢ'),
-    ('uang', 'ㄨㄤ'),
+    ('u:e', 'ㄩㄝ'),
+    ('u:n', 'ㄩㄣ'),
+    ('ai', 'ㄞ'),
+    ('an', 'ㄢ'),
+    ('ao', 'ㄠ'),
+    ('ei', 'ㄟ'),
+    ('en', 'ㄣ'),
+    ('er', 'ㄦ'),
+    ('ia', 'ㄧㄚ'),
+    ('ie', 'ㄧㄝ'),
+    ('in', 'ㄧㄣ'),
+    ('io', 'ㄧㄛ'),
+    ('iu', 'ㄧㄡ'),
+    ('ou', 'ㄡ'),
+    ('ua', 'ㄨㄚ'),
     ('ui', 'ㄨㄟ'),
     ('un', 'ㄨㄣ'),
     ('uo', 'ㄨㄛ'),
+    ('u:', 'ㄩ'),
+    ('a', 'ㄚ'),
+    ('e', 'ㄜ'),
+    ('i', 'ㄧ'),
+    ('o', 'ㄛ'),
+    ('u', 'ㄨ'),
     ('ê', 'ㄝ'),
 ]
 
-bopomofo_tones = [
-    ('1', ''),
-    ('2', 'ˊ'),
-    ('3', 'ˇ'),
-    ('4', 'ˋ'),
-    ('5', '˙')
-]
+bopomofo_tones = [('1', ''), ('2', 'ˊ'), ('3', 'ˇ'), ('4', 'ˋ'), ('5', '˙')]
 
 table = bopomofo_special + bopomofo_initials + bopomofo_finals + bopomofo_tones
 table.sort(key=lambda pair: len(pair[0]), reverse=True)
 bopomofo_replacements.extend(table)
 
-punc_map = {
-    '。': '.',
-    '，': ','
+punc_map = {'。': '.', '，': ','}
+
+DIACRITIC_TO_TONE = {
+    'COMBINING MACRON': '1',
+    'COMBINING ACUTE ACCENT': '2',
+    'COMBINING CARON': '3',
+    'COMBINING GRAVE ACCENT': '4',
 }
+
+CLOZE = compile(r'\{\{c[0-9]+::(.*?)(::.*?)?\}\}')

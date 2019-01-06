@@ -1,5 +1,5 @@
 # Copyright © 2012 Thomas TEMPÉ <thomas.tempe@alysse.org>
-# Copyright © 2017-2018 Joseph Lorimer <luoliyan@posteo.net>
+# Copyright © 2017-2019 Joseph Lorimer <luoliyan@posteo.net>
 #
 # This file is part of Chinese Support Redux.
 #
@@ -20,36 +20,30 @@ from re import search, sub
 
 from .bopomofo import bopomofo
 from .consts import hanzi_regex
+from .hanzi import has_hanzi
 from .main import config, dictionary
-from .sound import no_sound
 from .util import hide, no_color
 
 
-def ruby(words, transcription=None, only_one=False, try_dict_first=True):
+def ruby(words, transcription=None):
     """Convert hanzi to ruby notation.
 
     For use with {{Ruby:fieldname}} on the card template.
 
     If not specified, use the transcription type set in the menubar.
-
-    if try_dict_first, looks up sequences of characters in the
-    selected words dictionary to supply a better transcription.
-
-    If not specified, insert all possible pinyin words for characters not found
-    in words dictionary.
     """
 
-    from .transcribe import replace_tone_marks
+    from .transcribe import get_char_transcription, replace_tone_marks
 
     if not transcription:
         transcription = config['transcription']
+
+    assert isinstance(words, list)
 
     rubified = []
     for text in words:
         text = sub(r'[［【]', '[', text)
         text = sub(r'[］】]', ']', text)
-        text = no_color(text)
-        text = no_sound(text)
 
         def insert_multiple_pinyin_sub(p):
             hanzi = p.group(1)
@@ -64,20 +58,18 @@ def ruby(words, transcription=None, only_one=False, try_dict_first=True):
                     s += hanzi[0] + '[' + t.pop(0) + ']'
                 elif transcription == 'Bopomofo':
                     s += hanzi[0] + '['
-                    s += bopomofo(replace_tone_marks(t.pop(0))) + ']'
+                    s += bopomofo(replace_tone_marks([t.pop(0)]))[0] + ']'
                 hanzi = hanzi[1:]
             return s + p.group(2)
 
         def insert_pinyin_sub(p):
-            t = get_char_transcription(p.group(1), transcription, only_one)
+            t = get_char_transcription(p.group(1), transcription)
             return p.group(1) + '[' + t + ']' + p.group(2)
 
         text += '%'
-        if try_dict_first and transcription in ['Pinyin', 'Bopomofo']:
+        if transcription in ['Pinyin', 'Bopomofo']:
             text = sub(
-                r'(%s+)([^[])' % hanzi_regex,
-                insert_multiple_pinyin_sub,
-                text
+                r'(%s+)([^[])' % hanzi_regex, insert_multiple_pinyin_sub, text
             )
         text = sub(r'(%s)([^[])' % hanzi_regex, insert_pinyin_sub, text)
         text = sub(r'(%s)([^[])' % hanzi_regex, insert_pinyin_sub, text)
@@ -93,21 +85,34 @@ def has_ruby(text):
 
 def hide_ruby(text):
     """Append hidden hanzi and toneless pinyin to a ruby string,
-    to make a note searchable in the 'browse' window.
+    to make a note searchable in the card browser.
     """
     from .transcribe import no_tone
+
     t = no_tone(ruby_top(text))
     t += no_color(ruby_bottom(text)).replace(' ', '')
     return hide(text, t)
 
 
 def ruby_top(text):
-    return sub(
-        '(%s+)\\[([^\\]]+)\\]' % hanzi_regex, r'\2 ', no_sound(text)
-    ).rstrip()
+    if not has_ruby(text):
+        if not has_hanzi(text):
+            return text
+        return ''
+    return sub('(%s+)\\[([^\\]]+)\\]' % hanzi_regex, r'\2 ', text).rstrip()
 
 
 def ruby_bottom(text):
-    return sub(
-        '(%s+)\\[([^\\]]+)\\]' % hanzi_regex, r'\1 ', no_sound(text)
-    ).rstrip()
+    if not has_ruby(text):
+        if has_hanzi(text):
+            return text
+        return ''
+    return sub('(%s+)\\[([^\\]]+)\\]' % hanzi_regex, r'\1 ', text).rstrip()
+
+
+def separate_ruby(text):
+    assert isinstance(text, list)
+    return [
+        (ruby_bottom(word).replace(' ', ''), ruby_top(word).replace(' ', ''))
+        for word in text
+    ]
