@@ -16,11 +16,12 @@ export PYTHONPATH=.
 VERSION=`cat _version.py | grep __version__ | sed "s/.*'\(.*\)'.*/\1/"`
 PROJECT_SHORT=chinese
 PROJECT_LONG=chinese-support-redux
+PYTEST=pytest
 
 all: test prep pack clean
 
 test:
-	pytest --cov="$(PROJECT_SHORT)" tests -v
+	"$(PYTEST)" --cov="$(PROJECT_SHORT)" tests -v
 
 prep:
 	rm -f $(PROJECT_LONG)-v*.zip
