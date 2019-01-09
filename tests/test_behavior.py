@@ -22,7 +22,10 @@ from chinese.behavior import (
     fill_all_rubies,
     fill_bopomofo,
     fill_color,
+    fill_pinyin,
+    fill_simp,
     fill_sound,
+    fill_trad,
     fill_transcription,
 )
 from tests import ChineseTest
@@ -295,3 +298,70 @@ class FillAllDefs(ChineseTest):
         self.assertEqual(fill_all_defs('图书馆', note), 1)
         self.assertEqual(note['Classifier'], classifier)
         self.assertEqual(note['Meaning'], ' \tlibrary\n<br>')
+
+
+class FillPinyin(ChineseTest):
+    def test_two_character_word(self):
+        note = {'Pinyin': ''}
+        self.assertEqual(fill_pinyin('中国', note), 1)
+        self.assertEqual(
+            note['Pinyin'],
+            (
+                '<span class="tone1">zhōng</span>'
+                '<span class="tone2">guó</span> '
+                '<!-- zhongguo -->'
+            ),
+        )
+        note = {'Pinyin': ''}
+        self.assertEqual(fill_pinyin('上海', note), 1)
+        self.assertEqual(
+            note['Pinyin'],
+            (
+                '<span class="tone4">shàng</span>'
+                '<span class="tone3">hǎi</span> '
+                '<!-- shanghai -->'
+            ),
+        )
+
+
+class FillSimplifiedTraditionalHanzi(ChineseTest):
+
+    config = {'fields': {
+        'simplified': 'Simplified', 'traditional': 'Traditional',
+    }}
+
+    def test_hanzi_simplified_traditional_identical(self):
+        hanzi = '人'
+        note = {'Hanzi': hanzi, 'Simplified': '', 'Traditional': ''}
+        fill_simp(hanzi, note)
+        fill_trad(hanzi, note)
+        self.assertEqual(note['Simplified'], '')
+        self.assertEqual(note['Traditional'], '')
+
+    def test_hanzi_traditional(self):
+        hanzi = '简体字'
+        note = {'Hanzi': hanzi, 'Simplified': '', 'Traditional': ''}
+        fill_trad(hanzi, note)
+        self.assertEqual(note['Simplified'], '')
+        self.assertEqual(note['Traditional'], '簡體字')
+
+    def test_hanzi_simplified(self):
+        hanzi = '繁體字'
+        note = {'Hanzi': hanzi, 'Simplified': '', 'Traditional': ''}
+        fill_simp(hanzi, note)
+        self.assertEqual(note['Simplified'], '繁体字')
+        self.assertEqual(note['Traditional'], '')
+
+    def test_hanzi_not_in_database(self):
+        """
+        Regression test for
+        https://github.com/luoliyan/chinese-support-redux/issues/34. Should
+        leave both Simplified and Traditional fields blank, not throw an
+        exception.
+        """
+        hanzi = '𠂉'
+        note = {'Hanzi': hanzi, 'Simplified': '', 'Traditional': ''}
+        fill_simp(hanzi, note)
+        fill_trad(hanzi, note)
+        self.assertEqual(note['Simplified'], '')
+        self.assertEqual(note['Traditional'], '')

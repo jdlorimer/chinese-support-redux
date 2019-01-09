@@ -65,7 +65,9 @@ config = {
         'rubyCantonese': ['Ruby (Cantonese)'],
         'rubyPinyin': ['Ruby (Pinyin)'],
         'rubyPinyinTaiwan': ['Ruby (Taiwan Pinyin)'],
+        'simplified': ['Simplified'],
         'sound': ['Sound'],
+        'traditional': ['Traditional'],
         'transcription': ['Reading'],
     },
 }

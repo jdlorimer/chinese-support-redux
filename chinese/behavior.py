@@ -217,7 +217,7 @@ def fill_simp(hanzi, note):
         return
 
     s = simplify(hanzi)
-    if s != hanzi:
+    if s is not None and s != hanzi:
         set_all(config['fields']['simplified'], note, to=s)
     else:
         set_all(config['fields']['simplified'], note, to='')
@@ -228,7 +228,7 @@ def fill_trad(hanzi, note):
         return
 
     t = traditional(hanzi)
-    if t != hanzi:
+    if t is not None and t != hanzi:
         set_all(config['fields']['traditional'], note, to=t)
     else:
         set_all(config['fields']['traditional'], note, to='')

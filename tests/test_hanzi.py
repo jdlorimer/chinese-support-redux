@@ -48,10 +48,16 @@ class Simplify(ChineseTest):
     def test_simplify(self):
         self.assertEqual(simplify('繁體字'), '繁体字')
 
+    def test_simplify_not_in_database(self):
+        self.assertIs(simplify('𠂉'), None)
+
 
 class Traditional(ChineseTest):
     def test_traditional(self):
         self.assertEqual(traditional('简体字'), '簡體字')
+
+    def test_traditional_not_in_database(self):
+        self.assertIs(traditional('𠂉'), None)
 
 
 class SeparateChars(ChineseTest):
