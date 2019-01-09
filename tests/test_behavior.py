@@ -22,7 +22,6 @@ from chinese.behavior import (
     fill_all_rubies,
     fill_bopomofo,
     fill_color,
-    fill_pinyin,
     fill_simp,
     fill_sound,
     fill_trad,
@@ -300,36 +299,7 @@ class FillAllDefs(ChineseTest):
         self.assertEqual(note['Meaning'], ' \tlibrary\n<br>')
 
 
-class FillPinyin(ChineseTest):
-    def test_two_character_word(self):
-        note = {'Pinyin': ''}
-        self.assertEqual(fill_pinyin('中国', note), 1)
-        self.assertEqual(
-            note['Pinyin'],
-            (
-                '<span class="tone1">zhōng</span>'
-                '<span class="tone2">guó</span> '
-                '<!-- zhongguo -->'
-            ),
-        )
-        note = {'Pinyin': ''}
-        self.assertEqual(fill_pinyin('上海', note), 1)
-        self.assertEqual(
-            note['Pinyin'],
-            (
-                '<span class="tone4">shàng</span>'
-                '<span class="tone3">hǎi</span> '
-                '<!-- shanghai -->'
-            ),
-        )
-
-
 class FillSimplifiedTraditionalHanzi(ChineseTest):
-
-    config = {'fields': {
-        'simplified': 'Simplified', 'traditional': 'Traditional',
-    }}
-
     def test_hanzi_simplified_traditional_identical(self):
         hanzi = '人'
         note = {'Hanzi': hanzi, 'Simplified': '', 'Traditional': ''}
