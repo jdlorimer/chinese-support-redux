@@ -16,53 +16,27 @@
 # You should have received a copy of the GNU General Public License along with
 # Chinese Support Redux.  If not, see <https://www.gnu.org/licenses/>.
 
-from re import compile, IGNORECASE, search, split, sub
+from re import IGNORECASE, search, split, sub
 from unicodedata import name, normalize
 
 from .bopomofo import bopomofo
 from .consts import (
     accents,
-    DIACRITIC_TO_TONE,
     bopomofo_regex,
+    DIACRITIC_TO_TONE,
     hanzi_regex,
-    jyutping_finals,
-    jyutping_inits,
-    jyutping_standalones,
+    jyutping_split_regex,
     not_pinyin_regex,
-    pinyin_finals,
-    pinyin_inits,
-    pinyin_standalones,
+    pinyin_split_regex,
     punc_map,
     tone_number_regex,
+    TONE_NUMBERS,
     vowel_decorations,
 )
 from .hanzi import has_hanzi
 from .main import config, dictionary
 from .ruby import has_ruby, ruby_bottom, ruby_top, separate_ruby
 from .util import cleanup, is_punc, no_color
-
-
-def pinyin_re_sub():
-    return '(({})({})[1-5]?|({})[1-5]?)'.format(
-        pinyin_inits, pinyin_finals, pinyin_standalones
-    )
-
-
-def jyutping_re_sub():
-    return '(({})({})[1-6]?|({})[1-6]?)'.format(
-        jyutping_inits, jyutping_finals, jyutping_standalones
-    )
-
-
-pinyin_re = pinyin_re_sub()
-pinyin_two_re = compile(
-    '(?P<one>' + pinyin_re + ')(?P<two>' + pinyin_re + ')', IGNORECASE
-)
-
-jyutping_re = jyutping_re_sub()
-jyutping_two_re = compile(
-    '(?P<one>' + jyutping_re + ')(?P<two>' + jyutping_re + ')', IGNORECASE
-)
 
 
 def convert_punc(a):
@@ -115,16 +89,16 @@ def transcribe(words, target=None, only_one=True):
     return convert_punc(transcribed)
 
 
-def get_char_transcription(hanzi, transcription=None):
-    if not transcription:
-        transcription = config['transcription']
-    if transcription == 'Pinyin':
+def transcribe_char(hanzi, method=None):
+    if not method:
+        method = config['transcription']
+    if method == 'Pinyin':
         return dictionary.get_pinyin(hanzi)
-    if transcription == 'Pinyin (Taiwan)':
+    if method == 'Pinyin (Taiwan)':
         return dictionary.get_pinyin(hanzi, taiwan=True)
-    if transcription == 'Cantonese':
+    if method == 'Cantonese':
         return dictionary.get_cantonese(hanzi)
-    if transcription == 'Bopomofo':
+    if method == 'Bopomofo':
         return bopomofo(dictionary.get_pinyin(hanzi, taiwan=True))
     return ''
 
@@ -171,7 +145,7 @@ def replace_tone_marks(pinyin):
     result = []
     for bottom, top in separate_ruby(pinyin):
         a = []
-        for syllable in separate_trans(top, grouped=False):
+        for syllable in split_transcript(top, grouped=False):
             s = get_tone_number_pinyin(syllable)
             if bottom:
                 s = f'{bottom}[{s}]'
@@ -209,27 +183,27 @@ def get_tone_number_pinyin(syllable):
     return normalize('NFC', s + tone)
 
 
-def separate_trans(trans, grouped=True):
-    assert isinstance(trans, str)
+def split_transcript(transcript, grouped=True):
+    assert isinstance(transcript, str)
 
     def _clean(t):
         if t.startswith("'"):
             return t[1:]
         return t
 
-    def _separate(p):
+    def _split(p):
         return _clean(p.group('one')) + ' ' + _clean(p.group('two'))
 
     separated = []
 
-    for text in split(not_pinyin_regex, trans):
+    for text in split(not_pinyin_regex, transcript):
         if config['transcription'] in ['Pinyin', 'Pinyin (Taiwan)']:
-            text = pinyin_two_re.sub(_separate, text)
-            text = pinyin_two_re.sub(_separate, text)
+            text = pinyin_split_regex.sub(_split, text)
+            text = pinyin_split_regex.sub(_split, text)
 
         if config['transcription'] in ['Cantonese']:
-            text = jyutping_two_re.sub(_separate, text)
-            text = jyutping_two_re.sub(_separate, text)
+            text = jyutping_split_regex.sub(_split, text)
+            text = jyutping_split_regex.sub(_split, text)
 
         if grouped:
             separated.append(text)
@@ -241,13 +215,14 @@ def separate_trans(trans, grouped=True):
 
 def tone_number(s):
     assert isinstance(s, str)
+
     s, *_ = replace_tone_marks([cleanup(s)])
 
-    if search(r'[0-9]$', s):
-        return s[-1]
-
-    if search(r'[¹²³⁴]$', s):
+    if search(f'[¹²³⁴]$', s):
         return str(' ¹²³⁴'.index(s[-1:]))
+
+    if search(f'[{TONE_NUMBERS}]$', s):
+        return s[-1]
 
     if search(bopomofo_regex, s):
         if search(r'[ˊˇˋ˙]$', s):
@@ -270,3 +245,9 @@ def no_tone(text):
         return sub(r'(%s\[)([^[]+?)\]' % hanzi_regex, _remove_tone, text)
 
     return sub(r'([a-zü]+)%s' % tone_number_regex, r'\1', text)
+
+
+def sanitize_transcript(transcript, grouped=False):
+    return ' '.join(
+        accentuate(split_transcript(cleanup(no_color(transcript)), grouped))
+    ).split()

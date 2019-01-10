@@ -25,12 +25,12 @@ from chinese.behavior import (
     fill_simp,
     fill_sound,
     fill_trad,
-    fill_transcription,
+    fill_transcript,
 )
-from tests import ChineseTest
+from tests import Base
 
 
-class FillSound(ChineseTest):
+class FillSound(Base):
     def test_missing_sound(self):
         note = dict.fromkeys(
             ['Sound', 'Sound (Mandarin)', 'Sound (Cantonese)'], ''
@@ -60,7 +60,7 @@ class FillSound(ChineseTest):
         self.assertEqual(note['Sound (Cantonese)'], 'qux')
 
 
-class FillTranscription(ChineseTest):
+class FillTranscription(Base):
     expected_pinyin = (
         '<span class="tone2">méi</span>'
         '<span class="tone3">yǒu</span> , '
@@ -82,7 +82,7 @@ class FillTranscription(ChineseTest):
             note = dict.fromkeys(
                 ['Reading', 'Pinyin', 'Pinyin (Taiwan)', 'Cantonese'], ''
             )
-            fill_transcription(hanzi, note)
+            fill_transcript(hanzi, note)
             self.assertEqual(note['Reading'], self.expected_pinyin)
             self.assertEqual(note['Pinyin'], self.expected_pinyin)
             self.assertEqual(note['Pinyin (Taiwan)'], self.expected_pinyin)
@@ -121,7 +121,7 @@ class FillTranscription(ChineseTest):
                 '',
             )
             # self.assertEqual(fill_transcription(hanzi, note), 6)
-            fill_transcription(hanzi, note)
+            fill_transcript(hanzi, note)
             self.assertEqual(
                 note['Bopomofo'],
                 (
@@ -148,7 +148,7 @@ class FillTranscription(ChineseTest):
             self.assertEqual(note['Reading'], pinyin)
 
 
-class FillBopomofo(ChineseTest):
+class FillBopomofo(Base):
     expected = (
         '<span class="tone2">ㄇㄟˊ</span>'
         '<span class="tone3">ㄧㄡˇ</span> , '
@@ -176,7 +176,7 @@ class FillBopomofo(ChineseTest):
         self.assertEqual(note['Bopomofo'], self.expected)
 
 
-class FillAllRubies(ChineseTest):
+class FillAllRubies(Base):
     def test_words(self):
         for hanzi in ['上海']:
             note = dict.fromkeys(
@@ -215,7 +215,7 @@ class FillAllRubies(ChineseTest):
             )
 
 
-class FillColor(ChineseTest):
+class FillColor(Base):
     def test_ungrouped_chars_grouped_pinyin(self):
         note = dict.fromkeys(['Color'], '')
         note['Reading'] = 'Méiyǒu, shì wǒ dìyīcì lái Shànghǎi lǚyóu.'
@@ -269,7 +269,7 @@ class FillColor(ChineseTest):
         )
 
 
-class FillAllDefs(ChineseTest):
+class FillAllDefs(Base):
     def test_no_classifier_field(self):
         note = dict.fromkeys(['English', 'German', 'French', 'Meaning'], '')
         classifier = (
@@ -299,7 +299,7 @@ class FillAllDefs(ChineseTest):
         self.assertEqual(note['Meaning'], ' \tlibrary\n<br>')
 
 
-class FillSimplifiedTraditionalHanzi(ChineseTest):
+class FillSimplifiedTraditionalHanzi(Base):
     def test_hanzi_simplified_traditional_identical(self):
         hanzi = '人'
         note = {'Hanzi': hanzi, 'Simplified': '', 'Traditional': ''}

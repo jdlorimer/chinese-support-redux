@@ -16,7 +16,7 @@
 # You should have received a copy of the GNU General Public License along with
 # Chinese Support Redux.  If not, see <https://www.gnu.org/licenses/>.
 
-from re import compile
+from re import compile, IGNORECASE
 
 vowel_decorations = [
     {},
@@ -36,20 +36,66 @@ jyutping_inits = "ng|gw|kw|[bpmfdtnlgkhwzcsj]"
 jyutping_finals = "i|ip|it|ik|im|in|ing|iu|yu|yut|yun|u|up|ut|uk|um|un|ung|ui|e|ep|et|ek|em|en|eng|ei|eu|eot|eon|eoi|oe|oet|oek|oeng|oei|o|ot|ok|om|on|ong|oi|ou|ap|at|ak|am|an|ang|ai|au|aa|aap|aat|aak|aam|aan|aang|aai|aau|m|ng"
 jyutping_standalones = "'uk|'ung|'e|'ei|'oe|'o|'ok|'om|'on|'ong|'oi|'ou|'ap|'at|'ak|'am|'an|'ang|'ai|'au|'aa|'aap|'aat|'aak|'aam|'aan|'aang|'aai|'aau|'m|'ng"
 
-bopomofo_regex = r'[\u3100-\u312F]'
-hanzi_regex = r'[\u3400-\u9fff]'
-sound_tag_regex = r'\[sound:.*?\]'
-tone_number_regex = r'[0-9¹²³⁴⁵⁶⁷⁸⁹]'
-tone_superscript_regex = r'[¹²³⁴⁵⁶⁷⁸⁹]'
+HANZI_RANGE = r'\u3400-\u9fff'
+BOPOMOFO_RANGE = r'\u3100-\u312F'
+bopomofo_regex = f'[{BOPOMOFO_RANGE}]'
+hanzi_regex = f'[{HANZI_RANGE}]'
 
-ruby_regex = r'(%s\[\s*)([a-zü%s]+%s?)(.*?\])' % (
-    hanzi_regex,
+TONE_SUPERS = '¹²³⁴⁵⁶⁷⁸⁹'
+CMN_TONE_NUMBERS = '1-5¹²³⁴⁵'
+YUE_TONE_NUMBERS = '1-7¹²³⁴⁵⁶⁷'
+TONE_NUMBERS = f'{CMN_TONE_NUMBERS}{YUE_TONE_NUMBERS}'
+tone_number_regex = f'[{TONE_NUMBERS}]'
+tone_superscript_regex = r'[{TONE_SUPERS}]'
+
+sound_tag_regex = r'\[sound:.*?\]'
+
+ruby_regex = r'([%s]\[\s*)([a-zü%s]+[%s]?)(.*?\])' % (
+    HANZI_RANGE,
     accents,
-    tone_number_regex,
+    TONE_NUMBERS,
 )
-half_ruby_regex = r'([A-Za-zü%s]+%s?)' % (accents, tone_number_regex)
-pinyin_regex = r'([A-Za-zü\u3100-\u312F%s]+[1-5¹²³⁴⁵ˊˇˋ˙]?)' % accents
-not_pinyin_regex = r'([^A-Za-zü\u3100-\u312F%s1-5¹²³⁴⁵ˊˇˋ˙])' % accents
+half_ruby_regex = f'([A-Za-zü{accents}]+[{TONE_NUMBERS}]?)'
+pinyin_regex = (
+    f'([A-Za-zü{BOPOMOFO_RANGE}{accents}]+[{CMN_TONE_NUMBERS}ˊˇˋ˙]?)'
+)
+not_pinyin_regex = (
+    f'([^A-Za-zü{BOPOMOFO_RANGE}{accents}{CMN_TONE_NUMBERS}ˊˇˋ˙])'
+)
+
+TRANSCRIPT_SPLIT_TEMPLATE_BASE = (
+    '(({initials})({finals})[{tones}]?|({standalones})[{tones}]?)'
+)
+
+PINYIN_SPLIT_TEMPLATE = TRANSCRIPT_SPLIT_TEMPLATE_BASE.format(
+    initials=pinyin_inits,
+    finals=pinyin_finals,
+    standalones=pinyin_standalones,
+    tones=CMN_TONE_NUMBERS,
+)
+JYUTPING_SPLIT_TEMPLATE = TRANSCRIPT_SPLIT_TEMPLATE_BASE.format(
+    initials=jyutping_inits,
+    finals=jyutping_finals,
+    standalones=jyutping_standalones,
+    tones=YUE_TONE_NUMBERS,
+)
+
+TRANSCRIPT_SPLIT_TEMPLATE = '(?P<one>{pattern})(?P<two>{pattern})'
+
+pinyin_split_regex = compile(
+    TRANSCRIPT_SPLIT_TEMPLATE.format(pattern=PINYIN_SPLIT_TEMPLATE), IGNORECASE
+)
+jyutping_split_regex = compile(
+    TRANSCRIPT_SPLIT_TEMPLATE.format(pattern=JYUTPING_SPLIT_TEMPLATE),
+    IGNORECASE,
+)
+
+COLOR_TEMPLATE = '<span class="tone{tone}">{chars}</span>'
+COLOR_RUBY_TEMPLATE = ruby_template = (
+    '<span class="tone{tone}">'
+    '<ruby>{chars}<rt>{transcript}</rt></ruby>'
+    '</span>'
+)
 
 # early replacements
 bopomofo_replacements = [

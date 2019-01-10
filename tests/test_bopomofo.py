@@ -18,10 +18,10 @@
 from unittest import skip
 
 from chinese.bopomofo import bopomofo
-from tests import ChineseTest
+from tests import Base
 
 
-class Bopomofo(ChineseTest):
+class Bopomofo(Base):
     def test_pinyin_no_tone(self):
         self.assertEqual(bopomofo(['zhu yin']), ['ㄓㄨ ㄧㄣ'])
         self.assertEqual(bopomofo(['zhu', 'yin']), ['ㄓㄨ', 'ㄧㄣ'])

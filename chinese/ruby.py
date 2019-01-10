@@ -25,7 +25,7 @@ from .main import config, dictionary
 from .util import hide, no_color
 
 
-def ruby(words, transcription=None):
+def ruby(words, transcript=None):
     """Convert hanzi to ruby notation.
 
     For use with {{Ruby:fieldname}} on the card template.
@@ -33,10 +33,10 @@ def ruby(words, transcription=None):
     If not specified, use the transcription type set in the menubar.
     """
 
-    from .transcribe import get_char_transcription, replace_tone_marks
+    from .transcribe import transcribe_char, replace_tone_marks
 
-    if not transcription:
-        transcription = config['transcription']
+    if not transcript:
+        transcript = config['transcription']
 
     assert isinstance(words, list)
 
@@ -54,20 +54,20 @@ def ruby(words, transcription=None):
             s = ''
             hanzi = p.group(1)
             while hanzi:
-                if transcription == 'Pinyin':
+                if transcript == 'Pinyin':
                     s += hanzi[0] + '[' + t.pop(0) + ']'
-                elif transcription == 'Bopomofo':
+                elif transcript == 'Bopomofo':
                     s += hanzi[0] + '['
                     s += bopomofo(replace_tone_marks([t.pop(0)]))[0] + ']'
                 hanzi = hanzi[1:]
             return s + p.group(2)
 
         def insert_pinyin_sub(p):
-            t = get_char_transcription(p.group(1), transcription)
+            t = transcribe_char(p.group(1), transcript)
             return p.group(1) + '[' + t + ']' + p.group(2)
 
         text += '%'
-        if transcription in ['Pinyin', 'Bopomofo']:
+        if transcript in ['Pinyin', 'Bopomofo']:
             text = sub(
                 r'(%s+)([^[])' % hanzi_regex, insert_multiple_pinyin_sub, text
             )

@@ -8,9 +8,9 @@
     "transcription": "Pinyin",
     "fields": {
         "hanzi": [
+            "Hanzi",
             "Chinese",
             "Expression",
-            "Hanzi",
             "中文",
             "汉字",
             "漢字"
@@ -31,8 +31,8 @@
             "英语"
         ],
         "german": [
-            "Deutsch",
             "German",
+            "Deutsch",
             "德文",
             "德語",
             "德语"
@@ -48,15 +48,13 @@
             "Reading"
         ],
         "pinyin": [
-            "PY",
             "Pinyin",
             "大陆拼音",
             "大陸拼音",
             "拼音"
         ],
         "pinyinTaiwan": [
-            "PYTW",
-            "PinyinTW",
+            "Pinyin (Taiwan)",
             "台湾拼音",
             "台灣拼音",
             "臺灣拼音"
@@ -76,97 +74,67 @@
         ],
         "bopomofo": [
             "Bopomofo",
+            "Zhuyin",
             "ㄅㄆㄇㄈ",
             "注音符号",
             "注音符號",
             "註音符號"
         ],
         "sound": [
-            "Audio",
             "Sound",
-            "Spoken",
+            "Audio",
             "声音",
             "聲音"
         ],
         "mandarinSound": [
+            "Sound (Mandarin)",
             "Sound - Mandarin"
         ],
         "cantoneseSound": [
+            "Sound (Cantonese)",
             "Sound - Cantonese"
         ],
         "simplified": [
-            "Simp",
-            "Simp.",
             "Simplified",
             "简体",
             "简体字",
-            "简化",
             "简化字",
-            "簡化",
             "簡化字",
-            "簡體",
             "簡體字"
         ],
         "traditional": [
-            "Trad",
-            "Trad.",
             "Traditional",
-            "繁体",
             "繁体字",
-            "繁體",
             "繁體字"
         ],
         "classifier": [
             "Classifier",
-            "MW",
-            "Mean Word",
-            "Mean",
             "Measure Word",
             "量詞",
             "量词"
         ],
         "alternative": [
             "Also Written",
-            "Alt",
             "Alternative"
         ],
         "color": [
             "Color",
-            "Colored Hanzi",
-            "Colour",
-            "Coloured Hanzi",
             "彩色"
-        ],
-        "colorPinyin": [
-            "ColorPY",
-            "ColourPY"
-        ],
-        "colorPinyinTaiwan": [
-            "ColorPYTW",
-            "ColourPYTW"
-        ],
-        "colorCantonese": [
-            "ColorCANT",
-            "ColourCANT"
-        ],
-        "colorBopomofo": [
-            "ColorBPMF",
-            "ColourBPMF"
         ],
         "ruby": [
             "Ruby"
         ],
         "rubyPinyin": [
-            "RubyPY"
+            "Ruby (Pinyin)"
         ],
         "rubyPinyinTaiwan": [
-            "RubyPYTW"
-        ],
-        "rubyCantonese": [
-            "RubyCANT"
+            "Ruby (Taiwan Pinyin)"
         ],
         "rubyBopomofo": [
-            "RubyBPMF"
+            "Ruby (Bopomofo)"
+        ],
+        "rubyCantonese": [
+            "Ruby (Cantonese)"
         ],
         "silhouette": [
             "Silhouette"

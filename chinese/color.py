@@ -18,10 +18,17 @@
 
 from re import IGNORECASE, sub
 
-from .consts import pinyin_regex, half_ruby_regex, ruby_regex
-from .hanzi import separate_chars
+from .consts import (
+    COLOR_RUBY_TEMPLATE,
+    COLOR_TEMPLATE,
+    pinyin_regex,
+    half_ruby_regex,
+    HANZI_RANGE,
+    ruby_regex,
+)
+from .hanzi import split_hanzi
 from .sound import extract_sound_tags
-from .transcribe import accentuate, separate_trans, tone_number
+from .transcribe import tone_number, sanitize_transcript
 from .util import align, cleanup, is_punc, no_color
 
 
@@ -64,41 +71,7 @@ def colorize(words, ruby_whole=False):
     return ' '.join(colorized)
 
 
-def colorize_fuse(chars, trans, ruby=False):
-    """Colorize hanzi based on pinyin tone.
-
-    If ruby=True, then annotate hanzi with pinyin.
-    """
-
-    standard_fmt = '<span class="tone{tone}">{chars}</span>'
-    ruby_fmt = (
-        '<span class="tone{tone}"><ruby>{chars}<rt>{trans}</rt></ruby></span>'
-    )
-
-    chars = separate_chars(cleanup(chars), grouped=False)
-    trans = sanitize_pinyin(trans)
-    text = ''
-
-    for c, t in align(chars, trans):
-        if c is None or t is None:
-            continue
-        if is_punc(c) and is_punc(t):
-            text += c
-            continue
-        if ruby:
-            text += ruby_fmt.format(tone=tone_number(t), chars=c, trans=t)
-        else:
-            text += standard_fmt.format(tone=tone_number(t), chars=c)
-
-    return text
-
-
 def colorize_dict(text):
-    """Colorize text in the form: 你好[ni3 hao].
-
-    As used in the local dictionaries.
-    """
-
     def _sub(p):
         s = ''
         hanzi = p.group(1)
@@ -115,10 +88,25 @@ def colorize_dict(text):
 
         return s
 
-    return sub(r'([\u3400-\u9fff|]+)\[(.*?)\]', _sub, text)
+    return sub(r'([\%s|]+)\[(.*?)\]' % HANZI_RANGE, _sub, text)
 
 
-def sanitize_pinyin(pinyin, grouped=False):
-    return ' '.join(
-        accentuate(separate_trans(cleanup(no_color(pinyin)), grouped))
-    ).split()
+def colorize_fuse(chars, transcript, ruby=False):
+    chars = split_hanzi(cleanup(chars), grouped=False)
+    transcript = sanitize_transcript(transcript)
+    colorized = ''
+
+    for c, t in align(chars, transcript):
+        if c is None or t is None:
+            continue
+        if is_punc(c) and is_punc(t):
+            colorized += c
+            continue
+        if ruby:
+            colorized += COLOR_RUBY_TEMPLATE.format(
+                tone=tone_number(t), chars=c, transcript=t
+            )
+        else:
+            colorized += COLOR_TEMPLATE.format(tone=tone_number(t), chars=c)
+
+    return colorized

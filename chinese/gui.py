@@ -27,7 +27,7 @@ from .about import CSR_GITHUB_URL, showAbout
 from .fill import (
     bulk_fill_defs,
     bulk_fill_hanzi,
-    bulk_fill_pinyin,
+    bulk_fill_transcript,
     bulk_fill_silhouette,
     bulk_fill_sound,
 )
@@ -80,14 +80,12 @@ def load_menu():
         )
 
     add_menu('Chinese::Fill Notes')
-    add_menu_item('Chinese::Fill Notes', _('Fill Sounds'), bulk_fill_sound)
+    add_menu_item('Chinese::Fill Notes', _('Fill Hanzi'), bulk_fill_hanzi)
     add_menu_item(
-        'Chinese::Fill Notes',
-        _('Fill Transcription and Color'),
-        bulk_fill_pinyin,
+        'Chinese::Fill Notes', _('Fill Transcription'), bulk_fill_transcript
     )
     add_menu_item('Chinese::Fill Notes', _('Fill Definitions'), bulk_fill_defs)
-    add_menu_item('Chinese::Fill Notes', _('Fill Characters'), bulk_fill_hanzi)
+    add_menu_item('Chinese::Fill Notes', _('Fill Sound'), bulk_fill_sound)
     add_menu_item(
         'Chinese::Fill Notes', _('Fill Silhouette'), bulk_fill_silhouette
     )

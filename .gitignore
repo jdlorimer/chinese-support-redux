@@ -1,5 +1,6 @@
 *~
 .coverage
+.hypothesis/
 .mypy_cache/
 .prospector.yaml
 .python-version

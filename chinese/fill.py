@@ -33,10 +33,17 @@ from .behavior import (
     fill_simp,
     fill_sound,
     fill_trad,
-    fill_transcription,
+    fill_transcript,
 )
+from .hanzi import get_hanzi
 from .main import config
-from .util import cleanup, get_first, has_field, no_html
+from .util import (
+    all_fields_empty,
+    get_first,
+    has_any_field,
+    has_field,
+    save_note,
+)
 
 
 PROMPT_TEMPLATE = (
@@ -48,63 +55,54 @@ PROMPT_TEMPLATE = (
 
 
 def bulk_fill_sound():
-    extra = (
-        '<div>There will be a 5 second delay between each sound request,'
-        ' so this may take a while.</div>'
-    )
     prompt = PROMPT_TEMPLATE.format(
-        field_names='<i>Sound</i>', extra_info=extra
+        field_names='<i>Sound</i>',
+        extra_info=(
+            '<div>There will be a 5 second delay between each sound request,'
+            ' so this may take a while.</div>'
+        ),
     )
 
     if not askUser(prompt):
         return
 
-    query_str = 'deck:current'
-    d_scanned = 0
     d_has_fields = 0
     d_already_had_sound = 0
     d_success = 0
     d_failed = 0
 
-    note_ids = Finder(mw.col).findNotes(query_str)
+    note_ids = Finder(mw.col).findNotes('deck:current')
     mw.progress.start(immediate=True, min=0, max=len(note_ids))
-    for nid in note_ids:
-        d_scanned += 1
+
+    for i, nid in enumerate(note_ids):
         orig = mw.col.getNote(nid)
         copy = dict(orig)
 
-        _hf_s = has_field(config['fields']['sound'], copy)
-        _hf_sm = has_field(config['fields']['mandarinSound'], copy)
-        _hf_sc = has_field(config['fields']['cantoneseSound'], copy)
-
-        if (_hf_s or _hf_sm or _hf_sc) and has_field(
-            config['fields']['hanzi'], copy
-        ):
+        if has_any_field(
+            copy, ['sound', 'mandarinSound', 'cantoneseSound']
+        ) and has_field(config['fields']['hanzi'], copy):
             d_has_fields += 1
-
             hanzi = get_first(config['fields']['hanzi'], copy)
 
-            if (
-                get_first(config['fields']['sound'], copy)
-                or get_first(config['fields']['mandarinSound'], copy)
-                or get_first(config['fields']['cantoneseSound'], copy)
+            if all_fields_empty(
+                copy, ['sound', 'mandarinSound', 'cantoneseSound']
             ):
-                d_already_had_sound += 1
-            else:
                 msg = '''
                 <b>Processing:</b> %(hanzi)s<br>
                 <b>Updated:</b> %(d_success)d notes<br>
                 <b>Failed:</b> %(d_failed)d notes''' % {
-                    'hanzi': sanitize_hanzi(copy),
+                    'hanzi': get_hanzi(copy),
                     'd_success': d_success,
                     'd_failed': d_failed,
                 }
-                mw.progress.update(label=msg, value=d_scanned)
+                mw.progress.update(label=msg, value=i)
                 s, f = fill_sound(hanzi, copy)
                 d_success += s
                 d_failed += f
                 save_note(orig, copy)
                 sleep(5)
+            else:
+                d_already_had_sound += 1
 
     mw.progress.finish()
     msg = '''
@@ -127,43 +125,35 @@ def bulk_fill_sound():
     showInfo(msg)
 
 
-def save_note(orig, copy):
-    for f in orig.keys():
-        if f in copy and copy[f] != orig[f]:
-            orig[f] = copy[f]
-    orig.flush()
-
-
-def bulk_fill_pinyin():
-
+def bulk_fill_transcript():
     prompt = PROMPT_TEMPLATE.format(
         field_names='<i>transcription</i> and <i>ruby</i>', extra_info=''
     )
 
+    field_groups = [
+        'transcription',
+        'pinyin',
+        'pinyinTaiwan',
+        'cantonese',
+        'bopomofo',
+    ]
+
     if not askUser(prompt):
         return
 
-    query_str = 'deck:current'
-    d_scanned = 0
     d_has_fields = 0
     d_added_pinyin = 0
     d_updated = 0
 
-    notes = Finder(mw.col).findNotes(query_str)
-    mw.progress.start(immediate=True, min=0, max=len(notes))
-    for noteId in notes:
-        d_scanned += 1
-        note = mw.col.getNote(noteId)
-        note_dict = dict(note)
+    note_ids = Finder(mw.col).findNotes('deck:current')
+    mw.progress.start(immediate=True, min=0, max=len(note_ids))
 
-        _hf_t = has_field(config['fields']['transcription'], note_dict)
-        _hf_py = has_field(config['fields']['pinyin'], note_dict)
-        _hf_pytw = has_field(config['fields']['pinyinTaiwan'], note_dict)
-        _hf_cant = has_field(config['fields']['cantonese'], note_dict)
-        _hf_bpmf = has_field(config['fields']['bopomofo'], note_dict)
+    for i, nid in enumerate(note_ids):
+        note = mw.col.getNote(nid)
+        copy = dict(note)
 
-        if (_hf_t or _hf_py or _hf_pytw or _hf_cant or _hf_bpmf) and has_field(
-            config['fields']['hanzi'], note_dict
+        if has_any_field(copy, field_groups) and has_field(
+            config['fields']['hanzi'], copy
         ):
             d_has_fields += 1
 
@@ -171,57 +161,28 @@ def bulk_fill_pinyin():
             <b>Processing:</b> %(hanzi)s<br>
             <b>Filled pinyin:</b> %(pinyin)d notes<br>
             <b>Updated: </b>%(updated)d fields''' % {
-                'hanzi': sanitize_hanzi(note_dict),
+                'hanzi': get_hanzi(copy),
                 'pinyin': d_added_pinyin,
                 'updated': d_updated,
             }
-            mw.progress.update(label=msg, value=d_scanned)
+            mw.progress.update(label=msg, value=i)
 
-            hanzi = get_first(config['fields']['hanzi'], note_dict)
-            results = 0
+            hanzi = get_first(config['fields']['hanzi'], copy)
+            results = fill_transcript(hanzi, copy)
+            results += fill_bopomofo(hanzi, copy)
 
-            if _hf_t:
-                results += fill_transcription(hanzi, note_dict)
-            if _hf_bpmf:
-                results += fill_bopomofo(hanzi, note_dict)
-
-            if results != 0:
+            if results > 0:
                 d_added_pinyin += 1
 
-            fill_color(hanzi, note_dict)
-            fill_all_rubies(hanzi, note_dict)
-
-            def write_back(fields):
-                num_updated = 0
-                for f in fields:
-                    if f in note_dict and note_dict[f] != note[f]:
-                        note[f] = note_dict[f]
-                        num_updated += 1
-                return num_updated
-
-            d_updated += write_back(config['fields']['transcription'])
-            d_updated += write_back(config['fields']['pinyin'])
-            d_updated += write_back(config['fields']['pinyinTaiwan'])
-            d_updated += write_back(config['fields']['cantonese'])
-            d_updated += write_back(config['fields']['bopomofo'])
-            d_updated += write_back(config['fields']['color'])
-            d_updated += write_back(config['fields']['colorPinyin'])
-            d_updated += write_back(config['fields']['colorPinyinTaiwan'])
-            d_updated += write_back(config['fields']['colorCantonese'])
-            d_updated += write_back(config['fields']['colorBopomofo'])
-            d_updated += write_back(config['fields']['ruby'])
-            d_updated += write_back(config['fields']['rubyPinyin'])
-            d_updated += write_back(config['fields']['rubyPinyinTaiwan'])
-            d_updated += write_back(config['fields']['rubyCantonese'])
-            d_updated += write_back(config['fields']['rubyBopomofo'])
-            note.flush()
+            fill_all_rubies(hanzi, copy)
+            save_note(note, copy)
 
     mw.progress.finish()
     msg = '''
     <b>Processing:</b> %(hanzi)s<br>
     <b>Filled pinyin:</b> %(pinyin)d notes<br>
     <b>Updated: </b>%(updated)d fields''' % {
-        'hanzi': sanitize_hanzi(note_dict),
+        'hanzi': get_hanzi(copy),
         'pinyin': d_added_pinyin,
         'updated': d_updated,
     }
@@ -234,79 +195,58 @@ def bulk_fill_defs():
         extra_info='',
     )
 
-    if not askUser(prompt):
-        return
-
-    query_str = 'deck:current'
-    d_scanned = 0
-    d_has_fields = 0
-    d_success = 0
-    d_failed = 0
-    failed_hanzi = []
-    notes = Finder(mw.col).findNotes(query_str)
-    mw.progress.start(immediate=True, min=0, max=len(notes))
-    for noteId in notes:
-        d_scanned += 1
-        note = mw.col.getNote(noteId)
-        note_dict = dict(note)
-
-        _hf_m = has_field(config['fields']['meaning'], note_dict)
-        _hf_e = has_field(config['fields']['english'], note_dict)
-        _hf_g = has_field(config['fields']['german'], note_dict)
-        _hf_f = has_field(config['fields']['french'], note_dict)
-
-        if (_hf_m or _hf_e or _hf_g or _hf_f) and has_field(
-            config['fields']['hanzi'], note_dict
-        ):
-            d_has_fields += 1
-
-            msg = '''
+    progress_msg_template = '''
             <b>Processing:</b> %(hanzi)s<br>
             <b>Chinese notes:</b> %(has_fields)d<br>
             <b>Translated:</b> %(filled)d<br>
-            <b>Failed:</b> %(failed)d''' % {
-                'hanzi': sanitize_hanzi(note_dict),
-                'has_fields': d_has_fields,
-                'filled': d_success,
-                'failed': d_failed,
-            }
-            mw.progress.update(label=msg, value=d_scanned)
+            <b>Failed:</b> %(failed)d'''
 
-            hanzi = get_first(config['fields']['hanzi'], note_dict)
-            empty = len(get_first(config['fields']['meaning'], note_dict))
-            empty += len(get_first(config['fields']['english'], note_dict))
-            empty += len(get_first(config['fields']['german'], note_dict))
-            empty += len(get_first(config['fields']['french'], note_dict))
+    field_groups = ['meaning', 'english', 'german', 'french']
 
-            if not empty:
-                result = fill_all_defs(hanzi, note_dict)
+    if not askUser(prompt):
+        return
 
+    n_targets = 0
+    d_success = 0
+    d_failed = 0
+    failed_hanzi = []
+
+    note_ids = Finder(mw.col).findNotes('deck:current')
+    mw.progress.start(immediate=True, min=0, max=len(note_ids))
+
+    for i, nid in enumerate(note_ids):
+        note = mw.col.getNote(nid)
+        copy = dict(note)
+        hanzi = get_hanzi(copy)
+
+        if has_any_field(copy, field_groups) and hanzi:
+            n_targets += 1
+
+            if all_fields_empty(copy, field_groups):
+                result = fill_all_defs(hanzi, copy)
                 if result:
                     d_success += 1
                 else:
                     d_failed += 1
                     if d_failed < 20:
-                        failed_hanzi += [sanitize_hanzi(note_dict)]
+                        failed_hanzi += [hanzi]
 
-            def write_back(fields):
-                for f in fields:
-                    if f in note_dict and note_dict[f] != note[f]:
-                        note[f] = note_dict[f]
+            msg = progress_msg_template % {
+                'hanzi': hanzi,
+                'has_fields': n_targets,
+                'filled': d_success,
+                'failed': d_failed,
+            }
+            mw.progress.update(label=msg, value=i)
 
-            write_back(config['fields']['meaning'])
-            write_back(config['fields']['english'])
-            write_back(config['fields']['german'])
-            write_back(config['fields']['french'])
-            write_back(config['fields']['classifier'])
-            write_back(config['fields']['alternative'])
-            note.flush()
+            save_note(note, copy)
 
     msg = '''
     <b>Translation complete</b><br>
     <b>Chinese notes:</b> %(has_fields)d<br>
     <b>Translated:</b> %(filled)d<br>
     <b>Failed:</b> %(failed)d''' % {
-        'has_fields': d_has_fields,
+        'has_fields': n_targets,
         'filled': d_success,
         'failed': d_failed,
     }
@@ -325,55 +265,44 @@ def bulk_fill_defs():
 
 def bulk_fill_hanzi():
     prompt = PROMPT_TEMPLATE.format(field_names='<i>hanzi</i>', extra_info='')
+    field_groups = ['traditional', 'simplified']
 
     if not askUser(prompt):
         return
 
-    query_str = 'deck:current'
-    d_scanned = 0
     d_has_fields = 0
     d_success = 0
-    notes = Finder(mw.col).findNotes(query_str)
-    mw.progress.start(immediate=True, min=0, max=len(notes))
-    for noteId in notes:
-        d_scanned += 1
-        note = mw.col.getNote(noteId)
-        note_dict = dict(note)
-        if (
-            has_field(config['fields']['simplified'], note_dict)
-            or has_field(config['fields']['traditional'], note_dict)
-        ) and has_field(config['fields']['hanzi'], note_dict):
+
+    note_ids = Finder(mw.col).findNotes('deck:current')
+    mw.progress.start(immediate=True, min=0, max=len(note_ids))
+
+    for i, nid in enumerate(note_ids):
+        note = mw.col.getNote(nid)
+        copy = dict(note)
+
+        if has_any_field(copy, field_groups) and has_field(
+            config['fields']['hanzi'], copy
+        ):
             d_has_fields += 1
 
             msg = '''
             <b>Processing:</b> %(hanzi)s<br>
             <b>Updated:</b> %(filled)d''' % {
-                'hanzi': sanitize_hanzi(note_dict),
+                'hanzi': get_hanzi(copy),
                 'filled': d_success,
             }
-            mw.progress.update(label=msg, value=d_scanned)
+            mw.progress.update(label=msg, value=i)
 
-            hanzi = get_first(config['fields']['hanzi'], note_dict)
-
-            fill_simp(hanzi, note_dict)
-            fill_trad(hanzi, note_dict)
-
-            for f in config['fields']['traditional']:
-                if f in note_dict and note_dict[f] != note[f]:
-                    note[f] = note_dict[f]
-                    d_success += 1
-
-            for f in config['fields']['simplified']:
-                if f in note_dict and note_dict[f] != note[f]:
-                    note[f] = note_dict[f]
-                    d_success += 1
-
-            note.flush()
+            hanzi = get_first(config['fields']['hanzi'], copy)
+            fill_simp(hanzi, copy)
+            fill_trad(hanzi, copy)
+            fill_color(hanzi, copy)
+            d_success = save_note(note, copy)
 
     msg = '''
     <b>Update complete!</b> %(hanzi)s<br>
     <b>Updated:</b> %(filled)d notes''' % {
-        'hanzi': sanitize_hanzi(note_dict),
+        'hanzi': get_hanzi(copy),
         'filled': d_success,
     }
     mw.progress.finish()
@@ -388,44 +317,33 @@ def bulk_fill_silhouette():
     if not askUser(prompt):
         return
 
-    query_str = 'deck:current'
-    d_scanned = 0
     d_has_fields = 0
     d_success = 0
-    notes = Finder(mw.col).findNotes(query_str)
-    mw.progress.start(immediate=True, min=0, max=len(notes))
-    for noteId in notes:
-        d_scanned += 1
-        note = mw.col.getNote(noteId)
-        note_dict = dict(note)
-        if has_field(config['fields']['silhouette'], note_dict):
+
+    note_ids = Finder(mw.col).findNotes('deck:current')
+    mw.progress.start(immediate=True, min=0, max=len(note_ids))
+
+    for i, nid in enumerate(note_ids):
+        note = mw.col.getNote(nid)
+        copy = dict(note)
+        if has_field(config['fields']['silhouette'], copy):
             d_has_fields += 1
             msg = '''
             <b>Processing:</b> %(hanzi)s<br>
             <b>Updated:</b> %(filled)d''' % {
-                'hanzi': sanitize_hanzi(note_dict),
+                'hanzi': get_hanzi(copy),
                 'filled': d_success,
             }
-            mw.progress.update(label=msg, value=d_scanned)
-            hanzi = get_first(config['fields']['hanzi'], note_dict)
-            fill_silhouette(hanzi, note_dict)
-
-            for f in config['fields']['silhouette']:
-                if f in note_dict and note_dict[f] != note[f]:
-                    note[f] = note_dict[f]
-                    d_success += 1
-
-            note.flush()
+            mw.progress.update(label=msg, value=i)
+            hanzi = get_first(config['fields']['hanzi'], copy)
+            fill_silhouette(hanzi, copy)
+            d_success = save_note(note, copy)
 
     msg = '''
     <b>Update complete!</b> %(hanzi)s<br>
     <b>Updated:</b> %(filled)d notes''' % {
-        'hanzi': sanitize_hanzi(note_dict),
+        'hanzi': get_hanzi(copy),
         'filled': d_success,
     }
     mw.progress.finish()
     showInfo(msg)
-
-
-def sanitize_hanzi(note):
-    return cleanup(no_html(get_first(config['fields']['hanzi'], note)))

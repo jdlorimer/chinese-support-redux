@@ -20,42 +20,46 @@ from re import search, split, sub
 
 from jieba import cut
 
-from .main import dictionary
+from .consts import HANZI_RANGE
+from .main import config, dictionary
+from .util import cleanup, get_first
 
 
-def silhouette(hanzi):
-    """Replaces each Chinese character by a blank space."""
-
+def get_silhouette(hanzi):
     def insert_spaces(p):
         r = ''
         for i in p.group(0):
             r += i + ' '
         return r[:-1]
 
-    hanzi = sub(r'[\u3400-\u9fff]+', insert_spaces, hanzi)
-    return sub(r'[\u3400-\u9fff]', '_', hanzi)
+    hanzi = sub(f'[{HANZI_RANGE}]+', insert_spaces, hanzi)
+    return sub(f'[{HANZI_RANGE}]', '_', hanzi)
 
 
-def simplify(text):
+def get_simp(text):
     return dictionary.get_simplified(text)
 
 
-def traditional(text):
+def get_trad(text):
     return dictionary.get_traditional(text)
 
 
 def has_hanzi(text):
-    return search(r'[\u3400-\u9fff]', text)
+    return search(f'[{HANZI_RANGE}]', text)
 
 
-def separate_chars(chars, grouped=True):
-    assert isinstance(chars, str)
+def get_hanzi(note):
+    return cleanup(get_first(config['fields']['hanzi'], note))
+
+
+def split_hanzi(hanzi, grouped=True):
+    assert isinstance(hanzi, str)
 
     if not grouped:
-        return list(filter(lambda s: s.strip(), chars))
+        return list(filter(lambda s: s.strip(), hanzi))
 
-    if len(chars.split()) > 1:
-        separated = split('([ ,.，。])', chars)
+    if len(hanzi.split()) > 1:
+        separated = split('([ ,.，。])', hanzi)
         return list(filter(lambda s: s.strip(), separated))
 
-    return list(cut(chars))
+    return list(cut(hanzi))

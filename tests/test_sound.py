@@ -18,10 +18,10 @@
 from unittest.mock import Mock, patch
 
 from chinese.sound import extract_sound_tags, no_sound, sound
-from tests import ChineseTest
+from tests import Base
 
 
-class Sound(ChineseTest):
+class Sound(Base):
     def setUp(self):
         super().setUp()
         self.patcher = patch('chinese.sound.download_sound', Mock())
@@ -52,7 +52,7 @@ class Sound(ChineseTest):
         self.mock.assert_not_called()
 
 
-class ExtractSoundTags(ChineseTest):
+class ExtractSoundTags(Base):
     def test_single_tag(self):
         self.assertEqual(
             extract_sound_tags('foo[sound:bar]'), ('foo', '[sound:bar]')
@@ -73,7 +73,7 @@ class ExtractSoundTags(ChineseTest):
         )
 
 
-class NoSound(ChineseTest):
+class NoSound(Base):
     def test_single_tag(self):
         self.assertEqual(no_sound('foo[sound:bar]'), 'foo')
 

@@ -22,12 +22,8 @@ from re import DOTALL, sub
 from unicodedata import category
 
 
-def has_field(fields, d):
-    """Return true if any of the fields are available.
-
-    Case-insensitive.
-    """
-    for k in d:
+def has_field(fields, note):
+    for k in note:
         for f in fields:
             try:
                 if str(f.lower()) == str(k.lower()):
@@ -35,6 +31,31 @@ def has_field(fields, d):
             except:
                 pass
     return False
+
+
+def has_any_field(note, a):
+    from .main import config
+
+    for f in a:
+        if has_field(config['fields'][f], note):
+            return True
+    return False
+
+
+def all_fields_empty(note, a):
+    from .main import config
+
+    for f in a:
+        if get_first(config['fields'][f], note):
+            return False
+    return True
+
+
+def erase_fields(note):
+    from .main import config
+
+    for f in config['fields'].values():
+        set_all(f, note, to='')
 
 
 def get_first(fields, note):
@@ -62,13 +83,14 @@ def set_all(fields, note, to):
 
 def cleanup(text):
     if not text:
-        return str()
+        return ''
     text = no_html(text)
     text = text.replace('&nbsp;', ' ')
     text = sub(r'^\s*', '', text)
     text = sub(r'\s*$', '', text)
     text = CLOZE.sub(r'\1', text)
     return text
+
 
 def no_html(text):
     return sub(r'<.*?>', '', text, flags=DOTALL)
@@ -140,3 +162,13 @@ def align(a, b):
             done.append((None, b[j]))
             j += 1
     return done
+
+
+def save_note(orig, copy):
+    n_changed = 0
+    for f in orig.keys():
+        if f in copy and copy[f] != orig[f]:
+            orig[f] = copy[f]
+            n_changed += 1
+    orig.flush()
+    return n_changed

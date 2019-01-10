@@ -16,10 +16,10 @@
 # Chinese Support Redux.  If not, see <https://www.gnu.org/licenses/>.
 
 from chinese.database import Dictionary as D
-from tests import ChineseTest
+from tests import Base
 
 
-class Dictionary(ChineseTest):
+class Dictionary(Base):
     def test_no_word(self):
         self.assertEqual(D().get_classifiers(''), [])
 

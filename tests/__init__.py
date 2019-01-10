@@ -74,7 +74,7 @@ config = {
 patch('aqt.mw.addonManager.getConfig', lambda a: config).start()
 
 
-class ChineseTest(TestCase):
+class Base(TestCase):
     def setUp(self):
         self.maxDiff = None
         self.logger = getLogger()

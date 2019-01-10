@@ -16,10 +16,10 @@
 # Chinese Support Redux.  If not, see <https://www.gnu.org/licenses/>.
 
 from chinese.util import align, cleanup, get_first, hide, no_hidden, set_all
-from tests import ChineseTest
+from tests import Base
 
 
-class Util(ChineseTest):
+class Util(Base):
     def test_hide(self):
         self.assertEqual(hide('foo', 'bar'), 'foo <!-- bar -->')
 
@@ -33,12 +33,12 @@ class Util(ChineseTest):
         self.assertEqual(d, {'foo': 'qux', 'bar': '', 'baz': 'qux'})
 
 
-class Cleanup(ChineseTest):
+class Cleanup(Base):
     def test_cloze(self):
         self.assertEqual(cleanup('{{c1::foo::bar}}'), 'foo')
 
 
-class GetAny(ChineseTest):
+class GetAny(Base):
     def test_content(self):
         self.assertEqual(get_first(['foo'], {'foo': 'bar'}), 'bar')
 
@@ -54,7 +54,7 @@ class GetAny(ChineseTest):
         self.assertEqual(get_first(['baz', 'foo'], note), 'qux')
 
 
-class Align(ChineseTest):
+class Align(Base):
     def test_align(self):
         self.assertEqual(
             align(['(', '我', ')'], ['wǒ']),

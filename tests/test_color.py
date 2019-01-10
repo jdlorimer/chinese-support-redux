@@ -15,23 +15,24 @@
 # You should have received a copy of the GNU General Public License along with
 # Chinese Support Redux.  If not, see <https://www.gnu.org/licenses/>.
 
-from random import randint
+from hypothesis import given
+from hypothesis.strategies import integers
 
 from chinese.color import colorize, colorize_dict, colorize_fuse
-from tests import ChineseTest
+from tests import Base
 
 
-class Colorize(ChineseTest):
-    def test_separate_syllables(self):
-        self.assertEqual(
-            colorize(['xiàn', 'zài']),
-            '<span class="tone4">xiàn</span> <span class="tone4">zài</span>',
-        )
-
+class TestColorize(Base):
     def test_joined_syllables(self):
         self.assertEqual(
             colorize(['xiàn zài']),
             '<span class="tone4">xiàn</span><span class="tone4">zài</span>',
+        )
+
+    def test_separate_syllables(self):
+        self.assertEqual(
+            colorize(['xiàn', 'zài']),
+            '<span class="tone4">xiàn</span> <span class="tone4">zài</span>',
         )
 
     def test_ruby(self):
@@ -53,7 +54,7 @@ class Colorize(ChineseTest):
         )
 
 
-class ColorizeDict(ChineseTest):
+class TestColorizeDict(Base):
     def test_word(self):
         self.assertEqual(
             colorize_dict('图书馆[tu2 shu1 guan3]'),
@@ -74,13 +75,11 @@ class ColorizeDict(ChineseTest):
         )
 
 
-class ColorizeFuse(ChineseTest):
-    def test_tone_number(self):
-        a = randint(1, 5)
-        b = randint(1, 5)
-        c = randint(1, 5)
+class TestColorizeFuse(Base):
+    @given(integers(1, 5), integers(1, 5), integers(1, 5))
+    def test_tone_number(self, a, b, c):
         self.assertEqual(
-            colorize_fuse('图书馆', 'tu{} shu{} guan{}'.format(a, b, c)),
+            colorize_fuse('图书馆', f'tu{a} shu{b} guan{c}'),
             (
                 '<span class="tone{}">图</span>'
                 '<span class="tone{}">书</span>'
@@ -118,15 +117,15 @@ class ColorizeFuse(ChineseTest):
             ),
         )
 
-    def test_truncated_chars(self):
-        """Given truncated characters, should still highlight correctly."""
+    def test_truncated_hanzi(self):
+        """Given truncated hanzi, should still highlight correctly."""
         self.assertEqual(
             colorize_fuse('图书', 'túshūguǎn'),
             '<span class="tone2">图</span><span class="tone1">书</span>',
         )
 
-    def test_truncated_trans(self):
-        """Given truncated transcription, should truncate characters."""
+    def test_truncated_transcript(self):
+        """Given truncated transcription, should truncate hanzi."""
         self.assertEqual(
             colorize_fuse('图书馆', 'túshū'),
             '<span class="tone2">图</span><span class="tone1">书</span>',

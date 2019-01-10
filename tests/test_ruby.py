@@ -16,10 +16,10 @@
 # Chinese Support Redux.  If not, see <https://www.gnu.org/licenses/>.
 
 from chinese.ruby import ruby, ruby_bottom, ruby_top, separate_ruby
-from tests import ChineseTest
+from tests import Base
 
 
-class Ruby(ChineseTest):
+class Ruby(Base):
     def test_char(self):
         self.assertEqual(ruby(['你'], 'Pinyin'), ['你[nǐ]'])
 
@@ -52,7 +52,7 @@ class Ruby(ChineseTest):
         )
 
 
-class SeparateRuby(ChineseTest):
+class SeparateRuby(Base):
     def test_one_word(self):
         self.assertEqual(
             separate_ruby(['图[tú]书[shū]馆[guǎn]']), [('图书馆', 'túshūguǎn')]
