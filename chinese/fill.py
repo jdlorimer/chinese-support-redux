@@ -17,6 +17,7 @@
 # You should have received a copy of the GNU General Public License along with
 # Chinese Support Redux.  If not, see <https://www.gnu.org/licenses/>.
 
+
 from time import sleep
 
 from anki.find import Finder
@@ -38,17 +39,22 @@ from .main import config
 from .util import cleanup, get_first, has_field, no_html
 
 
+PROMPT_TEMPLATE = (
+    '<div>This will update the {field_names} fields in the current deck.</div>'
+    '<div>Please back-up your Anki deck first!</div>'
+    '{extra_info}'
+    '<div><b>Continue?</b></div>'
+)
+
+
 def bulk_fill_sound():
-    prompt = '''
-    <div>This will update the <i>Sound</i> fields in the current
-    deck, if they exist and are empty, using the selected speech
-    engine.</div>
-    <div>Please back-up your Anki deck first!</div>
-    <div>(Please also note that there will be a 5 second delay
-    between each sound request, to reduce burden on the server.
-    This may therefore take a while.)</div>
-    <div><b>Continue?</b></div>
-    '''
+    extra = (
+        '<div>There will be a 5 second delay between each sound request,'
+        ' so this may take a while.</div>'
+    )
+    prompt = PROMPT_TEMPLATE.format(
+        field_names='<i>Sound</i>', extra_info=extra
+    )
 
     if not askUser(prompt):
         return
@@ -129,14 +135,10 @@ def save_note(orig, copy):
 
 
 def bulk_fill_pinyin():
-    prompt = '''
-    <div>This will update the <i>Pinyin</i> (or <i>Transcription</i>),
-    <i>Color</i> and <i>Ruby</i> fields in the current deck, if they exist.</div>
-    <div><i>Pinyin</i> and <i>Transcription</i> will be filled if empty.
-    Otherwise, their colorization and accentuation will be refreshed as needed.</div>
-    <div>Please back-up your Anki deck first!</div>
-    <div><b>Continue?</b></div>
-    '''
+
+    prompt = PROMPT_TEMPLATE.format(
+        field_names='<i>transcription</i> and <i>ruby</i>', extra_info=''
+    )
 
     if not askUser(prompt):
         return
@@ -180,12 +182,6 @@ def bulk_fill_pinyin():
 
             if _hf_t:
                 results += fill_transcription(hanzi, note_dict)
-            if _hf_py:
-                results += bulk_fill_pinyin(hanzi, note_dict)
-            if _hf_pytw:
-                results += fill_taiwan_pinyin(hanzi, note_dict)
-            if _hf_cant:
-                results += fill_cantonese(hanzi, note_dict)
             if _hf_bpmf:
                 results += fill_bopomofo(hanzi, note_dict)
 
@@ -233,12 +229,10 @@ def bulk_fill_pinyin():
 
 
 def bulk_fill_defs():
-    prompt = '''
-    <div>This will update the <i>Meaning</i>, <i>Classifier</i>, and <i>Also
-    Written</i> fields in the current deck, if they exist and are empty.</div>
-    <div>Please back-up your Anki deck first!</div>
-    <div><b>Continue?</b></div>
-    '''
+    prompt = PROMPT_TEMPLATE.format(
+        field_names='<i>definition</i>, <i>classifier</i> and <i>alternative</i>',
+        extra_info='',
+    )
 
     if not askUser(prompt):
         return
@@ -330,12 +324,7 @@ def bulk_fill_defs():
 
 
 def bulk_fill_hanzi():
-    prompt = '''
-    <div>This will update the <i>Simplified</i> and <i>Traditional</i> fields
-    in the current deck, if they exist and are empty.</div>
-    <div>Please back-up your Anki deck first!</div>
-    <div><b>Continue?</b></div>
-    '''
+    prompt = PROMPT_TEMPLATE.format(field_names='<i>hanzi</i>', extra_info='')
 
     if not askUser(prompt):
         return
@@ -392,11 +381,9 @@ def bulk_fill_hanzi():
 
 
 def bulk_fill_silhouette():
-    prompt = '''
-    <div>This will update the <i>Silhouette</i> fields in the current deck.</div>
-    <div>Please back-up your Anki deck first!</div>
-    <div><b>Continue?</b></div>
-    '''
+    prompt = PROMPT_TEMPLATE.format(
+        field_names='<i>silhouette</i>', extra_info=''
+    )
 
     if not askUser(prompt):
         return
