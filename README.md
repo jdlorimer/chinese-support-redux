@@ -4,6 +4,8 @@
 
 A rewrite and port of the Chinese Support add-on to Anki 2.1.
 
+**Note**: The add-on has undergone a major rewrite during January to make it more maintainable going forward. This should address many of the issues that were raised last year, but is likely to have introduced different issues I am not aware of. The best way to have these fixed is to [raise them on GitHub](https://github.com/luoliyan/chinese-support-redux/issues).
+
 ## Features
 
 - Automatic field filling
@@ -53,6 +55,14 @@ Then, to use the field filling features:
 
 ## History
 
+- **2019.01.17**
+  - use `jieba` library for segmentation
+    - Should fix most issues with inaccurate Pinyin
+  - Fix Bopomofo generation (courtesy of Matthias Wimmer)
+  - Fix errors caused by rare characters (courtesy of Robert Irelan)
+  - Fix several broken function calls
+  - Fix handling of mixed Chinese/English
+  - Major refacting and test expansion
 - **2019.01.01**
   - Fix bulk filling of Pinyin
   - Refactor several near-duplicate functions
