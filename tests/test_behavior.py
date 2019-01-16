@@ -60,7 +60,7 @@ class FillSound(Base):
         self.assertEqual(note['Sound (Cantonese)'], 'qux')
 
 
-class FillTranscription(Base):
+class FillTranscript(Base):
     expected_pinyin = (
         '<span class="tone2">méi</span>'
         '<span class="tone3">yǒu</span> , '
@@ -120,7 +120,7 @@ class FillTranscription(Base):
                 ],
                 '',
             )
-            # self.assertEqual(fill_transcription(hanzi, note), 6)
+            # self.assertEqual(fill_transcript(hanzi, note), 6)
             fill_transcript(hanzi, note)
             self.assertEqual(
                 note['Bopomofo'],
@@ -146,6 +146,16 @@ class FillTranscription(Base):
             self.assertEqual(note['Pinyin (Taiwan)'], pinyin)
             self.assertEqual(note['Pinyin'], pinyin)
             self.assertEqual(note['Reading'], pinyin)
+
+    def test_mixed_english_chinese(self):
+        note = dict.fromkeys(['Reading'], '')
+        fill_transcript('Brian的', note)
+        self.assertEqual(
+            note['Reading'],
+            '<span class="tone5">Brian</span> '
+            '<span class="tone5">de</span> '
+            '<!-- Brian de -->',
+        )
 
 
 class FillBopomofo(Base):
@@ -266,6 +276,15 @@ class FillColor(Base):
                 '<span class="tone3">旅</span>'
                 '<span class="tone2">游</span>。'
             ),
+        )
+
+    def test_mixed_english_chinese(self):
+        note = dict.fromkeys(['Color', 'Reading'], '')
+        note['Reading'] = 'Brian de'
+        fill_color('Brian的', note)
+        self.assertEqual(
+            note['Color'],
+            '<span class="tone5">Brian</span><span class="tone5">的</span>',
         )
 
 

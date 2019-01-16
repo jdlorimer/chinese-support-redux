@@ -65,3 +65,9 @@ class Align(Base):
         self.assertEqual(align([], []), [])
         self.assertEqual(align(['我'], []), [('我', None)])
         self.assertEqual(align([], ['我']), [(None, '我')])
+
+    def test_mixed_english_chinese(self):
+        self.assertEqual(
+            align(['Brian', '的'], ['Brian', 'de']),
+            [('Brian', 'Brian'), ('的', 'de')],
+        )

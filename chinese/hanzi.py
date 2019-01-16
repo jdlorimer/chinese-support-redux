@@ -55,11 +55,28 @@ def get_hanzi(note):
 def split_hanzi(hanzi, grouped=True):
     assert isinstance(hanzi, str)
 
-    if not grouped:
-        return list(filter(lambda s: s.strip(), hanzi))
-
     if len(hanzi.split()) > 1:
-        separated = split('([ ,.，。])', hanzi)
-        return list(filter(lambda s: s.strip(), separated))
+        separated = remove_empty(split('([ ,.，。])', hanzi))
+    else:
+        separated = list(cut(hanzi))
 
-    return list(cut(hanzi))
+    if grouped:
+        return separated
+
+    return flatten(separated)
+
+
+def remove_empty(a):
+    return list(filter(lambda s: s.strip(), a))
+
+
+def flatten(hanzi):
+    assert isinstance(hanzi, list)
+
+    a = []
+    for s in hanzi:
+        if list(filter(has_hanzi, s)):
+            a.extend(list(s))
+        else:
+            a.append(s)
+    return a

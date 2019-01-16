@@ -75,7 +75,9 @@ class SeparateTrans(Base):
 
     @skip
     def test_apostrophe(self):
-        self.assertEqual(split_transcript("yīlù píng'ān"), ['yī lù', 'píng ān'])
+        self.assertEqual(
+            split_transcript("yīlù píng'ān"), ['yī lù', 'píng ān']
+        )
 
     @skip
     def test_you_er_yuan(self):
@@ -83,7 +85,8 @@ class SeparateTrans(Base):
 
     def test_punctuation(self):
         self.assertEqual(
-            split_transcript('Méiyǒu, méiyǒu.'), ['Méi yǒu', ',', 'méi yǒu', '.']
+            split_transcript('Méiyǒu, méiyǒu.'),
+            ['Méi yǒu', ',', 'méi yǒu', '.'],
         )
         self.assertEqual(
             split_transcript('Méi yǒu, méi yǒu.', grouped=False),
@@ -105,13 +108,14 @@ class Transcribe(Base):
     def test_no_chinese(self):
         self.assertEqual(transcribe(['foo'], 'Pinyin'), [])
 
-    def test_some_chinese(self):
+    def test_mixed_english_chinese(self):
         self.assertEqual(transcribe(['foo', '你'], 'Pinyin'), ['foo', 'nǐ'])
+        self.assertEqual(transcribe(['Brian的'], 'Pinyin'), ['Brian de'])
 
     def test_bopomofo(self):
         self.assertEqual(transcribe(['你'], 'Bopomofo'), ['ㄋㄧˇ'])
 
-    def test_punctuation(self):
+    def test_punctuation_retained_converted(self):
         self.assertEqual(
             transcribe(['没有', '，', '没有', '。'], 'Pinyin'),
             ['méi yǒu', ',', 'méi yǒu', '.'],
@@ -126,6 +130,12 @@ class Transcribe(Base):
     def test_ungrouped_chars(self):
         self.assertEqual(
             transcribe(['你什么时候能来？']), ['nǐ shén me shí hou néng lái ？']
+        )
+        self.assertEqual(transcribe(['我要喝湯！']), ['wǒ yào hē tāng ！'])
+
+    def test_punctuation_irrelevant(self):
+        self.assertEqual(
+            transcribe(['我要喝湯'])[0] + ' ！', transcribe(['我要喝湯！'])[0]
         )
 
 

@@ -60,7 +60,7 @@ class Traditional(Base):
         self.assertIs(get_trad('𠂉'), None)
 
 
-class SeparateChars(Base):
+class SplitHanzi(Base):
     def test_grouped_input_spaced_punc(self):
         self.assertEqual(
             split_hanzi('没有 ，是 我 第一次 来 上海 旅游 。'),
@@ -93,3 +93,6 @@ class SeparateChars(Base):
                 '。',
             ],
         )
+
+    def test_mixed_english_chinese(self):
+        self.assertEqual(split_hanzi('Brian的'), ['Brian', '的'])

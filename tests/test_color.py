@@ -53,6 +53,12 @@ class TestColorize(Base):
             ),
         )
 
+    def test_mixed_english_chinese(self):
+        self.assertEqual(
+            colorize(['Brian de']),
+            '<span class="tone5">Brian</span><span class="tone5">de</span>',
+        )
+
 
 class TestColorizeDict(Base):
     def test_word(self):
@@ -150,4 +156,10 @@ class TestColorizeFuse(Base):
                 '<span class="tone3">旅</span>'
                 '<span class="tone2">游</span>。'
             ),
+        )
+
+    def test_mixed_english_chinese(self):
+        self.assertEqual(
+            colorize_fuse('Brian的', 'Brian de'),
+            '<span class="tone5">Brian</span><span class="tone5">的</span>',
         )
