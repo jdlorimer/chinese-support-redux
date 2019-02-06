@@ -16,7 +16,6 @@
 # You should have received a copy of the GNU General Public License along with
 # Chinese Support Redux.  If not, see <https://www.gnu.org/licenses/>.
 
-from .bopomofo import bopomofo
 from .color import colorize, colorize_dict, colorize_fuse
 from .hanzi import get_silhouette, get_simp, get_trad, split_hanzi
 from .main import config, dictionary
@@ -160,7 +159,9 @@ def format_taiwan_pinyin(note):
 
 def format_cantonese(note):
     t = colorize(
-        split_transcript(cleanup(get_first(config['fields']['cantonese'], note)))
+        split_transcript(
+            cleanup(get_first(config['fields']['cantonese'], note))
+        )
     )
     t = hide(t, no_tone(t))
     set_all(config['fields']['cantonese'], note, to=t)

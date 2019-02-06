@@ -58,7 +58,7 @@ def ruby(words, transcript=None):
                     s += hanzi[0] + '[' + t.pop(0) + ']'
                 elif transcript == 'Bopomofo':
                     s += hanzi[0] + '['
-                    s += bopomofo(replace_tone_marks([t.pop(0)]))[0] + ']'
+                    s += bopomofo([t.pop(0)])[0] + ']'
                 hanzi = hanzi[1:]
             return s + p.group(2)
 

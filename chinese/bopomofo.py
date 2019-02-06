@@ -22,9 +22,11 @@ from .util import cleanup
 
 
 def bopomofo(pinyin):
+    from .transcribe import replace_tone_marks
+
     assert isinstance(pinyin, list)
     result = []
-    for word in pinyin:
+    for word in replace_tone_marks(pinyin):
         s = cleanup(word).lower()
         for (a, b) in bopomofo_replacements:
             s = s.replace(a, b)

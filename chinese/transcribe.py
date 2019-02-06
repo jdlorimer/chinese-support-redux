@@ -82,7 +82,7 @@ def transcribe(words, target=None, only_one=True):
             transcribed.append(dictionary.get_cantonese(text, only_one))
         elif target == 'Bopomofo':
             r = dictionary.get_pinyin(text, taiwan=True)
-            transcribed.extend(bopomofo(replace_tone_marks([r])))
+            transcribed.extend(bopomofo([r]))
         else:
             transcribed.append('')
 

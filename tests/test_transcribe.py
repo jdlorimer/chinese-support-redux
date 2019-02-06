@@ -176,6 +176,16 @@ class ReplaceToneMarks(Base):
     def test_ruby(self):
         self.assertEqual(replace_tone_marks(['你[nǐ]']), ['你[ni3]'])
 
+    def test_composed_diacritics(self):
+        self.assertEqual(
+            replace_tone_marks(['shén', 'yùn']), ['shen2', 'yun4']
+        )
+
+    def test_decomposed_diacritics(self):
+        self.assertEqual(
+            replace_tone_marks(['shén', 'yùn']), ['shen2', 'yun4']
+        )
+
 
 class NoTone(Base):
     def test_tone_number(self):

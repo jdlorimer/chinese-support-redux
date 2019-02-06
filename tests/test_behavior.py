@@ -185,6 +185,24 @@ class FillBopomofo(Base):
         fill_bopomofo('没有， 是 我 第一次 来 上海 旅游。', note)
         self.assertEqual(note['Bopomofo'], self.expected)
 
+    def test_grouped_pinyin(self):
+        note = dict.fromkeys(['Bopomofo'], '')
+        note['Reading'] = 'shényùn'
+        fill_bopomofo('神韻', note)
+        self.assertEqual(
+            note['Bopomofo'],
+            '<span class="tone2">ㄕㄣˊ</span><span class="tone4">ㄩㄣˋ</span> <!-- ㄕㄣˊㄩㄣˋ -->',
+        )
+
+    def test_ungrouped_pinyin(self):
+        note = dict.fromkeys(['Bopomofo'], '')
+        note['Reading'] = 'shen4 yun4'
+        fill_bopomofo('神韻', note)
+        self.assertEqual(
+            note['Bopomofo'],
+            '<span class="tone2">ㄕㄣˊ</span><span class="tone4">ㄩㄣˋ</span> <!-- ㄕㄣˊㄩㄣˋ -->',
+        )
+
 
 class FillAllRubies(Base):
     def test_words(self):
