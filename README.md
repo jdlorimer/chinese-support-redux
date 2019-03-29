@@ -54,6 +54,32 @@ To use the field-filling features:
 
 ![Screenshot #2](https://raw.githubusercontent.com/luoliyan/chinese-support/master/screenshots/view-card.png)
 
+## Testing
+
+For those who wish to run the tests locally, this is fairly straightforward.
+
+Clone the repository:
+
+```sh
+git clone https://github.com/luoliyan/chinese-support-redux
+cd chinese-support-redux
+```
+
+Ideally, set up a virtual environment to isolate the project:
+
+```sh
+curl https://pyenv.run | bash
+pyenv virtualenv 3.6.8 csr
+pyenv local csr
+```
+
+Install dependencies and run the tests:
+
+```sh
+pip install -r requirements.txt
+make test
+```
+
 ## History
 
 - **2019.01.17**
