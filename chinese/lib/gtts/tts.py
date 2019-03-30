@@ -245,7 +245,7 @@ class gTTS:
         """
         with open(savefile, 'wb') as f:
             self.write_to_fp(f)
-            log.debug("Saved to %s", savefile)
+            log.debug("Saved to %s", str(savefile))
 
 
 class gTTSError(Exception):
