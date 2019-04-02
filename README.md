@@ -85,6 +85,7 @@ make test
 - **2019.04.02**
   - Update bundled libs
     - Fixes gTTS error (hat tip: Robert Irelan)
+  - Fix bulk classifier filling
 - **2019.01.17**
   - Use `jieba` library for segmentation
     - Should fix most issues with inaccurate Pinyin
@@ -94,7 +95,7 @@ make test
   - Fix handling of mixed Chinese/English
   - Major refacting and test expansion
 - **2019.01.01**
-  - Fix bulk filling of Pinyin
+  - Fix bulk Pinyin filling
   - Refactor several near-duplicate functions
   - Expand tests
 - **2018.12.25**
