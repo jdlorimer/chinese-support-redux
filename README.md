@@ -82,6 +82,9 @@ make test
 
 ## History
 
+- **2019.04.02**
+  - Update bundled libs
+    - Fixes gTTS error (hat tip: Robert Irelan)
 - **2019.01.17**
   - Use `jieba` library for segmentation
     - Should fix most issues with inaccurate Pinyin
