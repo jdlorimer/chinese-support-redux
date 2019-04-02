@@ -37,8 +37,11 @@ def get_classifier(hanzi, note):
 def fill_classifier(hanzi, note):
     cs = dictionary.get_classifiers(hanzi)
     text = ', '.join(colorize_dict(c) for c in cs)
+    filled = False
     if text and has_field(config['fields']['classifier'], note):
         set_all(config['fields']['classifier'], note, to=text)
+        filled = True
+    return filled
 
 
 def get_alt(hanzi, note):
@@ -89,7 +92,6 @@ def fill_all_defs(hanzi, note):
             fill_def(hanzi, note, lang='fr'),
         ]
     )
-    fill_classifier(hanzi, note)
     return n_filled
 
 
@@ -304,6 +306,7 @@ def update_fields(note, focus_field, fields):
     elif focus_field in config['fields']['hanzi']:
         if copy[focus_field]:
             fill_all_defs(hanzi, copy)
+            fill_classifier(hanzi, copy)
             fill_transcript(hanzi, copy)
             fill_color(hanzi, copy)
             fill_sound(hanzi, copy)

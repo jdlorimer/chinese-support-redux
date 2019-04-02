@@ -25,6 +25,7 @@ from aqt.utils import showInfo, openLink, askUser
 
 from .about import CSR_GITHUB_URL, showAbout
 from .fill import (
+    bulk_fill_classifiers,
     bulk_fill_defs,
     bulk_fill_hanzi,
     bulk_fill_transcript,
@@ -85,6 +86,7 @@ def load_menu():
         'Chinese::Fill Notes', _('Fill Transcription'), bulk_fill_transcript
     )
     add_menu_item('Chinese::Fill Notes', _('Fill Definitions'), bulk_fill_defs)
+    add_menu_item('Chinese::Fill Notes', _('Fill Classifiers'), bulk_fill_classifiers)
     add_menu_item('Chinese::Fill Notes', _('Fill Sound'), bulk_fill_sound)
     add_menu_item(
         'Chinese::Fill Notes', _('Fill Silhouette'), bulk_fill_silhouette

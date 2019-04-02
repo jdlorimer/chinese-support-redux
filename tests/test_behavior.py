@@ -20,6 +20,7 @@ from unittest.mock import MagicMock, patch
 from chinese.behavior import (
     fill_all_defs,
     fill_all_rubies,
+    fill_classifier,
     fill_bopomofo,
     fill_color,
     fill_simp,
@@ -326,14 +327,21 @@ class FillAllDefs(Base):
 
     def test_classifier_field(self):
         note = dict.fromkeys(['Classifier', 'Meaning'], '')
+        self.assertEqual(fill_all_defs('图书馆', note), 1)
+        self.assertEqual(note['Classifier'], '')
+        self.assertEqual(note['Meaning'], ' \tlibrary\n<br>')
+
+
+class FillClassifier(Base):
+    def test_fill_classifier(self):
+        note = {'Classifier': ''}
         classifier = (
             '<span class="tone1"><ruby>家<rt>jiā</rt></ruby></span>, '
             '<span class="tone4"><ruby>個<rt>gè</rt></ruby></span>|'
             '<span class="tone4">个</span>'
         )
-        self.assertEqual(fill_all_defs('图书馆', note), 1)
+        self.assertEqual(fill_classifier('图书馆', note), 1)
         self.assertEqual(note['Classifier'], classifier)
-        self.assertEqual(note['Meaning'], ' \tlibrary\n<br>')
 
 
 class FillSimplifiedTraditionalHanzi(Base):
