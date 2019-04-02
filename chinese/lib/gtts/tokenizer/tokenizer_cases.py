@@ -28,7 +28,19 @@ def period_comma():
     """
     return RegexBuilder(
         pattern_args=symbols.PERIOD_COMMA,
-        pattern_func=lambda x: u"(?<!\.[a-z]){} ".format(x)).regex
+        pattern_func=lambda x: r"(?<!\.[a-z]){} ".format(x)).regex
+
+
+def colon():
+    """Colon case.
+
+    Match a colon ":" only if not preceeded by a digit.
+    Mainly to prevent a cut in the middle of time notations e.g. 10:01
+
+    """
+    return RegexBuilder(
+        pattern_args=symbols.COLON,
+        pattern_func=lambda x: r"(?<!\d){}".format(x)).regex
 
 
 def other_punctuation():
@@ -38,16 +50,17 @@ def other_punctuation():
     inserts a break in speech.
 
     """
-    punc = ''.join((
+    punc = ''.join(
         set(symbols.ALL_PUNC) -
         set(symbols.TONE_MARKS) -
-        set(symbols.PERIOD_COMMA)))
+        set(symbols.PERIOD_COMMA) -
+        set(symbols.COLON))
     return RegexBuilder(
         pattern_args=punc,
         pattern_func=lambda x: u"{}".format(x)).regex
 
 
-def legacy_all_punctuation(): # pragma: no cover b/c tested but Coveralls: ¯\_(ツ)_/¯
+def legacy_all_punctuation():  # pragma: no cover b/c tested but Coveralls: ¯\_(ツ)_/¯
     """Match all punctuation.
 
     Use as only tokenizer case to mimic gTTS 1.x tokenization.

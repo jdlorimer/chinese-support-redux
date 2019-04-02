@@ -57,6 +57,7 @@ class gTTS:
                 Tokenizer([
                     tokenizer_cases.tone_marks,
                     tokenizer_cases.period_comma,
+                    tokenizer_cases.colon,
                     tokenizer_cases.other_punctuation
                 ]).run
 
@@ -97,6 +98,7 @@ class gTTS:
             tokenizer_func=Tokenizer([
                 tokenizer_cases.tone_marks,
                 tokenizer_cases.period_comma,
+                tokenizer_cases.colon,
                 tokenizer_cases.other_punctuation
             ]).run
     ):
@@ -216,7 +218,7 @@ class gTTS:
                 log.debug("status-%i: %s", idx, r.status_code)
 
                 r.raise_for_status()
-            except requests.exceptions.HTTPError as e:
+            except requests.exceptions.HTTPError:
                 # Request successful, bad response
                 raise gTTSError(tts=self, response=r)
             except requests.exceptions.RequestException as e:  # pragma: no cover
@@ -243,7 +245,7 @@ class gTTS:
             :class:`gTTSError`: When there's an error with the API request.
 
         """
-        with open(savefile, 'wb') as f:
+        with open(str(savefile), 'wb') as f:
             self.write_to_fp(f)
             log.debug("Saved to %s", savefile)
 
