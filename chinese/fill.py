@@ -22,12 +22,13 @@ from time import sleep
 
 from anki.find import Finder
 from aqt import mw
-from aqt.utils import showInfo, askUser
+from aqt.utils import askUser, showInfo
 
 from .behavior import (
     fill_all_defs,
     fill_all_rubies,
     fill_bopomofo,
+    fill_classifier,
     fill_color,
     fill_silhouette,
     fill_simp,
@@ -45,12 +46,25 @@ from .util import (
     save_note,
 )
 
-
 PROMPT_TEMPLATE = (
     '<div>This will update the {field_names} fields in the current deck.</div>'
     '<div>Please back-up your Anki deck first!</div>'
     '{extra_info}'
     '<div><b>Continue?</b></div>'
+)
+
+PROGRESS_TEMPLATE = (
+    '<b>Processing:</b> %(hanzi)s<br>'
+    '<b>Notes:</b> %(has_fields)d<br>'
+    '<b>Filled:</b> %(filled)d<br>'
+    '<b>Failed:</b> %(failed)d'
+)
+
+END_TEMPLATE = (
+    '<b>Bulk filling complete</b><br>'
+    '<b>Notes:</b> %(has_fields)d<br>'
+    '<b>Filled:</b> %(filled)d<br>'
+    '<b>Failed:</b> %(failed)d'
 )
 
 
@@ -191,7 +205,7 @@ def bulk_fill_transcript():
 
 def bulk_fill_defs():
     prompt = PROMPT_TEMPLATE.format(
-        field_names='<i>definition</i>, <i>classifier</i> and <i>alternative</i>',
+        field_names='<i>definition</i> and <i>alternative</i>',
         extra_info='',
     )
 
@@ -261,6 +275,54 @@ def bulk_fill_defs():
         )
     mw.progress.finish()
     showInfo(msg)
+
+
+def bulk_fill_classifiers():
+    prompt = PROMPT_TEMPLATE.format(
+        field_names='<i>classifier</i>', extra_info=''
+    )
+
+    field_groups = ['classifier']
+
+    if not askUser(prompt):
+        return
+
+    n_targets = 0
+    d_success = 0
+    d_failed = 0
+
+    note_ids = Finder(mw.col).findNotes('deck:current')
+    mw.progress.start(immediate=True, min=0, max=len(note_ids))
+
+    for i, nid in enumerate(note_ids):
+        note = mw.col.getNote(nid)
+        copy = dict(note)
+        hanzi = get_hanzi(copy)
+
+        if has_any_field(copy, field_groups) and hanzi:
+            n_targets += 1
+
+            if all_fields_empty(copy, field_groups):
+                if fill_classifier(hanzi, copy):
+                    d_success += 1
+                else:
+                    d_failed += 1
+
+            msg = PROGRESS_TEMPLATE % {
+                'hanzi': hanzi,
+                'has_fields': n_targets,
+                'filled': d_success,
+                'failed': d_failed,
+            }
+            mw.progress.update(label=msg, value=i)
+
+            save_note(note, copy)
+
+    mw.progress.finish()
+    showInfo(
+        END_TEMPLATE
+        % {'has_fields': n_targets, 'filled': d_success, 'failed': d_failed}
+    )
 
 
 def bulk_fill_hanzi():
