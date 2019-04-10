@@ -1,7 +1,7 @@
 # Copyright 2012 Roland Sieker <ospalh@gmail.com>
 # Copyright 2012 Thomas TEMPÉ <thomas.tempe@alysse.org>
 # Copyright 2017 Pu Anlai
-# Copyright 2017-2018 Joseph Lorimer <luoliyan@posteo.net>
+# Copyright 2017-2018 Joseph Lorimer <joseph@lorimer.me>
 # Inspiration: Tymon Warecki
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/copyleft/agpl.html
 
