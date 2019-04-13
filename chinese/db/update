@@ -1,21 +1,34 @@
 #!/usr/bin/env python3
 
-import urllib.request, urllib.error, urllib.parse
-import zipfile
-import re
-import simplejson as json
-import sqlite3
-import sys
-import argparse
-import os
+# Copyright © 2012-2015 Thomas TEMPÉ <thomas.tempe@alysse.org>
+# Copyright © 2019 Joseph Lorimer <joseph@lorimer.me>
+#
+# This file is part of Chinese Support Redux.
+#
+# Chinese Support Redux is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by the Free
+# Software Foundation, either version 3 of the License, or (at your option) any
+# later version.
+#
+# Chinese Support Redux is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+# FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+# more details.
+#
+# You should have received a copy of the GNU General Public License along with
+# Chinese Support Redux.  If not, see <https://www.gnu.org/licenses/>.
+
+from argparse import ArgumentParser
 from functools import reduce
+from os import remove
+from tempfile import TemporaryFile
+from urllib.request import urlopen
+from zipfile import ZipFile
+import re
+import sqlite3
 
 dest = "chinese_dict.sqlite"
 
-unihan_source = (
-    "http://unicode.org/Public/UCD/latest/ucdxml/ucd.unihan.flat.zip"
-)
-unihan_zip = "tmp/unihan.zip"
 unihan_fields = [
     "cp",
     "kMandarin",
@@ -24,10 +37,12 @@ unihan_fields = [
     "kTraditionalVariant",
 ]
 
-cedict_source = (
-    "http://www.mdbg.net/chindict/export/cedict/cedict_1_0_ts_utf-8_mdbg.zip"
-)
-cedict_zip = "cedict_1_0_ts_utf-8_mdbg.zip"
+unihan_info = {
+    'name': 'Unihan',
+    'url': 'http://unicode.org/Public/UCD/latest/ucdxml/ucd.unihan.flat.zip',
+    'file': 'ucd.unihan.flat.xml',
+}
+
 cedict_fields = [
     "traditional",
     "simplified",
@@ -42,62 +57,42 @@ cedict_fields = [
 ]
 licenses_file = "COPYING.txt"
 
+# JyutDict (zhongwenlearner.com)
+# CC-ChEDICC (cc-chedicc.wikispaces.com)
+# CFDICT_old (www.chine-informations.com/chinois/open/CFDICT/cfdict_old.zip)
+
 cedicts = [
     {
-        "name": "CC-CEDICT",
-        "source": "http://www.mdbg.net/chindict/export/cedict/cedict_1_0_ts_utf-8_mdbg.zip",
-        "zip": "tmp/cedict_1_0_ts_utf-8_mdbg.zip",
-        "datafile": "cedict_ts.u8",
-        "fields": ' [traditional, simplified, pinyin, pinyin_taiwan, classifiers, alternates, translation, None, None, None ]',
+        'name': 'CC-CEDICT',
+        'url': 'http://www.mdbg.net/chindict/export/cedict/cedict_1_0_ts_utf-8_mdbg.zip',
+        'file': 'cedict_ts.u8',
+        'fields': ' [traditional, simplified, pinyin, pinyin_taiwan, classifiers, alternates, translation, None, None, None ]',
     },
-    # Try to download JyutDict from Zhongwenlearner.com
     {
-        "name": "HanDeDICT",
-        "source": "http://www.handedict.de/handedict/handedict-20110528.zip",
-        "zip": "tmp/handedict-20110528.zip",
-        "datafile": "handedict-20110528/handedict.u8",
-        "fields": ' [traditional, simplified, pinyin, pinyin_taiwan, classifiers, alternates, None, translation, None, None ]',
+        'name': 'HanDeDICT',
+        'url': 'http://www.handedict.de/handedict/handedict-20110528.zip',
+        'file': 'handedict-20110528/handedict.u8',
+        'fields': ' [traditional, simplified, pinyin, pinyin_taiwan, classifiers, alternates, None, translation, None, None ]',
     },
-    # {
-        # "name": "CFDICT_old",
-        # "source": "http://www.chine-informations.com/chinois/open/CFDICT/cfdict_old.zip",
-        # "zip": "tmp/cfdict_old.zip",
-        # "datafile": "cfdict.u8",
-        # "fields": ' [traditional, simplified, pinyin, pinyin_taiwan, classifiers, alternates, None, None, translation, None ]',
-    # }
-    #    {
-    #        "name":"CC-ChEDICC",
-    #        "source":"somewhere on http://cc-chedicc.wikispaces.com/",
-    #        "zip":"TBD",
-    #        "datafile":"TBD",
-    #        "fields": ' [traditional, simplified, pinyin, pinyin_taiwan, classifiers, alternates, None, None, None, translation ]'
-    #        }
 ]
-
 
 ###################################################################
 # cedict
 
 
-def downloadCedict():
-    try:
-        os.mkdir("tmp")
-    except:
-        pass
-    for cedict in cedicts:
-        print("Downloading %s" % cedict["name"])
-        fd = open(cedict["zip"], 'wb')
-        fd.write(urllib.request.urlopen(cedict["source"]).read())
-        fd.close()
-        z = zipfile.ZipFile(cedict["zip"], 'r')
-        z.extract(cedict["datafile"], "tmp")
+def download(info):
+    print('Downloading:', info['name'])
+
+    with TemporaryFile() as f:
+        f.write(urlopen(info['url']).read())
+        ZipFile(f).extract(info['file'], 'data')
 
 
 def importCedict(cedict, call):
     """Opens the cedict*.zip file containing the dictionary data.
     for each word, calls function 'call', with
     a list of values, matching 'cedict_fields'."""
-    fd = open("tmp/" + cedict["datafile"], "r", encoding='utf-8')
+    fd = open("data/" + cedict["file"], "r", encoding='utf-8')
     licenses = open(licenses_file, "a")
     licenses.write(
         "#########################\nThis database contains an extract of %s\n\n"
@@ -216,22 +211,9 @@ def populateWordsDictionary():
 # Unihan
 
 
-def downloadUnihan():
-    print("Downloading Hanzi Unihan database")
-    try:
-        os.mkdir("tmp")
-    except:
-        pass
-    fd = open(unihan_zip, 'wb')
-    fd.write(urllib.request.urlopen(unihan_source).read())
-
-
 def importUnihan(call):
-    """Opens the unihan.zip file containing the XML unihan data.
-    for each character, calls function 'call', with
-    a list of values, matching 'unihan_fields'."""
-    z = zipfile.ZipFile(unihan_zip, 'r')
-    data = z.read("ucd.unihan.flat.xml").decode('utf-8')
+    with open('data/ucd.unihan.flat.xml', encoding='utf-8') as f:
+        data = f.read()
 
     licenses = open(licenses_file, "a")
     licenses.write(
@@ -396,21 +378,12 @@ def accentuate_pinyin(text):
 
 
 ###################################################################
-# Action
 
 
-def do_nothing():
-    pass
-
-
-def delete():
-    print("Deleting chinese_dict.sqlite")
-    os.remove("chinese_dict.sqlite")
-
-
-def download():
-    downloadUnihan()
-    downloadCedict()
+def download_all():
+    download(unihan_info)
+    for info in cedicts:
+        download(info)
 
 
 def populate():
@@ -419,52 +392,46 @@ def populate():
     populateWordsDictionary()
 
 
-# def cleanup()
+def main():
+    parser = ArgumentParser()
 
-
-def cmd_line():
-    parser = argparse.ArgumentParser(
-        "Maintains SQLite database of Words and characters for use by Chinese Support Add-on."
-    )
     parser.add_argument(
         '--delete',
-        dest="delete",
-        action="store_const",
-        default=do_nothing,
-        const=delete,
-        help="Delete the SQLite database prior to reconstructing it.",
+        action='store_true',
+        help='delete the database prior to reconstructing it',
     )
     parser.add_argument(
         '--download',
-        dest="download",
-        action="store_const",
-        default=do_nothing,
-        const=download,
-        help="Download UniHan and CEDICT dictionaries from their official locations.",
+        action='store_true',
+        help='download the UniHan and CEDICT dictionaries',
     )
     parser.add_argument(
         '--populate',
-        dest="populate",
-        action="store_const",
-        default=do_nothing,
-        const=populate,
-        help="Populate the database from downloaded files.",
+        action='store_true',
+        help='populate the database from downloaded files',
     )
     parser.add_argument(
         '--cleanup',
-        dest="cleanup",
-        action="store_const",
-        default=do_nothing,
-        const=cleanup,
-        help="Remove indexes and deframent database to reduce its size before distribution.",
+        action='store_true',
+        help='remove indexes and defragment database',
     )
 
     args = parser.parse_args()
-    args.delete()
-    args.download()
-    args.populate()
-    args.cleanup()
+
+    if args.delete:
+        print('Deleting', dest)
+        remove(dest)
+    if args.download:
+        download_all()
+    if args.populate:
+        populate()
+    if args.cleanup:
+        cleanup()
+
+    if not (args.delete or args.download or args.populate or args.cleanup):
+        parser.print_help()
+        parser.exit()
 
 
-print(sys.argv[0], " --help for help")
-cmd_line()
+if __name__ == '__main__':
+    main()
