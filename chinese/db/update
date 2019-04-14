@@ -34,7 +34,15 @@ DATA_DIR = 'data'
 DB_PATH = 'chinese_dict.sqlite'
 LICENSE_PATH = 'COPYING.txt'
 
-DB_FIELDS = [
+HANZI_COLS = [
+    'cp',
+    'kMandarin',
+    'kCantonese',
+    'kSimplifiedVariant',
+    'kTraditionalVariant',
+]
+
+WORD_COLS = [
     'traditional',
     'simplified',
     'pinyin',
@@ -47,25 +55,17 @@ DB_FIELDS = [
     'spanish',
 ]
 
-unihan_fields = [
-    "cp",
-    "kMandarin",
-    "kCantonese",
-    "kSimplifiedVariant",
-    "kTraditionalVariant",
-]
+# JyutDict (zhongwenlearner.com)
+# CC-ChEDICC (cc-chedicc.wikispaces.com)
+# CFDICT_old (www.chine-informations.com/chinois/open/CFDICT/cfdict_old.zip)
 
-unihan_info = {
+UNIHAN_INFO = {
     'name': 'Unihan',
     'url': 'http://unicode.org/Public/UCD/latest/ucdxml/ucd.unihan.flat.zip',
     'file': 'ucd.unihan.flat.xml',
 }
 
-# JyutDict (zhongwenlearner.com)
-# CC-ChEDICC (cc-chedicc.wikispaces.com)
-# CFDICT_old (www.chine-informations.com/chinois/open/CFDICT/cfdict_old.zip)
-
-cedicts = [
+CEDICT_INFO = [
     {
         'name': 'CC-CEDICT',
         'url': 'http://www.mdbg.net/chindict/export/cedict/cedict_1_0_ts_utf-8_mdbg.zip',
@@ -109,17 +109,17 @@ def download(info):
 def populate_words():
     conn = connect(DB_PATH)
     c = conn.cursor()
-    c.execute('CREATE TABLE cidian (%s)' % ', '.join(DB_FIELDS))
+    c.execute('CREATE TABLE cidian (%s)' % ', '.join(WORD_COLS))
     c.execute('CREATE INDEX isimplified ON cidian (simplified)')
     c.execute(
         'CREATE UNIQUE INDEX itraditional ON cidian (traditional, pinyin)'
     )
 
-    for d in cedicts:
+    for d in CEDICT_INFO:
         with yaspin(
             text='Importing %s' % d['name']
         ).cyan.bold.dots12 as spinner:
-            for e in get_entries(d):
+            for e in get_cedict_entries(d):
                 process_entry(e, c)
             spinner.ok()
 
@@ -133,7 +133,7 @@ def populate_words():
     conn.close()
 
 
-def get_entries(info):
+def get_cedict_entries(info):
     comments = []
 
     with open(join(DATA_DIR, info['file']), encoding='utf-8') as f:
@@ -206,110 +206,6 @@ def process_entry(new, cursor):
         )
 
 
-def importUnihan(call):
-    with open(join(DATA_DIR, 'ucd.unihan.flat.xml'), encoding='utf-8') as f:
-        data = f.read()
-
-    licenses = open(LICENSE_PATH, "a")
-    licenses.write(
-        "#########################\nThis database contains an extract of the Unihan databasze\n\n"
-    )
-    for comment in finditer("<!--(.*?)-->", data):
-        licenses.write(comment.group(1) + "\n")
-    licenses.write("\n\n")
-    licenses.close()
-
-    for char in finditer("<char (.*?)/>", data):
-        c = sub(r'([a-zA-Z0-9_]*)="(.*?)"', r'"\1":u"\2",', char.group(1))
-        c = "{" + c[:-1] + "}"
-        d = unihanFilter(eval(c))
-        if d:
-            call(d)
-
-
-def unihanFilter(d):
-    """given a dictionary representing one Unihan entry, returns a list of
-    fields matching unihan_fields.
-    If character does not have mandarin/cantonese pronunciation, return None"""
-    values = [None] * len(unihan_fields)
-    # Filter out non-chinese characters
-    try:
-        if d["kMandarin"] == None and d["kCantonese"] == None:
-            return None
-    except KeyError:
-        return None
-
-    # Convert the characters to unicode strings
-    d["cp"] = eval("u'\\u%s'" % d["cp"])
-    try:
-        d["kSimplifiedVariant"] = eval(
-            "u'\\u%s'" % d["kSimplifiedVariant"][2:]
-        )
-    except:
-        pass
-    try:
-        d["kTraditionalVariant"] = eval(
-            "u'\\u%s'" % d["kTraditionalVariant"][2:]
-        )
-    except:
-        pass
-
-    # Convert to list
-    for i in range(len(unihan_fields)):
-        try:
-            values[i] = d[unihan_fields[i]]
-        except:
-            pass
-    return values
-
-
-def populateHanziDB():
-    def processEntry(d):
-        c.execute('insert into hanzi values (%s)' % ("?," * len(d))[:-1], d)
-
-    print("Importing Hanzi")
-    conn = connect(DB_PATH)
-    c = conn.cursor()
-    try:
-        c.execute("drop table hanzi;")
-    except:
-        pass
-    c.execute(
-        "create table hanzi (%s);"
-        % reduce(lambda a, b: a + ", " + b, unihan_fields)
-    )
-    conn.commit()
-    c.execute("create unique index icp on hanzi( cp );")
-    conn.commit()
-
-    importUnihan(processEntry)
-    for a in c.execute("select count(kMandarin) from hanzi;"):
-        print("imported %d characters" % a)
-    conn.commit()
-    conn.close()
-
-
-def copyrightNote():
-    licenses = open(LICENSE_PATH, "w")
-    licenses.write(
-        "#########################\nThe %s database was created by aggregating the following sources.\n\n"
-        % (DB_PATH)
-    )
-    licenses.close()
-
-
-def cleanup():
-    print("Optimizing database size")
-    conn = connect(DB_PATH)
-    c = conn.cursor()
-    c.execute("drop index if exists icp;")
-    c.execute("drop index if exists isimplified;")
-    c.execute("drop index if exists itraditional;")
-    c.execute("vacuum;")
-    conn.commit()
-    conn.close()
-
-
 def parse_def(s, lang):
     d = {lang: []}
     for part in s.split('/'):
@@ -332,6 +228,86 @@ def merge_defs(a, b):
     if not b:
         return a
     return a + '\n' + b
+
+
+def populate_hanzi():
+    conn = connect(DB_PATH)
+    c = conn.cursor()
+    c.execute('CREATE TABLE hanzi (%s)' % ', '.join(HANZI_COLS))
+    c.execute('CREATE UNIQUE INDEX icp ON hanzi (cp)')
+
+    with yaspin(text='Importing Unihan').cyan.bold.dots12 as spinner:
+        for e in get_unihan_entries():
+            c.execute(
+                'INSERT INTO hanzi ({}) VALUES ({})'.format(
+                    ','.join(e.keys()), ', '.join(['?'] * len(e))
+                ),
+                list(e.values()),
+            )
+        spinner.ok()
+
+    print(
+        'Imported {} hanzi'.format(
+            c.execute('SELECT COUNT(kMandarin) FROM hanzi').fetchone()[0]
+        )
+    )
+
+    conn.commit()
+    conn.close()
+
+
+def get_unihan_entries():
+    with open(join(DATA_DIR, UNIHAN_INFO['file']), encoding='utf-8') as f:
+        data = f.read()
+
+    with open(LICENSE_PATH, 'a', encoding='utf-8') as f:
+        f.write(
+            '#########################\n'
+            'This database contains an extract of the Unihan database\n\n'
+        )
+        comments = [c.group(1) for c in finditer('<!--(.*?)-->', data)]
+        f.write(''.join(comments) + '\n\n')
+
+    for char in finditer('<char (.*?)/>', data):
+        d = {
+            pair.group(1): pair.group(2)
+            for pair in finditer('([a-zA-Z0-9_]*)="(.*?)"', char.group(1))
+        }
+        if d.get('kMandarin') or d.get('kCantonese'):
+            for k in list(d):
+                if k not in HANZI_COLS:
+                    d.pop(k)
+                    continue
+                if d[k].startswith('U+'):
+                    d[k] = ', '.join(
+                        [
+                            chr(int(codepoint, 16))
+                            for codepoint in d[k].replace('U+', '').split()
+                        ]
+                    )
+            d['cp'] = chr(int(d['cp'], 16))
+            yield d
+
+
+def copyrightNote():
+    licenses = open(LICENSE_PATH, "w")
+    licenses.write(
+        "#########################\nThe %s database was created by aggregating the following sources.\n\n"
+        % (DB_PATH)
+    )
+    licenses.close()
+
+
+def cleanup():
+    print("Optimizing database size")
+    conn = connect(DB_PATH)
+    c = conn.cursor()
+    c.execute("drop index if exists icp;")
+    c.execute("drop index if exists isimplified;")
+    c.execute("drop index if exists itraditional;")
+    c.execute("vacuum;")
+    conn.commit()
+    conn.close()
 
 
 vowel_decorations = [
@@ -394,14 +370,14 @@ def accentuate_pinyin(text):
 
 
 def download_all():
-    download(unihan_info)
-    for info in cedicts:
+    download(UNIHAN_INFO)
+    for info in CEDICT_INFO:
         download(info)
 
 
-def populate():
+def populate_all():
     copyrightNote()
-    populateHanziDB()
+    populate_hanzi()
     populate_words()
 
 
@@ -416,7 +392,7 @@ def main():
     parser.add_argument(
         '--download',
         action='store_true',
-        help='download the UniHan and CEDICT dictionaries',
+        help='download the Unihan and CEDICT dictionaries',
     )
     parser.add_argument(
         '--populate',
@@ -437,7 +413,7 @@ def main():
     if args.download:
         download_all()
     if args.populate:
-        populate()
+        populate_all()
     if args.cleanup:
         cleanup()
 
