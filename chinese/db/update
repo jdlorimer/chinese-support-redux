@@ -303,15 +303,15 @@ def write_license():
 
 
 def cleanup():
-    print("Optimizing database size")
-    conn = connect(DB_PATH)
-    c = conn.cursor()
-    c.execute("drop index if exists icp;")
-    c.execute("drop index if exists isimplified;")
-    c.execute("drop index if exists itraditional;")
-    c.execute("vacuum;")
-    conn.commit()
-    conn.close()
+    with yaspin(text='Optimizing database size').cyan.bold.dots12 as spinner:
+        conn = connect(DB_PATH)
+        conn.execute('drop index if exists icp')
+        conn.execute('drop index if exists isimplified')
+        conn.execute('drop index if exists itraditional')
+        conn.execute('vacuum')
+        conn.commit()
+        conn.close()
+        spinner.ok()
 
 
 vowel_decorations = [
@@ -380,7 +380,9 @@ def download_all():
 
 
 def populate_all():
-    write_license()
+    with yaspin(text='Updating COPYING.txt').cyan.bold.dots12 as spinner:
+        write_license()
+        spinner.ok()
     populate_hanzi()
     populate_words()
 
