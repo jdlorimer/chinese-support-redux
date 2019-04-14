@@ -19,7 +19,6 @@
 # Chinese Support Redux.  If not, see <https://www.gnu.org/licenses/>.
 
 from argparse import ArgumentParser
-from functools import reduce
 from os import remove
 from os.path import join
 from re import finditer, IGNORECASE, match, sub
@@ -135,7 +134,7 @@ def get_cedict_entries(info):
     with open(join(DATA_DIR, info['file']), encoding='utf-8') as f:
         for line in f:
             if info['name'] == 'CC-Canto':
-                pattern = r'^(\S+) (\S+) \[([^\]]+)\] \{([^}]+)\} (.+)$'
+                pattern = r'^(\S+) (\S+) \[([^\]]+)\] \{([^}]+)\} /(.+)/$'
                 def_group = 5
             else:
                 pattern = r'^(\S+) (\S+) \[([^\]]+)\] (.+)$'
@@ -146,15 +145,11 @@ def get_cedict_entries(info):
                 d = parse_def(result.group(def_group), info['lang'])
                 d['traditional'] = result.group(1)
                 d['simplified'] = result.group(2)
-                d['pinyin'] = accentuate_pinyin(result.group(3).lower())
+                d['pinyin'] = result.group(3)
                 if info['name'] == 'CC-Canto':
                     d['jyutping'] = result.group(4)
                 if d[info['lang']]:
-                    d[info['lang']] = '\n'.join(
-                        accentuate_pinyin_in_definition(s)
-                        for s in d[info['lang']]
-                        if s
-                    )
+                    d[info['lang']] = '\n'.join(filter(None, d[info['lang']]))
                 yield d
 
 
@@ -216,17 +211,21 @@ def process_entry(new, cursor):
 
 def parse_def(s, lang):
     d = {lang: []}
-    for part in s.split('/'):
+    if lang == 'english_hk':
+        delim = ';'
+    else:
+        delim = '/'
+    for part in s.split(delim):
         if part.startswith('Taiwan pr.'):
             result = match(r'Taiwan pr. \[(.*?)\]', part)
             if result:
-                d['pinyin_tw'] = accentuate_pinyin(result.group(1))
+                d['pinyin_tw'] = result.group(1)
         elif part.startswith('CL:'):
             d['classifiers'] = part.replace('CL:', '')
         elif part.startswith('also written'):
             d['variants'] = part.replace('also written', '')
         else:
-            d[lang].append(part)
+            d[lang].append(part.strip())
     return d
 
 
@@ -332,65 +331,6 @@ def cleanup():
         conn.commit()
         conn.close()
         spinner.ok()
-
-
-vowel_decorations = [
-    {},
-    {'a': 'ā', 'e': 'ē', 'i': 'ī', 'o': 'ō', 'u': 'ū', 'ü': 'ǖ', 'v': 'ǖ'},
-    {'a': 'á', 'e': 'é', 'i': 'í', 'o': 'ó', 'u': 'ú', 'ü': 'ǘ', 'v': 'ǘ'},
-    {'a': 'ǎ', 'e': 'ě', 'i': 'ǐ', 'o': 'ǒ', 'u': 'ǔ', 'ü': 'ǚ', 'v': 'ǚ'},
-    {'a': 'à', 'e': 'è', 'i': 'ì', 'o': 'ò', 'u': 'ù', 'ü': 'ǜ', 'v': 'ǜ'},
-    {'a': 'a', 'e': 'e', 'i': 'i', 'o': 'o', 'u': 'u', 'ü': 'ü', 'v': 'ü'},
-]
-accents = 'ɑ̄āĀáɑ́ǎɑ̌ÁǍàɑ̀ÀēĒéÉěĚèÈīĪíÍǐǏìÌōŌóÓǒǑòÒūŪúÚǔǓùÙǖǕǘǗǚǙǜǛ'
-
-
-def accentuate_pinyin_in_definition(text):
-    '''Add accents to pinyin between brackets, as in CCDICT's definitions;
-    ex: variant of 不答理[bu4 da1 li3]'''
-
-    def apid_sub(p):
-        return accentuate_pinyin(p.group(1))
-
-    text = sub('(\[.*?\])', apid_sub, text, flags=IGNORECASE)
-    return text
-
-
-def accentuate_pinyin(text):
-    '''Add accents to pinyin.
-    Eg: ni2 becomes ní.
-    Eg: ní4 becomes nì. (to make correction easier)
-   '''
-
-    def accentuate_pinyin_sub(p):
-        pinyin = p.group(1)
-        tone = p.group(2)
-        if "tone" == pinyin:
-            return pinyin + tone
-        for v in "aeiouüvAEIOUÜV":
-            if pinyin.find(v) > -1:
-                try:
-                    return sub(
-                        v,
-                        vowel_decorations[int(tone)][v.lower()],
-                        pinyin,
-                        count=1,
-                    )
-                except KeyError as IndexError:
-                    pass
-        return pinyin
-
-    # correct specific idiosyncracies in CEDICT
-    text = text.replace("u:", "v")
-    text = text.replace(" r5", " er5")
-    # do the actual convertion
-    text = sub(
-        '([a-z]*[aeiouüÜv' + accents + '][a-zü]*)([1-5])',
-        accentuate_pinyin_sub,
-        text,
-        flags=IGNORECASE,
-    )
-    return text
 
 
 def download_all():
