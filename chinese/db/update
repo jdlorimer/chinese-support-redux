@@ -53,7 +53,6 @@ WORD_COLS = [
     'english_hk',
     'german',
     'french',
-    'spanish',
 ]
 
 # JyutDict (zhongwenlearner.com)
@@ -177,17 +176,16 @@ def process_entry(new, cursor):
             return
 
         cursor.execute(
-            'SELECT english, german, french, spanish '
+            'SELECT english, german, french '
             'FROM cidian '
             'WHERE traditional=? AND pinyin=?',
             (new['traditional'], new['pinyin']),
         )
-        english, german, french, spanish = cursor.fetchone()
+        english, german, french, = cursor.fetchone()
         old = {
             'english': english,
             'german': german,
             'french': french,
-            'spanish': spanish,
         }
         for k in old:
             if k in new:
@@ -196,13 +194,12 @@ def process_entry(new, cursor):
                 new[k] = old[k]
         cursor.execute(
             'UPDATE cidian '
-            'SET english=?, german=?, french=?, spanish=? '
+            'SET english=?, german=?, french=? '
             'WHERE traditional=? AND pinyin=?',
             (
                 new['english'],
                 new['german'],
                 new['french'],
-                new['spanish'],
                 new['traditional'],
                 new['pinyin'],
             ),
