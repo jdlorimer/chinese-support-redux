@@ -134,34 +134,22 @@ def populate_words():
 
 
 def get_cedict_entries(info):
-    comments = []
-
     with open(join(DATA_DIR, info['file']), encoding='utf-8') as f:
         for line in f:
-            if match('^#', line):
-                comments.append(line)
-            else:
-                pattern = r'^(\S+) (\S+) \[([^\]]+)\] (.+)$'
-                result = match(pattern, line)
-                if result:
-                    d = parse_def(result.group(4), info['lang'])
-                    d['traditional'] = result.group(1)
-                    d['simplified'] = result.group(2)
-                    d['pinyin'] = accentuate_pinyin(result.group(3).lower())
-                    if d[info['lang']]:
-                        d[info['lang']] = '\n'.join(
-                            accentuate_pinyin_in_definition(s)
-                            for s in d[info['lang']]
-                            if s
-                        )
-                    yield d
-
-    with open(LICENSE_PATH, 'a', encoding='utf-8') as f:
-        f.write(
-            '#########################\n'
-            'This database contains an extract of %s\n\n' % info['name']
-        )
-        f.write(''.join(comments) + '\n\n')
+            pattern = r'^(\S+) (\S+) \[([^\]]+)\] (.+)$'
+            result = match(pattern, line)
+            if result:
+                d = parse_def(result.group(4), info['lang'])
+                d['traditional'] = result.group(1)
+                d['simplified'] = result.group(2)
+                d['pinyin'] = accentuate_pinyin(result.group(3).lower())
+                if d[info['lang']]:
+                    d[info['lang']] = '\n'.join(
+                        accentuate_pinyin_in_definition(s)
+                        for s in d[info['lang']]
+                        if s
+                    )
+                yield d
 
 
 def process_entry(new, cursor):
@@ -260,14 +248,6 @@ def get_unihan_entries():
     with open(join(DATA_DIR, UNIHAN_INFO['file']), encoding='utf-8') as f:
         data = f.read()
 
-    with open(LICENSE_PATH, 'a', encoding='utf-8') as f:
-        f.write(
-            '#########################\n'
-            'This database contains an extract of the Unihan database\n\n'
-        )
-        comments = [c.group(1) for c in finditer('<!--(.*?)-->', data)]
-        f.write(''.join(comments) + '\n\n')
-
     for char in finditer('<char (.*?)/>', data):
         d = {
             pair.group(1): pair.group(2)
@@ -289,13 +269,37 @@ def get_unihan_entries():
             yield d
 
 
-def copyrightNote():
-    licenses = open(LICENSE_PATH, "w")
-    licenses.write(
-        "#########################\nThe %s database was created by aggregating the following sources.\n\n"
-        % (DB_PATH)
-    )
-    licenses.close()
+def write_license():
+    with open(LICENSE_PATH, 'w', encoding='utf-8') as fout:
+        fout.write(
+            '#########################\n'
+            'The %s database was created by aggregating the following sources.\n\n'
+            % (DB_PATH)
+        )
+
+        fout.write(
+            '#########################\n'
+            'This database contains an extract of the Unihan database\n\n'
+        )
+
+        with open(
+            join(DATA_DIR, UNIHAN_INFO['file']), encoding='utf-8'
+        ) as fin:
+            comments = [
+                c.group(1) for c in finditer('<!--(.*?)-->', fin.read())
+            ]
+        fout.write(''.join(comments) + '\n\n')
+
+        for info in CEDICT_INFO:
+            fout.write(
+                '#########################\n'
+                'This database contains an extract of %s\n\n' % info['name']
+            )
+            with open(join(DATA_DIR, info['file']), encoding='utf-8') as fin:
+                for line in fin:
+                    if match('^#', line):
+                        fout.write(line)
+                fout.write('\n\n')
 
 
 def cleanup():
@@ -376,7 +380,7 @@ def download_all():
 
 
 def populate_all():
-    copyrightNote()
+    write_license()
     populate_hanzi()
     populate_words()
 
