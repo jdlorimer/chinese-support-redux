@@ -46,10 +46,12 @@ WORD_COLS = [
     'traditional',
     'simplified',
     'pinyin',
-    'pinyin_taiwan',
+    'pinyin_tw',
+    'jyutping',
     'classifiers',
-    'alternates',
+    'variants',
     'english',
+    'english_hk',
     'german',
     'french',
     'spanish',
@@ -64,51 +66,30 @@ UNIHAN_INFO = {
     'file': 'ucd.unihan.flat.xml',
 }
 
-CEDICT_INFO = [
+DICT_INFO = [
     {
         'name': 'CC-CEDICT',
         'url': 'http://www.mdbg.net/chindict/export/cedict/cedict_1_0_ts_utf-8_mdbg.zip',
         'file': 'cedict_ts.u8',
         'lang': 'english',
-        'fields': [
-            'traditional',
-            'simplified',
-            'pinyin',
-            'pinyin_taiwan',
-            'classifiers',
-            'alternates',
-            'english',
-        ],
     },
     {
         'name': 'HanDeDICT',
         'url': 'http://www.handedict.de/handedict/handedict-20110528.zip',
         'file': 'handedict-20110528/handedict.u8',
         'lang': 'german',
-        'fields': [
-            'traditional',
-            'simplified',
-            'pinyin',
-            'pinyin_taiwan',
-            'classifiers',
-            'alternates',
-            'german',
-        ],
     },
     {
         'name': 'CFDICT',
         'url': 'https://chine.in/mandarin/dictionnaire/CFDICT/cfdict.zip',
         'file': 'cfdict.u8',
         'lang': 'french',
-        'fields': [
-            'traditional',
-            'simplified',
-            'pinyin',
-            'pinyin_taiwan',
-            'classifiers',
-            'alternates',
-            'french',
-        ],
+    },
+    {
+        'name': 'CC-Canto',
+        'url': 'http://cantonese.org/cccanto-160115.zip',
+        'file': 'cccanto-webdist.txt',
+        'lang': 'english_hk',
     },
 ]
 
@@ -132,7 +113,7 @@ def populate_words():
         'CREATE UNIQUE INDEX itraditional ON cidian (traditional, pinyin)'
     )
 
-    for d in CEDICT_INFO:
+    for d in DICT_INFO:
         with yaspin(
             text='Importing %s' % d['name']
         ).cyan.bold.dots12 as spinner:
@@ -141,7 +122,7 @@ def populate_words():
             spinner.ok()
 
     print(
-        'Imported {} words'.format(
+        'Imported {:,} words'.format(
             c.execute('SELECT count(simplified) FROM cidian').fetchone()[0]
         )
     )
@@ -153,13 +134,21 @@ def populate_words():
 def get_cedict_entries(info):
     with open(join(DATA_DIR, info['file']), encoding='utf-8') as f:
         for line in f:
-            pattern = r'^(\S+) (\S+) \[([^\]]+)\] (.+)$'
+            if info['name'] == 'CC-Canto':
+                pattern = r'^(\S+) (\S+) \[([^\]]+)\] \{([^}]+)\} (.+)$'
+                def_group = 5
+            else:
+                pattern = r'^(\S+) (\S+) \[([^\]]+)\] (.+)$'
+                def_group = 4
+
             result = match(pattern, line)
             if result:
-                d = parse_def(result.group(4), info['lang'])
+                d = parse_def(result.group(def_group), info['lang'])
                 d['traditional'] = result.group(1)
                 d['simplified'] = result.group(2)
                 d['pinyin'] = accentuate_pinyin(result.group(3).lower())
+                if info['name'] == 'CC-Canto':
+                    d['jyutping'] = result.group(4)
                 if d[info['lang']]:
                     d[info['lang']] = '\n'.join(
                         accentuate_pinyin_in_definition(s)
@@ -178,6 +167,20 @@ def process_entry(new, cursor):
             list(new.values()),
         )
     except IntegrityError:
+        if 'jyutping' in new:
+            cursor.execute(
+                'UPDATE cidian '
+                'SET jyutping=?, english_hk=? '
+                'WHERE traditional=? AND pinyin=?',
+                (
+                    new['jyutping'],
+                    new['english_hk'],
+                    new['traditional'],
+                    new['pinyin'],
+                ),
+            )
+            return
+
         cursor.execute(
             'SELECT english, german, french, spanish '
             'FROM cidian '
@@ -217,11 +220,11 @@ def parse_def(s, lang):
         if part.startswith('Taiwan pr.'):
             result = match(r'Taiwan pr. \[(.*?)\]', part)
             if result:
-                d['pinyin_taiwan'] = accentuate_pinyin(result.group(1))
+                d['pinyin_tw'] = accentuate_pinyin(result.group(1))
         elif part.startswith('CL:'):
             d['classifiers'] = part.replace('CL:', '')
         elif part.startswith('also written'):
-            d['alternates'] = part.replace('also written', '')
+            d['variants'] = part.replace('also written', '')
         else:
             d[lang].append(part)
     return d
@@ -241,7 +244,7 @@ def populate_hanzi():
     c.execute('CREATE TABLE hanzi (%s)' % ', '.join(HANZI_COLS))
     c.execute('CREATE UNIQUE INDEX icp ON hanzi (cp)')
 
-    with yaspin(text='Importing Unihan').cyan.bold.dots12 as spinner:
+    with yaspin(text='Importing Unihan database').cyan.bold.dots12 as spinner:
         for e in get_unihan_entries():
             c.execute(
                 'INSERT INTO hanzi ({}) VALUES ({})'.format(
@@ -252,7 +255,7 @@ def populate_hanzi():
         spinner.ok()
 
     print(
-        'Imported {} hanzi'.format(
+        'Imported {:,} characters'.format(
             c.execute('SELECT COUNT(kMandarin) FROM hanzi').fetchone()[0]
         )
     )
@@ -307,7 +310,7 @@ def write_license():
             ]
         fout.write(''.join(comments) + '\n\n')
 
-        for info in CEDICT_INFO:
+        for info in DICT_INFO:
             fout.write(
                 '#########################\n'
                 'This database contains an extract of %s\n\n' % info['name']
@@ -392,7 +395,7 @@ def accentuate_pinyin(text):
 
 def download_all():
     download(UNIHAN_INFO)
-    for info in CEDICT_INFO:
+    for info in DICT_INFO:
         download(info)
 
 
