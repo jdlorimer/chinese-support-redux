@@ -57,7 +57,6 @@ WORD_COLS = [
 
 # JyutDict (zhongwenlearner.com)
 # CC-ChEDICC (cc-chedicc.wikispaces.com)
-# CFDICT_old (www.chine-informations.com/chinois/open/CFDICT/cfdict_old.zip)
 
 UNIHAN_INFO = {
     'name': 'Unihan',
@@ -96,14 +95,32 @@ CEDICT_INFO = [
             'german',
         ],
     },
+    {
+        'name': 'CFDICT',
+        'url': 'https://chine.in/mandarin/dictionnaire/CFDICT/cfdict.zip',
+        'file': 'cfdict.u8',
+        'lang': 'french',
+        'fields': [
+            'traditional',
+            'simplified',
+            'pinyin',
+            'pinyin_taiwan',
+            'classifiers',
+            'alternates',
+            'french',
+        ],
+    },
 ]
 
 
 def download(info):
-    print('Downloading:', info['name'])
-    with TemporaryFile() as f:
-        f.write(urlopen(info['url']).read())
-        ZipFile(f).extract(info['file'], DATA_DIR)
+    with yaspin(
+        text='Downloading %s' % info['name']
+    ).cyan.bold.dots12 as spinner:
+        with TemporaryFile() as f:
+            f.write(urlopen(info['url']).read())
+            ZipFile(f).extract(info['file'], DATA_DIR)
+        spinner.ok()
 
 
 def populate_words():
