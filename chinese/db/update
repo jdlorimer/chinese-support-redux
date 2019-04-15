@@ -30,7 +30,7 @@ from zipfile import ZipFile
 from yaspin import yaspin
 
 DATA_DIR = 'data'
-DB_PATH = 'chinese_dict.sqlite'
+DB_PATH = 'chinese.db'
 LICENSE_PATH = 'COPYING.txt'
 
 HANZI_COLS = [
@@ -220,7 +220,7 @@ def parse_def(s, lang):
         elif part.startswith('CL:'):
             d['classifiers'] = part.replace('CL:', '')
         elif part.startswith('also written'):
-            d['variants'] = part.replace('also written', '')
+            d['variants'] = part.replace('also written', '').strip()
         else:
             d[lang].append(part.strip())
     return d
