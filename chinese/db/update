@@ -1,360 +1,389 @@
-#!/usr/bin/python
-# -*- coding: utf-8 ; mode: python -*-
+#!/usr/bin/env python3
 
-import urllib2
-import zipfile
-import re
-import simplejson as json
-import sqlite3
-import sys
-import argparse
-import os
+# Copyright © 2012-2015 Thomas TEMPÉ <thomas.tempe@alysse.org>
+# Copyright © 2019 Joseph Lorimer <joseph@lorimer.me>
+#
+# This file is part of Chinese Support Redux.
+#
+# Chinese Support Redux is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by the Free
+# Software Foundation, either version 3 of the License, or (at your option) any
+# later version.
+#
+# Chinese Support Redux is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+# FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+# more details.
+#
+# You should have received a copy of the GNU General Public License along with
+# Chinese Support Redux.  If not, see <https://www.gnu.org/licenses/>.
 
-dest = "chinese_dict.sqlite"
+from argparse import ArgumentParser
+from os import remove
+from os.path import join
+from re import finditer, IGNORECASE, match, sub
+from sqlite3 import IntegrityError, connect
+from tempfile import TemporaryFile
+from urllib.request import urlopen
+from zipfile import ZipFile
 
-unihan_source = "http://unicode.org/Public/UCD/latest/ucdxml/ucd.unihan.flat.zip"
-unihan_zip = "tmp/unihan.zip"
-unihan_fields = ["cp", "kMandarin", "kCantonese", "kSimplifiedVariant", "kTraditionalVariant"]
+from yaspin import yaspin
 
-cedict_source = "http://www.mdbg.net/chindict/export/cedict/cedict_1_0_ts_utf-8_mdbg.zip"
-cedict_zip = "cedict_1_0_ts_utf-8_mdbg.zip"
-cedict_fields = ["traditional", "simplified", "pinyin", "pinyin_taiwan", "classifiers", "alternates", "english", "german", "french", "spanish"]
-licenses_file = "COPYING.txt"
+DATA_DIR = 'data'
+DB_PATH = 'chinese.db'
+LICENSE_PATH = 'COPYING.txt'
 
-cedicts =  [
+HANZI_COLS = [
+    'cp',
+    'kMandarin',
+    'kCantonese',
+    'kSimplifiedVariant',
+    'kTraditionalVariant',
+]
+
+WORD_COLS = [
+    'traditional',
+    'simplified',
+    'pinyin',
+    'pinyin_tw',
+    'jyutping',
+    'classifiers',
+    'variants',
+    'english',
+    'english_hk',
+    'german',
+    'french',
+]
+
+# JyutDict (zhongwenlearner.com)
+# CC-ChEDICC (cc-chedicc.wikispaces.com)
+
+UNIHAN_INFO = {
+    'name': 'Unihan',
+    'url': 'http://unicode.org/Public/UCD/latest/ucdxml/ucd.unihan.flat.zip',
+    'file': 'ucd.unihan.flat.xml',
+}
+
+DICT_INFO = [
     {
-        "name":"CC-CEDICT",
-        "source":"http://www.mdbg.net/chindict/export/cedict/cedict_1_0_ts_utf-8_mdbg.zip",
-        "zip":"tmp/cedict_1_0_ts_utf-8_mdbg.zip",
-        "datafile":"cedict_ts.u8",
-        "fields": ' [traditional, simplified, pinyin, pinyin_taiwan, classifiers, alternates, translation, None, None, None ]'
-        },
-    #Try to download JyutDict from Zhongwenlearner.com
+        'name': 'CC-CEDICT',
+        'url': 'http://www.mdbg.net/chindict/export/cedict/cedict_1_0_ts_utf-8_mdbg.zip',
+        'file': 'cedict_ts.u8',
+        'lang': 'english',
+    },
     {
-        "name":"HanDeDICT",
-        "source":"http://www.handedict.de/handedict/handedict-20110528.zip",
-        "zip":"tmp/handedict-20110528.zip",
-        "datafile":"handedict-20110528/handedict.u8",
-        "fields": ' [traditional, simplified, pinyin, pinyin_taiwan, classifiers, alternates, None, translation, None, None ]'
-        },
+        'name': 'HanDeDICT',
+        'url': 'http://www.handedict.de/handedict/handedict-20110528.zip',
+        'file': 'handedict-20110528/handedict.u8',
+        'lang': 'german',
+    },
     {
-        "name":"CFDICT_old",
-        "source":"http://www.chine-informations.com/chinois/open/CFDICT/cfdict_old.zip",
-        "zip":"tmp/cfdict_old.zip",
-        "datafile":"cfdict.u8",
-        "fields":' [traditional, simplified, pinyin, pinyin_taiwan, classifiers, alternates, None, None, translation, None ]'
-        } 
-#    {
-#        "name":"CC-ChEDICC",
-#        "source":"somewhere on http://cc-chedicc.wikispaces.com/",
-#        "zip":"TBD",
-#        "datafile":"TBD",
-#        "fields": ' [traditional, simplified, pinyin, pinyin_taiwan, classifiers, alternates, None, None, None, translation ]'
-#        }
-    ]
+        'name': 'CFDICT',
+        'url': 'https://chine.in/mandarin/dictionnaire/CFDICT/cfdict.zip',
+        'file': 'cfdict.u8',
+        'lang': 'french',
+    },
+    {
+        'name': 'CC-Canto',
+        'url': 'http://cantonese.org/cccanto-160115.zip',
+        'file': 'cccanto-webdist.txt',
+        'lang': 'english_hk',
+    },
+]
 
 
+def download(info):
+    with yaspin(
+        text='Downloading %s' % info['name']
+    ).cyan.bold.dots12 as spinner:
+        with TemporaryFile() as f:
+            f.write(urlopen(info['url']).read())
+            ZipFile(f).extract(info['file'], DATA_DIR)
+        spinner.ok()
 
-###################################################################
-# cedict
 
-def downloadCedict():
-    try:
-        os.mkdir("tmp")
-    except:
-        pass
-    for cedict in cedicts:
-        print "Downloading %s" % cedict["name"]
-        fd = open(cedict["zip"], 'wb')
-        fd.write( urllib2.urlopen(cedict["source"]).read())
-        fd.close()
-        z = zipfile.ZipFile(cedict["zip"], 'r')
-        z.extract(cedict["datafile"], "tmp")
+def populate_words():
+    conn = connect(DB_PATH)
+    c = conn.cursor()
+    c.execute('CREATE TABLE cidian (%s)' % ', '.join(WORD_COLS))
+    c.execute('CREATE INDEX isimplified ON cidian (simplified)')
+    c.execute(
+        'CREATE UNIQUE INDEX itraditional ON cidian (traditional, pinyin)'
+    )
 
-def importCedict(cedict, call):
-    """Opens the cedict*.zip file containing the dictionary data.
-    for each word, calls function 'call', with
-    a list of values, matching 'cedict_fields'."""
-    fd = open("tmp/"+cedict["datafile"], "r")
-    licenses = open(licenses_file, "a")
-    licenses.write("#########################\nThis database contains an extract of %s\n\n"% cedict["name"])
+    for d in DICT_INFO:
+        with yaspin(
+            text='Importing %s' % d['name']
+        ).cyan.bold.dots12 as spinner:
+            for e in get_cedict_entries(d):
+                process_entry(e, c)
+            spinner.ok()
 
-    for word in fd:
-        if re.match("^#", word):
-            #comment line
-            licenses.write(word)
-        else:
-            word = unicode(word, "UTF-8")
-            items = re.match(r"^(\S+) (\S+) \[(.+?)\] (/.+)", word)
-            if items:
-                traditional= items.group(1)
-                simplified = items.group(2)
-                pinyin = accentuate_pinyin(items.group(3).lower())
-                rest = items.group(4)
-                translation = ""
-                pinyin_taiwan = None
-                classifiers = None
-                alternates = None
-                for defs in rest.split("/"):
-                    if defs.startswith("Taiwan pr."):
-                        try:
-                            pinyin_taiwan = re.match(r"Taiwan pr. \[(.*?)\]", defs).group(1)
-                            pinyin_taiwan = accentuate_pinyin(pinyin_taiwan)
-                        except:
-                            pass
-                    elif defs.startswith("CL:"):
-                        classifiers = defs[3:]
-                    elif defs.startswith("also written"):
-                        alternates = defs[13:]
-                    else:
-                        translation += "\n"+defs
-                try:
-                    translation = translation[2:-2]
-                except:
-                    pass
-                translation = accentuate_pinyin_in_definition(translation)
-                item_as_list = eval(cedict["fields"])
-                call( item_as_list )
+    print(
+        'Imported {:,} words'.format(
+            c.execute('SELECT count(simplified) FROM cidian').fetchone()[0]
+        )
+    )
+
+    conn.commit()
+    conn.close()
+
+
+def get_cedict_entries(info):
+    with open(join(DATA_DIR, info['file']), encoding='utf-8') as f:
+        for line in f:
+            if info['name'] == 'CC-Canto':
+                pattern = r'^(\S+) (\S+) \[([^\]]+)\] \{([^}]+)\} /(.+)/$'
+                def_group = 5
             else:
-                pass #bogus line
-    licenses.write("\n\n")
-    licenses.close()
+                pattern = r'^(\S+) (\S+) \[([^\]]+)\] (.+)$'
+                def_group = 4
+
+            result = match(pattern, line)
+            if result:
+                d = parse_def(result.group(def_group), info['lang'])
+                d['traditional'] = result.group(1)
+                d['simplified'] = result.group(2)
+                d['pinyin'] = result.group(3).replace('u:', 'ü')
+                if info['name'] == 'CC-Canto':
+                    d['jyutping'] = result.group(4)
+                if d[info['lang']]:
+                    d[info['lang']] = '\n'.join(filter(None, d[info['lang']]))
+                yield d
 
 
-def populateWordsDictionary():
-    def fuseDefinition(a, b):
-        if a==None:
-            return b
-        elif b==None:
-            return a
+def process_entry(new, cursor):
+    try:
+        cursor.execute(
+            'INSERT INTO cidian ({}) VALUES ({})'.format(
+                ','.join(new.keys()), ', '.join(['?'] * len(new))
+            ),
+            list(new.values()),
+        )
+    except IntegrityError:
+        if 'jyutping' in new:
+            cursor.execute(
+                'UPDATE cidian '
+                'SET jyutping=?, english_hk=? '
+                'WHERE traditional=? AND pinyin=?',
+                (
+                    new['jyutping'],
+                    new['english_hk'],
+                    new['traditional'],
+                    new['pinyin'],
+                ),
+            )
+            return
+
+        cursor.execute(
+            'SELECT english, german, french '
+            'FROM cidian '
+            'WHERE traditional=? AND pinyin=?',
+            (new['traditional'], new['pinyin']),
+        )
+        english, german, french, = cursor.fetchone()
+        old = {
+            'english': english,
+            'german': german,
+            'french': french,
+        }
+        for k in old:
+            if k in new:
+                new[k] = merge_defs(old[k], new[k])
+            else:
+                new[k] = old[k]
+        cursor.execute(
+            'UPDATE cidian '
+            'SET english=?, german=?, french=? '
+            'WHERE traditional=? AND pinyin=?',
+            (
+                new['english'],
+                new['german'],
+                new['french'],
+                new['traditional'],
+                new['pinyin'],
+            ),
+        )
+
+
+def parse_def(s, lang):
+    d = {lang: []}
+    if lang == 'english_hk':
+        delim = ';'
+    else:
+        delim = '/'
+    for part in s.split(delim):
+        if part.startswith('Taiwan pr.'):
+            result = match(r'Taiwan pr. \[(.*?)\]', part)
+            if result:
+                d['pinyin_tw'] = result.group(1)
+        elif part.startswith('CL:'):
+            d['classifiers'] = part.replace('CL:', '')
+        elif part.startswith('also written'):
+            d['variants'] = part.replace('also written', '').strip()
         else:
-            return a+"\n"+b
-        
-    
+            d[lang].append(part.strip())
+    return d
 
-    def processEntry(d):
-        try:
-            c.execute('insert or fail into cidian values (%s)'%("?,"*len(d))[:-1], d)
-        except:
-            #If the word already exists, just add its additional translations.
-            c.execute("select english, german, french, spanish from cidian where traditional = ? and pinyin= ?", (d[0], d[2]))
-            english, german, french, spanish = c.fetchone()
-            english = fuseDefinition(english, d[cedict_fields.index('english')])
-            french  = fuseDefinition(french , d[cedict_fields.index('french' )])
-            german  = fuseDefinition(german , d[cedict_fields.index('german' )])
-            spanish = fuseDefinition(spanish, d[cedict_fields.index('spanish')])
-            c.execute("update cidian set english=?, german=?, french=?, spanish=? where traditional = ? and pinyin= ? ", (english, german, french, spanish, d[0], d[2])) 
 
-    conn=sqlite3.connect(dest)
+def merge_defs(a, b):
+    if not a:
+        return b
+    if not b:
+        return a
+    return a + '\n' + b
+
+
+def populate_hanzi():
+    conn = connect(DB_PATH)
     c = conn.cursor()
-    try:
-        c.execute("drop table cidian;")
-    except:
-        pass
-    c.execute("create table cidian (%s);" % reduce(lambda a,b:a+", "+b, cedict_fields))
-    conn.commit()
-    c.execute("create index isimplified on cidian ( simplified );")
-#    c.execute("create unique index itraditional on cidian ( traditional);")
-    c.execute("create unique index itraditional on cidian ( traditional, pinyin );")
-    conn.commit()
+    c.execute('CREATE TABLE hanzi (%s)' % ', '.join(HANZI_COLS))
+    c.execute('CREATE UNIQUE INDEX icp ON hanzi (cp)')
 
-    for d in cedicts:
-        print "Importing %s" % d["name"]
-        importCedict(d, processEntry)
+    with yaspin(text='Importing Unihan database').cyan.bold.dots12 as spinner:
+        for e in get_unihan_entries():
+            c.execute(
+                'INSERT INTO hanzi ({}) VALUES ({})'.format(
+                    ','.join(e.keys()), ', '.join(['?'] * len(e))
+                ),
+                list(e.values()),
+            )
+        spinner.ok()
 
-    for a in c.execute("select count(simplified) from cidian;"):
-        print("imported %d words" % a)
+    print(
+        'Imported {:,} characters'.format(
+            c.execute('SELECT COUNT(kMandarin) FROM hanzi').fetchone()[0]
+        )
+    )
+
     conn.commit()
-
     conn.close()
 
 
-###################################################################
-# Unihan
+def get_unihan_entries():
+    with open(join(DATA_DIR, UNIHAN_INFO['file']), encoding='utf-8') as f:
+        data = f.read()
 
-def downloadUnihan():
-    print "Downloading Hanzi Unihan database"
-    try:
-        os.mkdir("tmp")
-    except:
-        pass
-    fd = open(unihan_zip, 'wb')
-    fd.write( urllib2.urlopen(unihan_source).read())
-
-def importUnihan(call):
-    """Opens the unihan.zip file containing the XML unihan data.
-    for each character, calls function 'call', with
-    a list of values, matching 'unihan_fields'."""
-    z = zipfile.ZipFile(unihan_zip, 'r')
-    data = z.read("ucd.unihan.flat.xml")
-    
-    licenses = open(licenses_file, "a")
-    licenses.write("#########################\nThis database contains an extract of the Unihan databasze\n\n")
-    for comment in re.finditer("<!--(.*?)-->", data):
-        licenses.write(comment.group(1)+"\n")
-    licenses.write("\n\n")
-    licenses.close()
+    for char in finditer('<char (.*?)/>', data):
+        d = {
+            pair.group(1): pair.group(2)
+            for pair in finditer('([a-zA-Z0-9_]*)="(.*?)"', char.group(1))
+        }
+        if d.get('kMandarin') or d.get('kCantonese'):
+            for k in list(d):
+                if k not in HANZI_COLS:
+                    d.pop(k)
+                    continue
+                if d[k].startswith('U+'):
+                    d[k] = ', '.join(
+                        [
+                            chr(int(codepoint, 16))
+                            for codepoint in d[k].replace('U+', '').split()
+                        ]
+                    )
+            d['cp'] = chr(int(d['cp'], 16))
+            yield d
 
 
-    for char in re.finditer("<char (.*?)/>", data):
-        c = re.sub(r'([a-zA-Z0-9_]*)="(.*?)"', r'"\1":u"\2",', char.group(1))
-        c = "{"+c[:-1]+"}"
-        c = unicode(c, "UTF-8")
-        d = unihanFilter(eval(c))
-        if d:
-            call(d)
+def write_license():
+    with open(LICENSE_PATH, 'w', encoding='utf-8') as fout:
+        fout.write(
+            '#########################\n'
+            'The %s database was created by aggregating the following sources.\n\n'
+            % (DB_PATH)
+        )
 
-def unihanFilter(d):
-    """given a dictionary representing one Unihan entry, returns a list of 
-    fields matching unihan_fields.
-    If character does not have mandarin/cantonese pronunciation, return None"""
-    values = [None]*len(unihan_fields)
-    #Filter out non-chinese characters
-    try:
-        if d["kMandarin"] == None and d["kCantonese"] == None:
-            return None
-    except KeyError:
-        return None
+        fout.write(
+            '#########################\n'
+            'This database contains an extract of the Unihan database\n\n'
+        )
 
-    #Convert the characters to unicode strings
-    d["cp"] = eval("u'\\u%s'"% d["cp"])
-    try:
-        d["kSimplifiedVariant" ] = eval("u'\\u%s'"% d["kSimplifiedVariant"][2:])
-    except:
-        pass
-    try:
-        d["kTraditionalVariant"] = eval("u'\\u%s'"% d["kTraditionalVariant"][2:])
-    except:
-        pass
+        with open(
+            join(DATA_DIR, UNIHAN_INFO['file']), encoding='utf-8'
+        ) as fin:
+            comments = [
+                c.group(1) for c in finditer('<!--(.*?)-->', fin.read())
+            ]
+        fout.write(''.join(comments) + '\n\n')
 
-    #Convert to list
-    for i in range(len(unihan_fields)):
-        try:
-            values[i]=d[unihan_fields[i]]
-        except:
-            pass
-    return values
+        for info in DICT_INFO:
+            fout.write(
+                '#########################\n'
+                'This database contains an extract of %s\n\n' % info['name']
+            )
+            with open(join(DATA_DIR, info['file']), encoding='utf-8') as fin:
+                for line in fin:
+                    if match('^#', line):
+                        fout.write(line)
+                fout.write('\n\n')
 
-def populateHanziDB():
-    def processEntry(d):
-        c.execute('insert into hanzi values (%s)'%("?,"*len(d))[:-1], d)
-
-    print "Importing Hanzi"
-    conn=sqlite3.connect(dest)
-    c = conn.cursor()
-    try:
-        c.execute("drop table hanzi;")
-    except:
-        pass
-    c.execute("create table hanzi (%s);" % reduce(lambda a,b:a+", "+b, unihan_fields))
-    conn.commit()
-    c.execute("create unique index icp on hanzi( cp );")
-    conn.commit()
-    
-    importUnihan(processEntry)
-    for a in c.execute("select count(kMandarin) from hanzi;"):
-        print("imported %d characters" % a)
-    conn.commit()
-    conn.close()
-
-def copyrightNote():
-    licenses = open(licenses_file, "w")
-    licenses.write("#########################\nThe %s database was created by aggregating the following sources.\n\n" %(dest))
-    licenses.close()
 
 def cleanup():
-    print "Optimizing database size"
-    conn=sqlite3.connect(dest)
-    c = conn.cursor()
-    c.execute("drop index if exists icp;")
-    c.execute("drop index if exists isimplified;")
-    c.execute("drop index if exists itraditional;")
-    c.execute("vacuum;")
-    conn.commit()
-    conn.close()
+    with yaspin(text='Optimizing database size').cyan.bold.dots12 as spinner:
+        conn = connect(DB_PATH)
+        conn.execute('drop index if exists icp')
+        conn.execute('drop index if exists isimplified')
+        conn.execute('drop index if exists itraditional')
+        conn.execute('vacuum')
+        conn.commit()
+        conn.close()
+        spinner.ok()
 
 
-###################################################################
-# support functions
-
-vowel_decorations = [
-{ },
-{ u'a':u'ā', u'e':u'ē', u'i':u'ī', u'o':u'ō', u'u':u'ū', u'ü':u'ǖ', u'v':u'ǖ'},
-{ u'a':u'á', u'e':u'é', u'i':u'í', u'o':u'ó', u'u':u'ú', u'ü':u'ǘ', u'v':u'ǘ'},
-{ u'a':u'ǎ', u'e':u'ě', u'i':u'ǐ', u'o':u'ǒ', u'u':u'ǔ', u'ü':u'ǚ', u'v':u'ǚ'},
-{ u'a':u'à', u'e':u'è', u'i':u'ì', u'o':u'ò', u'u':u'ù', u'ü':u'ǜ', u'v':u'ǜ'},
-{ u'a':u'a', u'e':u'e', u'i':u'i', u'o':u'o', u'u':u'u', u'ü':u'ü', u'v':u'ü'},
-]
-accents = u'ɑ̄āĀáɑ́ǎɑ̌ÁǍàɑ̀ÀēĒéÉěĚèÈīĪíÍǐǏìÌōŌóÓǒǑòÒūŪúÚǔǓùÙǖǕǘǗǚǙǜǛ'
+def download_all():
+    download(UNIHAN_INFO)
+    for info in DICT_INFO:
+        download(info)
 
 
-def accentuate_pinyin_in_definition(text):
-    u'''Add accents to pinyin between brackets, as in CCDICT's definitions;
-    ex: variant of 不答理[bu4 da1 li3]'''
-    def apid_sub(p):
-        return accentuate_pinyin(p.group(1))
-    text = re.sub(u'(\[.*?\])', apid_sub, text, flags=re.I)
-    return text
-
-def accentuate_pinyin(text):
-    u'''Add accents to pinyin. 
-    Eg: ni2 becomes ní.
-    Eg: ní4 becomes nì. (to make correction easier)
-   '''
-    def accentuate_pinyin_sub(p):
-        pinyin = p.group(1)
-        tone = p.group(2)
-        if "tone"==pinyin:
-            return pinyin+tone
-        for v in u"aeiouüvAEIOUÜV":
-            if pinyin.find(v)>-1:
-                try:
-                    return re.sub(v, vowel_decorations[int(tone)][v.lower()], pinyin, count=1)
-                except KeyError, IndexError:
-                    pass
-        return pinyin
-    #correct specific idiosyncracies in CEDICT
-    text = text.replace("u:", "v")
-    text = text.replace(" r5", " er5")
-    #do the actual convertion
-    text = re.sub(u'([a-z]*[aeiouüÜv'+accents+u'][a-zü]*)([1-5])', accentuate_pinyin_sub, text, flags=re.I)
-    return text
-
-###################################################################
-# Action
+def populate_all():
+    with yaspin(text='Updating COPYING.txt').cyan.bold.dots12 as spinner:
+        write_license()
+        spinner.ok()
+    populate_hanzi()
+    populate_words()
 
 
-def do_nothing():
-    pass
+def main():
+    parser = ArgumentParser()
 
-def delete():
-    print "Deleting chinese_dict.sqlite"
-    os.remove("chinese_dict.sqlite") 
-
-def download():
-    downloadUnihan()
-    downloadCedict()
-
-def populate():
-    copyrightNote()
-    populateHanziDB()
-    populateWordsDictionary()
-
-#def cleanup()
-
-def cmd_line():
-    parser= argparse.ArgumentParser("Maintains SQLite database of Words and characters for use by Chinese Support Add-on.")
-    parser.add_argument('--delete', dest="delete", action="store_const", default=do_nothing, const=delete, help="Delete the SQLite database prior to reconstructing it." )    
-    parser.add_argument('--download', dest="download", action="store_const", default=do_nothing, const=download, help="Download UniHan and CEDICT dictionaries from their official locations." )
-    parser.add_argument('--populate', dest="populate", action="store_const", default=do_nothing, const=populate, help="Populate the database from downloaded files." )
-    parser.add_argument('--cleanup', dest="cleanup", action="store_const", default=do_nothing, const=cleanup, help="Remove indexes and deframent database to reduce its size before distribution.")
+    parser.add_argument(
+        '--delete',
+        action='store_true',
+        help='delete the database prior to reconstructing it',
+    )
+    parser.add_argument(
+        '--download',
+        action='store_true',
+        help='download the Unihan and CEDICT dictionaries',
+    )
+    parser.add_argument(
+        '--populate',
+        action='store_true',
+        help='populate the database from downloaded files',
+    )
+    parser.add_argument(
+        '--cleanup',
+        action='store_true',
+        help='remove indexes and defragment database',
+    )
 
     args = parser.parse_args()
-    args.delete()
-    args.download()
-    args.populate()
-    args.cleanup()
+
+    if args.delete:
+        remove(DB_PATH)
+        print('Deleted', DB_PATH)
+    if args.download:
+        download_all()
+    if args.populate:
+        populate_all()
+    if args.cleanup:
+        cleanup()
+
+    if not (args.delete or args.download or args.populate or args.cleanup):
+        parser.print_help()
+        parser.exit()
 
 
-print sys.argv[0], " --help for help"
-cmd_line()
+if __name__ == '__main__':
+    main()
