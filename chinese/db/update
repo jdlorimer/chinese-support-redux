@@ -144,7 +144,7 @@ def get_cedict_entries(info):
                 d = parse_def(result.group(def_group), info['lang'])
                 d['traditional'] = result.group(1)
                 d['simplified'] = result.group(2)
-                d['pinyin'] = result.group(3)
+                d['pinyin'] = result.group(3).replace('u:', 'ü')
                 if info['name'] == 'CC-Canto':
                     d['jyutping'] = result.group(4)
                 if d[info['lang']]:

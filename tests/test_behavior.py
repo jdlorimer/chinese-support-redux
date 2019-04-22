@@ -192,7 +192,9 @@ class FillBopomofo(Base):
         fill_bopomofo('神韻', note)
         self.assertEqual(
             note['Bopomofo'],
-            '<span class="tone2">ㄕㄣˊ</span><span class="tone4">ㄩㄣˋ</span> <!-- ㄕㄣˊㄩㄣˋ -->',
+            '<span class="tone2">ㄕㄣˊ</span>'
+            '<span class="tone4">ㄩㄣˋ</span>'
+            ' <!-- ㄕㄣˊㄩㄣˋ -->',
         )
 
     def test_ungrouped_pinyin(self):
@@ -201,7 +203,9 @@ class FillBopomofo(Base):
         fill_bopomofo('神韻', note)
         self.assertEqual(
             note['Bopomofo'],
-            '<span class="tone2">ㄕㄣˊ</span><span class="tone4">ㄩㄣˋ</span> <!-- ㄕㄣˊㄩㄣˋ -->',
+            '<span class="tone2">ㄕㄣˊ</span>'
+            '<span class="tone4">ㄩㄣˋ</span>'
+            ' <!-- ㄕㄣˊㄩㄣˋ -->',
         )
 
 
@@ -316,9 +320,8 @@ class FillAllDefs(Base):
             '<span class="tone4">个</span>'
         )
         english = ' \tlibrary\n<br><br>Cl: ' + classifier
-        # FIXME: truncated definition
-        german = ' \tBibliothek (S, Lit\n<br><br>Cl: ' + classifier
-        french = ' \tbibliothèque\n<br><br>Cl: ' + classifier
+        german = ' \tBibliothek (S, Lit)\n<br><br>Cl: ' + classifier
+        french = ' \tbibliothèque (lieu)\n<br><br>Cl: ' + classifier
         self.assertEqual(fill_all_defs('图书馆', note), 4)
         self.assertEqual(note['English'], english)
         self.assertEqual(note['French'], french)

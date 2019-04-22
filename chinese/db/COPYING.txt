@@ -1,12 +1,10 @@
 #########################
-The chinese_dict.sqlite database was created by aggregating the following sources.
+The chinese.db database was created by aggregating the following sources.
 
 #########################
-This database contains an extract of the Unihan databasze
+This database contains an extract of the Unihan database
 
- Copyright © 1991-2013 Unicode, Inc. 
- For terms of use, see http://www.unicode.org/terms_of_use.html 
-
+ © 2018 Unicode®, Inc.  For terms of use, see http://www.unicode.org/terms_of_use.html 
 
 #########################
 This database contains an extract of CC-CEDICT
@@ -17,30 +15,30 @@ This database contains an extract of CC-CEDICT
 # Published by MDBG
 # 
 # License:
-# Creative Commons Attribution-Share Alike 3.0
-# http://creativecommons.org/licenses/by-sa/3.0/
+# Creative Commons Attribution-ShareAlike 4.0 International License
+# https://creativecommons.org/licenses/by-sa/4.0/
 # 
 # Referenced works:
 # CEDICT - Copyright (C) 1997, 1998 Paul Andrew Denisowski
 # 
 # CC-CEDICT can be downloaded from:
-# http://www.mdbg.net/chindict/chindict.php?page=cc-cedict
+# https://www.mdbg.net/chinese/dictionary?page=cc-cedict
 # 
 # Additions and corrections can be sent through:
-# http://cc-cedict.org/editor/editor.php
+# https://cc-cedict.org/editor/editor.php
 # 
 # For more information about CC-CEDICT see:
-# http://cc-cedict.org/wiki/
+# https://cc-cedict.org/wiki/
 # 
 #! version=1
 #! subversion=0
 #! format=ts
 #! charset=UTF-8
-#! entries=108989
+#! entries=116899
 #! publisher=MDBG
-#! license=http://creativecommons.org/licenses/by-sa/3.0/
-#! date=2014-02-01T21:49:46Z
-#! time=1391291386
+#! license=https://creativecommons.org/licenses/by-sa/4.0/
+#! date=2019-04-14T03:57:11Z
+#! time=1555214231
 
 
 #########################
@@ -50,7 +48,7 @@ This database contains an extract of HanDeDICT
 
 
 #########################
-This database contains an extract of CFDICT_old
+This database contains an extract of CFDICT
 
 #############################################################################
 #  _____   _____   _____   _   _____   _____  
@@ -60,24 +58,40 @@ This database contains an extract of CFDICT_old
 # | |___  | |     | |_| | | | | |___    | |   
 # \_____| |_|     |_____/ |_| \_____|   |_|    
 # CFDICT, le dictionnaire chinois-francais libre 
-# par Chine-Informations.com (2010)
+# par Chine Informations (Depuis 2010)
 #	
-# - Fichier : cfdict.u8 
-# - Version : 09/11/2013 02:30 
-# - Nombre de traductions : environ 130 260
+# - Version : 14/04/2019 02:30 
+# - Nombre de traductions : environ 51 278
 #	
-# - Fondateur : David Houstin - david.houstin@gmail.com
-# - Page officielle : http://www.chine-informations.com/chinois/open/CFDICT/
-# - Licence : http://creativecommons.org/licenses/by-sa/3.0/
+# - Fondateur : David Houstin - david.houstin@chine-informations.com
+# - Page officielle : https://chine.in/mandarin/dictionnaire/CFDICT/
+# - Licence : https://creativecommons.org/licenses/by-sa/3.0/
 #
 # Cette creation est mise a disposition sous un contrat CREATIVE COMMONS 3
 # "Paternite - Partage des Conditions Initiales a l'Identique",
 # impliquant qu'il est autorise d'utiliser ces donnees a des fins
 # commerciales ou non, sous la reserve de mentionner le site officiel
-# (http://www.chine-informations.com) et que, dans le cas ou vous 
+# (https://chine.in) et que, dans le cas ou vous 
 # amelioreriez ou ajouteriez des donnees au fichier, vous n'avez le droit
 # de le redistribuer que sous la meme licence que celle-ci.
 #
 #############################################################################
+
+
+#########################
+This database contains an extract of CC-Canto
+
+# CC-Canto
+# A Cantonese dictionary for everyone
+# Version 2016-01-15
+# 
+# Copyright (c) 2015-16 Pleco Software Incorporated
+# Distributed under a Creative Commons Attribution-Share Alike 3.0 license (http://creativecommons.org/licenses/by-sa/3.0/)
+#
+# For more information + to submit feedback, see our website at cccanto.org
+#
+# This dictionary is intended to be used in conjunction with the (also open-source) Chinese dictionary CC-CEDICT
+# See mdbg.net to download CC-CEDICT, see cccanto.org to download an open-source list of Cantonese readings for CC-CEDICT
+#
 
 

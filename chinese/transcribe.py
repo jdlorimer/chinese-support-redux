@@ -75,13 +75,13 @@ def transcribe(words, target=None, only_one=True):
             transcribed.append(text)
             continue
         if target == 'Pinyin':
-            transcribed.append(dictionary.get_pinyin(text, taiwan=False))
+            transcribed.append(dictionary.get_pinyin(text, prefer_tw=False))
         elif target == 'Pinyin (Taiwan)':
-            transcribed.append(dictionary.get_pinyin(text, taiwan=True))
+            transcribed.append(dictionary.get_pinyin(text, prefer_tw=True))
         elif target == 'Cantonese':
             transcribed.append(dictionary.get_cantonese(text, only_one))
         elif target == 'Bopomofo':
-            r = dictionary.get_pinyin(text, taiwan=True)
+            r = dictionary.get_pinyin(text, prefer_tw=True)
             transcribed.extend(bopomofo([r]))
         else:
             transcribed.append('')
@@ -95,11 +95,11 @@ def transcribe_char(hanzi, method=None):
     if method == 'Pinyin':
         return dictionary.get_pinyin(hanzi)
     if method == 'Pinyin (Taiwan)':
-        return dictionary.get_pinyin(hanzi, taiwan=True)
+        return dictionary.get_pinyin(hanzi, prefer_tw=True)
     if method == 'Cantonese':
         return dictionary.get_cantonese(hanzi)
     if method == 'Bopomofo':
-        return bopomofo(dictionary.get_pinyin(hanzi, taiwan=True))
+        return bopomofo(dictionary.get_pinyin(hanzi, prefer_tw=True))
     return ''
 
 

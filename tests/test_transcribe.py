@@ -127,12 +127,6 @@ class Transcribe(Base):
             ['nǐ', 'shén me', 'shí hou', 'néng', 'lái', '？'],
         )
 
-    def test_ungrouped_chars(self):
-        self.assertEqual(
-            transcribe(['你什么时候能来？']), ['nǐ shén me shí hou néng lái ？']
-        )
-        self.assertEqual(transcribe(['我要喝湯！']), ['wǒ yào hē tāng ！'])
-
     def test_punctuation_irrelevant(self):
         self.assertEqual(
             transcribe(['我要喝湯'])[0] + ' ！', transcribe(['我要喝湯！'])[0]

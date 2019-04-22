@@ -45,7 +45,7 @@ def fill_classifier(hanzi, note):
 
 
 def get_alt(hanzi, note):
-    alts = dictionary.get_alt_spellings(hanzi)
+    alts = dictionary.get_variants(hanzi)
     alt = ', '.join(colorize_dict(a) for a in alts)
     if alt:
         if not has_field(config['fields']['alternative'], note):
