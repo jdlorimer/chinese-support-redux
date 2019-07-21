@@ -24,7 +24,7 @@ from .sound import no_sound, sound
 from .transcribe import accentuate, no_tone, split_transcript, transcribe
 from .translate import translate
 from .util import cleanup, erase_fields, get_first, has_field, hide, set_all
-
+from .freq import lookup_frequency
 
 def get_classifier(hanzi, note):
     cs = dictionary.get_classifiers(hanzi)
@@ -42,7 +42,6 @@ def fill_classifier(hanzi, note):
         set_all(config['fields']['classifier'], note, to=text)
         filled = True
     return filled
-
 
 def get_alt(hanzi, note):
     alts = dictionary.get_alt_spellings(hanzi)
@@ -236,6 +235,18 @@ def fill_trad(hanzi, note):
     else:
         set_all(config['fields']['traditional'], note, to='')
 
+def fill_frequency(hanzi, note):
+    if not get_first(config['fields']['frequency'], note) == '':
+        return
+
+    s = get_simp(hanzi)
+    f = lookup_frequency(s)
+    set_all(config['fields']['frequency'], note, to=f)
+
+    # if f:
+    #     set_all(config['fields']['frequency'], note, to=f)
+    # else:
+    #     set_all(config['fields']['frequency'], note, to='Not found')
 
 def fill_ruby(hanzi, note):
     if has_field(config['fields']['transcription'], note):
@@ -312,6 +323,7 @@ def update_fields(note, focus_field, fields):
             fill_sound(hanzi, copy)
             fill_simp(hanzi, copy)
             fill_trad(hanzi, copy)
+            fill_frequency(hanzi, copy)
             fill_all_rubies(hanzi, copy)
             fill_silhouette(hanzi, copy)
         else:
