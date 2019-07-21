@@ -32,7 +32,7 @@ def lookup_frequency(hanzi):
     except:
         #~ showInfo('%s%s'%(repr(e),hanzi))
         #word did not exist in dict.
-        return False
+        return 'Not found'
     description=''
     frequency_html=''
     if res and type(res)!=tuple:
@@ -46,7 +46,7 @@ def lookup_frequency(hanzi):
                     break
         except:
             #~ showInfo(repr(e))
-            return False
+            frequency_html='Not found'
     else:
         description=''
         permillion=''
