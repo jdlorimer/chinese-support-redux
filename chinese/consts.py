@@ -29,7 +29,7 @@ vowel_decorations = [
 
 accents = 'ɑ̄āĀáɑ́ǎɑ̌ÁǍàɑ̀ÀēĒéÉěĚèÈīĪíÍǐǏìÌōŌóÓǒǑòÒūŪúÚǔǓùÙǖǕǘǗǚǙǜǛ'
 
-pinyin_inits = "zh|sh|ch|[bpmfdtnlgkhjqxrzscwy]"
+pinyin_inits = "zh|sh|ch|chu|[bpmfdtnlgkhjqxrzscwy]"
 pinyin_finals = "i[ōóǒòo]ng|[ūúǔùu]ng|[āáǎàa]ng|[ēéěèe]ng|i[āɑ̄áɑ́ɑ́ǎɑ̌àɑ̀aāáǎàa]ng|[īíǐìi]ng|i[āáǎàa]n|u[āáǎàa]n|[ōóǒòo]ng|[ēéěèe]r|i[āáǎàa]|i[ēéěèe]|i[āáǎàa]o|i[ūúǔùu]|[īíǐìi]n|u[āáǎàa]|u[ōóǒòo]|u[āáǎàa]i|u[īíǐìi]|[ūúǔùu]n|u[ēéěèe]|ü[ēéěèe]|v[ēéěèe]|i[ōóǒòo]|[āáǎàa]i|[ēéěèe]i|[āáǎàa]o|[ōóǒòo]u|[āáǎàa]n|[ēéěèe]n|[āáǎàa]|[ēéěèe]|[ōóǒòo]|[īíǐìi]|[ūúǔùu]|[ǖǘǚǜüv]"
 pinyin_standalones = "'[āáǎàa]ng|'[ēéěèe]ng|'[ēéěèe]r|'[āáǎàa]i|'[ēéěèe]i|'[āáǎàa]o|'[ōóǒòo]u|'[āáǎàa]n|'[ēéěèe]n|'[āáǎàa]|'[ēéěèe]|'[ōóǒòo]"
 jyutping_inits = "ng|gw|kw|[bpmfdtnlgkhwzcsj]"
@@ -93,7 +93,7 @@ jyutping_split_regex = compile(
 COLOR_TEMPLATE = '<span class="tone{tone}">{chars}</span>'
 COLOR_RUBY_TEMPLATE = ruby_template = (
     '<span class="tone{tone}">'
-    '<ruby>{chars}<rt>{transcript}</rt></ruby>'
+    '<ruby>{chars}<rt>{trans}</rt></ruby>'
     '</span>'
 )
 

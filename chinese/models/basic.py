@@ -5,7 +5,7 @@
 
 from .css import style
 
-fields_list = ['Hanzi',  'Meaning', 'Reading', 'Color', 'Sound']
+fields_list = ['Hanzi',  'English', 'Reading', 'Color', 'Sound']
 
 recognition_front = '''\
 <div class=tags>{{Deck}} {{#Tags}} -- {{/Tags}}{{Tags}}</div>
@@ -16,13 +16,13 @@ recognition_front = '''\
 recall_front = '''\
 <div class=tags>{{Deck}} {{#Tags}} -- {{/Tags}}{{Tags}}</div>
 
-<div>{{Meaning}}</div>
+<div>{{English}}</div>
 '''
 
 card_back = '''\
 <div class=tags>{{Deck}} {{#Tags}} -- {{/Tags}}{{Tags}}</div>
 
-<div>{{Meaning}}</div>
+<div>{{English}}</div>
 <div class=reading>{{Reading}}</div>
 <div class=chinese>{{Color}}</div>
 <!-- {{Sound}}-->

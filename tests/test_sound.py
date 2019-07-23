@@ -17,14 +17,20 @@
 
 from unittest.mock import Mock, patch
 
-from chinese.sound import extract_sound_tags, no_sound, sound
+from chinese.sound import extract_tags, no_sound, sound
 from tests import Base
+
+
+class Download(Base):
+    def test_not_implemented(self):
+        with self.assertRaises(NotImplementedError):
+            sound('图书馆[foo bar baz]', 'foo|bar')
 
 
 class Sound(Base):
     def setUp(self):
         super().setUp()
-        self.patcher = patch('chinese.sound.download_sound', Mock())
+        self.patcher = patch('chinese.sound.download', Mock())
         self.mock = self.patcher.start()
 
     def tearDown(self):
@@ -32,45 +38,39 @@ class Sound(Base):
         self.patcher.stop()
 
     def test_hanzi(self):
-        with patch(
-            'chinese.sound.download_sound', Mock(return_value='foo.mp3')
-        ):
-            self.assertEqual(
-                sound('图书馆', 'Baidu Translate'), '[sound:foo.mp3]'
-            )
+        with patch('chinese.sound.download', Mock(return_value='foo.mp3')):
+            self.assertEqual(sound('图书馆', 'baidu|zh'), '[sound:foo.mp3]')
 
     def test_no_hanzi(self):
         with patch('chinese.sound.has_hanzi', Mock(return_value=False)):
-            self.assertEqual(sound('foo', 'Baidu Translate'), '')
+            self.assertEqual(sound('foo', 'baidu|zh'), '')
 
     def test_ruby(self):
-        sound('图书馆[foo bar baz]', 'Baidu Translate')
-        self.mock.assert_called_once_with('图书馆', ('baidu', 'zh'))
+        sound('图书馆[foo bar baz]', 'baidu|zh')
+        self.mock.assert_called_once_with('图书馆', 'baidu|zh')
 
     def test_bogus_source(self):
-        sound('图书馆[foo bar baz]', 'bogus')
-        self.mock.assert_not_called()
+        with self.assertRaises(ValueError):
+            sound('图书馆[foo bar baz]', 'foobar')
 
 
 class ExtractSoundTags(Base):
     def test_single_tag(self):
         self.assertEqual(
-            extract_sound_tags('foo[sound:bar]'), ('foo', '[sound:bar]')
+            extract_tags('foo[sound:bar]'), ('foo', '[sound:bar]')
         )
 
     def test_multiple_tags(self):
         self.assertEqual(
-            extract_sound_tags('foo[sound:bar]baz[sound:qux]'),
+            extract_tags('foo[sound:bar]baz[sound:qux]'),
             ('foobaz', '[sound:bar][sound:qux]'),
         )
 
     def test_no_tags(self):
-        self.assertEqual(extract_sound_tags('foo'), ('foo', ''))
+        self.assertEqual(extract_tags('foo'), ('foo', ''))
 
     def test_empty_tag(self):
-        self.assertEqual(
-            extract_sound_tags('foo[sound:]'), ('foo', '[sound:]')
-        )
+        self.assertEqual(extract_tags('foo[sound:]'), ('foo', '[sound:]'))
 
 
 class NoSound(Base):

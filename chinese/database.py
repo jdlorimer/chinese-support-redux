@@ -40,6 +40,7 @@ class Dictionary:
 
     def _get_word_pinyin(self, word, prefer_tw=False, no_variants=True):
         from .transcribe import accentuate
+
         query = """SELECT pinyin, pinyin_tw FROM cidian
                    WHERE (traditional=? OR simplified=?) """
 
@@ -54,12 +55,18 @@ class Dictionary:
             return None
         pinyin, pinyin_tw = res
         if prefer_tw and pinyin_tw:
-            return ' '.join(accentuate(list(map(str.lower, pinyin_tw.split()))))
+            return ' '.join(
+                accentuate(list(map(str.lower, pinyin_tw.split())), 'pinyin')
+            )
         if pinyin:
-            return ' '.join(accentuate(list(map(str.lower, pinyin.split()))))
+            return ' '.join(
+                accentuate(list(map(str.lower, pinyin.split())), 'pinyin')
+            )
         if no_variants:
             s = self._get_word_pinyin(self, word, prefer_tw, False)
-            return ' '.join(accentuate(list(map(str.lower, s.split()))))
+            return ' '.join(
+                accentuate(list(map(str.lower, s.split())), 'pinyin')
+            )
         return None
 
     def get_pinyin(self, word, prefer_tw=False, word_len=4):
@@ -190,8 +197,7 @@ class Dictionary:
         to_full = {'en': 'english', 'de': 'german', 'fr': 'french'}
 
         self.c.execute(
-            'SELECT DISTINCT pinyin, %s '
-            'AS definition, classifiers, variants '
+            'SELECT DISTINCT pinyin, %s AS definition, classifiers, variants '
             'FROM cidian '
             'WHERE (traditional = :word OR simplified = :word) '
             'AND LENGTH(definition) > 0 '

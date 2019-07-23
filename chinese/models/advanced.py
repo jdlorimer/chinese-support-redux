@@ -7,7 +7,7 @@ from .css import style
 
 fields_list = [
     'Hanzi',
-    'Meaning',
+    'English',
     'Reading',
     'Color',
     'Classifier',
@@ -28,7 +28,7 @@ recognition_front = '''\
 recall_front = '''\
 <div class=tags>{{Deck}} {{#Tags}} -- {{/Tags}}{{Tags}}</div>
 
-<div>{{Meaning}}</div>
+<div>{{English}}</div>
 <div>{{Silhouette}}</div>
 <div class=hint>{{hint_transcription:Reading}}</div>
 '''
@@ -37,7 +37,7 @@ card_back = '''\
 <div class=tags>{{Deck}} {{#Tags}} -- {{/Tags}}{{Tags}}</div>
 
 <div class=answer>
-<div>{{Meaning}}</div>
+<div>{{English}}</div>
 <div class=reading>{{Reading}}</div>
 <div class=chinese>{{Color}}</div>
 {{#Simplified}}<div class=chinese><span class=comment>Simplified:</span> {{Simplified}}</div>{{/Simplified}}

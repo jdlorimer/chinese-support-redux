@@ -16,6 +16,7 @@
 # Chinese Support Redux.  If not, see <https://www.gnu.org/licenses/>.
 
 from gettext import NullTranslations
+from json import load
 from logging import getLogger
 from unittest import TestCase
 from unittest.mock import MagicMock, patch
@@ -29,6 +30,7 @@ modules = {
     'anki': MagicMock(),
     'anki.find': MagicMock(),
     'anki.hooks': MagicMock(),
+    'anki.lang': MagicMock(),
     'anki.stats': MagicMock(),
     'anki.stdmodels': MagicMock(),
     'anki.template': MagicMock(),
@@ -41,37 +43,13 @@ modules = {
 }
 patch.dict('sys.modules', modules).start()
 
-config = {
-    'dictionary': 'en',
-    'firstRun': False,
-    'speech': None,
-    'tip_number': 0,
-    'transcription': 'Pinyin',
-    'fields': {
-        'bopomofo': ['Bopomofo'],
-        'cantonese': ['Cantonese'],
-        'cantoneseSound': ['Sound (Cantonese)'],
-        'classifier': ['Classifier'],
-        'color': ['Color'],
-        'english': ['English'],
-        'french': ['French'],
-        'german': ['German'],
-        'mandarinSound': ['Sound (Mandarin)'],
-        'meaning': ['Meaning'],
-        'pinyin': ['Pinyin'],
-        'pinyinTaiwan': ['Pinyin (Taiwan)'],
-        'ruby': ['Ruby'],
-        'rubyBopomofo': ['Ruby (Bopomofo)'],
-        'rubyCantonese': ['Ruby (Cantonese)'],
-        'rubyPinyin': ['Ruby (Pinyin)'],
-        'rubyPinyinTaiwan': ['Ruby (Taiwan Pinyin)'],
-        'simplified': ['Simplified'],
-        'sound': ['Sound'],
-        'traditional': ['Traditional'],
-        'transcription': ['Reading'],
-    },
-}
+with open('chinese/config.json') as f:
+    config = load(f)
+
 patch('aqt.mw.addonManager.getConfig', lambda a: config).start()
+patch(
+    'aqt.mw.col.media.dir', MagicMock(return_value='collection.media')
+).start()
 
 
 class Base(TestCase):

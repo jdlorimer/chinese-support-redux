@@ -46,7 +46,7 @@ class GetAny(Base):
         self.assertEqual(get_first(['foo'], {'foo': ''}), '')
 
     def test_no_field(self):
-        self.assertEqual(get_first(['foo'], {'bar': 'baz'}), '')
+        self.assertEqual(get_first(['foo'], {'bar': 'baz'}), None)
 
     def test_multiple_fields(self):
         note = {'foo': 'bar', 'baz': 'qux'}

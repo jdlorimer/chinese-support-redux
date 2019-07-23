@@ -21,8 +21,7 @@ from re import findall, sub
 from .consts import sound_tag_regex
 from .hanzi import has_hanzi
 from .main import config
-from .tts import download_sound
-from .util import cleanup
+from .tts import download
 
 
 def sound(hanzi, source=None):
@@ -36,25 +35,22 @@ def sound(hanzi, source=None):
     if not source:
         source = config['speech']
 
+    if source.count('|') != 1:
+        raise ValueError(source)
+
     if has_ruby(hanzi):
         hanzi = ruby_bottom(hanzi)
 
     if not hanzi:
         return ''
 
-    options = {
-        'Google Mandarin (PRC)': ('google', 'zh-cn'),
-        'Google Mandarin (Taiwan)': ('google', 'zh-tw'),
-        'Baidu Translate': ('baidu', 'zh'),
-    }
-
-    if source in options:
-        return '[sound:%s]' % download_sound(hanzi, options[source])
+    if source:
+        return '[sound:%s]' % download(hanzi, source)
 
     return ''
 
 
-def extract_sound_tags(text):
+def extract_tags(text):
     tags = findall(sound_tag_regex, text)
     if not tags:
         return text, ''

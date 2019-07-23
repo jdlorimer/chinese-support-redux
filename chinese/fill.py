@@ -215,7 +215,7 @@ def bulk_fill_defs():
             <b>Translated:</b> %(filled)d<br>
             <b>Failed:</b> %(failed)d'''
 
-    field_groups = ['meaning', 'english', 'german', 'french']
+    field_groups = ['english', 'german', 'french']
 
     if not askUser(prompt):
         return
