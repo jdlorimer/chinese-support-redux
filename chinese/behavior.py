@@ -19,7 +19,7 @@
 from .color import colorize, colorize_dict, colorize_fuse
 from .hanzi import get_silhouette, get_simp, get_trad, split_hanzi
 from .main import config, dictionary
-from .sound import no_sound, sound
+from .sound import sound
 from .transcribe import (
     accentuate,
     no_tone,
@@ -195,7 +195,7 @@ def fill_color(hanzi, note):
         raise NotImplementedError(config['target'])
 
     field = get_first(config['fields'][field_group], note)
-    trans = sanitize_transcript(no_sound(field), target, grouped=False)
+    trans = sanitize_transcript(field, target, grouped=False)
     trans = split_transcript(' '.join(trans), target, grouped=False)
     hanzi = split_hanzi(cleanup(hanzi), grouped=False)
     colorized = colorize_fuse(hanzi, trans)
@@ -275,7 +275,7 @@ def fill_all_rubies(hanzi, note):
 
 def update_fields(note, focus_field, fields):
     copy = dict(note)
-    hanzi = no_sound(cleanup(get_first(config['fields']['hanzi'], copy)))
+    hanzi = cleanup(get_first(config['fields']['hanzi'], copy))
 
     transcript_fields = (
         config['fields']['pinyin']
