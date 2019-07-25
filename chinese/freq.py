@@ -5,7 +5,6 @@ import os
 
 def lookup_frequency(hanzi):
 
-    # Complicated math by ernop
     levels={200:'very basic',
         100:'basic',
         50:'very common',
@@ -17,17 +16,13 @@ def lookup_frequency(hanzi):
 
     slevels=sorted(levels.items(),key=lambda x:x[0]*-1)
     words=sorted([w.upper() for w in levels.values()],key=lambda x:-1*len(x))
-
-    # Declare path to the corpus file
     corpus_path = join(dirname(realpath(__file__)), 'lib', 'num' , 'internet-zh.num')
 
-    # Navigate to corpus file and open it or throw error if it doesn't exist
     if os.path.exists(corpus_path):
         blob=open(corpus_path, encoding='utf8')
     else:
         showInfo('you need to copy the internet-zh.num file to %s , or edit the source file to point to the file.'%corpus_path)
 
-    # Main logic here
     pat=re.compile('(.+ '+hanzi+')\n')
     try:
         res=pat.findall(blob.read())[0]
