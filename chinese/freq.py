@@ -17,13 +17,9 @@ def lookup_frequency(hanzi):
     slevels=sorted(levels.items(),key=lambda x:x[0]*-1)
     words=sorted([w.upper() for w in levels.values()],key=lambda x:-1*len(x))
     corpus_path = join(dirname(realpath(__file__)), 'lib', 'num' , 'internet-zh.num')
-
-    if os.path.exists(corpus_path):
-        blob=open(corpus_path, encoding='utf8')
-    else:
-        showInfo('you need to copy the internet-zh.num file to %s , or edit the source file to point to the file.'%corpus_path)
-
+    blob=open(corpus_path, encoding='utf8')
     pat=re.compile('(.+ '+hanzi+')\n')
+        
     try:
         res=pat.findall(blob.read())[0]
     except:
