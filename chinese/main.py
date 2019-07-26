@@ -1,4 +1,4 @@
-# Copyright © 2017-2018 Joseph Lorimer <luoliyan@posteo.net>
+# Copyright © 2017-2018 Joseph Lorimer <joseph@lorimer.me>
 #
 # This file is part of Chinese Support Redux.
 #
@@ -28,7 +28,7 @@ dictionary = Dictionary()
 
 from .edit import append_tone_styling, EditManager
 from .graph import todayStats
-from .gui import display_tip, load_menu, unload_menu
+from .gui import load_menu, unload_menu
 from .models import advanced, basic
 from .templates import chinese, ruby
 
@@ -51,7 +51,6 @@ def load():
         CollectionStats.todayStats, todayStats, 'around'
     )
     EditManager()
-    display_tip()
 
 
 def add_models():

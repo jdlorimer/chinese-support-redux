@@ -1,5 +1,5 @@
 # Copyright © 2012 Thomas TEMPÉ <thomas.tempe@alysse.org>
-# Copyright © 2017-2019 Joseph Lorimer <luoliyan@posteo.net>
+# Copyright © 2017-2019 Joseph Lorimer <joseph@lorimer.me>
 #
 # This file is part of Chinese Support Redux.
 #
@@ -20,8 +20,9 @@ from functools import partial
 
 from PyQt5.QtGui import QKeySequence
 from PyQt5.QtWidgets import QAction, QActionGroup, QMenu
+from anki.lang import _
 from aqt import mw
-from aqt.utils import showInfo, openLink, askUser
+from aqt.utils import openLink
 
 from .about import CSR_GITHUB_URL, showAbout
 from .fill import (
@@ -35,62 +36,49 @@ from .fill import (
 from .main import config
 
 
-transcriptions = ['Pinyin', 'Pinyin (Taiwan)', 'Cantonese', 'Bopomofo']
+SPEECH_ENGINES = {
+    'Baidu Translate': 'baidu|zh',
+    'Google Mandarin (PRC)': 'google|zh-cn',
+    'Google Mandarin (Taiwan)': 'google|zh-tw',
+    'Disabled': None,
+}
 
-speech_engines = [
-    'None',
-    'Baidu Translate',
-    'Google Mandarin (PRC)',
-    'Google Mandarin (Taiwan)',
-]
+PHONETIC_TARGETS = {
+    'Pinyin': 'pinyin',
+    'Pinyin (Taiwan)': 'pinyin_tw',
+    'Bopomofo': 'bopomofo',
+    'Jyutping': 'jyutping',
+}
 
 
 def load_menu():
-    dictionaries = [
-        ('en', _('English')),
-        ('de', _('German')),
-        ('fr', _('French')),
-        (None, _('None')),
-    ]
-
-    for d, name in dictionaries:
+    for k, v in PHONETIC_TARGETS.items():
         add_menu_item(
-            'Chinese::Set Dictionary',
-            name,
-            partial(config.update, {'dictionary': d}),
+            'Chinese::Phonetics',
+            k,
+            partial(config.update, {'target': v}),
             checkable=True,
-            checked=bool(config['dictionary'] == d),
+            checked=bool(config['target'] == v),
         )
 
-    for t in transcriptions:
+    for k, v in SPEECH_ENGINES.items():
         add_menu_item(
-            'Chinese::Set Transcription',
-            t,
-            partial(config.update, {'transcription': t}),
+            'Chinese::Speech Engine',
+            k,
+            partial(config.update, {'speech': v}),
             checkable=True,
-            checked=bool(config['transcription'] == t),
+            checked=bool(config['speech'] == v),
         )
 
-    for s in speech_engines:
-        add_menu_item(
-            'Chinese::Set Speech Engine',
-            s,
-            partial(config.update, {'speech': s}),
-            checkable=True,
-            checked=bool(config['speech'] == s),
-        )
-
-    add_menu('Chinese::Fill Notes')
-    add_menu_item('Chinese::Fill Notes', _('Fill Hanzi'), bulk_fill_hanzi)
+    add_menu('Chinese::Bulk Fill')
+    add_menu_item('Chinese::Bulk Fill', _('Hanzi'), bulk_fill_hanzi)
     add_menu_item(
-        'Chinese::Fill Notes', _('Fill Transcription'), bulk_fill_transcript
+        'Chinese::Bulk Fill', _('Transcription'), bulk_fill_transcript
     )
-    add_menu_item('Chinese::Fill Notes', _('Fill Definitions'), bulk_fill_defs)
-    add_menu_item('Chinese::Fill Notes', _('Fill Classifiers'), bulk_fill_classifiers)
-    add_menu_item('Chinese::Fill Notes', _('Fill Sound'), bulk_fill_sound)
-    add_menu_item(
-        'Chinese::Fill Notes', _('Fill Silhouette'), bulk_fill_silhouette
-    )
+    add_menu_item('Chinese::Bulk Fill', _('Definitions'), bulk_fill_defs)
+    add_menu_item('Chinese::Bulk Fill', _('Classifiers'), bulk_fill_classifiers)
+    add_menu_item('Chinese::Bulk Fill', _('Sound'), bulk_fill_sound)
+    add_menu_item('Chinese::Bulk Fill', _('Silhouette'), bulk_fill_silhouette)
 
     add_menu('Chinese::Help')
     add_menu_item(
@@ -106,16 +94,6 @@ def unload_menu():
         mw.form.menubar.removeAction(menu.menuAction())
 
     mw.custom_menus.clear()
-
-
-def display_tip():
-    (tip, link) = config.get_tip()
-    if tip:
-        if link:
-            if askUser(tip):
-                openLink(link)
-        else:
-            showInfo(tip)
 
 
 def add_menu(path):

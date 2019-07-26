@@ -1,7 +1,7 @@
 # Copyright 2012 Roland Sieker <ospalh@gmail.com>
 # Copyright 2012 Thomas TEMPÉ <thomas.tempe@alysse.org>
 # Copyright 2017 Pu Anlai
-# Copyright 2017-2018 Joseph Lorimer <luoliyan@posteo.net>
+# Copyright 2017-2019 Joseph Lorimer <joseph@lorimer.me>
 # Inspiration: Tymon Warecki
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/copyleft/agpl.html
 
@@ -18,19 +18,21 @@ from gtts import gTTS
 requests.packages.urllib3.disable_warnings()
 
 
-def download_sound(text, source=('google', 'zh-cn')):
-    service, lang = source
+def download(text, source='google|zh-cn'):
+    service, lang = source.split('|')
 
     if service == 'google':
-        path = get_path(text, source)
+        path = get_path(text, service, lang)
     elif service == 'baidu':
-        path = get_path(text, source)
+        path = get_path(text, service, lang)
+    else:
+        raise NotImplementedError(service)
 
     if exists(path):
         return basename(path)
 
     if service == 'google':
-        # should raise ValueError on unsupported lang code
+        # TODO: should raise ValueError on unsupported lang code
         tts = gTTS(text, lang=lang)
         tts.save(path)
     elif service == 'baidu':
@@ -39,8 +41,7 @@ def download_sound(text, source=('google', 'zh-cn')):
     return basename(path)
 
 
-def get_path(text, source):
-    service, lang = source
+def get_path(text, service, lang):
     filename = '{}_{}_{}.mp3'.format(sanitize(text), service, lang)
     return join(mw.col.media.dir(), filename)
 

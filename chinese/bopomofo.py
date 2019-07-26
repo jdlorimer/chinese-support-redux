@@ -1,6 +1,6 @@
 # Copyright © 2012 Thomas TEMPÉ <thomas.tempe@alysse.org>
 # Copyright © 2014 Alex Griffin <alex@alexjgriffin.com>
-# Copyright © 2017-2019 Joseph Lorimer <luoliyan@posteo.net>
+# Copyright © 2017-2019 Joseph Lorimer <joseph@lorimer.me>
 #
 # This file is part of Chinese Support Redux.
 #

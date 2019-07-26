@@ -1,5 +1,5 @@
 # Copyright © 2012 Thomas TEMPÉ <thomas.tempe@alysse.org>
-# Copyright © 2017-2019 Joseph Lorimer <luoliyan@posteo.net>
+# Copyright © 2017-2019 Joseph Lorimer <joseph@lorimer.me>
 #
 # This file is part of Chinese Support Redux.
 #
@@ -27,9 +27,9 @@ from .consts import (
     ruby_regex,
 )
 from .hanzi import split_hanzi
-from .sound import extract_sound_tags
+from .sound import extract_tags
 from .transcribe import tone_number, sanitize_transcript
-from .util import align, cleanup, is_punc, no_color
+from .util import align, is_punc, no_color
 
 
 def colorize(words, ruby_whole=False):
@@ -56,7 +56,7 @@ def colorize(words, ruby_whole=False):
     colorized = []
     for text in words:
         text = no_color(text)
-        (text, sound_tags) = extract_sound_tags(text)
+        (text, sound_tags) = extract_tags(text)
 
         if has_ruby(text):
             if ruby_whole:
@@ -72,31 +72,38 @@ def colorize(words, ruby_whole=False):
 
 
 def colorize_dict(text):
+    assert isinstance(text, str)
+
     def _sub(p):
         s = ''
         hanzi = p.group(1)
-        pinyin = p.group(2)
+        pinyin = sanitize_transcript(p.group(2), 'pinyin', grouped=False)
         delim = '|'
 
         if hanzi.count(delim) == 1:
             hanzi = hanzi.split(delim)
-            s += colorize_fuse(hanzi[0], pinyin, True)
+            s += colorize_fuse(
+                split_hanzi(hanzi[0], grouped=False), pinyin, True
+            )
             s += delim
-            s += colorize_fuse(hanzi[1], pinyin, False)
+            s += colorize_fuse(
+                split_hanzi(hanzi[1], grouped=False), pinyin, False
+            )
         else:
-            s += colorize_fuse(hanzi, pinyin, True)
+            s += colorize_fuse(split_hanzi(hanzi, grouped=False), pinyin, True)
 
         return s
 
     return sub(r'([\%s|]+)\[(.*?)\]' % HANZI_RANGE, _sub, text)
 
 
-def colorize_fuse(chars, transcript, ruby=False):
-    chars = split_hanzi(cleanup(chars), grouped=False)
-    transcript = sanitize_transcript(transcript)
+def colorize_fuse(chars, trans, ruby=False):
+    assert isinstance(chars, list)
+    assert isinstance(trans, list)
+
     colorized = ''
 
-    for c, t in align(chars, transcript):
+    for c, t in align(chars, trans):
         if c is None or t is None:
             continue
         if is_punc(c) and is_punc(t):
@@ -104,7 +111,7 @@ def colorize_fuse(chars, transcript, ruby=False):
             continue
         if ruby:
             colorized += COLOR_RUBY_TEMPLATE.format(
-                tone=tone_number(t), chars=c, transcript=t
+                tone=tone_number(t), chars=c, trans=t
             )
         else:
             colorized += COLOR_TEMPLATE.format(tone=tone_number(t), chars=c)

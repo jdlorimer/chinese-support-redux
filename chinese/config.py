@@ -1,6 +1,6 @@
 # Copyright © 2012 Roland Sieker <ospalh@gmail.com>
 # Copyright © 2012 Thomas TEMPÉ <thomas.tempe@alysse.org>
-# Copyright © 2017-2018 Joseph Lorimer <luoliyan@posteo.net>
+# Copyright © 2017-2018 Joseph Lorimer <joseph@lorimer.me>
 #
 # This file is part of Chinese Support Redux.
 #
@@ -17,12 +17,13 @@
 # You should have received a copy of the GNU General Public License along with
 # Chinese Support Redux.  If not, see <https://www.gnu.org/licenses/>.
 
+from collections import defaultdict
+
 from aqt import mw
 
 
 class ConfigManager:
-    tips = []
-    config = mw.addonManager.getConfig(__name__)
+    config = defaultdict(str, mw.addonManager.getConfig(__name__))
 
     def __setitem__(self, key, value):
         self.config[key] = value
@@ -35,9 +36,3 @@ class ConfigManager:
 
     def save(self):
         mw.addonManager.writeConfig(__name__, self.config)
-
-    def get_tip(self):
-        if self.config['tip_number'] < len(self.tips):
-            self.config['tip_number'] += 1
-            return self.tips[self.config['tip_number'] - 1]
-        return (None, None)

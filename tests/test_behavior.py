@@ -1,4 +1,4 @@
-# Copyright © 2018-2019 Joseph Lorimer <luoliyan@posteo.net>
+# Copyright © 2018-2019 Joseph Lorimer <joseph@lorimer.me>
 #
 # This file is part of Chinese Support Redux.
 #
@@ -16,6 +16,7 @@
 # Chinese Support Redux.  If not, see <https://www.gnu.org/licenses/>.
 
 from unittest.mock import MagicMock, patch
+from unittest import skip
 
 from chinese.behavior import (
     fill_all_defs,
@@ -27,36 +28,29 @@ from chinese.behavior import (
     fill_sound,
     fill_trad,
     fill_transcript,
+    update_fields,
 )
 from tests import Base
 
 
 class FillSound(Base):
     def test_missing_sound(self):
-        note = dict.fromkeys(
-            ['Sound', 'Sound (Mandarin)', 'Sound (Cantonese)'], ''
-        )
+        note = dict.fromkeys(['Sound (Mandarin)', 'Sound (Cantonese)'], '')
         with patch(
             'chinese.behavior.sound',
             MagicMock(side_effect=['foo', 'bar', 'baz']),
         ):
-            self.assertEqual(fill_sound('上海', note), (3, 0))
-        self.assertEqual(note['Sound'], 'foo')
-        self.assertEqual(note['Sound (Mandarin)'], 'bar')
-        self.assertEqual(note['Sound (Cantonese)'], 'baz')
+            self.assertEqual(fill_sound('上海', note), (1, 0))
+        self.assertEqual(note['Sound (Mandarin)'], 'foo')
+        self.assertEqual(note['Sound (Cantonese)'], '')
 
     def test_existing_sound(self):
-        note = {
-            'Sound': 'qux',
-            'Sound (Mandarin)': 'qux',
-            'Sound (Cantonese)': 'qux',
-        }
+        note = {'Sound (Mandarin)': 'qux', 'Sound (Cantonese)': 'qux'}
         with patch(
             'chinese.behavior.sound',
             MagicMock(side_effect=['foo', 'bar', 'baz']),
         ):
             self.assertEqual(fill_sound('上海', note), (0, 0))
-        self.assertEqual(note['Sound'], 'qux')
         self.assertEqual(note['Sound (Mandarin)'], 'qux')
         self.assertEqual(note['Sound (Cantonese)'], 'qux')
 
@@ -81,10 +75,9 @@ class FillTranscript(Base):
     def test_sentences(self):
         for hanzi in ['没有，是我第一次来上海旅游。', '没有， 是 我 第一次 来 上海 旅游。']:
             note = dict.fromkeys(
-                ['Reading', 'Pinyin', 'Pinyin (Taiwan)', 'Cantonese'], ''
+                ['Pinyin', 'Pinyin (Taiwan)', 'Cantonese'], ''
             )
             fill_transcript(hanzi, note)
-            self.assertEqual(note['Reading'], self.expected_pinyin)
             self.assertEqual(note['Pinyin'], self.expected_pinyin)
             self.assertEqual(note['Pinyin (Taiwan)'], self.expected_pinyin)
             # FIXME
@@ -110,49 +103,40 @@ class FillTranscript(Base):
 
     def test_words(self):
         # TODO: '中国'
-        for hanzi in ['上海']:
-            note = dict.fromkeys(
-                [
-                    'Bopomofo',
-                    'Cantonese',
-                    'Pinyin (Taiwan)',
-                    'Pinyin',
-                    'Reading',
-                ],
-                '',
-            )
-            # self.assertEqual(fill_transcript(hanzi, note), 6)
-            fill_transcript(hanzi, note)
-            self.assertEqual(
-                note['Bopomofo'],
-                (
-                    '<span class="tone4">ㄕㄤˋ</span>'
-                    '<span class="tone3">ㄏㄞˇ</span> '
-                    '<!-- ㄕㄤˋㄏㄞˇ -->'
-                ),
-            )
-            # FIXME
-            self.assertEqual(
-                note['Cantonese'],
-                '<span class="tone5">soeng5</span>|'
-                '<span class="tone5">soeng</span>6'
-                '<span class="tone2">hoi2</span> '
-                '<!-- soeng |5 soeng 6 hoi -->',
-            )
-            pinyin = (
-                '<span class="tone4">shàng</span>'
-                '<span class="tone3">hǎi</span> '
-                '<!-- shang hai -->'
-            )
-            self.assertEqual(note['Pinyin (Taiwan)'], pinyin)
-            self.assertEqual(note['Pinyin'], pinyin)
-            self.assertEqual(note['Reading'], pinyin)
+        hanzi = '上海'
+        note = dict.fromkeys(
+            ['Bopomofo', 'Cantonese', 'Pinyin (Taiwan)', 'Pinyin'], ''
+        )
+        self.assertEqual(fill_transcript(hanzi, note), 4)
+        self.assertEqual(
+            note['Bopomofo'],
+            (
+                '<span class="tone4">ㄕㄤˋ</span>'
+                '<span class="tone3">ㄏㄞˇ</span> '
+                '<!-- ㄕㄤˋㄏㄞˇ -->'
+            ),
+        )
+        # FIXME
+        self.assertEqual(
+            note['Cantonese'],
+            '<span class="tone5">soeng5</span>|'
+            '<span class="tone5">soeng</span>6'
+            '<span class="tone2">hoi2</span> '
+            '<!-- soeng |5 soeng 6 hoi -->',
+        )
+        pinyin = (
+            '<span class="tone4">shàng</span>'
+            '<span class="tone3">hǎi</span> '
+            '<!-- shang hai -->'
+        )
+        self.assertEqual(note['Pinyin (Taiwan)'], pinyin)
+        self.assertEqual(note['Pinyin'], pinyin)
 
     def test_mixed_english_chinese(self):
-        note = dict.fromkeys(['Reading'], '')
+        note = dict.fromkeys(['Pinyin'], '')
         fill_transcript('Brian的', note)
         self.assertEqual(
-            note['Reading'],
+            note['Pinyin'],
             '<span class="tone5">Brian</span> '
             '<span class="tone5">de</span> '
             '<!-- Brian de -->',
@@ -188,69 +172,118 @@ class FillBopomofo(Base):
 
     def test_grouped_pinyin(self):
         note = dict.fromkeys(['Bopomofo'], '')
-        note['Reading'] = 'shényùn'
+        note['Pinyin'] = 'shényùn'
         fill_bopomofo('神韻', note)
         self.assertEqual(
             note['Bopomofo'],
-            '<span class="tone2">ㄕㄣˊ</span><span class="tone4">ㄩㄣˋ</span> <!-- ㄕㄣˊㄩㄣˋ -->',
+            '<span class="tone2">ㄕㄣˊ</span>'
+            '<span class="tone4">ㄩㄣˋ</span>'
+            ' <!-- ㄕㄣˊㄩㄣˋ -->',
         )
 
     def test_ungrouped_pinyin(self):
         note = dict.fromkeys(['Bopomofo'], '')
-        note['Reading'] = 'shen4 yun4'
+        note['Pinyin'] = 'shen4 yun4'
         fill_bopomofo('神韻', note)
         self.assertEqual(
             note['Bopomofo'],
-            '<span class="tone2">ㄕㄣˊ</span><span class="tone4">ㄩㄣˋ</span> <!-- ㄕㄣˊㄩㄣˋ -->',
+            '<span class="tone2">ㄕㄣˊ</span>'
+            '<span class="tone4">ㄩㄣˋ</span>'
+            ' <!-- ㄕㄣˊㄩㄣˋ -->',
         )
+
+
+class UpdateFields(Base):
+    def test_all(self):
+        class Note(dict):
+            def model(self):
+                return ''
+
+        expected = {
+            'Hanzi': '床单',
+            'Hanzi (Color)': '<span class="tone2">床</span><span class="tone1">单</span>',
+            'Classifier': (
+                '<span class="tone2"><ruby>條<rt>tiáo</rt></ruby></span>|'
+                '<span class="tone2">条</span>, '
+                '<span class="tone4"><ruby>件<rt>jiàn</rt></ruby></span>, '
+                '<span class="tone1"><ruby>張<rt>zhāng</rt></ruby></span>|'
+                '<span class="tone1">张</span>, '
+                '<span class="tone2"><ruby>床<rt>chuáng</rt></ruby></span>'
+            ),
+            'Pinyin': '<span class="tone2">chuáng</span><span class="tone1">dān</span> <!-- chuang dan -->',
+            'Pinyin (Taiwan)': '<span class="tone2">chuáng</span><span class="tone1">dān</span> <!-- chuang dan -->',
+            'Bopomofo': '<span class="tone2">ㄔㄨㄤˊ</span><span class="tone1">ㄉㄢ</span> <!-- ㄔㄨㄤˊㄉㄢ -->',
+            'Jyutping': '',
+            # FIXME
+            'English': ' \tbed sheet\n<br>',
+            'German': ' \tLaken, Bettlaken, Betttuch (u.E.) (S)\n<br>',
+            'French': ' \tdrap de lit\n<br>',
+            'Ruby (Pinyin)': '<span class="tone2"><ruby>床<rt>chuáng</rt></ruby></span><span class="tone1"><ruby>单<rt>dān</rt></ruby></span>',
+            'Ruby (Taiwan Pinyin)': '<span class="tone2"><ruby>床<rt>chuáng</rt></ruby></span><span class="tone1"><ruby>单<rt>dān</rt></ruby></span>',
+            'Ruby (Bopomofo)': '<span class="tone2"><ruby>床<rt>ㄔㄨㄤˊ</rt></ruby></span><span class="tone1"><ruby>单<rt>ㄉㄢ</rt></ruby></span>',
+            'Ruby (Jyutping)': '',
+            'Silhouette': '_ _',
+            'Sound (Mandarin)': '[sound:床单_google_zh-cn.mp3]',
+            'Sound (Cantonese)': '',
+        }
+        fields = expected.keys()
+        note = Note.fromkeys(fields, '')
+        note['Hanzi'] = '床单'
+        update_fields(note, 'Hanzi', fields)
+        self.assertEqual(expected, note)
+
+    def test_no_sound(self):
+        with patch('chinese.sound.download') as m:
+            update_fields(
+                {'Hanzi': '床单', 'Pinyin': ''}, 'Hanzi', ('Pinyin', 'Hanzi')
+            )
+            m.assert_not_called()
 
 
 class FillAllRubies(Base):
     def test_words(self):
-        for hanzi in ['上海']:
-            note = dict.fromkeys(
-                [
-                    'Ruby',
-                    'Ruby (Bopomofo)',
-                    'Ruby (Cantonese)',
-                    'Ruby (Pinyin)',
-                    'Ruby (Taiwan Pinyin)',
-                ],
-                '',
-            )
-            note['Reading'] = 'shànghǎi'
-            note['Pinyin'] = 'shànghǎi'
-            note['Pinyin (Taiwan)'] = 'shànghǎi'
-            note['Bopomofo'] = 'ㄕㄤˋ ㄏㄞˇ'  # FIXME: should not require spacing
-            note['Cantonese'] = 'soeng6 hoi2'
-            pinyin_ruby = (
-                '<span class="tone4"><ruby>上<rt>shàng</rt></ruby></span>'
-                '<span class="tone3"><ruby>海<rt>hǎi</rt></ruby></span>'
-            )
-            self.assertEqual(fill_all_rubies('上海', note), None)
-            self.assertEqual(note['Ruby'], pinyin_ruby)
-            self.assertEqual(note['Ruby (Pinyin)'], pinyin_ruby)
-            self.assertEqual(note['Ruby (Taiwan Pinyin)'], pinyin_ruby)
-            self.assertEqual(
-                note['Ruby (Bopomofo)'],
-                '<span class="tone4"><ruby>上<rt>ㄕㄤˋ</rt></ruby></span>'
-                '<span class="tone3"><ruby>海<rt>ㄏㄞˇ</rt></ruby></span>',
-            )
-            # FIXME
-            self.assertEqual(
-                note['Ruby (Cantonese)'],
-                '<span class="tone5"><ruby>上<rt>soeng</rt></ruby></span>'
-                '<span class="tone6"><ruby>海<rt>6</rt></ruby></span>',
-            )
+        note = dict.fromkeys(
+            [
+                'Ruby',
+                'Ruby (Bopomofo)',
+                'Ruby (Cantonese)',
+                'Ruby (Pinyin)',
+                'Ruby (Taiwan Pinyin)',
+            ],
+            '',
+        )
+        note['Pinyin'] = 'shànghǎi'
+        note['Pinyin (Taiwan)'] = 'shànghǎi'
+        note['Bopomofo'] = 'ㄕㄤˋㄏㄞˇ'
+        note['Cantonese'] = 'soeng6 hoi2'
+        pinyin_ruby = (
+            '<span class="tone4"><ruby>上<rt>shàng</rt></ruby></span>'
+            '<span class="tone3"><ruby>海<rt>hǎi</rt></ruby></span>'
+        )
+        self.assertEqual(fill_all_rubies("上海", note), None)
+        self.assertEqual(note["Ruby"], pinyin_ruby)
+        self.assertEqual(note["Ruby (Pinyin)"], pinyin_ruby)
+        self.assertEqual(note["Ruby (Taiwan Pinyin)"], pinyin_ruby)
+        self.assertEqual(
+            note['Ruby (Bopomofo)'],
+            '<span class="tone4"><ruby>上<rt>ㄕㄤˋ</rt></ruby></span>'
+            '<span class="tone3"><ruby>海<rt>ㄏㄞˇ</rt></ruby></span>',
+        )
+        # FIXME
+        self.assertEqual(
+            note['Ruby (Cantonese)'],
+            '<span class="tone5"><ruby>上<rt>soeng</rt></ruby></span>'
+            '<span class="tone6"><ruby>海<rt>6</rt></ruby></span>',
+        )
 
 
 class FillColor(Base):
     def test_ungrouped_chars_grouped_pinyin(self):
-        note = dict.fromkeys(['Color'], '')
-        note['Reading'] = 'Méiyǒu, shì wǒ dìyīcì lái Shànghǎi lǚyóu.'
+        note = dict.fromkeys(['Color Hanzi'], '')
+        note['Pinyin'] = 'Méiyǒu, shì wǒ dìyīcì lái Shànghǎi lǚyóu.'
         fill_color('没有，是我第一次来上海旅游。', note)
         self.assertEqual(
-            note['Color'],
+            note['Color Hanzi'],
             (
                 '<span class="tone2">没</span>'
                 '<span class="tone3">有</span>，'
@@ -270,17 +303,17 @@ class FillColor(Base):
     def test_chars_no_pinyin(self):
         """Should not generate color output if no available reading."""
 
-        note = dict.fromkeys(['Color', 'Reading'], '')
+        note = dict.fromkeys(['Color Hanzi', 'Pinyin'], '')
         for s in ['没有', '没 有', '没有。']:
             fill_color(s, note)
-            self.assertEqual(note['Color'], '')
+            self.assertEqual(note['Color Hanzi'], '')
 
     def test_mismatched_inputs(self):
-        note = dict.fromkeys(['Color'], '')
-        note['Reading'] = 'Méiyǒu, shì wǒ dìyīcì lái Shànghǎi lǚyóu.'
+        note = dict.fromkeys(['Color Hanzi'], '')
+        note['Pinyin'] = 'Méiyǒu, shì wǒ dìyīcì lái Shànghǎi lǚyóu.'
         fill_color('（没有，）是我第一次来上海旅游。', note)
         self.assertEqual(
-            note['Color'],
+            note['Color Hanzi'],
             (
                 '<span class="tone2">没</span>'
                 '<span class="tone3">有</span>，'
@@ -298,38 +331,36 @@ class FillColor(Base):
         )
 
     def test_mixed_english_chinese(self):
-        note = dict.fromkeys(['Color', 'Reading'], '')
-        note['Reading'] = 'Brian de'
+        note = dict.fromkeys(['Color Hanzi', 'Pinyin'], '')
+        note['Pinyin'] = 'Brian de'
         fill_color('Brian的', note)
         self.assertEqual(
-            note['Color'],
+            note['Color Hanzi'],
             '<span class="tone5">Brian</span><span class="tone5">的</span>',
         )
 
 
 class FillAllDefs(Base):
     def test_no_classifier_field(self):
-        note = dict.fromkeys(['English', 'German', 'French', 'Meaning'], '')
+        note = dict.fromkeys(['English', 'German', 'French'], '')
         classifier = (
             '<span class="tone1"><ruby>家<rt>jiā</rt></ruby></span>, '
             '<span class="tone4"><ruby>個<rt>gè</rt></ruby></span>|'
             '<span class="tone4">个</span>'
         )
         english = ' \tlibrary\n<br><br>Cl: ' + classifier
-        # FIXME: truncated definition
-        german = ' \tBibliothek (S, Lit\n<br><br>Cl: ' + classifier
-        french = ' \tbibliothèque\n<br><br>Cl: ' + classifier
-        self.assertEqual(fill_all_defs('图书馆', note), 4)
+        german = ' \tBibliothek (S, Lit)\n<br><br>Cl: ' + classifier
+        french = ' \tbibliothèque (lieu)\n<br><br>Cl: ' + classifier
+        self.assertEqual(fill_all_defs('图书馆', note), 3)
         self.assertEqual(note['English'], english)
         self.assertEqual(note['French'], french)
         self.assertEqual(note['German'], german)
-        self.assertEqual(note['Meaning'], english)
 
     def test_classifier_field(self):
-        note = dict.fromkeys(['Classifier', 'Meaning'], '')
+        note = dict.fromkeys(['Classifier', 'English'], '')
         self.assertEqual(fill_all_defs('图书馆', note), 1)
         self.assertEqual(note['Classifier'], '')
-        self.assertEqual(note['Meaning'], ' \tlibrary\n<br>')
+        self.assertEqual(note['English'], ' \tlibrary\n<br>')
 
 
 class FillClassifier(Base):

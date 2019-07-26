@@ -1,4 +1,4 @@
-# Copyright © 2018-2019 Joseph Lorimer <luoliyan@posteo.net>
+# Copyright © 2018-2019 Joseph Lorimer <joseph@lorimer.me>
 #
 # This file is part of Chinese Support Redux.
 #
@@ -21,14 +21,19 @@ from tests import Base
 
 class Ruby(Base):
     def test_char(self):
-        self.assertEqual(ruby(['你'], 'Pinyin'), ['你[nǐ]'])
+        self.assertEqual(ruby(['你'], 'pinyin'), ['你[nǐ]'])
 
     def test_word(self):
-        self.assertEqual(ruby(['图书馆'], 'Pinyin'), ['图[tú]书[shū]馆[guǎn]'])
+        self.assertEqual(ruby(['图书馆'], 'pinyin'), ['图[tú]书[shū]馆[guǎn]'])
 
     def test_chars(self):
         self.assertEqual(
-            ruby(['图', '书', '馆'], 'Pinyin'), ['图[tú]', '书[shū]', '馆[guǎn]']
+            ruby(['图', '书', '馆'], 'pinyin'), ['图[tú]', '书[shū]', '馆[guǎn]']
+        )
+
+    def test_(self):
+        self.assertEqual(
+            ruby(['加拿大人'], 'bopomofo'), ['加[ㄐㄧㄚ]拿[ㄋㄚˊ]大[ㄉㄚˋ]人[ㄖㄣˊ]']
         )
 
     def test_ruby_top(self):
@@ -42,13 +47,13 @@ class Ruby(Base):
         self.assertEqual(ruby_bottom('hànzì'), '')
 
     def test_bopomofo(self):
-        self.assertEqual(ruby(['機場'], 'Bopomofo'), ['機[ㄐㄧ]場[ㄔㄤˇ]'])
-        self.assertEqual(ruby(['機', '場'], 'Bopomofo'), ['機[ㄐㄧ]', '場[ㄔㄤˊ]'])
+        self.assertEqual(ruby(['機場'], 'bopomofo'), ['機[ㄐㄧ]場[ㄔㄤˇ]'])
+        self.assertEqual(ruby(['機', '場'], 'bopomofo'), ['機[ㄐㄧ]', '場[ㄔㄤˊ]'])
 
     def test_bopomofo_punc(self):
-        self.assertEqual(ruby(['機場。'], 'Bopomofo'), ['機[ㄐㄧ]場[ㄔㄤˇ]。'])
+        self.assertEqual(ruby(['機場。'], 'bopomofo'), ['機[ㄐㄧ]場[ㄔㄤˇ]。'])
         self.assertEqual(
-            ruby(['機', '場', '。'], 'Bopomofo'), ['機[ㄐㄧ]', '場[ㄔㄤˊ]', '。']
+            ruby(['機', '場', '。'], 'bopomofo'), ['機[ㄐㄧ]', '場[ㄔㄤˊ]', '。']
         )
 
 

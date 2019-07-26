@@ -1,5 +1,5 @@
 # Copyright © 2012 Thomas TEMPÉ <thomas.tempe@alysse.org>
-# Copyright © 2017-2019 Joseph Lorimer <luoliyan@posteo.net>
+# Copyright © 2017-2019 Joseph Lorimer <joseph@lorimer.me>
 #
 # This file is part of Chinese Support Redux.
 #
@@ -70,7 +70,7 @@ def get_first(fields, note):
                     return note[k]
             except:
                 pass
-    return ''
+    return None
 
 
 def set_all(fields, note, to):
@@ -172,3 +172,10 @@ def save_note(orig, copy):
             n_changed += 1
     orig.flush()
     return n_changed
+
+
+def flatten(a):
+    c = []
+    for b in a:
+        c.extend(b)
+    return c

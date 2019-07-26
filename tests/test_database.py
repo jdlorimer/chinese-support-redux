@@ -1,4 +1,4 @@
-# Copyright © 2018-2019 Joseph Lorimer <luoliyan@posteo.net>
+# Copyright © 2018-2019 Joseph Lorimer <joseph@lorimer.me>
 #
 # This file is part of Chinese Support Redux.
 #
@@ -36,5 +36,5 @@ class Dictionary(Base):
             ['對|对[dui4]', '根[gen1]', '把[ba3]', '雙|双[shuang1]'],
         )
 
-    def test_get_alt_spellings(self):
-        self.assertEqual(D().get_alt_spellings('阿斯匹林'), ['阿司匹林'])
+    def test_variants(self):
+        self.assertEqual(D().get_variants('阿斯匹林'), ['阿司匹林'])

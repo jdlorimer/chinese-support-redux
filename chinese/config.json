@@ -1,11 +1,8 @@
 {
     "firstRun": true,
-    "dictionary": "en",
     "enabledModels": [],
-    "show_tips": false,
-    "speech": "Google Mandarin (PRC)",
-    "tip_number": 0,
-    "transcription": "Pinyin",
+    "speech": "google|zh-cn",
+    "target": "pinyin",
     "fields": {
         "hanzi": [
             "Chinese",
@@ -15,15 +12,6 @@
             "汉字",
             "漢字"
         ],
-        "meaning": [
-            "Definition",
-            "Meaning",
-            "意思",
-            "翻譯",
-            "翻译",
-            "解释",
-            "解釋"
-        ],
         "english": [
             "English",
             "英文",
@@ -31,8 +19,8 @@
             "英语"
         ],
         "german": [
-            "Deutsch",
             "German",
+            "Deutsch",
             "德文",
             "德語",
             "德语"
@@ -44,19 +32,14 @@
             "法語",
             "法语"
         ],
-        "transcription": [
-            "Reading"
-        ],
         "pinyin": [
-            "PY",
             "Pinyin",
             "大陆拼音",
             "大陸拼音",
             "拼音"
         ],
         "pinyinTaiwan": [
-            "PYTW",
-            "PinyinTW",
+            "Pinyin (Taiwan)",
             "台湾拼音",
             "台灣拼音",
             "臺灣拼音"
@@ -89,10 +72,10 @@
             "聲音"
         ],
         "mandarinSound": [
-            "Sound - Mandarin"
+            "Sound (Mandarin)"
         ],
         "cantoneseSound": [
-            "Sound - Cantonese"
+            "Sound (Cantonese)"
         ],
         "simplified": [
             "Simp",
@@ -118,23 +101,18 @@
         ],
         "classifier": [
             "Classifier",
-            "MW",
-            "Mean Word",
-            "Mean",
             "Measure Word",
             "量詞",
             "量词"
         ],
         "alternative": [
             "Also Written",
-            "Alt",
             "Alternative"
         ],
-        "color": [
-            "Color",
-            "Colored Hanzi",
-            "Colour",
-            "Coloured Hanzi",
+        "colorHanzi": [
+            "Hanzi (Color)",
+            "Color Hanzi",
+            "Colour Hanzi",
             "彩色"
         ],
         "colorPinyin": [
@@ -157,15 +135,19 @@
             "Ruby"
         ],
         "rubyPinyin": [
+            "Ruby (Pinyin)",
             "RubyPY"
         ],
         "rubyPinyinTaiwan": [
+            "Ruby (Taiwan Pinyin)",
             "RubyPYTW"
         ],
         "rubyCantonese": [
+            "Ruby (Cantonese)",
             "RubyCANT"
         ],
         "rubyBopomofo": [
+            "Ruby (Bopomofo)",
             "RubyBPMF"
         ],
         "silhouette": [

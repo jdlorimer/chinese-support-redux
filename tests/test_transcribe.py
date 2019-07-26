@@ -1,4 +1,4 @@
-# Copyright © 2018-2019 Joseph Lorimer <luoliyan@posteo.net>
+# Copyright © 2018-2019 Joseph Lorimer <joseph@lorimer.me>
 #
 # This file is part of Chinese Support Redux.
 #
@@ -16,7 +16,6 @@
 # Chinese Support Redux.  If not, see <https://www.gnu.org/licenses/>.
 
 from unittest import skip
-from unittest.mock import patch
 
 from chinese.transcribe import (
     accentuate,
@@ -33,109 +32,100 @@ from tests import Base
 
 class Accentuate(Base):
     def test_pinyin(self):
-        with patch('chinese.transcribe.config', {'transcription': 'Pinyin'}):
-            self.assertEqual(accentuate(['xian4']), ['xiàn'])
-            self.assertEqual(accentuate(['xian4 zai4']), ['xiàn zài'])
-            self.assertEqual(
-                accentuate(['hen3', 'gao1 xing4']), ['hěn', 'gāo xìng']
-            )
+        self.assertEqual(accentuate(['xian4'], 'pinyin'), ['xiàn'])
+        self.assertEqual(accentuate(['xian4 zai4'], 'pinyin'), ['xiàn zài'])
+        self.assertEqual(
+            accentuate(['hen3', 'gao1 xing4'], 'pinyin'), ['hěn', 'gāo xìng']
+        )
 
     def test_cantonese(self):
-        with patch(
-            'chinese.transcribe.config', {'transcription': 'Cantonese'}
-        ):
-            self.assertEqual(accentuate(['xian4']), ['xian4'])
+        self.assertEqual(accentuate(['xian4'], 'jyutping'), ['xian4'])
 
 
-class SeparateTrans(Base):
+class SplitTranscript(Base):
     def test_tone_mark(self):
-        with patch('chinese.transcribe.config', {'transcription': 'Pinyin'}):
-            self.assertEqual(split_transcript('xiànzài'), ['xiàn zài'])
+        self.assertEqual(split_transcript('xiànzài', 'pinyin'), ['xiàn zài'])
+
+    def test_(self):
+        self.assertEqual(
+            split_transcript('chuángdān', 'pinyin'), ['chuáng dān']
+        )
 
     def test_tone_number(self):
-        with patch('chinese.transcribe.config', {'transcription': 'Pinyin'}):
-            self.assertEqual(split_transcript('xian4zai4'), ['xian4 zai4'])
+        self.assertEqual(
+            split_transcript('xian4zai4', 'pinyin'), ['xian4 zai4']
+        )
 
     def test_muliple_words(self):
-        with patch('chinese.transcribe.config', {'transcription': 'Pinyin'}):
-            self.assertEqual(
-                split_transcript('hěn gāoxìng'), ['hěn', 'gāo xìng']
-            )
+        self.assertEqual(
+            split_transcript('hěn gāoxìng', 'pinyin'), ['hěn', 'gāo xìng']
+        )
 
     def test_multisyllabic_words(self):
-        with patch('chinese.transcribe.config', {'transcription': 'Pinyin'}):
-            self.assertEqual(split_transcript('túshūguǎn'), ['tú shū guǎn'])
+        self.assertEqual(
+            split_transcript('túshūguǎn', 'pinyin'), ['tú shū guǎn']
+        )
 
     def test_ungrouped(self):
-        with patch('chinese.transcribe.config', {'transcription': 'Pinyin'}):
-            self.assertEqual(
-                split_transcript('hěn gāoxìng', grouped=False),
-                ['hěn', 'gāo', 'xìng'],
-            )
+        self.assertEqual(
+            split_transcript('hěn gāoxìng', 'pinyin', grouped=False),
+            ['hěn', 'gāo', 'xìng'],
+        )
 
     @skip
     def test_apostrophe(self):
         self.assertEqual(
-            split_transcript("yīlù píng'ān"), ['yī lù', 'píng ān']
+            split_transcript("yīlù píng'ān", 'pinyin'), ['yī lù', 'píng ān']
         )
 
     @skip
     def test_you_er_yuan(self):
-        self.assertEqual(split_transcript("yòu'éryuán"), ["yòu ér yuán"])
+        self.assertEqual(
+            split_transcript("yòu'éryuán", 'pinyin'), ["yòu ér yuán"]
+        )
 
     def test_punctuation(self):
         self.assertEqual(
-            split_transcript('Méiyǒu, méiyǒu.'),
+            split_transcript('Méiyǒu, méiyǒu.', 'pinyin'),
             ['Méi yǒu', ',', 'méi yǒu', '.'],
         )
         self.assertEqual(
-            split_transcript('Méi yǒu, méi yǒu.', grouped=False),
+            split_transcript('Méi yǒu, méi yǒu.', 'pinyin', grouped=False),
             ['Méi', 'yǒu', ',', 'méi', 'yǒu', '.'],
         )
         self.assertEqual(
-            split_transcript('(méi) yǒu', grouped=False),
+            split_transcript('(méi) yǒu', 'pinyin', grouped=False),
             ['(', 'méi', ')', 'yǒu'],
         )
 
 
 class Transcribe(Base):
     def test_single_word(self):
-        self.assertEqual(transcribe(['你'], 'Pinyin'), ['nǐ'])
+        self.assertEqual(transcribe(['你'], 'pinyin'), ['nǐ'])
 
     def test_multiple_words(self):
-        self.assertEqual(transcribe(['图书', '馆'], 'Pinyin'), ['tú shū', 'guǎn'])
+        self.assertEqual(transcribe(['图书', '馆'], 'pinyin'), ['tú shū', 'guǎn'])
 
     def test_no_chinese(self):
-        self.assertEqual(transcribe(['foo'], 'Pinyin'), [])
+        self.assertEqual(transcribe(['foo'], 'pinyin'), [])
 
     def test_mixed_english_chinese(self):
-        self.assertEqual(transcribe(['foo', '你'], 'Pinyin'), ['foo', 'nǐ'])
-        self.assertEqual(transcribe(['Brian的'], 'Pinyin'), ['Brian de'])
+        self.assertEqual(transcribe(['foo', '你'], 'pinyin'), ['foo', 'nǐ'])
+        self.assertEqual(transcribe(['Brian的'], 'pinyin'), ['Brian de'])
 
     def test_bopomofo(self):
-        self.assertEqual(transcribe(['你'], 'Bopomofo'), ['ㄋㄧˇ'])
+        self.assertEqual(transcribe(['你'], 'bopomofo'), ['ㄋㄧˇ'])
 
     def test_punctuation_retained_converted(self):
         self.assertEqual(
-            transcribe(['没有', '，', '没有', '。'], 'Pinyin'),
+            transcribe(['没有', '，', '没有', '。'], 'pinyin'),
             ['méi yǒu', ',', 'méi yǒu', '.'],
         )
 
     def test_grouped_chars(self):
         self.assertEqual(
-            transcribe(['你', '什么', '时候', '能', '来', '？']),
+            transcribe(['你', '什么', '时候', '能', '来', '？'], 'pinyin'),
             ['nǐ', 'shén me', 'shí hou', 'néng', 'lái', '？'],
-        )
-
-    def test_ungrouped_chars(self):
-        self.assertEqual(
-            transcribe(['你什么时候能来？']), ['nǐ shén me shí hou néng lái ？']
-        )
-        self.assertEqual(transcribe(['我要喝湯！']), ['wǒ yào hē tāng ！'])
-
-    def test_punctuation_irrelevant(self):
-        self.assertEqual(
-            transcribe(['我要喝湯'])[0] + ' ！', transcribe(['我要喝湯！'])[0]
         )
 
 

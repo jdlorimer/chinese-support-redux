@@ -1,5 +1,5 @@
 # Copyright © 2012 Thomas TEMPÉ <thomas.tempe@alysse.org>
-# Copyright © 2017-2019 Joseph Lorimer <luoliyan@posteo.net>
+# Copyright © 2017-2019 Joseph Lorimer <joseph@lorimer.me>
 #
 # This file is part of Chinese Support Redux.
 #
@@ -21,24 +21,22 @@ from re import search, sub
 from .bopomofo import bopomofo
 from .consts import hanzi_regex
 from .hanzi import has_hanzi
-from .main import config, dictionary
+from .main import dictionary
 from .util import hide, no_color
 
 
-def ruby(words, transcript=None):
+def ruby(words, target):
     """Convert hanzi to ruby notation.
 
     For use with {{Ruby:fieldname}} on the card template.
-
-    If not specified, use the transcription type set in the menubar.
     """
 
-    from .transcribe import transcribe_char, replace_tone_marks
-
-    if not transcript:
-        transcript = config['transcription']
+    from .transcribe import transcribe_char
 
     assert isinstance(words, list)
+
+    if target not in ['pinyin', 'bopomofo']:
+        raise NotImplementedError(target)
 
     rubified = []
     for text in words:
@@ -54,20 +52,20 @@ def ruby(words, transcript=None):
             s = ''
             hanzi = p.group(1)
             while hanzi:
-                if transcript == 'Pinyin':
+                if target == 'pinyin':
                     s += hanzi[0] + '[' + t.pop(0) + ']'
-                elif transcript == 'Bopomofo':
+                elif target == 'bopomofo':
                     s += hanzi[0] + '['
                     s += bopomofo([t.pop(0)])[0] + ']'
                 hanzi = hanzi[1:]
             return s + p.group(2)
 
         def insert_pinyin_sub(p):
-            t = transcribe_char(p.group(1), transcript)
+            t = transcribe_char(p.group(1), target)
             return p.group(1) + '[' + t + ']' + p.group(2)
 
         text += '%'
-        if transcript in ['Pinyin', 'Bopomofo']:
+        if target in ['pinyin', 'bopomofo']:
             text = sub(
                 r'(%s+)([^[])' % hanzi_regex, insert_multiple_pinyin_sub, text
             )

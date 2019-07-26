@@ -1,4 +1,4 @@
-# Copyright © 2018-2019 Joseph Lorimer <luoliyan@posteo.net>
+# Copyright © 2018-2019 Joseph Lorimer <joseph@lorimer.me>
 #
 # This file is part of Chinese Support Redux.
 #
@@ -14,6 +14,8 @@
 #
 # You should have received a copy of the GNU General Public License along with
 # Chinese Support Redux.  If not, see <https://www.gnu.org/licenses/>.
+
+from unittest import skip
 
 from hypothesis import given
 from hypothesis.strategies import integers
@@ -85,7 +87,7 @@ class TestColorizeFuse(Base):
     @given(integers(1, 5), integers(1, 5), integers(1, 5))
     def test_tone_number(self, a, b, c):
         self.assertEqual(
-            colorize_fuse('图书馆', f'tu{a} shu{b} guan{c}'),
+            colorize_fuse(['图', '书', '馆'], [f'tu{a}', f'shu{b}', f'guan{c}']),
             (
                 '<span class="tone{}">图</span>'
                 '<span class="tone{}">书</span>'
@@ -95,17 +97,7 @@ class TestColorizeFuse(Base):
 
     def test_tone_mark(self):
         self.assertEqual(
-            colorize_fuse('图书馆', 'tú shū guǎn'),
-            (
-                '<span class="tone2">图</span>'
-                '<span class="tone1">书</span>'
-                '<span class="tone3">馆</span>'
-            ),
-        )
-
-    def test_unseparated(self):
-        self.assertEqual(
-            colorize_fuse('图书馆', 'túshūguǎn'),
+            colorize_fuse(['图', '书', '馆'], ['tú', 'shū', 'guǎn']),
             (
                 '<span class="tone2">图</span>'
                 '<span class="tone1">书</span>'
@@ -115,7 +107,7 @@ class TestColorizeFuse(Base):
 
     def test_added_punc(self):
         self.assertEqual(
-            colorize_fuse('图书馆。', 'túshūguǎn'),
+            colorize_fuse(['图', '书', '馆', '。'], ['tú', 'shū', 'guǎn']),
             (
                 '<span class="tone2">图</span>'
                 '<span class="tone1">书</span>'
@@ -123,24 +115,12 @@ class TestColorizeFuse(Base):
             ),
         )
 
-    def test_truncated_hanzi(self):
-        """Given truncated hanzi, should still highlight correctly."""
-        self.assertEqual(
-            colorize_fuse('图书', 'túshūguǎn'),
-            '<span class="tone2">图</span><span class="tone1">书</span>',
-        )
-
-    def test_truncated_transcript(self):
-        """Given truncated transcription, should truncate hanzi."""
-        self.assertEqual(
-            colorize_fuse('图书馆', 'túshū'),
-            '<span class="tone2">图</span><span class="tone1">书</span>',
-        )
-
-    def test_sentence(self):
+    @skip
+    def test_missing_punc(self):
         self.assertEqual(
             colorize_fuse(
-                '没有，是我第一次来上海旅游。', 'Méiyǒu, shì wǒ dìyīcì lái shànghǎi lǚyóu.'
+                ['没', '有', '是', '我', '第', '一', '次'],
+                ['Méi', 'yǒu', ',', 'shì', 'wǒ', 'dì', 'yī', 'cì', '.'],
             ),
             (
                 '<span class="tone2">没</span>'
@@ -149,17 +129,26 @@ class TestColorizeFuse(Base):
                 '<span class="tone3">我</span>'
                 '<span class="tone4">第</span>'
                 '<span class="tone1">一</span>'
-                '<span class="tone4">次</span>'
-                '<span class="tone2">来</span>'
-                '<span class="tone4">上</span>'
-                '<span class="tone3">海</span>'
-                '<span class="tone3">旅</span>'
-                '<span class="tone2">游</span>。'
+                '<span class="tone4">次</span>。'
             ),
+        )
+
+    def test_truncated_hanzi(self):
+        """Given truncated hanzi, should still highlight correctly."""
+        self.assertEqual(
+            colorize_fuse(['图', '书'], ['tú', 'shū', 'guǎn']),
+            '<span class="tone2">图</span><span class="tone1">书</span>',
+        )
+
+    def test_truncated_transcript(self):
+        """Given truncated transcription, should truncate hanzi."""
+        self.assertEqual(
+            colorize_fuse(['图', '书', '馆'], ['tú', 'shū']),
+            '<span class="tone2">图</span><span class="tone1">书</span>',
         )
 
     def test_mixed_english_chinese(self):
         self.assertEqual(
-            colorize_fuse('Brian的', 'Brian de'),
+            colorize_fuse(['Brian', '的'], ['Brian', 'de']),
             '<span class="tone5">Brian</span><span class="tone5">的</span>',
         )

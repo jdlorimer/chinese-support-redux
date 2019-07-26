@@ -1,5 +1,5 @@
 # Copyright © 2012 Thomas TEMPÉ <thomas.tempe@alysse.org>
-# Copyright © 2017-2019 Joseph Lorimer <luoliyan@posteo.net>
+# Copyright © 2017-2019 Joseph Lorimer <joseph@lorimer.me>
 #
 # This file is part of Chinese Support Redux.
 #
@@ -58,55 +58,58 @@ def is_sentence(s):
     return False
 
 
-def transcribe(words, target=None, only_one=True):
+def transcribe(words, target, only_one=True):
     assert isinstance(words, list)
+
+    if target == 'pinyin':
+        prefer_tw = False
+    elif target in ['pinyin_tw', 'bopomofo']:
+        prefer_tw = True
+    elif target != 'jyutping':
+        raise NotImplementedError(target)
 
     transcribed = []
 
     if not list(filter(has_hanzi, words)):
         return transcribed
 
-    if not target:
-        target = config['transcription']
-
     for text in words:
         text = cleanup(text)
+
         if not has_hanzi(text):
             transcribed.append(text)
             continue
-        if target == 'Pinyin':
-            transcribed.append(dictionary.get_pinyin(text, taiwan=False))
-        elif target == 'Pinyin (Taiwan)':
-            transcribed.append(dictionary.get_pinyin(text, taiwan=True))
-        elif target == 'Cantonese':
-            transcribed.append(dictionary.get_cantonese(text, only_one))
-        elif target == 'Bopomofo':
-            r = dictionary.get_pinyin(text, taiwan=True)
-            transcribed.extend(bopomofo([r]))
+
+        if target in ['pinyin', 'pinyin_tw', 'bopomofo']:
+            s = dictionary.get_pinyin(text, prefer_tw)
+        elif target == 'jyutping':
+            s = dictionary.get_cantonese(text, only_one)
+
+        if target == 'bopomofo':
+            transcribed.extend(bopomofo([s]))
         else:
-            transcribed.append('')
+            transcribed.append(s)
 
     return convert_punc(transcribed)
 
 
-def transcribe_char(hanzi, method=None):
-    if not method:
-        method = config['transcription']
-    if method == 'Pinyin':
+def transcribe_char(hanzi, target):
+    if target == 'pinyin':
         return dictionary.get_pinyin(hanzi)
-    if method == 'Pinyin (Taiwan)':
-        return dictionary.get_pinyin(hanzi, taiwan=True)
-    if method == 'Cantonese':
+    if target == 'pinyin_tw':
+        return dictionary.get_pinyin(hanzi, prefer_tw=True)
+    if target == 'jyutping':
         return dictionary.get_cantonese(hanzi)
-    if method == 'Bopomofo':
-        return bopomofo(dictionary.get_pinyin(hanzi, taiwan=True))
-    return ''
+    if target == 'bopomofo':
+        return bopomofo(dictionary.get_pinyin(hanzi, prefer_tw=True))
+
+    raise NotImplementedError(target)
 
 
-def accentuate(syllables):
+def accentuate(syllables, target):
     assert isinstance(syllables, list)
 
-    if config['transcription'] not in ['Pinyin', 'Pinyin (Taiwan)']:
+    if target not in ['pinyin', 'pinyin_tw']:
         return syllables
 
     def _accentuate(p):
@@ -145,7 +148,7 @@ def replace_tone_marks(pinyin):
     result = []
     for bottom, top in separate_ruby(pinyin):
         a = []
-        for syllable in split_transcript(top, grouped=False):
+        for syllable in split_transcript(top, target='pinyin', grouped=False):
             s = get_tone_number_pinyin(syllable)
             if bottom:
                 s = f'{bottom}[{s}]'
@@ -183,8 +186,11 @@ def get_tone_number_pinyin(syllable):
     return normalize('NFC', s + tone)
 
 
-def split_transcript(transcript, grouped=True):
+def split_transcript(transcript, target, grouped=True):
     assert isinstance(transcript, str)
+
+    if target not in ['pinyin', 'pinyin_tw', 'jyutping']:
+        raise NotImplementedError(target)
 
     def _clean(t):
         if t.startswith("'"):
@@ -197,11 +203,10 @@ def split_transcript(transcript, grouped=True):
     separated = []
 
     for text in split(not_pinyin_regex, transcript):
-        if config['transcription'] in ['Pinyin', 'Pinyin (Taiwan)']:
+        if target in ['pinyin', 'pinyin_tw']:
             text = pinyin_split_regex.sub(_split, text)
             text = pinyin_split_regex.sub(_split, text)
-
-        if config['transcription'] in ['Cantonese']:
+        elif target == 'jyutping':
             text = jyutping_split_regex.sub(_split, text)
             text = jyutping_split_regex.sub(_split, text)
 
@@ -247,7 +252,10 @@ def no_tone(text):
     return sub(r'([a-zü]+)%s' % tone_number_regex, r'\1', text)
 
 
-def sanitize_transcript(transcript, grouped=False):
+def sanitize_transcript(transcript, target, grouped=False):
     return ' '.join(
-        accentuate(split_transcript(cleanup(no_color(transcript)), grouped))
+        accentuate(
+            split_transcript(cleanup(no_color(transcript)), target, grouped),
+            target,
+        )
     ).split()

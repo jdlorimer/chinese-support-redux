@@ -1,6 +1,6 @@
 # Copyright © 2013 Chris Hatch <foonugget@gmail.com>
 # Copyright © 2014 Thomas TEMPÉ <thomas.tempe@alysse.org>
-# Copyright © 2017-2019 Joseph Lorimer <luoliyan@posteo.net>
+# Copyright © 2017-2019 Joseph Lorimer <joseph@lorimer.me>
 #
 # This file is part of Chinese Support Redux.
 #
@@ -215,7 +215,7 @@ def bulk_fill_defs():
             <b>Translated:</b> %(filled)d<br>
             <b>Failed:</b> %(failed)d'''
 
-    field_groups = ['meaning', 'english', 'german', 'french']
+    field_groups = ['english', 'german', 'french']
 
     if not askUser(prompt):
         return
