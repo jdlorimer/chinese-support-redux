@@ -26,16 +26,9 @@ from .util import hide, no_color
 
 
 def ruby(words, target):
-    """Convert hanzi to ruby notation.
-
-    For use with {{Ruby:fieldname}} on the card template.
-    """
-
-    from .transcribe import transcribe_char
-
     assert isinstance(words, list)
 
-    if target not in ['pinyin', 'bopomofo']:
+    if target not in ['pinyin', 'bopomofo', 'jyutping']:
         raise NotImplementedError(target)
 
     rubified = []
@@ -45,14 +38,19 @@ def ruby(words, target):
 
         def insert_multiple_pinyin_sub(p):
             hanzi = p.group(1)
-            t = dictionary.get_pinyin(hanzi)
+            if target in ['pinyin', 'bopomofo']:
+                t = dictionary.get_pinyin(hanzi)
+            elif target == 'jyutping':
+                t = dictionary.get_cantonese(hanzi)
+
             if not t:
                 return p.group()
+
             t = t.split(' ')
             s = ''
             hanzi = p.group(1)
             while hanzi:
-                if target == 'pinyin':
+                if target in ['pinyin', 'jyutping']:
                     s += hanzi[0] + '[' + t.pop(0) + ']'
                 elif target == 'bopomofo':
                     s += hanzi[0] + '['
@@ -60,17 +58,8 @@ def ruby(words, target):
                 hanzi = hanzi[1:]
             return s + p.group(2)
 
-        def insert_pinyin_sub(p):
-            t = transcribe_char(p.group(1), target)
-            return p.group(1) + '[' + t + ']' + p.group(2)
-
         text += '%'
-        if target in ['pinyin', 'bopomofo']:
-            text = sub(
-                r'(%s+)([^[])' % hanzi_regex, insert_multiple_pinyin_sub, text
-            )
-        text = sub(r'(%s)([^[])' % hanzi_regex, insert_pinyin_sub, text)
-        text = sub(r'(%s)([^[])' % hanzi_regex, insert_pinyin_sub, text)
+        text = sub(f'({hanzi_regex}+)([^[])', insert_multiple_pinyin_sub, text)
         text = text[:-1]
         rubified.append(text)
 

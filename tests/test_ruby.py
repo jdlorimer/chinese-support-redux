@@ -31,11 +31,6 @@ class Ruby(Base):
             ruby(['图', '书', '馆'], 'pinyin'), ['图[tú]', '书[shū]', '馆[guǎn]']
         )
 
-    def test_(self):
-        self.assertEqual(
-            ruby(['加拿大人'], 'bopomofo'), ['加[ㄐㄧㄚ]拿[ㄋㄚˊ]大[ㄉㄚˋ]人[ㄖㄣˊ]']
-        )
-
     def test_ruby_top(self):
         self.assertEqual(ruby_top('汉[hàn]字[zì]'), 'hàn zì')
         self.assertEqual(ruby_top('hànzì'), 'hànzì')
@@ -49,12 +44,21 @@ class Ruby(Base):
     def test_bopomofo(self):
         self.assertEqual(ruby(['機場'], 'bopomofo'), ['機[ㄐㄧ]場[ㄔㄤˇ]'])
         self.assertEqual(ruby(['機', '場'], 'bopomofo'), ['機[ㄐㄧ]', '場[ㄔㄤˊ]'])
+        self.assertEqual(
+            ruby(['加拿大人'], 'bopomofo'), ['加[ㄐㄧㄚ]拿[ㄋㄚˊ]大[ㄉㄚˋ]人[ㄖㄣˊ]']
+        )
 
     def test_bopomofo_punc(self):
         self.assertEqual(ruby(['機場。'], 'bopomofo'), ['機[ㄐㄧ]場[ㄔㄤˇ]。'])
         self.assertEqual(
             ruby(['機', '場', '。'], 'bopomofo'), ['機[ㄐㄧ]', '場[ㄔㄤˊ]', '。']
         )
+
+    def test_jyutping_available(self):
+        self.assertEqual(ruby(['中學'], 'jyutping'), ['中[zung1]學[hok6]'])
+
+    def test_jyutping_not_available(self):
+        self.assertEqual(ruby(['欣然'], 'jyutping'), ['欣然'])
 
 
 class SeparateRuby(Base):
