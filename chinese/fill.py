@@ -134,7 +134,7 @@ def bulk_fill_sound():
         msg += (
             'TTS is taken from an online source. '
             'It may not always be fully responsive. '
-            'Please check your network connexion, or retry later.'
+            'Please check your network connection, or retry later.'
         )
     showInfo(msg)
 
