@@ -17,9 +17,10 @@
 # Chinese Support Redux.  If not, see <https://www.gnu.org/licenses/>.
 
 from .color import colorize, colorize_dict, colorize_fuse
+from .freq import lookup_frequency
 from .hanzi import get_silhouette, get_simp, get_trad, split_hanzi
 from .main import config, dictionary
-from .sound import no_sound, sound
+from .sound import sound
 from .transcribe import (
     accentuate,
     no_tone,
@@ -55,7 +56,6 @@ def fill_classifier(hanzi, note):
         set_all(config['fields']['classifier'], note, to=text)
         filled = True
     return filled
-
 
 def get_alt(hanzi, note):
     alts = dictionary.get_variants(hanzi)
@@ -195,7 +195,7 @@ def fill_color(hanzi, note):
         raise NotImplementedError(config['target'])
 
     field = get_first(config['fields'][field_group], note)
-    trans = sanitize_transcript(no_sound(field), target, grouped=False)
+    trans = sanitize_transcript(field, target, grouped=False)
     trans = split_transcript(' '.join(trans), target, grouped=False)
     hanzi = split_hanzi(cleanup(hanzi), grouped=False)
     colorized = colorize_fuse(hanzi, trans)
@@ -238,6 +238,15 @@ def fill_trad(hanzi, note):
         set_all(config['fields']['traditional'], note, to='')
 
 
+def fill_frequency(hanzi, note):
+    if not get_first(config['fields']['frequency'], note) == '':
+        return
+
+    s = get_simp(hanzi)
+    f = lookup_frequency(s)
+    set_all(config['fields']['frequency'], note, to=f)
+
+
 def fill_ruby(hanzi, note, trans_group, ruby_group):
     if trans_group == 'bopomofo':
         trans = flatten(
@@ -275,7 +284,7 @@ def fill_all_rubies(hanzi, note):
 
 def update_fields(note, focus_field, fields):
     copy = dict(note)
-    hanzi = no_sound(cleanup(get_first(config['fields']['hanzi'], copy)))
+    hanzi = cleanup(get_first(config['fields']['hanzi'], copy))
 
     transcript_fields = (
         config['fields']['pinyin']
@@ -297,6 +306,7 @@ def update_fields(note, focus_field, fields):
             fill_sound(hanzi, copy)
             fill_simp(hanzi, copy)
             fill_trad(hanzi, copy)
+            fill_frequency(hanzi, copy)
             fill_all_rubies(hanzi, copy)
             fill_silhouette(hanzi, copy)
         else:
