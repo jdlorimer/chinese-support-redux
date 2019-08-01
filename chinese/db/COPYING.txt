@@ -4,7 +4,7 @@ The chinese.db database was created by aggregating the following sources.
 #########################
 This database contains an extract of the Unihan database
 
- © 2018 Unicode®, Inc.  For terms of use, see http://www.unicode.org/terms_of_use.html 
+ © 2019 Unicode®, Inc.  For terms of use, see http://www.unicode.org/terms_of_use.html 
 
 #########################
 This database contains an extract of CC-CEDICT
@@ -34,11 +34,11 @@ This database contains an extract of CC-CEDICT
 #! subversion=0
 #! format=ts
 #! charset=UTF-8
-#! entries=116899
+#! entries=117198
 #! publisher=MDBG
 #! license=https://creativecommons.org/licenses/by-sa/4.0/
-#! date=2019-04-14T03:57:11Z
-#! time=1555214231
+#! date=2019-08-01T05:47:17Z
+#! time=1564638437
 
 
 #########################
@@ -60,8 +60,8 @@ This database contains an extract of CFDICT
 # CFDICT, le dictionnaire chinois-francais libre 
 # par Chine Informations (Depuis 2010)
 #	
-# - Version : 14/04/2019 02:30 
-# - Nombre de traductions : environ 51 278
+# - Version : 01/08/2019 02:30 
+# - Nombre de traductions : environ 51 733
 #	
 # - Fondateur : David Houstin - david.houstin@chine-informations.com
 # - Page officielle : https://chine.in/mandarin/dictionnaire/CFDICT/

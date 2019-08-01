@@ -55,6 +55,8 @@ WORD_COLS = [
     'french',
 ]
 
+TO_LOWER = ['pinyin', 'pinyin_tw', 'jyutping']
+
 # JyutDict (zhongwenlearner.com)
 # CC-ChEDICC (cc-chedicc.wikispaces.com)
 
@@ -105,7 +107,10 @@ def download(info):
 def populate_words():
     conn = connect(DB_PATH)
     c = conn.cursor()
-    c.execute('CREATE TABLE cidian (%s)' % ', '.join(WORD_COLS))
+    c.execute(
+        'CREATE TABLE cidian (%s, PRIMARY KEY(traditional, pinyin))'
+        % ', '.join(WORD_COLS)
+    )
     c.execute('CREATE INDEX isimplified ON cidian (simplified)')
     c.execute(
         'CREATE UNIQUE INDEX itraditional ON cidian (traditional, pinyin)'
@@ -153,6 +158,10 @@ def get_cedict_entries(info):
 
 
 def process_entry(new, cursor):
+    for k, v in new.items():
+        if k in TO_LOWER:
+            new[k] = v.lower()
+
     try:
         cursor.execute(
             'INSERT INTO cidian ({}) VALUES ({})'.format(
@@ -181,17 +190,14 @@ def process_entry(new, cursor):
             'WHERE traditional=? AND pinyin=?',
             (new['traditional'], new['pinyin']),
         )
-        english, german, french, = cursor.fetchone()
-        old = {
-            'english': english,
-            'german': german,
-            'french': french,
-        }
+        english, german, french = cursor.fetchone()
+        old = {'english': english, 'german': german, 'french': french}
         for k in old:
             if k in new:
                 new[k] = merge_defs(old[k], new[k])
             else:
                 new[k] = old[k]
+
         cursor.execute(
             'UPDATE cidian '
             'SET english=?, german=?, french=? '
