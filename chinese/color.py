@@ -21,9 +21,10 @@ from re import IGNORECASE, sub
 from .consts import (
     COLOR_RUBY_TEMPLATE,
     COLOR_TEMPLATE,
-    pinyin_regex,
     half_ruby_regex,
     HANZI_RANGE,
+    jyutping_regex,
+    pinyin_regex,
     ruby_regex,
 )
 from .hanzi import split_hanzi
@@ -32,7 +33,7 @@ from .transcribe import tone_number, sanitize_transcript
 from .util import align, is_punc, no_color
 
 
-def colorize(words, ruby_whole=False):
+def colorize(words, target='pinyin', ruby_whole=False):
     from .ruby import has_ruby
 
     assert isinstance(words, list)
@@ -42,7 +43,7 @@ def colorize(words, ruby_whole=False):
             t=tone_number(p.group(2)), r=p.group()
         )
 
-    def colorize_pinyin_sub(text, pattern):
+    def colorize_trans_sub(text, pattern):
         def repl(p):
             return '<span class="tone{t}">{r}</span>'.format(
                 t=tone_number(p.group(1)), r=p.group()
@@ -62,9 +63,13 @@ def colorize(words, ruby_whole=False):
             if ruby_whole:
                 text = sub(ruby_regex, colorize_ruby_sub, text, IGNORECASE)
             else:
-                text = colorize_pinyin_sub(text, half_ruby_regex)
+                text = colorize_trans_sub(text, half_ruby_regex)
+        elif target == 'pinyin':
+            text = colorize_trans_sub(text, pinyin_regex)
+        elif target == 'jyutping':
+            text = colorize_trans_sub(text, jyutping_regex)
         else:
-            text = colorize_pinyin_sub(text, pinyin_regex)
+            raise NotImplementedError(target)
 
         colorized.append(text + sound_tags)
 

@@ -38,3 +38,6 @@ class Dictionary(Base):
 
     def test_variants(self):
         self.assertEqual(D().get_variants('阿斯匹林'), ['阿司匹林'])
+
+    def test_jyutping(self):
+        self.assertEqual(D().get_cantonese('上海人'), 'soeng6 hoi2 jan4')

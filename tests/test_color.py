@@ -42,7 +42,8 @@ class TestColorize(Base):
             colorize(['你[nǐ]']), '你[<span class="tone3">nǐ</span>]'
         )
         self.assertEqual(
-            colorize(['你[nǐ]'], True), '<span class="tone3">你[nǐ]</span>'
+            colorize(['你[nǐ]'], ruby_whole=True),
+            '<span class="tone3">你[nǐ]</span>',
         )
 
     def test_bopomofo(self):
@@ -59,6 +60,14 @@ class TestColorize(Base):
         self.assertEqual(
             colorize(['Brian de']),
             '<span class="tone5">Brian</span><span class="tone5">de</span>',
+        )
+
+    def test_cantonese(self):
+        self.assertEqual(
+            colorize(['soeng6 hoi2 jan4'], 'jyutping'),
+            '<span class="tone6">soeng6</span>'
+            '<span class="tone2">hoi2</span>'
+            '<span class="tone4">jan4</span>',
         )
 
 

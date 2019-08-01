@@ -128,6 +128,16 @@ class Transcribe(Base):
             ['nǐ', 'shén me', 'shí hou', 'néng', 'lái', '？'],
         )
 
+    def test_jyutping_words(self):
+        self.assertEqual(transcribe(['上海'], 'jyutping'), [None])
+        self.assertEqual(transcribe(['上海人'], 'jyutping'), ['soeng6 hoi2 jan4'])
+
+    def test_jyutping_sentence(self):
+        self.assertEqual(
+            transcribe(['對唔住', '，', '我', '唔係', '李', '太'], 'jyutping'),
+            ['deoi3 m4 zyu6', ',', None, 'm4 hai6', 'lei5', 'taai3'],
+        )
+
 
 class ReplaceToneMarks(Base):
     def test_split_syllables(self):

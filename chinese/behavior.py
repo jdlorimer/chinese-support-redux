@@ -108,13 +108,13 @@ def fill_transcript(hanzi, note):
     n_filled = 0
     separated = split_hanzi(hanzi)
 
-    for key, target, func, only_one in [
-        ('pinyin', 'pinyin', format_pinyin, True),
-        ('pinyinTaiwan', 'pinyin_tw', format_taiwan_pinyin, True),
-        ('cantonese', 'jyutping', format_cantonese, False),
+    for key, target, func in [
+        ('pinyin', 'pinyin', format_pinyin),
+        ('pinyinTaiwan', 'pinyin_tw', format_taiwan_pinyin),
+        ('cantonese', 'jyutping', format_cantonese),
     ]:
         if get_first(config['fields'][key], note) == '':
-            trans = colorize(transcribe(separated, target, only_one))
+            trans = colorize(transcribe(separated, target))
             trans = hide(trans, no_tone(trans))
             set_all(config['fields'][key], note, to=trans)
             n_filled += 1

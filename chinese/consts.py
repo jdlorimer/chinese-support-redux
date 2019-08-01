@@ -63,6 +63,8 @@ not_pinyin_regex = (
     f'([^A-Za-zü{BOPOMOFO_RANGE}{accents}{CMN_TONE_NUMBERS}ˊˇˋ˙])'
 )
 
+jyutping_regex = f'([abcdefghijklmnopstuwyz]+[{YUE_TONE_NUMBERS}])'
+
 TRANSCRIPT_SPLIT_TEMPLATE_BASE = (
     '(({initials})({finals})[{tones}]?|({standalones})[{tones}]?)'
 )

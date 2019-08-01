@@ -58,7 +58,7 @@ def is_sentence(s):
     return False
 
 
-def transcribe(words, target, only_one=True):
+def transcribe(words, target):
     assert isinstance(words, list)
 
     if target == 'pinyin':
@@ -83,7 +83,7 @@ def transcribe(words, target, only_one=True):
         if target in ['pinyin', 'pinyin_tw', 'bopomofo']:
             s = dictionary.get_pinyin(text, prefer_tw)
         elif target == 'jyutping':
-            s = dictionary.get_cantonese(text, only_one)
+            s = dictionary.get_cantonese(text)
 
         if target == 'bopomofo':
             transcribed.extend(bopomofo([s]))

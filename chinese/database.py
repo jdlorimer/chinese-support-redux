@@ -67,7 +67,15 @@ class Dictionary:
             return ' '.join(
                 accentuate(list(map(str.lower, s.split())), 'pinyin')
             )
-        return None
+
+    def _get_word_jyutping(self, word):
+        query = """SELECT jyutping FROM cidian
+                   WHERE (traditional=? OR simplified=?) """
+        self.c.execute(query, (word, word))
+        res = self.c.fetchone()
+        if not res:
+            return None
+        return res[0]
 
     def get_pinyin(self, word, prefer_tw=False, word_len=4):
         p = self._get_word_pinyin(word, prefer_tw)
@@ -108,19 +116,8 @@ class Dictionary:
                 word = word[1:]
         return result
 
-    def get_cantonese(self, word, only_one=True):
-        canto = ''
-        for c in word:
-            result = self._get_char(c, 'canto')
-            if result:
-                if only_one:
-                    result = result.split(' ')[0]
-                else:
-                    result = result.replace(' ', '|')
-                canto = add_with_space(canto, result)
-            else:
-                canto += c
-        return canto
+    def get_cantonese(self, word):
+        return self._get_word_jyutping(word)
 
     def get_traditional(self, word, word_len=4):
         return self.get_word(word, word_len, type_='trad')
