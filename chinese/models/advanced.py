@@ -7,16 +7,19 @@ from .css import style
 
 fields_list = [
     'Hanzi',
-    'English',
-    'Reading',
     'Color',
+    'Pinyin',
+    'Bopomofo',
+    'Ruby',
+    'Ruby (Bopomofo)',
+    'English',
     'Classifier',
-    'Sound',
     'Simplified',
     'Traditional',
     'Also Written',
-    'Ruby',
-    'Silhouette'
+    'Frequency',
+    'Silhouette',
+    'Sound',
 ]
 
 recognition_front = '''\
@@ -30,7 +33,7 @@ recall_front = '''\
 
 <div>{{English}}</div>
 <div>{{Silhouette}}</div>
-<div class=hint>{{hint_transcription:Reading}}</div>
+<div class=hint>{{hint_transcription:Pinyin}}</div>
 '''
 
 card_back = '''\
@@ -38,7 +41,7 @@ card_back = '''\
 
 <div class=answer>
 <div>{{English}}</div>
-<div class=reading>{{Reading}}</div>
+<div class=reading>{{Pinyin}}</div>
 <div class=chinese>{{Color}}</div>
 {{#Simplified}}<div class=chinese><span class=comment>Simplified:</span> {{Simplified}}</div>{{/Simplified}}
 {{#Traditional}}<div class=chinese><span class=comment>Traditional:</span> {{Traditional}}</div>{{/Traditional}}

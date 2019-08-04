@@ -15,7 +15,6 @@
 # You should have received a copy of the GNU General Public License along with
 # Chinese Support Redux.  If not, see <https://www.gnu.org/licenses/>.
 
-from unittest import skip
 from unittest.mock import MagicMock, patch
 
 from chinese.behavior import (
@@ -234,7 +233,6 @@ class FillBopomofo(Base):
         )
 
 
-@skip
 class UpdateFields(Base):
     def test_all(self):
         class Note(dict):

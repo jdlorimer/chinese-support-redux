@@ -46,11 +46,6 @@ class SplitTranscript(Base):
     def test_tone_mark(self):
         self.assertEqual(split_transcript('xiànzài', 'pinyin'), ['xiàn zài'])
 
-    def test_(self):
-        self.assertEqual(
-            split_transcript('chuángdān', 'pinyin'), ['chuáng dān']
-        )
-
     def test_tone_number(self):
         self.assertEqual(
             split_transcript('xian4zai4', 'pinyin'), ['xian4 zai4']
@@ -98,6 +93,11 @@ class SplitTranscript(Base):
         self.assertEqual(split_transcript("xiá ài", 'pinyin'), ['xiá', 'ài'])
         self.assertEqual(split_transcript("xiá'ài", 'pinyin'), ['xiá ài'])
         self.assertEqual(split_transcript("xiáài", 'pinyin'), ['xiá ài'])
+
+    def test_regression_1(self):
+        self.assertEqual(
+            split_transcript('chuángdān', 'pinyin'), ['chuáng dān']
+        )
 
 
 class Transcribe(Base):

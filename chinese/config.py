@@ -18,12 +18,23 @@
 # Chinese Support Redux.  If not, see <https://www.gnu.org/licenses/>.
 
 from collections import defaultdict
+from json import load
+from os.path import dirname, join, realpath
 
 from aqt import mw
 
 
 class ConfigManager:
-    config = defaultdict(str, mw.addonManager.getConfig(__name__))
+    config_path = join(dirname(realpath(__file__)), 'config.json')
+    config_saved = defaultdict(str, mw.addonManager.getConfig(__name__))
+
+    with open(config_path, encoding='utf-8') as f:
+        config_default = defaultdict(str, load(f))
+
+    if config_saved['version'] == config_default['version']:
+        config = config_saved
+    else:
+        config = config_default
 
     def __setitem__(self, key, value):
         self.config[key] = value

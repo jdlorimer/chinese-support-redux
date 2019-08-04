@@ -5,7 +5,7 @@
 
 from .css import style
 
-fields_list = ['Hanzi',  'English', 'Reading', 'Color', 'Sound']
+fields_list = ['Hanzi', 'Color', 'Pinyin', 'English', 'Sound']
 
 recognition_front = '''\
 <div class=tags>{{Deck}} {{#Tags}} -- {{/Tags}}{{Tags}}</div>
@@ -23,7 +23,7 @@ card_back = '''\
 <div class=tags>{{Deck}} {{#Tags}} -- {{/Tags}}{{Tags}}</div>
 
 <div>{{English}}</div>
-<div class=reading>{{Reading}}</div>
+<div class=reading>{{Pinyin}}</div>
 <div class=chinese>{{Color}}</div>
 <!-- {{Sound}}-->
 '''
