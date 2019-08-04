@@ -101,40 +101,48 @@ class SplitTranscript(Base):
 
 class Transcribe(Base):
     def test_single_word(self):
-        self.assertEqual(transcribe(['你'], 'pinyin'), ['nǐ'])
+        self.assertEqual(transcribe(['你'], 'pinyin', 'simp'), ['nǐ'])
 
     def test_multiple_words(self):
-        self.assertEqual(transcribe(['图书', '馆'], 'pinyin'), ['tú shū', 'guǎn'])
+        self.assertEqual(
+            transcribe(['图书', '馆'], 'pinyin', 'simp'), ['tú shū', 'guǎn']
+        )
 
     def test_no_chinese(self):
-        self.assertEqual(transcribe(['foo'], 'pinyin'), [])
+        self.assertEqual(transcribe(['foo'], 'pinyin', 'simp'), [])
 
     def test_mixed_english_chinese(self):
-        self.assertEqual(transcribe(['foo', '你'], 'pinyin'), ['foo', 'nǐ'])
-        self.assertEqual(transcribe(['Brian的'], 'pinyin'), ['Brian de'])
+        self.assertEqual(
+            transcribe(['foo', '你'], 'pinyin', 'simp'), ['foo', 'nǐ']
+        )
+        self.assertEqual(
+            transcribe(['Brian的'], 'pinyin', 'simp'), ['Brian de']
+        )
 
     def test_bopomofo(self):
-        self.assertEqual(transcribe(['你'], 'bopomofo'), ['ㄋㄧˇ'])
+        self.assertEqual(transcribe(['你'], 'bopomofo', 'trad'), ['ㄋㄧˇ'])
 
     def test_punctuation_retained_converted(self):
         self.assertEqual(
-            transcribe(['没有', '，', '没有', '。'], 'pinyin'),
+            transcribe(['没有', '，', '没有', '。'], 'pinyin', 'simp'),
             ['méi yǒu', ',', 'méi yǒu', '.'],
         )
 
     def test_grouped_chars(self):
         self.assertEqual(
-            transcribe(['你', '什么', '时候', '能', '来', '？'], 'pinyin'),
+            transcribe(['你', '什么', '时候', '能', '来', '？'], 'pinyin', 'simp'),
             ['nǐ', 'shén me', 'shí hou', 'néng', 'lái', '？'],
         )
 
     def test_jyutping_words(self):
-        self.assertEqual(transcribe(['上海'], 'jyutping'), [None])
-        self.assertEqual(transcribe(['上海人'], 'jyutping'), ['soeng6 hoi2 jan4'])
+        self.assertEqual(transcribe(['上海'], 'jyutping', 'trad'), [None])
+        self.assertEqual(
+            transcribe(['上海人'], 'jyutping', 'trad'), ['soeng6 hoi2 jan4']
+        )
 
     def test_jyutping_sentence(self):
         self.assertEqual(
-            transcribe(['對唔住', '，', '我', '唔係', '李', '太'], 'jyutping'),
+            transcribe(['對唔住', '，', '我', '唔係', '李', '太'], 'jyutping', 'trad'),
             ['deoi3 m4 zyu6', ',', None, 'm4 hai6', 'lei5', 'taai3'],
         )
 

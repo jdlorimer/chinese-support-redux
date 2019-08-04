@@ -38,10 +38,12 @@ def ruby(words, target):
 
         def insert_multiple_pinyin_sub(p):
             hanzi = p.group(1)
-            if target in ['pinyin', 'bopomofo']:
-                t = dictionary.get_pinyin(hanzi)
+            if target == 'pinyin':
+                t = dictionary.get_pinyin(hanzi, 'simp')
+            if target == 'bopomofo':
+                t = dictionary.get_pinyin(hanzi, 'trad')
             elif target == 'jyutping':
-                t = dictionary.get_cantonese(hanzi)
+                t = dictionary.get_cantonese(hanzi, 'trad')
 
             if not t:
                 return p.group()

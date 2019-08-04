@@ -57,6 +57,7 @@ def fill_classifier(hanzi, note):
         filled = True
     return filled
 
+
 def get_alt(hanzi, note):
     alts = dictionary.get_variants(hanzi)
     alt = ', '.join(colorize_dict(a) for a in alts)
@@ -108,13 +109,13 @@ def fill_transcript(hanzi, note):
     n_filled = 0
     separated = split_hanzi(hanzi)
 
-    for key, target, func in [
-        ('pinyin', 'pinyin', format_pinyin),
-        ('pinyinTaiwan', 'pinyin_tw', format_taiwan_pinyin),
-        ('cantonese', 'jyutping', format_cantonese),
+    for key, target, func, type_ in [
+        ('pinyin', 'pinyin', format_pinyin, 'simp'),
+        ('pinyinTaiwan', 'pinyin_tw', format_taiwan_pinyin, 'trad'),
+        ('cantonese', 'jyutping', format_cantonese, 'trad'),
     ]:
         if get_first(config['fields'][key], note) == '':
-            trans = colorize(transcribe(separated, target))
+            trans = colorize(transcribe(separated, target, type_))
             trans = hide(trans, no_tone(trans))
             set_all(config['fields'][key], note, to=trans)
             n_filled += 1
@@ -174,7 +175,7 @@ def fill_bopomofo(hanzi, note):
         syllables = cleanup(field).split()
         n_filled = 0
     else:
-        syllables = transcribe(split_hanzi(hanzi), 'bopomofo')
+        syllables = transcribe(split_hanzi(hanzi), 'bopomofo', 'trad')
         n_filled = 1
 
     text = colorize(syllables)
@@ -251,7 +252,9 @@ def fill_ruby(hanzi, note, trans_group, ruby_group):
     if trans_group == 'bopomofo':
         trans = flatten(
             s.split()
-            for s in transcribe(split_hanzi(hanzi, grouped=True), 'bopomofo')
+            for s in transcribe(
+                split_hanzi(hanzi, grouped=True), 'bopomofo', 'trad'
+            )
         )
     elif trans_group in ['pinyin', 'pinyinTaiwan']:
         field = get_first(config['fields'][trans_group], note)

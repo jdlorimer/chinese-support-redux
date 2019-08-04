@@ -58,7 +58,7 @@ def is_sentence(s):
     return False
 
 
-def transcribe(words, target):
+def transcribe(words, target, type_):
     assert isinstance(words, list)
 
     if target == 'pinyin':
@@ -81,9 +81,9 @@ def transcribe(words, target):
             continue
 
         if target in ['pinyin', 'pinyin_tw', 'bopomofo']:
-            s = dictionary.get_pinyin(text, prefer_tw)
+            s = dictionary.get_pinyin(text, type_, prefer_tw)
         elif target == 'jyutping':
-            s = dictionary.get_cantonese(text)
+            s = dictionary.get_cantonese(text, type_)
 
         if target == 'bopomofo':
             transcribed.extend(bopomofo([s]))
@@ -93,15 +93,15 @@ def transcribe(words, target):
     return convert_punc(transcribed)
 
 
-def transcribe_char(hanzi, target):
+def transcribe_char(hanzi, target, type_):
     if target == 'pinyin':
-        return dictionary.get_pinyin(hanzi)
+        return dictionary.get_pinyin(hanzi, type_)
     if target == 'pinyin_tw':
-        return dictionary.get_pinyin(hanzi, prefer_tw=True)
+        return dictionary.get_pinyin(hanzi, type_, prefer_tw=True)
     if target == 'jyutping':
-        return dictionary.get_cantonese(hanzi)
+        return dictionary.get_cantonese(hanzi, type_)
     if target == 'bopomofo':
-        return bopomofo(dictionary.get_pinyin(hanzi, prefer_tw=True))
+        return bopomofo(dictionary.get_pinyin(hanzi, type_, prefer_tw=True))
 
     raise NotImplementedError(target)
 

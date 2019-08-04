@@ -138,6 +138,16 @@ class FillTranscript(Base):
             '<!-- Brian de -->',
         )
 
+    def test_(self):
+        note = dict.fromkeys(['Pinyin'], '')
+        fill_transcript('分享', note)
+        self.assertEqual(
+            note['Pinyin'],
+            '<span class="tone1">fēn</span>'
+            '<span class="tone3">xiǎng</span> '
+            '<!-- fen xiang -->',
+        )
+
 
 class FillBopomofo(Base):
     expected = (

@@ -38,18 +38,22 @@ class Dictionary:
         )
         self.conn.commit()
 
-    def _get_word_pinyin(self, word, prefer_tw=False, no_variants=True):
+    def _get_word_pinyin(self, word, type_, prefer_tw=False, no_variants=True):
         from .transcribe import accentuate
 
-        query = """SELECT pinyin, pinyin_tw FROM cidian
-                   WHERE (traditional=? OR simplified=?) """
+        if type_ == 'trad':
+            query = 'SELECT pinyin, pinyin_tw FROM cidian WHERE traditional=?'
+        elif type_ == 'simp':
+            query = 'SELECT pinyin, pinyin_tw FROM cidian WHERE simplified=?'
+        else:
+            print(type_)
 
         if no_variants:
             query += """AND (english NOT LIKE '%variant%' OR english IS NULL)
                         AND (german NOT LIKE '%variant%' OR german IS NULL)
                         AND (french NOT LIKE '%variant%' OR french IS NULL)"""
 
-        self.c.execute(query, (word, word))
+        self.c.execute(query, (word,))
         res = self.c.fetchone()
         if not res:
             return None
@@ -68,17 +72,19 @@ class Dictionary:
                 accentuate(list(map(str.lower, s.split())), 'pinyin')
             )
 
-    def _get_word_jyutping(self, word):
-        query = """SELECT jyutping FROM cidian
-                   WHERE (traditional=? OR simplified=?) """
-        self.c.execute(query, (word, word))
+    def _get_word_jyutping(self, word, type_):
+        if type_ == 'trad':
+            query = 'SELECT jyutping FROM cidian WHERE traditional=?'
+        elif type_ == 'simp':
+            query = 'SELECT jyutping FROM cidian WHERE simplified=?'
+        self.c.execute(query, (word,))
         res = self.c.fetchone()
         if not res:
             return None
         return res[0]
 
-    def get_pinyin(self, word, prefer_tw=False, word_len=4):
-        p = self._get_word_pinyin(word, prefer_tw)
+    def get_pinyin(self, word, type_, prefer_tw=False, word_len=4):
+        p = self._get_word_pinyin(word, type_, prefer_tw)
         if p:
             return p
         if len(word) == 1:
@@ -94,7 +100,7 @@ class Dictionary:
             word_was_found = False
 
             while word_len > 1:
-                p = self._get_word_pinyin(word[:word_len], prefer_tw)
+                p = self._get_word_pinyin(word[:word_len], type_, prefer_tw)
                 if p:
                     result = add_with_space(result, p)
                     word = word[word_len:]
@@ -116,8 +122,8 @@ class Dictionary:
                 word = word[1:]
         return result
 
-    def get_cantonese(self, word):
-        return self._get_word_jyutping(word)
+    def get_cantonese(self, word, type_):
+        return self._get_word_jyutping(word, type_)
 
     def get_traditional(self, word, word_len=4):
         return self.get_word(word, word_len, type_='trad')
