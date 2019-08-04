@@ -18,7 +18,7 @@
 
 from re import findall, sub
 
-from .consts import sound_tag_regex
+from .consts import SOUND_TAG_REGEX
 from .hanzi import has_hanzi
 from .main import config
 from .tts import download
@@ -51,11 +51,11 @@ def sound(hanzi, source=None):
 
 
 def extract_tags(text):
-    tags = findall(sound_tag_regex, text)
+    tags = findall(SOUND_TAG_REGEX, text)
     if not tags:
         return text, ''
     return no_sound(text), ''.join(tags)
 
 
 def no_sound(text):
-    return sub(sound_tag_regex, '', text)
+    return sub(SOUND_TAG_REGEX, '', text)

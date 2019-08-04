@@ -16,7 +16,7 @@
 # You should have received a copy of the GNU General Public License along with
 # Chinese Support Redux.  If not, see <https://www.gnu.org/licenses/>.
 
-from .consts import CLOZE
+from .consts import CLOZE_REGEX
 
 from re import DOTALL, sub
 from unicodedata import category
@@ -88,7 +88,7 @@ def cleanup(text):
     text = text.replace('&nbsp;', ' ')
     text = sub(r'^\s*', '', text)
     text = sub(r'\s*$', '', text)
-    text = CLOZE.sub(r'\1', text)
+    text = sub(CLOZE_REGEX, r'\1', text)
     return text
 
 

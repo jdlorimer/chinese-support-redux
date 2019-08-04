@@ -16,16 +16,17 @@
 # You should have received a copy of the GNU General Public License along with
 # Chinese Support Redux.  If not, see <https://www.gnu.org/licenses/>.
 
-from re import IGNORECASE, sub
+from re import IGNORECASE, search, sub
 
 from .consts import (
+    BOPOMOFO_REGEX,
     COLOR_RUBY_TEMPLATE,
     COLOR_TEMPLATE,
-    half_ruby_regex,
+    HALF_RUBY_REGEX,
     HANZI_RANGE,
-    jyutping_regex,
-    pinyin_regex,
-    ruby_regex,
+    JYUTPING_REGEX,
+    PINYIN_REGEX,
+    RUBY_REGEX,
 )
 from .hanzi import split_hanzi
 from .sound import extract_tags
@@ -38,42 +39,42 @@ def colorize(words, target='pinyin', ruby_whole=False):
 
     assert isinstance(words, list)
 
-    def colorize_ruby_sub(p):
-        return '<span class="tone{t}">{r}</span>'.format(
-            t=tone_number(p.group(2)), r=p.group()
+    def _repl(p):
+        return COLOR_TEMPLATE.format(
+            tone=tone_number(p.group(1)), chars=p.group()
         )
 
-    def colorize_trans_sub(text, pattern):
-        def repl(p):
-            return '<span class="tone{t}">{r}</span>'.format(
-                t=tone_number(p.group(1)), r=p.group()
-            )
+    done = []
 
-        colorized = ''
-        for s in text.split():
-            colorized += sub(pattern, repl, s, IGNORECASE)
-        return colorized
+    d = {
+        'pinyin': PINYIN_REGEX,
+        'jyutping': JYUTPING_REGEX,
+        'bopomofo': BOPOMOFO_REGEX,
+    }
 
-    colorized = []
-    for text in words:
-        text = no_color(text)
-        (text, sound_tags) = extract_tags(text)
+    for word in words:
+        (word, sound_tags) = extract_tags(no_color(word))
 
-        if has_ruby(text):
-            if ruby_whole:
-                text = sub(ruby_regex, colorize_ruby_sub, text, IGNORECASE)
-            else:
-                text = colorize_trans_sub(text, half_ruby_regex)
-        elif target == 'pinyin':
-            text = colorize_trans_sub(text, pinyin_regex)
-        elif target == 'jyutping':
-            text = colorize_trans_sub(text, jyutping_regex)
+        if target in d:
+            pattern = d[target]
+            text = ''
+            for syllable in word.split():
+                if search(f'^{pattern}$', syllable):
+                    text += sub(f'^{pattern}$', _repl, syllable, IGNORECASE)
+                elif has_ruby(syllable):
+                    if ruby_whole:
+                        pattern = RUBY_REGEX
+                    else:
+                        pattern = HALF_RUBY_REGEX
+                    text += sub(pattern, _repl, syllable, IGNORECASE)
+                else:
+                    text += f'<span class="tone5">{syllable}</span>'
         else:
             raise NotImplementedError(target)
 
-        colorized.append(text + sound_tags)
+        done.append(text + sound_tags)
 
-    return ' '.join(colorized)
+    return ' '.join(done)
 
 
 def colorize_dict(text):

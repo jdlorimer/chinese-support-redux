@@ -72,16 +72,12 @@ class SplitTranscript(Base):
             ['hěn', 'gāo', 'xìng'],
         )
 
-    @skip
     def test_apostrophe(self):
         self.assertEqual(
             split_transcript("yīlù píng'ān", 'pinyin'), ['yī lù', 'píng ān']
         )
-
-    @skip
-    def test_you_er_yuan(self):
         self.assertEqual(
-            split_transcript("yòu'éryuán", 'pinyin'), ["yòu ér yuán"]
+            split_transcript("yòu'éryuán", 'pinyin'), ['yòu ér yuán']
         )
 
     def test_punctuation(self):
@@ -97,6 +93,11 @@ class SplitTranscript(Base):
             split_transcript('(méi) yǒu', 'pinyin', grouped=False),
             ['(', 'méi', ')', 'yǒu'],
         )
+
+    def test_issue_79(self):
+        self.assertEqual(split_transcript("xiá ài", 'pinyin'), ['xiá', 'ài'])
+        self.assertEqual(split_transcript("xiá'ài", 'pinyin'), ['xiá ài'])
+        self.assertEqual(split_transcript("xiáài", 'pinyin'), ['xiá ài'])
 
 
 class Transcribe(Base):
@@ -193,6 +194,10 @@ class ReplaceToneMarks(Base):
         self.assertEqual(
             replace_tone_marks(['shén', 'yùn']), ['shen2', 'yun4']
         )
+
+    def test_issue_79(self):
+        self.assertEqual(replace_tone_marks(['xiá', 'ài']), ['xia2', 'ai4'])
+        self.assertEqual(replace_tone_marks(['xiáài']), ['xia2 ai4'])
 
 
 class NoTone(Base):

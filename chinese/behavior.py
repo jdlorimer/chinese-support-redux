@@ -178,7 +178,7 @@ def fill_bopomofo(hanzi, note):
         syllables = transcribe(split_hanzi(hanzi), 'bopomofo', 'trad')
         n_filled = 1
 
-    text = colorize(syllables)
+    text = colorize(syllables, 'bopomofo')
     text = hide(text, no_tone(text))
     set_all(config['fields']['bopomofo'], note, to=text)
 

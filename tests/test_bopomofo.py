@@ -25,19 +25,25 @@ class Bopomofo(Base):
         self.assertEqual(bopomofo(['zhu', 'yin']), ['ㄓㄨ˙', 'ㄧㄣ˙'])
         self.assertEqual(bopomofo(['zhuyin']), ['ㄓㄨ˙ ㄧㄣ˙'])
 
-    def test_pinyin_tone_numbers(self):
+    def test_tone_numbers_segmented_joined(self):
         self.assertEqual(
             bopomofo(['ni3', 'ne5', 'ru2guo3 zhu4yin1']),
             ['ㄋㄧˇ', 'ㄋㄜ˙', 'ㄖㄨˊ ㄍㄨㄛˇ ㄓㄨˋ ㄧㄣ'],
         )
 
+    def test_tone_numbers_unsegmented_joined(self):
+        self.assertEqual(bopomofo(['bu4yan2er2yu4']), ['ㄅㄨˋ ㄧㄢˊ ㄦˊ ㄩˋ'])
+
+    def test_tone_numbers_unsegmented_separated(self):
         self.assertEqual(bopomofo(['mei2 you3']), ['ㄇㄟˊ ㄧㄡˇ'])
 
-    def test_pinyin_tone_mark(self):
+    def test_tone_marks_segmented(self):
         self.assertEqual(bopomofo(['zhù', 'yīn']), ['ㄓㄨˋ', 'ㄧㄣ'])
 
-    def test_joined_word(self):
+    def test_tone_marks_unsegmented_joined(self):
         self.assertEqual(bopomofo(['zhùyīn']), ['ㄓㄨˋ ㄧㄣ'])
+        # Regession test for Issue #81
+        self.assertEqual(bopomofo(['bùyánéryù']), ['ㄅㄨˋ ㄧㄢˊ ㄦˊ ㄩˋ'])
 
     def test_pinyin_syllables_a(self):
         self.assertEqual(bopomofo(['ba']), ['ㄅㄚ˙'])

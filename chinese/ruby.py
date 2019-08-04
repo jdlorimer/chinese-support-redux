@@ -19,7 +19,7 @@
 from re import search, sub
 
 from .bopomofo import bopomofo
-from .consts import hanzi_regex
+from .consts import HANZI_REGEX
 from .hanzi import has_hanzi
 from .main import dictionary
 from .util import hide, no_color
@@ -61,7 +61,7 @@ def ruby(words, target):
             return s + p.group(2)
 
         text += '%'
-        text = sub(f'({hanzi_regex}+)([^[])', insert_multiple_pinyin_sub, text)
+        text = sub(f'({HANZI_REGEX}+)([^[])', insert_multiple_pinyin_sub, text)
         text = text[:-1]
         rubified.append(text)
 
@@ -69,7 +69,7 @@ def ruby(words, target):
 
 
 def has_ruby(text):
-    return search(r'%s\[.+\]' % hanzi_regex, text)
+    return search(r'%s\[.+\]' % HANZI_REGEX, text)
 
 
 def hide_ruby(text):
@@ -88,7 +88,7 @@ def ruby_top(text):
         if not has_hanzi(text):
             return text
         return ''
-    return sub('(%s+)\\[([^\\]]+)\\]' % hanzi_regex, r'\2 ', text).rstrip()
+    return sub('(%s+)\\[([^\\]]+)\\]' % HANZI_REGEX, r'\2 ', text).rstrip()
 
 
 def ruby_bottom(text):
@@ -96,7 +96,7 @@ def ruby_bottom(text):
         if has_hanzi(text):
             return text
         return ''
-    return sub('(%s+)\\[([^\\]]+)\\]' % hanzi_regex, r'\1 ', text).rstrip()
+    return sub('(%s+)\\[([^\\]]+)\\]' % HANZI_REGEX, r'\1 ', text).rstrip()
 
 
 def separate_ruby(text):

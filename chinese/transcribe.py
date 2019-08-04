@@ -16,25 +16,24 @@
 # You should have received a copy of the GNU General Public License along with
 # Chinese Support Redux.  If not, see <https://www.gnu.org/licenses/>.
 
-from re import IGNORECASE, search, split, sub
-from unicodedata import name, normalize
+from re import findall, IGNORECASE, search, split, sub
+from unicodedata import lookup, name, normalize
 
 from .bopomofo import bopomofo
 from .consts import (
-    accents,
-    bopomofo_regex,
-    DIACRITIC_TO_TONE,
-    hanzi_regex,
-    jyutping_split_regex,
-    not_pinyin_regex,
-    pinyin_split_regex,
-    punc_map,
-    tone_number_regex,
+    BOPOMOFO_REGEX,
+    CHINESE_PUNC_TO_LATIN,
+    DIACRITIC_NAME_TO_NUM,
+    HANZI_REGEX,
+    JYUTPING_REGEX,
+    NOT_PINYIN_REGEX,
+    PINYIN_REGEX,
+    PINYIN_VOWELS,
     TONE_NUMBERS,
-    vowel_decorations,
+    TONE_NUM_REGEX,
 )
 from .hanzi import has_hanzi
-from .main import config, dictionary
+from .main import dictionary
 from .ruby import has_ruby, ruby_bottom, ruby_top, separate_ruby
 from .util import cleanup, is_punc, no_color
 
@@ -42,8 +41,8 @@ from .util import cleanup, is_punc, no_color
 def convert_punc(a):
     converted = []
     for s in a:
-        if s in punc_map:
-            converted.append(punc_map[s])
+        if s in CHINESE_PUNC_TO_LATIN:
+            converted.append(CHINESE_PUNC_TO_LATIN[s])
         else:
             converted.append(s)
     return converted
@@ -106,39 +105,47 @@ def transcribe_char(hanzi, target, type_):
     raise NotImplementedError(target)
 
 
-def accentuate(syllables, target):
-    assert isinstance(syllables, list)
+def accentuate(text, target):
+    assert isinstance(text, list)
 
     if target not in ['pinyin', 'pinyin_tw']:
-        return syllables
-
-    def _accentuate(p):
-        pinyin = p.group(1)
-        tone = p.group(2)
-        pinyin = no_tone(pinyin)
-        for v in 'aeouüviAEOUÜVI':
-            if pinyin.find(v) > -1:
-                try:
-                    return sub(
-                        v,
-                        vowel_decorations[int(tone)][v.lower()],
-                        pinyin,
-                        count=1,
-                    )
-                except (KeyError, IndexError):
-                    pass
-        return pinyin
+        return text
 
     accentuated = []
-    for text in syllables:
-        text = no_color(text)
-        text = sub(
-            r'([a-z]*[aeiouüÜv' + accents + r'][a-zü]*)([1-5])',
-            _accentuate,
-            text,
-            flags=IGNORECASE,
-        )
-        accentuated.append(text)
+
+    def _accentuate(word):
+        if not search('[12345]', word):
+            return word
+
+        word = no_color(word)
+        tone = tone_number(word)
+        word = word[:-1]
+
+        if tone == '5':
+            return word
+
+        for k, v in DIACRITIC_NAME_TO_NUM.items():
+            if v == tone:
+                diacritic = lookup(k)
+                break
+
+        vowel = '([aeiouüv])'
+        n_vowels = len(findall(vowel, word, IGNORECASE))
+        if n_vowels == 1:
+            s = sub(vowel, f'\\1{diacritic}', word)
+        elif search('ao', word):
+            s = sub('ao', f'a{diacritic}o', word)
+        elif search('(iu|ui)', word):
+            s = sub('(iu|ui)', f'\\1{diacritic}', word)
+        elif search('[aeo]', word):
+            s = sub('([aeo])', f'\\1{diacritic}', word)
+        else:
+            s = word
+        return s
+
+    for word in text:
+        s = ' '.join(_accentuate(w) for w in word.split())
+        accentuated.append(normalize('NFC', s))
 
     return accentuated
 
@@ -148,6 +155,7 @@ def replace_tone_marks(pinyin):
     result = []
     for bottom, top in separate_ruby(pinyin):
         a = []
+        top = normalize('NFC', top)
         for syllable in split_transcript(top, target='pinyin', grouped=False):
             s = get_tone_number_pinyin(syllable)
             if bottom:
@@ -161,8 +169,8 @@ def get_tone_number_pinyin(syllable):
     assert isinstance(syllable, str)
 
     if (
-        search(tone_number_regex, syllable)
-        or search(bopomofo_regex, syllable)
+        search(TONE_NUM_REGEX, syllable)
+        or search(BOPOMOFO_REGEX, syllable)
         or is_punc(syllable)
     ):
         return syllable
@@ -175,8 +183,8 @@ def get_tone_number_pinyin(syllable):
 
     tone = '5'
     for c in normalize('NFD', syllable):
-        if name(c) in DIACRITIC_TO_TONE:
-            tone = DIACRITIC_TO_TONE[name(c)]
+        if name(c) in DIACRITIC_NAME_TO_NUM:
+            tone = DIACRITIC_NAME_TO_NUM[name(c)]
         else:
             s += c
 
@@ -192,23 +200,36 @@ def split_transcript(transcript, target, grouped=True):
     if target not in ['pinyin', 'pinyin_tw', 'jyutping']:
         raise NotImplementedError(target)
 
-    def _clean(t):
-        if t.startswith("'"):
-            return t[1:]
-        return t
+    def _split(pattern, s):
+        if search(f'^{pattern}$', s, IGNORECASE):
+            return s
 
-    def _split(p):
-        return _clean(p.group('one')) + ' ' + _clean(p.group('two'))
+        remainder = s.replace("'", '')
+        done = []
+        while True:
+            found = False
+            for i in range(len(remainder), 0, -1):
+                if search(f'^{pattern}$', remainder[:i], IGNORECASE):
+                    done.append(remainder[:i])
+                    remainder = remainder[i:]
+                    found = True
+                    break
+            if found and remainder:
+                continue
+            elif remainder:
+                done.append(remainder)
+                break
+            else:
+                break
+        return ' '.join(done)
 
     separated = []
 
-    for text in split(not_pinyin_regex, transcript):
+    for text in split(NOT_PINYIN_REGEX, transcript):
         if target in ['pinyin', 'pinyin_tw']:
-            text = pinyin_split_regex.sub(_split, text)
-            text = pinyin_split_regex.sub(_split, text)
+            text = _split(PINYIN_REGEX, text)
         elif target == 'jyutping':
-            text = jyutping_split_regex.sub(_split, text)
-            text = jyutping_split_regex.sub(_split, text)
+            text = _split(JYUTPING_REGEX, text)
 
         if grouped:
             separated.append(text)
@@ -229,7 +250,7 @@ def tone_number(s):
     if search(f'[{TONE_NUMBERS}]$', s):
         return s[-1]
 
-    if search(bopomofo_regex, s):
+    if search(BOPOMOFO_REGEX, s):
         if search(r'[ˊˇˋ˙]$', s):
             return str('  ˊˇˋ˙'.index(s[-1]))
         return '1'
@@ -244,12 +265,12 @@ def no_tone(text):
     text, *_ = replace_tone_marks([text])
 
     def _remove_tone(p):
-        return p.group(1) + sub(tone_number_regex, '', p.group(2)) + ']'
+        return p.group(1) + sub(TONE_NUM_REGEX, '', p.group(2)) + ']'
 
     if has_ruby(text):
-        return sub(r'(%s\[)([^[]+?)\]' % hanzi_regex, _remove_tone, text)
+        return sub(r'(%s\[)([^[]+?)\]' % HANZI_REGEX, _remove_tone, text)
 
-    return sub(r'([a-zü]+)%s' % tone_number_regex, r'\1', text)
+    return sub(r'([a-zü]+)%s' % TONE_NUM_REGEX, r'\1', text)
 
 
 def sanitize_transcript(transcript, target, grouped=False):

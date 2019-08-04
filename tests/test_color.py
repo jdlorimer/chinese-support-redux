@@ -48,7 +48,7 @@ class TestColorize(Base):
 
     def test_bopomofo(self):
         self.assertEqual(
-            colorize(['ㄊㄨˊ', 'ㄕㄨ', 'ㄍㄨㄢˇ']),
+            colorize(['ㄊㄨˊ', 'ㄕㄨ', 'ㄍㄨㄢˇ'], 'bopomofo'),
             (
                 '<span class="tone2">ㄊㄨˊ</span> '
                 '<span class="tone1">ㄕㄨ</span> '

@@ -46,7 +46,7 @@ class Dictionary:
         elif type_ == 'simp':
             query = 'SELECT pinyin, pinyin_tw FROM cidian WHERE simplified=?'
         else:
-            print(type_)
+            raise ValueError(type_)
 
         if no_variants:
             query += """AND (english NOT LIKE '%variant%' OR english IS NULL)
