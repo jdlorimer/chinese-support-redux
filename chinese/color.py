@@ -48,6 +48,7 @@ def colorize(words, target='pinyin', ruby_whole=False):
 
     d = {
         'pinyin': PINYIN_REGEX,
+        'pinyin_tw': PINYIN_REGEX,
         'jyutping': JYUTPING_REGEX,
         'bopomofo': BOPOMOFO_REGEX,
     }

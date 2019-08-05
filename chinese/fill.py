@@ -27,7 +27,6 @@ from aqt.utils import askUser, showInfo
 from .behavior import (
     fill_all_defs,
     fill_all_rubies,
-    fill_bopomofo,
     fill_classifier,
     fill_color,
     fill_silhouette,
@@ -183,7 +182,6 @@ def bulk_fill_transcript():
 
             hanzi = get_first(config['fields']['hanzi'], copy)
             results = fill_transcript(hanzi, copy)
-            results += fill_bopomofo(hanzi, copy)
 
             if results > 0:
                 d_added_pinyin += 1
@@ -205,8 +203,7 @@ def bulk_fill_transcript():
 
 def bulk_fill_defs():
     prompt = PROMPT_TEMPLATE.format(
-        field_names='<i>definition</i> and <i>alternative</i>',
-        extra_info='',
+        field_names='<i>definition</i> and <i>alternative</i>', extra_info=''
     )
 
     progress_msg_template = '''
