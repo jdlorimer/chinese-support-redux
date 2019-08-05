@@ -20,7 +20,7 @@ from os.path import dirname, join, realpath
 from re import match
 
 
-def lookup_frequency(hanzi):
+def get_frequency(hanzi):
     levels = [
         (200, 'very basic'),
         (100, 'basic'),

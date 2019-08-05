@@ -17,7 +17,7 @@
 # Chinese Support Redux.  If not, see <https://www.gnu.org/licenses/>.
 
 from .color import colorize, colorize_dict, colorize_fuse
-from .freq import lookup_frequency
+from .freq import get_frequency
 from .hanzi import get_silhouette, get_simp, get_trad, split_hanzi
 from .main import config, dictionary
 from .sound import sound
@@ -199,12 +199,12 @@ def fill_trad(hanzi, note):
 
 
 def fill_frequency(hanzi, note):
-    if not get_first(config['fields']['frequency'], note) == '':
-        return
-
-    s = get_simp(hanzi)
-    f = lookup_frequency(s)
-    set_all(config['fields']['frequency'], note, to=f)
+    if get_first(config['fields']['frequency'], note) == '':
+        set_all(
+            config['fields']['frequency'],
+            note,
+            to=get_frequency(get_simp(hanzi)),
+        )
 
 
 def fill_ruby(hanzi, note, trans_group, ruby_group):
