@@ -33,7 +33,7 @@ prep:
 	find . -name __pycache__ -type d -exec rm -rf {} +
 	mv "$(PROJECT_SHORT)/meta.json" .
 	cp LICENSE "$(PROJECT_SHORT)/LICENSE.txt"
-	git checkout chinese/db/chinese.db
+	git checkout chinese/data/db/chinese.db
 
 pack:
 	(cd "$(PROJECT_SHORT)" && zip -r ../$(PROJECT_LONG)-v$(VERSION).zip *)

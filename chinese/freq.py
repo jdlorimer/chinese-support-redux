@@ -33,7 +33,7 @@ def get_frequency(hanzi):
     ]
 
     corpus_path = join(
-        dirname(realpath(__file__)), 'lib', 'num', 'internet-zh.num'
+        dirname(realpath(__file__)), 'data', 'freq', 'internet-zh'
     )
 
     with open(corpus_path, encoding='utf8') as f:
