@@ -15,7 +15,17 @@
 # You should have received a copy of the GNU General Public License along with
 # Chinese Support Redux.  If not, see <https://www.gnu.org/licenses/>.
 
-from chinese.util import align, cleanup, get_first, hide, no_hidden, set_all
+from unittest.mock import Mock
+
+from chinese.util import (
+    align,
+    cleanup,
+    get_first,
+    hide,
+    no_hidden,
+    save_note,
+    set_all,
+)
 from tests import Base
 
 
@@ -36,6 +46,16 @@ class Util(Base):
 class Cleanup(Base):
     def test_cloze(self):
         self.assertEqual(cleanup('{{c1::foo::bar}}'), 'foo')
+
+    def test_whitespace(self):
+        self.assertEqual(cleanup(' \t '), '')
+
+    def test_empty_string(self):
+        self.assertEqual(cleanup(''), '')
+
+    def test_none(self):
+        with self.assertRaises(ValueError):
+            cleanup(None)
 
 
 class GetAny(Base):
@@ -71,3 +91,16 @@ class Align(Base):
             align(['Brian', '的'], ['Brian', 'de']),
             [('Brian', 'Brian'), ('的', 'de')],
         )
+
+
+class SaveNote(Base):
+    def test_save_note(self):
+        class Note(dict):
+            flush = Mock()
+
+        note = Note()
+        note.update({'hanzi': '我', 'pinyin': ''})
+        copy = {'hanzi': '我', 'pinyin': 'wǒ'}
+        self.assertEqual(save_note(note, copy), 1)
+        self.assertEqual(note['pinyin'], 'wǒ')
+        note.flush.assert_called_once()

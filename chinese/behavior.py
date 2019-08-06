@@ -16,6 +16,8 @@
 # You should have received a copy of the GNU General Public License along with
 # Chinese Support Redux.  If not, see <https://www.gnu.org/licenses/>.
 
+from typing import Dict, List
+
 from .color import colorize, colorize_dict, colorize_fuse
 from .freq import get_frequency
 from .hanzi import get_silhouette, get_simp, get_trad, split_hanzi
@@ -126,22 +128,21 @@ def fill_transcript(hanzi, note):
     return n_filled
 
 
-def reformat_transcript(note, group, target):
+def reformat_transcript(note: Dict[str, str], group: str, target: str):
     if target == 'bopomofo':
         return
 
-    t = colorize(
-        accentuate(
-            split_transcript(
-                cleanup(get_first(config['fields'][group], note)),
-                target,
-                grouped=True,
-            ),
-            target,
-        )
-    )
-    t = hide(t, no_tone(t))
-    set_all(config['fields'][group], note, to=t)
+    transcript = get_first(config['fields'][group], note)
+    if transcript is None:
+        return
+
+    clean: str = cleanup(transcript)
+    split: List[str] = split_transcript(clean, target, grouped=True)
+    accent: List[str] = accentuate(split, target)
+    color: str = colorize(accent)
+    hidden: str = hide(color, no_tone(color))
+
+    set_all(config['fields'][group], note, to=hidden)
 
 
 def fill_color(hanzi, note):
@@ -272,7 +273,7 @@ def update_fields(note, focus_field, fields):
             fill_all_rubies(hanzi, copy)
             fill_silhouette(hanzi, copy)
         else:
-            erase_fields(copy)
+            erase_fields(copy, config.get_fields())
     elif focus_field in config['fields']['pinyin']:
         reformat_transcript(copy, 'pinyin', 'pinyin')
     elif focus_field in config['fields']['pinyinTaiwan']:

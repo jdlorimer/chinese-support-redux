@@ -76,6 +76,8 @@ def bulk_fill_sound():
         ),
     )
 
+    fields = config.get_fields(['sound', 'mandarinSound', 'cantoneseSound'])
+
     if not askUser(prompt):
         return
 
@@ -91,15 +93,13 @@ def bulk_fill_sound():
         orig = mw.col.getNote(nid)
         copy = dict(orig)
 
-        if has_any_field(
-            copy, ['sound', 'mandarinSound', 'cantoneseSound']
-        ) and has_field(config['fields']['hanzi'], copy):
+        if has_any_field(copy, fields) and has_field(
+            config['fields']['hanzi'], copy
+        ):
             d_has_fields += 1
             hanzi = get_first(config['fields']['hanzi'], copy)
 
-            if all_fields_empty(
-                copy, ['sound', 'mandarinSound', 'cantoneseSound']
-            ):
+            if all_fields_empty(copy, fields):
                 msg = '''
                 <b>Processing:</b> %(hanzi)s<br>
                 <b>Updated:</b> %(d_success)d notes<br>
@@ -143,13 +143,9 @@ def bulk_fill_transcript():
         field_names='<i>transcription</i> and <i>ruby</i>', extra_info=''
     )
 
-    field_groups = [
-        'transcription',
-        'pinyin',
-        'pinyinTaiwan',
-        'cantonese',
-        'bopomofo',
-    ]
+    fields = config.get_fields(
+        ['transcription', 'pinyin', 'pinyinTaiwan', 'cantonese', 'bopomofo']
+    )
 
     if not askUser(prompt):
         return
@@ -165,7 +161,7 @@ def bulk_fill_transcript():
         note = mw.col.getNote(nid)
         copy = dict(note)
 
-        if has_any_field(copy, field_groups) and has_field(
+        if has_any_field(copy, fields) and has_field(
             config['fields']['hanzi'], copy
         ):
             d_has_fields += 1
@@ -212,7 +208,7 @@ def bulk_fill_defs():
             <b>Translated:</b> %(filled)d<br>
             <b>Failed:</b> %(failed)d'''
 
-    field_groups = ['english', 'german', 'french']
+    fields = config.get_fields(['english', 'german', 'french'])
 
     if not askUser(prompt):
         return
@@ -230,10 +226,10 @@ def bulk_fill_defs():
         copy = dict(note)
         hanzi = get_hanzi(copy)
 
-        if has_any_field(copy, field_groups) and hanzi:
+        if has_any_field(copy, fields) and hanzi:
             n_targets += 1
 
-            if all_fields_empty(copy, field_groups):
+            if all_fields_empty(copy, fields):
                 result = fill_all_defs(hanzi, copy)
                 if result:
                     d_success += 1
@@ -279,7 +275,7 @@ def bulk_fill_classifiers():
         field_names='<i>classifier</i>', extra_info=''
     )
 
-    field_groups = ['classifier']
+    fields = config.get_fields(['classifier'])
 
     if not askUser(prompt):
         return
@@ -296,10 +292,10 @@ def bulk_fill_classifiers():
         copy = dict(note)
         hanzi = get_hanzi(copy)
 
-        if has_any_field(copy, field_groups) and hanzi:
+        if has_any_field(copy, fields) and hanzi:
             n_targets += 1
 
-            if all_fields_empty(copy, field_groups):
+            if all_fields_empty(copy, fields):
                 if fill_classifier(hanzi, copy):
                     d_success += 1
                 else:
@@ -324,7 +320,8 @@ def bulk_fill_classifiers():
 
 def bulk_fill_hanzi():
     prompt = PROMPT_TEMPLATE.format(field_names='<i>hanzi</i>', extra_info='')
-    field_groups = ['traditional', 'simplified']
+
+    fields = config.get_fields(['traditional', 'simplified'])
 
     if not askUser(prompt):
         return
@@ -339,7 +336,7 @@ def bulk_fill_hanzi():
         note = mw.col.getNote(nid)
         copy = dict(note)
 
-        if has_any_field(copy, field_groups) and has_field(
+        if has_any_field(copy, fields) and has_field(
             config['fields']['hanzi'], copy
         ):
             d_has_fields += 1
