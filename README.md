@@ -15,7 +15,7 @@ The original (and 2.1-incompatible) version is available [here](https://github.c
   - Traditional (繁體字) and simplified (簡體字) characters
   - [Bopomofo (ㄅㄆㄇㄈ)](https://en.wikipedia.org/wiki/Bopomofo), also known as Zhuyin (注音)
   - [Rubies](https://www.w3schools.com/tags/tag_ruby.asp) (small-print transcription placed above characters)
-    - Frequency - fills a field to tell you the frequency of the word (from 'very basic' to obscure). Ideas taken from [here](https://github.com/ernop/anki-chinese-word-frequency)
+  - Frequency - fills a field to tell you the frequency of the word (from 'very basic' to obscure). Ideas taken from [here](https://github.com/ernop/anki-chinese-word-frequency)
 - Tone colours (applied to characters, romanisation and Bopomofo)
 - Built-in note types (Basic and Advanced)
 
