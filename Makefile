@@ -32,6 +32,7 @@ prep:
 	find . -name .ropeproject -type d -exec rm -rf {} +
 	find . -name __pycache__ -type d -exec rm -rf {} +
 	mv "$(PROJECT_SHORT)/meta.json" .
+	mv "$(PROJECT_SHORT)/config_saved.json" .
 	cp LICENSE "$(PROJECT_SHORT)/LICENSE.txt"
 	git checkout chinese/data/db/chinese.db
 
@@ -42,3 +43,4 @@ pack:
 clean:
 	rm "$(PROJECT_SHORT)/LICENSE.txt"
 	mv meta.json "$(PROJECT_SHORT)/meta.json"
+	mv config_saved.json "$(PROJECT_SHORT)/config_saved.json"

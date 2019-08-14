@@ -7,3 +7,4 @@
 .ropeproject/
 __pycache__
 chinese/meta.json
+chinese/config_saved.json
