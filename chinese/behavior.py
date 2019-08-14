@@ -166,7 +166,7 @@ def fill_color(hanzi, note):
 def fill_sound(hanzi, note):
     updated = 0
     errors = 0
-    for f in config['fields']['mandarinSound']:
+    for f in config['fields']['sound'] + config['fields']['mandarinSound']:
         if f in note and note[f] == '':
             s = sound(hanzi, config['speech'])
             if s:
