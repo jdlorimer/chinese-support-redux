@@ -1,6 +1,6 @@
 # Copyright © 2012 Roland Sieker <ospalh@gmail.com>
 # Copyright © 2012 Thomas TEMPÉ <thomas.tempe@alysse.org>
-# Copyright © 2017-2018 Joseph Lorimer <joseph@lorimer.me>
+# Copyright © 2017-2019 Joseph Lorimer <joseph@lorimer.me>
 #
 # This file is part of Chinese Support Redux.
 #
@@ -18,24 +18,25 @@
 # Chinese Support Redux.  If not, see <https://www.gnu.org/licenses/>.
 
 from collections import defaultdict
-from json import load
-from os.path import dirname, join, realpath
+from json import dump, load
+from os.path import dirname, exists, join, realpath
 from typing import List
 
 from aqt import mw
 
 
 class ConfigManager:
-    config_path = join(dirname(realpath(__file__)), 'config.json')
-    config_saved = defaultdict(str, mw.addonManager.getConfig(__name__))
+    default_path = join(dirname(realpath(__file__)), 'config.json')
+    saved_path = join(dirname(realpath(__file__)), 'config_saved.json')
 
-    with open(config_path, encoding='utf-8') as f:
-        config_default = defaultdict(str, load(f))
+    with open(default_path, encoding='utf-8') as f:
+        config = defaultdict(str, load(f))
 
-    if config_saved['version'] == config_default['version']:
-        config = config_saved
-    else:
-        config = config_default
+    if exists(saved_path):
+        with open(saved_path, encoding='utf-8') as f:
+            config_saved = defaultdict(str, load(f))
+        if config_saved['version'] == config['version']:
+            config = config_saved
 
     def __setitem__(self, key, value):
         self.config[key] = value
@@ -47,6 +48,8 @@ class ConfigManager:
         self.config.update(d)
 
     def save(self) -> None:
+        with open(self.saved_path, 'w', encoding='utf-8') as f:
+            dump(self.config, f)
         mw.addonManager.writeConfig(__name__, self.config)
 
     def get_fields(self, groups: List[str] = []) -> List[str]:
