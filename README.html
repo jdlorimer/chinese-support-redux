@@ -1,13 +1,13 @@
-<a href="https://travis-ci.org/luoliyan/chinese-support-redux"><img src="https://travis-ci.org/luoliyan/chinese-support-redux.svg?branch=master" alt="Build Status" /></a> <a href="https://coveralls.io/github/luoliyan/chinese-support-redux?branch=master"><img src="https://coveralls.io/repos/github/luoliyan/chinese-support-redux/badge.svg?branch=master" alt="Coverage Status" /></a>
+<a href="https://app.codacy.com/app/luoliyan/chinese-support-redux?utm_source=github.com&utm_medium=referral&utm_content=luoliyan/chinese-support-redux&utm_campaign=Badge_Grade_Dashboard"><img src="https://api.codacy.com/project/badge/Grade/6b99fcb30a2142d899f79c601a6aa291" alt="Codacy Badge" /></a><a href="https://travis-ci.org/luoliyan/chinese-support-redux"><img src="https://travis-ci.org/luoliyan/chinese-support-redux.svg?branch=master" alt="Build Status" /></a> <a href="https://coveralls.io/github/luoliyan/chinese-support-redux?branch=master"><img src="https://coveralls.io/repos/github/luoliyan/chinese-support-redux/badge.svg?branch=master" alt="Coverage Status" /></a>
 
 
-Chinese Support Redux is a rewrite and port of the Chinese Support add-on to Anki 2.1. It offers a number of features that streamline the process of creating flashcards for learning Chinese. The current focus of development effort is on improving the stability of the add-on and the accuracy of its output. Once the core functionality is sufficiently robust and reliable, additional features will be considered. While many of the changes will be structural in nature, I would encourage users to update the add-on whenever the version number increases and notify me of any problems. Your feedback is important.
+Chinese Support Redux is a rewrite and port of the <a href="https://github.com/ttempe/chinese-support-addon">original</a> Chinese Support add-on to Anki 2.1. It offers a number of features that streamline the process of creating flashcards for learning Chinese. The current focus of development effort is on improving the stability of the add-on and the accuracy of its output. Once the core functionality is sufficiently robust and reliable, additional features will be considered. While many of the changes will be structural in nature, I would encourage users to update the add-on whenever the version number increases and notify me of any problems. Your feedback is important.
 
-The original (and 2.1-incompatible) version is available <a href="https://github.com/ttempe/chinese-support-addon">here</a>.
+<b>Important Note</b>: If you find that a field is not filling at all, please check <a href="https://github.com/luoliyan/chinese-support-redux/blob/master/chinese/config.json">config.json</a> for the complete list of valid field names.
 
 <b><i>Features</i></b>
 
-<ul><li>Automatic field filling<ul><li>Translation (from built-in dictionary; supports English, German and French)</li><li>Romanisation (supports <a href="https://en.wikipedia.org/wiki/Pinyin">Pīnyīn (拼音)</a> and Cantonese <a href="https://en.wikipedia.org/wiki/Jyutping">Jyutping (粵拼)</a>)</li><li>Mandarin Audio (fetched from Google or Baidu)</li><li>Traditional (繁體字) and simplified (簡體字) characters</li><li><a href="https://en.wikipedia.org/wiki/Bopomofo">Bopomofo (ㄅㄆㄇㄈ)</a>, also known as Zhuyin (注音)</li><li><a href="https://www.w3schools.com/tags/tag_ruby.asp">Rubies</a> (small-print transcription placed above characters)</li></ul></li><li>Tone colours (applied to characters, romanisation and Bopomofo)</li><li>Built-in note types (Basic and Advanced)</li></ul>
+<ul><li>Automatic field filling<ul><li>Translation (from built-in dictionary; supports English, German and French)</li><li>Romanisation (supports <a href="https://en.wikipedia.org/wiki/Pinyin">Pīnyīn (拼音)</a> and Cantonese <a href="https://en.wikipedia.org/wiki/Jyutping">Jyutping (粵拼)</a>)</li><li>Mandarin Audio (fetched from Google or Baidu)</li><li>Traditional (繁體字) and simplified (簡體字) characters</li><li><a href="https://en.wikipedia.org/wiki/Bopomofo">Bopomofo (ㄅㄆㄇㄈ)</a>, also known as Zhuyin (注音)</li><li><a href="https://www.w3schools.com/tags/tag_ruby.asp">Rubies</a> (small-print transcription placed above characters)</li><li>Frequency (from “very basic” to “obscure”). Based on <a href="https://github.com/ernop/anki-chinese-word-frequency">anki-chinese-word-frequency</a></li></ul></li><li>Tone colours (applied to characters, romanisation and Bopomofo)</li><li>Built-in note types (Basic and Advanced)</li></ul>
 <b><i>Status</i></b>
 
 The vast majority of features have been successfully ported, and the add-on is in a usable state, albeit with some definite rough edges.
@@ -45,12 +45,12 @@ For those who wish to run the tests locally, this is fairly straightforward.
 
 Clone the repository:
 
-<code>shgit clone https://github.com/luoliyan/chinese-support-reduxcd chinese-support-redux</code>
+<code>git clone https://github.com/luoliyan/chinese-support-reduxcd chinese-support-redux</code>
 
 Ideally, set up a virtual environment to isolate the project:
 
-<code>shcurl https://pyenv.run | bashpyenv virtualenv 3.6.8 csrpyenv local csr</code>
+<code>curl https://pyenv.run | bashpyenv virtualenv 3.6.8 csrpyenv local csr</code>
 
 Install dependencies and run the tests:
 
-<code>shpip install -r requirements.txtmake test</code>
+<code>pip install -r requirements.txtmake test</code>
