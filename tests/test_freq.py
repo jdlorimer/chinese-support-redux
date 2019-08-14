@@ -15,13 +15,13 @@
 # You should have received a copy of the GNU General Public License along with
 # Chinese Support Redux.  If not, see <https://www.gnu.org/licenses/>.
 
-from chinese.freq import lookup_frequency
+from chinese.freq import get_frequency
 from tests import Base
 
 
 class Frequency(Base):
     def test_very_basic(self):
         self.assertEqual(
-            lookup_frequency('上海'),
+            get_frequency('上海'),
             '<div class="freq freq-very-basic">very basic</div>',
         )

@@ -16,8 +16,10 @@
 # You should have received a copy of the GNU General Public License along with
 # Chinese Support Redux.  If not, see <https://www.gnu.org/licenses/>.
 
+from typing import Dict, List
+
 from .color import colorize, colorize_dict, colorize_fuse
-from .freq import lookup_frequency
+from .freq import get_frequency
 from .hanzi import get_silhouette, get_simp, get_trad, split_hanzi
 from .main import config, dictionary
 from .sound import sound
@@ -109,80 +111,38 @@ def fill_transcript(hanzi, note):
     n_filled = 0
     separated = split_hanzi(hanzi)
 
-    for key, target, func, type_ in [
-        ('pinyin', 'pinyin', format_pinyin, 'simp'),
-        ('pinyinTaiwan', 'pinyin_tw', format_taiwan_pinyin, 'trad'),
-        ('cantonese', 'jyutping', format_cantonese, 'trad'),
+    for key, target, type_ in [
+        ('bopomofo', 'bopomofo', 'trad'),
+        ('cantonese', 'jyutping', 'trad'),
+        ('pinyin', 'pinyin', 'simp'),
+        ('pinyinTaiwan', 'pinyin_tw', 'trad'),
     ]:
         if get_first(config['fields'][key], note) == '':
-            trans = colorize(transcribe(separated, target, type_))
+            trans = colorize(transcribe(separated, target, type_), target)
             trans = hide(trans, no_tone(trans))
             set_all(config['fields'][key], note, to=trans)
             n_filled += 1
         else:
-            func(note)
-
-    n_filled += fill_bopomofo(hanzi, note)
-    return n_filled
-
-
-def format_pinyin(note):
-    t = colorize(
-        accentuate(
-            split_transcript(
-                cleanup(get_first(config['fields']['pinyin'], note)),
-                'pinyin',
-                grouped=True,
-            ),
-            'pinyin',
-        )
-    )
-    t = hide(t, no_tone(t))
-    set_all(config['fields']['pinyin'], note, to=t)
-
-
-def format_taiwan_pinyin(note):
-    t = colorize(
-        accentuate(
-            split_transcript(
-                cleanup(get_first(config['fields']['pinyinTaiwan'], note)),
-                'pinyin',
-                grouped=True,
-            ),
-            'pinyin',
-        )
-    )
-    t = hide(t, no_tone(t))
-    set_all(config['fields']['pinyinTaiwan'], note, to=t)
-
-
-def format_cantonese(note):
-    t = colorize(
-        split_transcript(
-            cleanup(get_first(config['fields']['cantonese'], note)),
-            'jyutping',
-            grouped=True,
-        )
-    )
-    t = hide(t, no_tone(t))
-    set_all(config['fields']['cantonese'], note, to=t)
-
-
-def fill_bopomofo(hanzi, note):
-    field = get_first(config['fields']['bopomofo'], note)
-
-    if field:
-        syllables = cleanup(field).split()
-        n_filled = 0
-    else:
-        syllables = transcribe(split_hanzi(hanzi), 'bopomofo', 'trad')
-        n_filled = 1
-
-    text = colorize(syllables, 'bopomofo')
-    text = hide(text, no_tone(text))
-    set_all(config['fields']['bopomofo'], note, to=text)
+            reformat_transcript(note, key, target)
 
     return n_filled
+
+
+def reformat_transcript(note: Dict[str, str], group: str, target: str):
+    if target == 'bopomofo':
+        return
+
+    transcript = get_first(config['fields'][group], note)
+    if transcript is None:
+        return
+
+    clean: str = cleanup(transcript)
+    split: List[str] = split_transcript(clean, target, grouped=True)
+    accent: List[str] = accentuate(split, target)
+    color: str = colorize(accent)
+    hidden: str = hide(color, no_tone(color))
+
+    set_all(config['fields'][group], note, to=hidden)
 
 
 def fill_color(hanzi, note):
@@ -240,12 +200,12 @@ def fill_trad(hanzi, note):
 
 
 def fill_frequency(hanzi, note):
-    if not get_first(config['fields']['frequency'], note) == '':
-        return
-
-    s = get_simp(hanzi)
-    f = lookup_frequency(s)
-    set_all(config['fields']['frequency'], note, to=f)
+    if get_first(config['fields']['frequency'], note) == '':
+        set_all(
+            config['fields']['frequency'],
+            note,
+            to=get_frequency(get_simp(hanzi)),
+        )
 
 
 def fill_ruby(hanzi, note, trans_group, ruby_group):
@@ -313,13 +273,13 @@ def update_fields(note, focus_field, fields):
             fill_all_rubies(hanzi, copy)
             fill_silhouette(hanzi, copy)
         else:
-            erase_fields(copy)
+            erase_fields(copy, config.get_fields())
     elif focus_field in config['fields']['pinyin']:
-        format_pinyin(copy)
+        reformat_transcript(copy, 'pinyin', 'pinyin')
     elif focus_field in config['fields']['pinyinTaiwan']:
-        format_taiwan_pinyin(copy)
+        reformat_transcript(copy, 'pinyinTaiwan', 'pinyin_tw')
     elif focus_field in config['fields']['cantonese']:
-        format_cantonese(copy)
+        reformat_transcript(copy, 'cantonese', 'jyutping')
 
     updated = False
 

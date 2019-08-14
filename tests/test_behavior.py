@@ -21,15 +21,29 @@ from chinese.behavior import (
     fill_all_defs,
     fill_all_rubies,
     fill_classifier,
-    fill_bopomofo,
     fill_color,
     fill_simp,
     fill_sound,
     fill_trad,
     fill_transcript,
+    reformat_transcript,
     update_fields,
 )
 from tests import Base
+
+
+class FormatPinyin(Base):
+    def test_issue_78(self):
+        note = {'Hanzi': '壮观', 'Pinyin': 'zhuàngguān'}
+        expected = (
+            '<span class="tone4">zhuàng</span>'
+            '<span class="tone1">guān</span> '
+            '<!-- zhuang guan -->'
+        )
+        reformat_transcript(note, 'pinyin', 'pinyin')
+        self.assertEqual(note['Pinyin'], expected)
+        reformat_transcript(note, 'pinyin', 'pinyin')
+        self.assertEqual(note['Pinyin'], expected)
 
 
 class FillSound(Base):
@@ -104,6 +118,7 @@ class FillTranscript(Base):
             ['Bopomofo', 'Cantonese', 'Pinyin (Taiwan)', 'Pinyin'], ''
         )
         self.assertEqual(fill_transcript('上海人', note), 4)
+        self.assertEqual(fill_transcript('上海人', note), 0)
         self.assertEqual(
             note['Bopomofo'],
             (
@@ -152,6 +167,27 @@ class FillTranscript(Base):
             '<!-- fen xiang -->',
         )
 
+    def test_issue_78(self):
+        note = {'Hanzi': '壮观', 'Pinyin': '', 'Bopomofo': ''}
+        expected_pinyin = (
+            '<span class="tone4">zhuàng</span>'
+            '<span class="tone1">guān</span> '
+            '<!-- zhuang guan -->'
+        )
+        expected_bopomofo = (
+            '<span class="tone4">ㄓㄨㄤˋ</span>'
+            '<span class="tone1">ㄍㄨㄢ</span> '
+            '<!-- ㄓㄨㄤˋㄍㄨㄢ -->'
+        )
+
+        fill_transcript(note['Hanzi'], note)
+        self.assertEqual(note['Pinyin'], expected_pinyin)
+        self.assertEqual(note['Bopomofo'], expected_bopomofo)
+
+        fill_transcript(note['Hanzi'], note)
+        self.assertEqual(note['Pinyin'], expected_pinyin)
+        self.assertEqual(note['Bopomofo'], expected_bopomofo)
+
     def test_issue_81(self):
         note = dict.fromkeys(['Pinyin', 'Bopomofo'], '')
         fill_transcript('不言而喻', note)
@@ -173,7 +209,7 @@ class FillTranscript(Base):
         )
 
 
-class FillBopomofo(Base):
+def FillTranscriptBopomofo(Base):
     expected = (
         '<span class="tone2">ㄇㄟˊ</span>'
         '<span class="tone3">ㄧㄡˇ</span> '
@@ -194,17 +230,17 @@ class FillBopomofo(Base):
 
     def test_ungrouped_chars(self):
         note = dict.fromkeys(['Bopomofo'], '')
-        fill_bopomofo('没有，是我第一次来上海旅游。', note)
+        fill_transcript('没有，是我第一次来上海旅游。', note)
         self.assertEqual(note['Bopomofo'], self.expected)
 
     def test_grouped_chars(self):
         note = dict.fromkeys(['Bopomofo'], '')
-        fill_bopomofo('没有， 是 我 第一次 来 上海 旅游。', note)
+        fill_transcript('没有， 是 我 第一次 来 上海 旅游。', note)
         self.assertEqual(note['Bopomofo'], self.expected)
 
     def test_grouped_pinyin(self):
         note = {'Bopomofo': '', 'Pinyin': 'shényùn'}
-        fill_bopomofo('神韻', note)
+        fill_transcript('神韻', note)
         self.assertEqual(
             note['Bopomofo'],
             '<span class="tone2">ㄕㄣˊ</span>'
@@ -214,7 +250,7 @@ class FillBopomofo(Base):
 
     def test_ungrouped_pinyin(self):
         note = {'Bopomofo': '', 'Pinyin': 'shen4 yun4'}
-        fill_bopomofo('神韻', note)
+        fill_transcript('神韻', note)
         self.assertEqual(
             note['Bopomofo'],
             '<span class="tone2">ㄕㄣˊ</span>'
@@ -224,7 +260,7 @@ class FillBopomofo(Base):
 
     def test_issue_79(self):
         note = {'Bopomofo': ''}
-        fill_bopomofo('狭隘', note)
+        fill_transcript('狭隘', note)
         self.assertEqual(
             note['Bopomofo'],
             '<span class="tone2">ㄒㄧㄚˊ</span>'

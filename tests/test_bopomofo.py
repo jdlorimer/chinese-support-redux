@@ -45,7 +45,7 @@ class Bopomofo(Base):
         # Regession test for Issue #81
         self.assertEqual(bopomofo(['bùyánéryù']), ['ㄅㄨˋ ㄧㄢˊ ㄦˊ ㄩˋ'])
 
-    def test_pinyin_syllables_a(self):
+    def test_a(self):
         self.assertEqual(bopomofo(['ba']), ['ㄅㄚ˙'])
         self.assertEqual(bopomofo(['pa']), ['ㄆㄚ˙'])
         self.assertEqual(bopomofo(['ma']), ['ㄇㄚ˙'])
@@ -65,14 +65,14 @@ class Bopomofo(Base):
         self.assertEqual(bopomofo(['ha']), ['ㄏㄚ˙'])
         self.assertEqual(bopomofo(['a']), ['ㄚ˙'])
 
-    def test_pinyin_syllables_o(self):
+    def test_o(self):
         self.assertEqual(bopomofo(['bo']), ['ㄅㄛ˙'])
         self.assertEqual(bopomofo(['po']), ['ㄆㄛ˙'])
         self.assertEqual(bopomofo(['mo']), ['ㄇㄛ˙'])
         self.assertEqual(bopomofo(['fo']), ['ㄈㄛ˙'])
         self.assertEqual(bopomofo(['o']), ['ㄛ˙'])
 
-    def test_pinyin_syllables_e(self):
+    def test_e(self):
         self.assertEqual(bopomofo(['me']), ['ㄇㄜ˙'])
         self.assertEqual(bopomofo(['de']), ['ㄉㄜ˙'])
         self.assertEqual(bopomofo(['te']), ['ㄊㄜ˙'])
@@ -90,7 +90,7 @@ class Bopomofo(Base):
         self.assertEqual(bopomofo(['he']), ['ㄏㄜ˙'])
         self.assertEqual(bopomofo(['e']), ['ㄜ˙'])
 
-    def test_pinyin_syllables_syllabic_consonant(self):
+    def test_syllabic_consonants(self):
         self.assertEqual(bopomofo(['zi']), ['ㄗ˙'])
         self.assertEqual(bopomofo(['ci']), ['ㄘ˙'])
         self.assertEqual(bopomofo(['si']), ['ㄙ˙'])
@@ -99,10 +99,10 @@ class Bopomofo(Base):
         self.assertEqual(bopomofo(['shi']), ['ㄕ˙'])
         self.assertEqual(bopomofo(['ri']), ['ㄖ˙'])
 
-    def test_pinyin_syllable_er(self):
+    def test_er(self):
         self.assertEqual(bopomofo(['er']), ['ㄦ˙'])
 
-    def test_pinyin_syllables_ai(self):
+    def test_ai(self):
         self.assertEqual(bopomofo(['bai']), ['ㄅㄞ˙'])
         self.assertEqual(bopomofo(['pai']), ['ㄆㄞ˙'])
         self.assertEqual(bopomofo(['mai']), ['ㄇㄞ˙'])
@@ -120,7 +120,7 @@ class Bopomofo(Base):
         self.assertEqual(bopomofo(['hai']), ['ㄏㄞ˙'])
         self.assertEqual(bopomofo(['ai']), ['ㄞ˙'])
 
-    def test_pinyin_syllables_ei(self):
+    def test_ei(self):
         self.assertEqual(bopomofo(['bei']), ['ㄅㄟ˙'])
         self.assertEqual(bopomofo(['pei']), ['ㄆㄟ˙'])
         self.assertEqual(bopomofo(['mei']), ['ㄇㄟ˙'])
@@ -136,7 +136,7 @@ class Bopomofo(Base):
         self.assertEqual(bopomofo(['hei']), ['ㄏㄟ˙'])
         self.assertEqual(bopomofo(['ei']), ['ㄟ˙'])
 
-    def test_pinyin_syllables_ao(self):
+    def test_ao(self):
         self.assertEqual(bopomofo(['bao']), ['ㄅㄠ˙'])
         self.assertEqual(bopomofo(['pao']), ['ㄆㄠ˙'])
         self.assertEqual(bopomofo(['mao']), ['ㄇㄠ˙'])
@@ -156,7 +156,7 @@ class Bopomofo(Base):
         self.assertEqual(bopomofo(['hao']), ['ㄏㄠ˙'])
         self.assertEqual(bopomofo(['ao']), ['ㄠ˙'])
 
-    def test_pinyin_syllables_ou(self):
+    def test_ou(self):
         self.assertEqual(bopomofo(['pou']), ['ㄆㄡ˙'])
         self.assertEqual(bopomofo(['mou']), ['ㄇㄡ˙'])
         self.assertEqual(bopomofo(['fou']), ['ㄈㄡ˙'])
@@ -175,7 +175,7 @@ class Bopomofo(Base):
         self.assertEqual(bopomofo(['hou']), ['ㄏㄡ˙'])
         self.assertEqual(bopomofo(['ou']), ['ㄡ˙'])
 
-    def test_pinyin_syllables_an(self):
+    def test_an(self):
         self.assertEqual(bopomofo(['ban']), ['ㄅㄢ˙'])
         self.assertEqual(bopomofo(['pan']), ['ㄆㄢ˙'])
         self.assertEqual(bopomofo(['man']), ['ㄇㄢ˙'])
@@ -196,7 +196,7 @@ class Bopomofo(Base):
         self.assertEqual(bopomofo(['han']), ['ㄏㄢ˙'])
         self.assertEqual(bopomofo(['an']), ['ㄢ˙'])
 
-    def test_pinyin_syllables_en(self):
+    def test_en(self):
         self.assertEqual(bopomofo(['ben']), ['ㄅㄣ˙'])
         self.assertEqual(bopomofo(['pen']), ['ㄆㄣ˙'])
         self.assertEqual(bopomofo(['men']), ['ㄇㄣ˙'])
@@ -215,7 +215,7 @@ class Bopomofo(Base):
         self.assertEqual(bopomofo(['hen']), ['ㄏㄣ˙'])
         self.assertEqual(bopomofo(['en']), ['ㄣ˙'])
 
-    def test_pinyin_syllables_ang(self):
+    def test_ang(self):
         self.assertEqual(bopomofo(['bang']), ['ㄅㄤ˙'])
         self.assertEqual(bopomofo(['pang']), ['ㄆㄤ˙'])
         self.assertEqual(bopomofo(['mang']), ['ㄇㄤ˙'])
@@ -235,7 +235,7 @@ class Bopomofo(Base):
         self.assertEqual(bopomofo(['hang']), ['ㄏㄤ˙'])
         self.assertEqual(bopomofo(['ang']), ['ㄤ˙'])
 
-    def test_pinyin_syllables_eng(self):
+    def test_eng(self):
         self.assertEqual(bopomofo(['beng']), ['ㄅㄥ˙'])
         self.assertEqual(bopomofo(['peng']), ['ㄆㄥ˙'])
         self.assertEqual(bopomofo(['meng']), ['ㄇㄥ˙'])
@@ -255,7 +255,7 @@ class Bopomofo(Base):
         self.assertEqual(bopomofo(['heng']), ['ㄏㄥ˙'])
         self.assertEqual(bopomofo(['eng']), ['ㄥ˙'])
 
-    def test_pinyin_syllables_ong(self):
+    def test_ong(self):
         self.assertEqual(bopomofo(['dong']), ['ㄉㄨㄥ˙'])
         self.assertEqual(bopomofo(['tong']), ['ㄊㄨㄥ˙'])
         self.assertEqual(bopomofo(['nong']), ['ㄋㄨㄥ˙'])
@@ -269,7 +269,7 @@ class Bopomofo(Base):
         self.assertEqual(bopomofo(['kong']), ['ㄎㄨㄥ˙'])
         self.assertEqual(bopomofo(['hong']), ['ㄏㄨㄥ˙'])
 
-    def test_pinyin_syllables_yi(self):
+    def test_yi(self):
         self.assertEqual(bopomofo(['bi']), ['ㄅㄧ˙'])
         self.assertEqual(bopomofo(['pi']), ['ㄆㄧ˙'])
         self.assertEqual(bopomofo(['mi']), ['ㄇㄧ˙'])
@@ -282,14 +282,14 @@ class Bopomofo(Base):
         self.assertEqual(bopomofo(['xi']), ['ㄒㄧ˙'])
         self.assertEqual(bopomofo(['yi']), ['ㄧ˙'])
 
-    def test_pinyin_syllables_ya(self):
+    def test_ya(self):
         self.assertEqual(bopomofo(['lia']), ['ㄌㄧㄚ˙'])
         self.assertEqual(bopomofo(['jia']), ['ㄐㄧㄚ˙'])
         self.assertEqual(bopomofo(['qia']), ['ㄑㄧㄚ˙'])
         self.assertEqual(bopomofo(['xia']), ['ㄒㄧㄚ˙'])
         self.assertEqual(bopomofo(['ya']), ['ㄧㄚ˙'])
 
-    def test_pinyin_syllables_ye(self):
+    def test_ye(self):
         self.assertEqual(bopomofo(['bie']), ['ㄅㄧㄝ˙'])
         self.assertEqual(bopomofo(['pie']), ['ㄆㄧㄝ˙'])
         self.assertEqual(bopomofo(['mie']), ['ㄇㄧㄝ˙'])
@@ -302,7 +302,7 @@ class Bopomofo(Base):
         self.assertEqual(bopomofo(['xie']), ['ㄒㄧㄝ˙'])
         self.assertEqual(bopomofo(['ye']), ['ㄧㄝ˙'])
 
-    def test_pinyin_syllables_yao(self):
+    def test_yao(self):
         self.assertEqual(bopomofo(['biao']), ['ㄅㄧㄠ˙'])
         self.assertEqual(bopomofo(['piao']), ['ㄆㄧㄠ˙'])
         self.assertEqual(bopomofo(['miao']), ['ㄇㄧㄠ˙'])
@@ -315,7 +315,7 @@ class Bopomofo(Base):
         self.assertEqual(bopomofo(['xiao']), ['ㄒㄧㄠ˙'])
         self.assertEqual(bopomofo(['yao']), ['ㄧㄠ˙'])
 
-    def test_pinyin_syllables_you(self):
+    def test_you(self):
         self.assertEqual(bopomofo(['miu']), ['ㄇㄧㄡ˙'])
         self.assertEqual(bopomofo(['diu']), ['ㄉㄧㄡ˙'])
         self.assertEqual(bopomofo(['niu']), ['ㄋㄧㄡ˙'])
@@ -325,7 +325,7 @@ class Bopomofo(Base):
         self.assertEqual(bopomofo(['xiu']), ['ㄒㄧㄡ˙'])
         self.assertEqual(bopomofo(['you']), ['ㄧㄡ˙'])
 
-    def test_pinyin_syllables_yan(self):
+    def test_yan(self):
         self.assertEqual(bopomofo(['bian']), ['ㄅㄧㄢ˙'])
         self.assertEqual(bopomofo(['pian']), ['ㄆㄧㄢ˙'])
         self.assertEqual(bopomofo(['mian']), ['ㄇㄧㄢ˙'])
@@ -338,7 +338,7 @@ class Bopomofo(Base):
         self.assertEqual(bopomofo(['xian']), ['ㄒㄧㄢ˙'])
         self.assertEqual(bopomofo(['yan']), ['ㄧㄢ˙'])
 
-    def test_pinyin_syllables_yin(self):
+    def test_yin(self):
         self.assertEqual(bopomofo(['bin']), ['ㄅㄧㄣ˙'])
         self.assertEqual(bopomofo(['pin']), ['ㄆㄧㄣ˙'])
         self.assertEqual(bopomofo(['min']), ['ㄇㄧㄣ˙'])
@@ -349,7 +349,7 @@ class Bopomofo(Base):
         self.assertEqual(bopomofo(['xin']), ['ㄒㄧㄣ˙'])
         self.assertEqual(bopomofo(['yin']), ['ㄧㄣ˙'])
 
-    def test_pinyin_syllables_yang(self):
+    def test_yang(self):
         self.assertEqual(bopomofo(['niang']), ['ㄋㄧㄤ˙'])
         self.assertEqual(bopomofo(['liang']), ['ㄌㄧㄤ˙'])
         self.assertEqual(bopomofo(['jiang']), ['ㄐㄧㄤ˙'])
@@ -357,7 +357,7 @@ class Bopomofo(Base):
         self.assertEqual(bopomofo(['xiang']), ['ㄒㄧㄤ˙'])
         self.assertEqual(bopomofo(['yang']), ['ㄧㄤ˙'])
 
-    def test_pinyin_syllables_ying(self):
+    def test_ying(self):
         self.assertEqual(bopomofo(['bing']), ['ㄅㄧㄥ˙'])
         self.assertEqual(bopomofo(['ping']), ['ㄆㄧㄥ˙'])
         self.assertEqual(bopomofo(['ming']), ['ㄇㄧㄥ˙'])
@@ -370,13 +370,13 @@ class Bopomofo(Base):
         self.assertEqual(bopomofo(['xing']), ['ㄒㄧㄥ˙'])
         self.assertEqual(bopomofo(['ying']), ['ㄧㄥ˙'])
 
-    def test_pinyin_syllables_yong(self):
+    def test_yong(self):
         self.assertEqual(bopomofo(['jiong']), ['ㄐㄩㄥ˙'])
         self.assertEqual(bopomofo(['qiong']), ['ㄑㄩㄥ˙'])
         self.assertEqual(bopomofo(['xiong']), ['ㄒㄩㄥ˙'])
         self.assertEqual(bopomofo(['yong']), ['ㄩㄥ˙'])
 
-    def test_pinyin_syllables_wu(self):
+    def test_wu(self):
         self.assertEqual(bopomofo(['bu']), ['ㄅㄨ˙'])
         self.assertEqual(bopomofo(['pu']), ['ㄆㄨ˙'])
         self.assertEqual(bopomofo(['mu']), ['ㄇㄨ˙'])
@@ -397,7 +397,7 @@ class Bopomofo(Base):
         self.assertEqual(bopomofo(['hu']), ['ㄏㄨ˙'])
         self.assertEqual(bopomofo(['wu']), ['ㄨ˙'])
 
-    def test_pinyin_syllables_wa(self):
+    def test_wa(self):
         self.assertEqual(bopomofo(['zhua']), ['ㄓㄨㄚ˙'])
         self.assertEqual(bopomofo(['chua']), ['ㄔㄨㄚ˙'])
         self.assertEqual(bopomofo(['shua']), ['ㄕㄨㄚ˙'])
@@ -406,7 +406,7 @@ class Bopomofo(Base):
         self.assertEqual(bopomofo(['hua']), ['ㄏㄨㄚ˙'])
         self.assertEqual(bopomofo(['wa']), ['ㄨㄚ˙'])
 
-    def test_pinyin_syllables_wo(self):
+    def test_wo(self):
         self.assertEqual(bopomofo(['duo']), ['ㄉㄨㄛ˙'])
         self.assertEqual(bopomofo(['tuo']), ['ㄊㄨㄛ˙'])
         self.assertEqual(bopomofo(['nuo']), ['ㄋㄨㄛ˙'])
@@ -423,7 +423,7 @@ class Bopomofo(Base):
         self.assertEqual(bopomofo(['huo']), ['ㄏㄨㄛ˙'])
         self.assertEqual(bopomofo(['wo']), ['ㄨㄛ˙'])
 
-    def test_pinyin_syllables_wai(self):
+    def test_wai(self):
         self.assertEqual(bopomofo(['zhuai']), ['ㄓㄨㄞ˙'])
         self.assertEqual(bopomofo(['chuai']), ['ㄔㄨㄞ˙'])
         self.assertEqual(bopomofo(['shuai']), ['ㄕㄨㄞ˙'])
@@ -432,7 +432,7 @@ class Bopomofo(Base):
         self.assertEqual(bopomofo(['huai']), ['ㄏㄨㄞ˙'])
         self.assertEqual(bopomofo(['wai']), ['ㄨㄞ˙'])
 
-    def test_pinyin_syllables_wei(self):
+    def test_wei(self):
         self.assertEqual(bopomofo(['dui']), ['ㄉㄨㄟ˙'])
         self.assertEqual(bopomofo(['tui']), ['ㄊㄨㄟ˙'])
         self.assertEqual(bopomofo(['zui']), ['ㄗㄨㄟ˙'])
@@ -447,7 +447,7 @@ class Bopomofo(Base):
         self.assertEqual(bopomofo(['hui']), ['ㄏㄨㄟ˙'])
         self.assertEqual(bopomofo(['wei']), ['ㄨㄟ˙'])
 
-    def test_pinyin_syllables_wan(self):
+    def test_wan(self):
         self.assertEqual(bopomofo(['duan']), ['ㄉㄨㄢ˙'])
         self.assertEqual(bopomofo(['tuan']), ['ㄊㄨㄢ˙'])
         self.assertEqual(bopomofo(['nuan']), ['ㄋㄨㄢ˙'])
@@ -464,7 +464,7 @@ class Bopomofo(Base):
         self.assertEqual(bopomofo(['huan']), ['ㄏㄨㄢ˙'])
         self.assertEqual(bopomofo(['wan']), ['ㄨㄢ˙'])
 
-    def test_pinyin_syllables_wen(self):
+    def test_wen(self):
         self.assertEqual(bopomofo(['dun']), ['ㄉㄨㄣ˙'])
         self.assertEqual(bopomofo(['tun']), ['ㄊㄨㄣ˙'])
         self.assertEqual(bopomofo(['lun']), ['ㄌㄨㄣ˙'])
@@ -480,7 +480,7 @@ class Bopomofo(Base):
         self.assertEqual(bopomofo(['hun']), ['ㄏㄨㄣ˙'])
         self.assertEqual(bopomofo(['wen']), ['ㄨㄣ˙'])
 
-    def test_pinyin_syllables_wang(self):
+    def test_wang(self):
         self.assertEqual(bopomofo(['zhuang']), ['ㄓㄨㄤ˙'])
         self.assertEqual(bopomofo(['chuang']), ['ㄔㄨㄤ˙'])
         self.assertEqual(bopomofo(['shuang']), ['ㄕㄨㄤ˙'])
@@ -489,10 +489,10 @@ class Bopomofo(Base):
         self.assertEqual(bopomofo(['huang']), ['ㄏㄨㄤ˙'])
         self.assertEqual(bopomofo(['wang']), ['ㄨㄤ˙'])
 
-    def test_pinyin_syllable_weng(self):
+    def test_weng(self):
         self.assertEqual(bopomofo(['weng']), ['ㄨㄥ˙'])
 
-    def test_pinyin_syllables_yu(self):
+    def test_yu(self):
         self.assertEqual(bopomofo(['nü']), ['ㄋㄩ˙'])
         self.assertEqual(bopomofo(['lü']), ['ㄌㄩ˙'])
         self.assertEqual(bopomofo(['ju']), ['ㄐㄩ˙'])
@@ -500,7 +500,7 @@ class Bopomofo(Base):
         self.assertEqual(bopomofo(['xu']), ['ㄒㄩ˙'])
         self.assertEqual(bopomofo(['yu']), ['ㄩ˙'])
 
-    def test_pinyin_syllables_yue(self):
+    def test_yue(self):
         self.assertEqual(bopomofo(['nüe']), ['ㄋㄩㄝ˙'])
         self.assertEqual(bopomofo(['lüe']), ['ㄌㄩㄝ˙'])
         self.assertEqual(bopomofo(['jue']), ['ㄐㄩㄝ˙'])
@@ -508,13 +508,13 @@ class Bopomofo(Base):
         self.assertEqual(bopomofo(['xue']), ['ㄒㄩㄝ˙'])
         self.assertEqual(bopomofo(['yue']), ['ㄩㄝ˙'])
 
-    def test_pinyin_syllables_yuan(self):
+    def test_yuan(self):
         self.assertEqual(bopomofo(['juan']), ['ㄐㄩㄢ˙'])
         self.assertEqual(bopomofo(['quan']), ['ㄑㄩㄢ˙'])
         self.assertEqual(bopomofo(['xuan']), ['ㄒㄩㄢ˙'])
         self.assertEqual(bopomofo(['yuan']), ['ㄩㄢ˙'])
 
-    def test_pinyin_syllables_yun(self):
+    def test_yun(self):
         self.assertEqual(bopomofo(['jun']), ['ㄐㄩㄣ˙'])
         self.assertEqual(bopomofo(['qun']), ['ㄑㄩㄣ˙'])
         self.assertEqual(bopomofo(['xun']), ['ㄒㄩㄣ˙'])

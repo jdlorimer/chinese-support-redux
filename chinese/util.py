@@ -16,45 +16,37 @@
 # You should have received a copy of the GNU General Public License along with
 # Chinese Support Redux.  If not, see <https://www.gnu.org/licenses/>.
 
-from .consts import CLOZE_REGEX
-
 from re import DOTALL, sub
+from typing import Dict, List
 from unicodedata import category
 
+from .consts import CLOZE_REGEX
 
-def has_field(fields, note):
+
+def has_field(fields, note) -> bool:
     for k in note:
         for f in fields:
-            try:
-                if str(f.lower()) == str(k.lower()):
-                    return True
-            except:
-                pass
+            if str(f.lower()) == str(k.lower()):
+                return True
     return False
 
 
-def has_any_field(note, a):
-    from .main import config
-
-    for f in a:
-        if has_field(config['fields'][f], note):
+def has_any_field(note: Dict[str, str], fields: List[str]) -> bool:
+    for f in fields:
+        if has_field(f, note):
             return True
     return False
 
 
-def all_fields_empty(note, a):
-    from .main import config
-
-    for f in a:
-        if get_first(config['fields'][f], note):
+def all_fields_empty(note: Dict[str, str], fields: List[str]) -> bool:
+    for f in fields:
+        if note.get(f):
             return False
     return True
 
 
-def erase_fields(note):
-    from .main import config
-
-    for f in config['fields'].values():
+def erase_fields(note: Dict[str, str], fields: List[str]) -> None:
+    for f in fields:
         set_all(f, note, to='')
 
 
@@ -65,15 +57,12 @@ def get_first(fields, note):
     """
     for f in fields:
         for k in note:
-            try:
-                if str(f.lower()) == str(k.lower()):
-                    return note[k]
-            except:
-                pass
+            if str(f.lower()) == str(k.lower()):
+                return note[k]
     return None
 
 
-def set_all(fields, note, to):
+def set_all(fields, note, to) -> None:
     fields = [f.lower() for f in fields]
 
     for f in note.keys():
@@ -81,8 +70,10 @@ def set_all(fields, note, to):
             note[f] = to
 
 
-def cleanup(text):
-    if not text:
+def cleanup(text: str) -> str:
+    if text is None:
+        raise ValueError(text)
+    if not text.strip():
         return ''
     text = no_html(text)
     text = text.replace('&nbsp;', ' ')
@@ -92,11 +83,11 @@ def cleanup(text):
     return text
 
 
-def no_html(text):
+def no_html(text: str) -> str:
     return sub(r'<.*?>', '', text, flags=DOTALL)
 
 
-def hide(text, hidden):
+def hide(text: str, hidden: str) -> str:
     """Add hidden keyword to string to allow search."""
 
     if not text or text == '<br />':
@@ -109,7 +100,7 @@ def hide(text, hidden):
     return '{} <!-- {} -->'.format(text, hidden)
 
 
-def no_color(text):
+def no_color(text: str) -> str:
     if not text:
         return ''
     text = text.replace(r'&nbsp;', '')
@@ -120,7 +111,7 @@ def no_color(text):
     return text
 
 
-def no_hidden(text):
+def no_hidden(text: str) -> str:
     return sub(r' *<!--.*?--> *', ' ', text)
 
 
@@ -130,7 +121,7 @@ def add_with_space(a, b):
     return a + b
 
 
-def is_punc(s):
+def is_punc(s: str) -> bool:
     if s is None:
         return False
     return all(category(c).startswith('P') for c in s)
@@ -164,7 +155,7 @@ def align(a, b):
     return done
 
 
-def save_note(orig, copy):
+def save_note(orig, copy) -> int:
     n_changed = 0
     for f in orig.keys():
         if f in copy and copy[f] != orig[f]:

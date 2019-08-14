@@ -20,7 +20,7 @@ from os.path import dirname, join, realpath
 from re import match
 
 
-def lookup_frequency(hanzi):
+def get_frequency(hanzi):
     levels = [
         (200, 'very basic'),
         (100, 'basic'),
@@ -33,7 +33,7 @@ def lookup_frequency(hanzi):
     ]
 
     corpus_path = join(
-        dirname(realpath(__file__)), 'lib', 'num', 'internet-zh.num'
+        dirname(realpath(__file__)), 'data', 'freq', 'internet-zh'
     )
 
     with open(corpus_path, encoding='utf8') as f:

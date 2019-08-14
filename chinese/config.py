@@ -20,6 +20,7 @@
 from collections import defaultdict
 from json import load
 from os.path import dirname, join, realpath
+from typing import List
 
 from aqt import mw
 
@@ -42,8 +43,16 @@ class ConfigManager:
     def __getitem__(self, key):
         return self.config[key]
 
-    def update(self, d):
+    def update(self, d) -> None:
         self.config.update(d)
 
-    def save(self):
+    def save(self) -> None:
         mw.addonManager.writeConfig(__name__, self.config)
+
+    def get_fields(self, groups: List[str] = []) -> List[str]:
+        if not groups:
+            groups = list(self.config['fields'])
+        fields: List[str] = []
+        for g in groups:
+            fields.extend(self.config['fields'][g])
+        return fields
