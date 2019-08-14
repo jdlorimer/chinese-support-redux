@@ -103,12 +103,6 @@ class gTTS:
             ]).run
     ):
 
-        # Debug
-        for k, v in locals().items():
-            if k == 'self':
-                continue
-            log.debug("%s: %s", k, v)
-
         # Text
         assert text, 'No text to speak'
         self.text = text

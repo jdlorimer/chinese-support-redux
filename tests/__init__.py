@@ -18,9 +18,11 @@
 from gettext import NullTranslations
 from json import load
 from logging import getLogger
+from tempfile import mkdtemp
 from unittest import TestCase
 from unittest.mock import MagicMock, patch
 
+network_integration = False
 
 NullTranslations().install()
 
@@ -38,18 +40,22 @@ modules = {
     'anki.utils': MagicMock(),
     'aqt': MagicMock(),
     'aqt.utils': MagicMock(),
-    'gtts': MagicMock(),
-    'requests': MagicMock(),
 }
+
+if network_integration:
+    media_dir = mkdtemp()
+else:
+    media_dir = 'collection.media'
+    modules['gtts'] = MagicMock()
+    modules['requests'] = MagicMock()
+
 patch.dict('sys.modules', modules).start()
 
 with open('chinese/config.json') as f:
     config = load(f)
 
 patch('aqt.mw.addonManager.getConfig', lambda a: config).start()
-patch(
-    'aqt.mw.col.media.dir', MagicMock(return_value='collection.media')
-).start()
+patch('aqt.mw.col.media.dir', MagicMock(return_value=media_dir)).start()
 
 
 class Base(TestCase):
