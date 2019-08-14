@@ -1,6 +1,6 @@
 {
     "firstRun": true,
-    "version": "0.11.3",
+    "version": "0.11.4",
     "enabledModels": [],
     "speech": "google|zh-cn",
     "target": "pinyin",
