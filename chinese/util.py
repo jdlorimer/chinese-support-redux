@@ -17,13 +17,12 @@
 # Chinese Support Redux.  If not, see <https://www.gnu.org/licenses/>.
 
 from re import DOTALL, sub
-from typing import Dict, List
 from unicodedata import category
 
 from .consts import CLOZE_REGEX
 
 
-def has_field(fields, note) -> bool:
+def has_field(fields, note):
     for k in note:
         for f in fields:
             if str(f.lower()) == str(k.lower()):
@@ -31,21 +30,21 @@ def has_field(fields, note) -> bool:
     return False
 
 
-def has_any_field(note: Dict[str, str], fields: List[str]) -> bool:
+def has_any_field(note, fields):
     for f in fields:
         if has_field(f, note):
             return True
     return False
 
 
-def all_fields_empty(note: Dict[str, str], fields: List[str]) -> bool:
+def all_fields_empty(note, fields):
     for f in fields:
         if note.get(f):
             return False
     return True
 
 
-def erase_fields(note: Dict[str, str], fields: List[str]) -> None:
+def erase_fields(note, fields):
     for f in fields:
         set_all(f, note, to='')
 
@@ -62,7 +61,7 @@ def get_first(fields, note):
     return None
 
 
-def set_all(fields, note, to) -> None:
+def set_all(fields, note, to):
     fields = [f.lower() for f in fields]
 
     for f in note.keys():
@@ -70,7 +69,7 @@ def set_all(fields, note, to) -> None:
             note[f] = to
 
 
-def cleanup(text: str) -> str:
+def cleanup(text):
     if text is None:
         raise ValueError(text)
     if not text.strip():
@@ -83,11 +82,11 @@ def cleanup(text: str) -> str:
     return text
 
 
-def no_html(text: str) -> str:
+def no_html(text):
     return sub(r'<.*?>', '', text, flags=DOTALL)
 
 
-def hide(text: str, hidden: str) -> str:
+def hide(text, hidden):
     """Add hidden keyword to string to allow search."""
 
     if not text or text == '<br />':
@@ -100,7 +99,7 @@ def hide(text: str, hidden: str) -> str:
     return '{} <!-- {} -->'.format(text, hidden)
 
 
-def no_color(text: str) -> str:
+def no_color(text):
     if not text:
         return ''
     text = text.replace(r'&nbsp;', '')
@@ -111,7 +110,7 @@ def no_color(text: str) -> str:
     return text
 
 
-def no_hidden(text: str) -> str:
+def no_hidden(text):
     return sub(r' *<!--.*?--> *', ' ', text)
 
 
@@ -121,7 +120,7 @@ def add_with_space(a, b):
     return a + b
 
 
-def is_punc(s: str) -> bool:
+def is_punc(s):
     if s is None:
         return False
     return all(category(c).startswith('P') for c in s)
@@ -155,7 +154,7 @@ def align(a, b):
     return done
 
 
-def save_note(orig, copy) -> int:
+def save_note(orig, copy):
     n_changed = 0
     for f in orig.keys():
         if f in copy and copy[f] != orig[f]:

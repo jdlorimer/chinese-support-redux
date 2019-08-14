@@ -16,8 +16,6 @@
 # You should have received a copy of the GNU General Public License along with
 # Chinese Support Redux.  If not, see <https://www.gnu.org/licenses/>.
 
-from typing import Dict, List
-
 from .color import colorize, colorize_dict, colorize_fuse
 from .freq import get_frequency
 from .hanzi import get_silhouette, get_simp, get_trad, split_hanzi
@@ -128,7 +126,7 @@ def fill_transcript(hanzi, note):
     return n_filled
 
 
-def reformat_transcript(note: Dict[str, str], group: str, target: str):
+def reformat_transcript(note, group, target):
     if target == 'bopomofo':
         return
 
@@ -136,11 +134,11 @@ def reformat_transcript(note: Dict[str, str], group: str, target: str):
     if transcript is None:
         return
 
-    clean: str = cleanup(transcript)
-    split: List[str] = split_transcript(clean, target, grouped=True)
-    accent: List[str] = accentuate(split, target)
-    color: str = colorize(accent)
-    hidden: str = hide(color, no_tone(color))
+    clean = cleanup(transcript)
+    split = split_transcript(clean, target, grouped=True)
+    accent = accentuate(split, target)
+    color = colorize(accent)
+    hidden = hide(color, no_tone(color))
 
     set_all(config['fields'][group], note, to=hidden)
 
