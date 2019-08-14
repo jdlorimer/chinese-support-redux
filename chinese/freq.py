@@ -37,14 +37,20 @@ def get_frequency(hanzi):
         dirname(realpath(__file__)), 'data', 'freq', 'internet-zh'
     )
 
+    found = False
+
     with open(corpus_path, encoding='utf8') as f:
         for line in f:
             res = match('[0-9]+ ([0-9.]+) %s$' % hanzi, line)
             if res:
                 freq = float(res.group(1))
+                found = True
                 break
 
     html = '<div class="freq freq-unknown">unknown</div>'
+
+    if not found:
+        return html
 
     for level, desc in levels:
         if freq > level:
