@@ -1,5 +1,6 @@
+# Copyright © 2013 Ernest French <ernestfrench@gmail.com>
+# Copyright © 2019 Philip Wong <https://pwong.co.uk>
 # Copyright © 2019 Joseph Lorimer <joseph@lorimer.me>
-# Copyright © 2019 Philip Wong
 #
 # This file is part of Chinese Support Redux.
 #
