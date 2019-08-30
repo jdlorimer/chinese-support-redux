@@ -23,7 +23,6 @@ def download(text, source='google|zh-cn'):
     service, lang = source.split('|')
 
     path = get_path(text, service, lang)
-    path = get_path(text, service, lang)
 
     if exists(path):
         return basename(path)
