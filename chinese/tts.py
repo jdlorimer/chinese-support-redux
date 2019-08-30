@@ -13,6 +13,7 @@ from urllib.request import Request, urlopen
 import requests
 from aqt import mw
 from gtts import gTTS
+import boto3
 
 
 requests.packages.urllib3.disable_warnings()
@@ -21,12 +22,8 @@ requests.packages.urllib3.disable_warnings()
 def download(text, source='google|zh-cn'):
     service, lang = source.split('|')
 
-    if service == 'google':
-        path = get_path(text, service, lang)
-    elif service == 'baidu':
-        path = get_path(text, service, lang)
-    else:
-        raise NotImplementedError(service)
+    path = get_path(text, service, lang)
+    path = get_path(text, service, lang)
 
     if exists(path):
         return basename(path)
@@ -37,6 +34,10 @@ def download(text, source='google|zh-cn'):
         tts.save(path)
     elif service == 'baidu':
         download_baidu(text, lang, path)
+    elif service == 'aws':
+        download_aws(text, lang, path)
+    else:
+        raise NotImplementedError(service)
 
     return basename(path)
 
@@ -65,3 +66,14 @@ def download_baidu(text, lang, path):
         raise ValueError(str(response.code) + ': ' + response.msg)
     with open(path, 'wb') as audio:
         audio.write(response.read())
+
+def download_aws(text, lang, path):
+    client = boto3.Session(region_name="us-west-2").client("polly")
+
+    res = client.synthesize_speech(VoiceId=lang, OutputFormat="mp3", Text=text)
+
+    if res['ResponseMetadata']['HTTPStatusCode'] != 200:
+        raise ValueError("Polly Request Failed: Error Code "+str(res['ResponseMetadata']['HTTPStatusCode']))
+
+    with open(path, 'wb') as audio:
+        audio.write(res['AudioStream'].read())
