@@ -1,5 +1,5 @@
 import requests
-from urlparse import urlparse
+from urllib.parse import urlparse
 import datetime
 import hashlib
 import hmac
