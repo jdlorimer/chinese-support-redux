@@ -5,19 +5,23 @@
 # Inspiration: Tymon Warecki
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/copyleft/agpl.html
 
-from os.path import basename, exists, join
+from os.path import basename, exists, join, expanduser
 from re import sub
-from urllib.parse import urlencode
+from urllib.parse import urlencode, urlparse
 from urllib.request import Request, urlopen
+import datetime
+import hashlib
 
 import requests
 from aqt import mw
 from gtts import gTTS
 import boto3
-
+from urllib.parse import urlparse
+import datetime
+import hashlib
+import hmac
 
 requests.packages.urllib3.disable_warnings()
-
 
 def download(text, source='google|zh-cn'):
     service, lang = source.split('|')
@@ -67,12 +71,20 @@ def download_baidu(text, lang, path):
         audio.write(response.read())
 
 def download_aws(text, lang, path):
-    client = boto3.Session(region_name="us-west-2").client("polly")
+    signer = AWS4Signer(service='polly')
+    signer.use_aws_profile('chinese_support_redux')
 
-    res = client.synthesize_speech(VoiceId=lang, OutputFormat="mp3", Text=text)
+    url = "https://polly.%s.amazonaws.com/v1/speech" % (signer.region_name)
+    post_data = {
+        "OutputFormat" : "mp3",
+        "Text" : text,
+        "VoiceId" : lang,
+    }
 
-    if res['ResponseMetadata']['HTTPStatusCode'] != 200:
-        raise ValueError("Polly Request Failed: Error Code "+str(res['ResponseMetadata']['HTTPStatusCode']))
+    res = requests.post(url, json=post_data, auth=signer)
+
+    if res.status_code != 200:
+        raise ValueError("Polly Request Failed: Error Code "+str(res.status_code))
 
     with open(path, 'wb') as audio:
-        audio.write(res['AudioStream'].read())
+        audio.write(res.content)
