@@ -9,18 +9,12 @@ from .aws import AWS4Signer
 
 from os.path import basename, exists, join, expanduser
 from re import sub
-from urllib.parse import urlencode, urlparse
+from urllib.parse import urlencode
 from urllib.request import Request, urlopen
-import datetime
-import hashlib
 
 import requests
 from aqt import mw
 from gtts import gTTS
-from urllib.parse import urlparse
-import datetime
-import hashlib
-import hmac
 
 requests.packages.urllib3.disable_warnings()
 
