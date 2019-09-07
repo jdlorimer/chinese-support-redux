@@ -4,6 +4,8 @@ import datetime
 import hashlib
 import hmac
 import re
+from os.path import exists, expanduser, join
+from configparser import ConfigParser
 
 def trimall(s):
     return re.sub(" +", " ", s).strip(" ")
@@ -11,13 +13,40 @@ def trimall(s):
 def sign(key, msg):
     return hmac.new(key, msg.encode('utf-8'), hashlib.sha256).digest()
 
+def read_aws_config(profile='default'):
+    # TODO: Windows support
+    aws_config_path = expanduser(join('~','.aws','config'))
+    aws_cred_path = expanduser(join('~','.aws','credentials'))
+
+    cfg = ConfigParser(default_section='default')
+
+    cfg.read(aws_config_path)
+    cfg.read(aws_cred_path)  # Values in credentials file will override config
+
+    if profile in cfg:
+        return dict(cfg[profile])
+    else:
+        return dict(cfg[cfg.default_section])
+
 class AWS4Signer:
-    def __init__(self, access_key, secret_key, region_name="us-west-2", algorithm='AWS4-HMAC-SHA256', service='ec2'):
+    def __init__(self, access_key="", secret_key="", region_name="us-west-2", algorithm='AWS4-HMAC-SHA256', service='ec2'):
         self.access_key = access_key
         self.secret_key = secret_key
         self.region_name = region_name
         self.algorithm = algorithm
         self.service = service
+
+    def use_aws_profile(self, profile="default"):
+        cfg = read_aws_config(profile)
+
+        if 'aws_access_key_id' in cfg:
+            self.access_key = cfg['aws_access_key_id']
+
+        if 'aws_secret_access_key' in cfg:
+            self.secret_key = cfg['aws_secret_access_key']
+
+        if 'region' in cfg:
+            self.region_name = cfg['region']
 
     def signed_headers(self):
         if self.request is None:
@@ -84,6 +113,9 @@ class AWS4Signer:
         return hmac.new(self.signing_key(), (to_sign).encode('utf-8'), hashlib.sha256).hexdigest()
 
     def __call__(self, req):
+        if not self.access_key or not self.secret_key:
+            raise ValueError("No AWS credentials given")
+
         self.request = req
 
         P = urlparse(self.request.url)
