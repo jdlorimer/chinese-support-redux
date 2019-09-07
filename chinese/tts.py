@@ -5,6 +5,8 @@
 # Inspiration: Tymon Warecki
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/copyleft/agpl.html
 
+from .aws import AWS4Signer
+
 from os.path import basename, exists, join, expanduser
 from re import sub
 from urllib.parse import urlencode, urlparse
@@ -15,7 +17,6 @@ import hashlib
 import requests
 from aqt import mw
 from gtts import gTTS
-import boto3
 from urllib.parse import urlparse
 import datetime
 import hashlib
