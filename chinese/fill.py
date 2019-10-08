@@ -34,6 +34,7 @@ from .behavior import (
     fill_sound,
     fill_trad,
     fill_transcript,
+    update_fields,
 )
 from .hanzi import get_hanzi
 from .main import config
@@ -317,6 +318,58 @@ def bulk_fill_classifiers():
         % {'has_fields': n_targets, 'filled': d_success, 'failed': d_failed}
     )
 
+
+def bulk_fill_all_missing():
+    """
+    This assumes that at least the hanzi field is present. Everything else
+    can be built from that. We don't replace fields already present so that
+    we don't blap def'n that people have put in.
+    """
+    prompt = PROMPT_TEMPLATE.format(
+        field_names='<i>hanzi</i>',
+        extra_info=(
+            '<div>There will be a 5 second delay between each sound request,'
+            ' so this may take a while.</div>'
+        ),
+    )
+
+
+    fields = config.get_fields(['traditional', 'simplified'])
+
+    if not askUser(prompt):
+        return
+
+    d_has_fields = 0
+    d_success = 0
+
+    note_ids = Finder(mw.col).findNotes('deck:current')
+    mw.progress.start(immediate=True, min=0, max=len(note_ids))
+
+    for i, nid in enumerate(note_ids):
+        note = mw.col.getNote(nid)
+        copy = dict(note)
+
+        # assume all get updated. improves this later
+        update_fields(copy, config['fields']['hanzi'], [])
+        msg = '''
+        <b>Processing:</b> %(hanzi)s<br>
+        <b>Updated:</b> %(filled)d''' % {
+            'hanzi': get_hanzi(copy),
+            'filled': d_success,
+        }
+        mw.progress.update(label=msg, value=i)
+
+        d_success = save_note(note, copy)
+        sleep(5)
+
+    msg = '''
+    <b>Update complete!</b> %(hanzi)s<br>
+    <b>Updated:</b> %(filled)d notes''' % {
+        'hanzi': get_hanzi(copy),
+        'filled': d_success,
+    }
+    mw.progress.finish()
+    showInfo(msg)
 
 def bulk_fill_hanzi():
     prompt = PROMPT_TEMPLATE.format(field_names='<i>hanzi</i>', extra_info='')

@@ -29,6 +29,7 @@ from .fill import (
     bulk_fill_classifiers,
     bulk_fill_defs,
     bulk_fill_hanzi,
+    bulk_fill_all_missing,
     bulk_fill_transcript,
     bulk_fill_silhouette,
     bulk_fill_sound,
@@ -72,6 +73,7 @@ def load_menu():
 
     add_menu('Chinese::Bulk Fill')
     add_menu_item('Chinese::Bulk Fill', _('Hanzi'), bulk_fill_hanzi)
+    add_menu_item('Chinese::Bulk Fill', _('All'), bulk_fill_all_missing)
     add_menu_item(
         'Chinese::Bulk Fill', _('Transcription'), bulk_fill_transcript
     )

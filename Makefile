@@ -38,7 +38,27 @@ prep:
 
 pack:
 	(cd "$(PROJECT_SHORT)" && zip -r ../$(PROJECT_LONG)-v$(VERSION).zip *)
+	(cd "$(PROJECT_SHORT)" && zip -r ../package.zip *)
 	./convert-readme.py
+
+OS := $(shell uname)
+ifeq ($(OS),Darwin)
+	ANKI_PATH = ${HOME}/Library/Application Support/Anki2/addons21/chinese-support-redux
+endif
+ifeq ($(OS),Linux)
+	ANKI_PATH = ${HOME}/.local/share/Anki2/addons21/chinese-support-redux
+endif
+
+
+# installs into local anki for testing.
+install:
+	rm -rf package
+	mkdir package
+	cp package.zip package
+	cd package && unzip package.zip
+	rm package/package.zip
+	rm -rf "${ANKI_PATH}"
+	cp -r package "${ANKI_PATH}"
 
 clean:
 	rm "$(PROJECT_SHORT)/LICENSE.txt"
