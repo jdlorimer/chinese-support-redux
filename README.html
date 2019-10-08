@@ -1,4 +1,4 @@
-<a href="https://app.codacy.com/app/luoliyan/chinese-support-redux?utm_source=github.com&utm_medium=referral&utm_content=luoliyan/chinese-support-redux&utm_campaign=Badge_Grade_Dashboard"><img src="https://api.codacy.com/project/badge/Grade/6b99fcb30a2142d899f79c601a6aa291" alt="Codacy Badge" /></a><a href="https://travis-ci.org/luoliyan/chinese-support-redux"><img src="https://travis-ci.org/luoliyan/chinese-support-redux.svg?branch=master" alt="Build Status" /></a> <a href="https://coveralls.io/github/luoliyan/chinese-support-redux?branch=master"><img src="https://coveralls.io/repos/github/luoliyan/chinese-support-redux/badge.svg?branch=master" alt="Coverage Status" /></a>
+<a href="https://app.codacy.com/app/luoliyan/chinese-support-redux?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=luoliyan/chinese-support-redux&amp;utm_campaign=Badge_Grade_Dashboard"><img src="https://api.codacy.com/project/badge/Grade/6b99fcb30a2142d899f79c601a6aa291" alt="Codacy Badge" /></a><a href="https://travis-ci.org/luoliyan/chinese-support-redux"><img src="https://travis-ci.org/luoliyan/chinese-support-redux.svg?branch=master" alt="Build Status" /></a> <a href="https://coveralls.io/github/luoliyan/chinese-support-redux?branch=master"><img src="https://coveralls.io/repos/github/luoliyan/chinese-support-redux/badge.svg?branch=master" alt="Coverage Status" /></a>
 
 
 Chinese Support Redux is a rewrite and port of the <a href="https://github.com/ttempe/chinese-support-addon">original</a> Chinese Support add-on to Anki 2.1. It offers a number of features that streamline the process of creating flashcards for learning Chinese. The current focus of development effort is on improving the stability of the add-on and the accuracy of its output. Once the core functionality is sufficiently robust and reliable, additional features will be considered. While many of the changes will be structural in nature, I would encourage users to update the add-on whenever the version number increases and notify me of any problems. Your feedback is important.
@@ -45,12 +45,16 @@ For those who wish to run the tests locally, this is fairly straightforward.
 
 Clone the repository:
 
-<code>git clone https://github.com/luoliyan/chinese-support-reduxcd chinese-support-redux</code>
+<code>shgit clone https://github.com/luoliyan/chinese-support-reduxcd chinese-support-redux</code>
 
 Ideally, set up a virtual environment to isolate the project:
 
-<code>curl https://pyenv.run | bashpyenv virtualenv 3.6.8 csrpyenv local csr</code>
+<code>shcurl https://pyenv.run | bashpyenv virtualenv 3.6.8 csrpyenv local csr</code>
 
 Install dependencies and run the tests:
 
-<code>pip install -r requirements.txtmake test</code>
+<code>shpip install -r requirements.txtmake test</code>
+
+A make install will dump the addon into a locally install anki at least on mac or linux.
+
+You do need to first remove any automatically installed version of the add-on.
