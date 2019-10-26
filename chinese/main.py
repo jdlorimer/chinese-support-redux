@@ -16,6 +16,7 @@
 # Chinese Support Redux.  If not, see <https://www.gnu.org/licenses/>.
 
 from anki.hooks import addHook, wrap
+from anki.lang import _
 from anki.stats import CollectionStats
 from anki.stdmodels import models
 from aqt import mw
