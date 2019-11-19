@@ -23,6 +23,10 @@ from .consts import CLOZE_REGEX
 
 
 def has_field(fields, note):
+    if isinstance(fields, (str, bytes)):
+        raise ValueError(
+                "fields is string-like, should be list-like: {}".format(
+                    fields))
     for k in note:
         for f in fields:
             if str(f.lower()) == str(k.lower()):
@@ -32,7 +36,7 @@ def has_field(fields, note):
 
 def has_any_field(note, fields):
     for f in fields:
-        if has_field(f, note):
+        if has_field([f], note):
             return True
     return False
 
