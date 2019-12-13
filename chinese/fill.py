@@ -350,7 +350,10 @@ def bulk_fill_all_missing():
         copy = dict(note)
 
         # assume all get updated. improves this later
-        update_fields(copy, config['fields']['hanzi'], [])
+        allFields = mw.col.models.fieldNames(note.model())
+        if not allFields:
+            assert 2 == 3
+        update_fields(note, "Hanzi", allFields)
         msg = '''
         <b>Processing:</b> %(hanzi)s<br>
         <b>Updated:</b> %(filled)d''' % {
@@ -358,9 +361,8 @@ def bulk_fill_all_missing():
             'filled': d_success,
         }
         mw.progress.update(label=msg, value=i)
-
-        d_success = save_note(note, copy)
-        sleep(5)
+        note.flush()
+        #sleep(1)
 
     msg = '''
     <b>Update complete!</b> %(hanzi)s<br>
