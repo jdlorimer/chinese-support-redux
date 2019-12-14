@@ -21,7 +21,7 @@ from re import findall, sub
 from .consts import SOUND_TAG_REGEX
 from .hanzi import has_hanzi
 from .main import config
-from .tts import download
+from .tts import AudioDownloader
 
 
 def sound(hanzi, source=None):
@@ -45,7 +45,7 @@ def sound(hanzi, source=None):
         return ''
 
     if source:
-        return '[sound:%s]' % download(hanzi, source)
+        return '[sound:%s]' % AudioDownloader(hanzi, source).download()
 
     return ''
 

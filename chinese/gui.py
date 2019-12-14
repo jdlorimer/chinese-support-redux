@@ -40,6 +40,7 @@ SPEECH_ENGINES = {
     'Baidu Translate': 'baidu|zh',
     'Google Mandarin (PRC)': 'google|zh-cn',
     'Google Mandarin (Taiwan)': 'google|zh-tw',
+    'Amazon Polly' : 'aws|Zhiyu',
     'Disabled': None,
 }
 
