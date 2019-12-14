@@ -24,6 +24,8 @@ selection (bottom of the window).
 import re
 import time
 
+from anki.lang import _
+
 now = time.mktime(time.localtime())
 
 
