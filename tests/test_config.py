@@ -4,12 +4,13 @@ from chinese.config import ConfigManager
 
 class Config(Base):
     def test_get_fields(self):
-        config = ConfigManager()
         expected = ['English', '英文', '英語', '英语']
-        self.assertEqual(config.get_fields(['english']), expected)
+        self.assertEqual(ConfigManager().get_fields(['english']), expected)
+
+    def test_get_fields_bad_group(self):
+        self.assertEqual(ConfigManager().get_fields(['Foo']), [])
 
     def test_get_fields_no_arg(self):
-        config = ConfigManager()
         expected = [
             'Also Written',
             'Alternative',
@@ -101,4 +102,4 @@ class Config(Base):
             '量詞',
             '量词',
         ]
-        self.assertCountEqual(config.get_fields(), expected)
+        self.assertCountEqual(ConfigManager().get_fields(), expected)

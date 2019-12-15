@@ -56,5 +56,6 @@ class ConfigManager:
             groups = list(self.config['fields'])
         fields = []
         for g in groups:
-            fields.extend(self.config['fields'][g])
+            if g in self.config['fields']:
+                fields.extend(self.config['fields'][g])
         return fields
