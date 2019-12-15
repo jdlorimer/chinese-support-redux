@@ -21,6 +21,8 @@ from chinese.util import (
     align,
     cleanup,
     get_first,
+    has_field,
+    has_any_field,
     hide,
     no_hidden,
     save_note,
@@ -58,11 +60,26 @@ class Cleanup(Base):
             cleanup(None)
 
 
-class GetAny(Base):
-    def test_content(self):
+class HasField(Base):
+    def test_field_present(self):
+        self.assertEqual(has_field('foo', {'foo': ''}), True)
+
+    def test_field_missing(self):
+        self.assertEqual(has_field('foo', {'bar': ''}), False)
+
+class HasAnyField(Base):
+    def test_field_present(self):
+        self.assertEqual(has_any_field({'bar': ''}, ['foo', 'bar']), True)
+
+    def test_field_missing(self):
+        self.assertEqual(has_any_field({'baz': ''}, ['foo', 'bar']), False)
+
+
+class GetFirst(Base):
+    def test_field_with_text(self):
         self.assertEqual(get_first(['foo'], {'foo': 'bar'}), 'bar')
 
-    def test_no_content(self):
+    def test_empty_field(self):
         self.assertEqual(get_first(['foo'], {'foo': ''}), '')
 
     def test_no_field(self):

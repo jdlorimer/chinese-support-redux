@@ -22,11 +22,10 @@ from unicodedata import category
 from .consts import CLOZE_REGEX
 
 
-def has_field(fields, note):
-    for k in note:
-        for f in fields:
-            if str(f.lower()) == str(k.lower()):
-                return True
+def has_field(field, note):
+    for f in note:
+        if str(field.lower()) == str(f.lower()):
+            return True
     return False
 
 
@@ -50,10 +49,6 @@ def erase_fields(note, fields):
 
 
 def get_first(fields, note):
-    """Return contents of first available field from list.
-
-    Case-insensitive.
-    """
     for f in fields:
         for k in note:
             if str(f.lower()) == str(k.lower()):

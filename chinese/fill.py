@@ -41,7 +41,6 @@ from .util import (
     all_fields_empty,
     get_first,
     has_any_field,
-    has_field,
     save_note,
 )
 
@@ -93,7 +92,7 @@ def bulk_fill_sound():
         orig = mw.col.getNote(nid)
         copy = dict(orig)
 
-        if has_any_field(copy, fields) and has_field(
+        if has_any_field(copy, fields) and has_any_field(
             config['fields']['hanzi'], copy
         ):
             d_has_fields += 1
@@ -161,7 +160,7 @@ def bulk_fill_transcript():
         note = mw.col.getNote(nid)
         copy = dict(note)
 
-        if has_any_field(copy, fields) and has_field(
+        if has_any_field(copy, fields) and has_any_field(
             config['fields']['hanzi'], copy
         ):
             d_has_fields += 1
@@ -336,7 +335,7 @@ def bulk_fill_hanzi():
         note = mw.col.getNote(nid)
         copy = dict(note)
 
-        if has_any_field(copy, fields) and has_field(
+        if has_any_field(copy, fields) and has_any_field(
             config['fields']['hanzi'], copy
         ):
             d_has_fields += 1
@@ -382,7 +381,7 @@ def bulk_fill_silhouette():
     for i, nid in enumerate(note_ids):
         note = mw.col.getNote(nid)
         copy = dict(note)
-        if has_field(config['fields']['silhouette'], copy):
+        if has_any_field(config['fields']['silhouette'], copy):
             d_has_fields += 1
             msg = '''
             <b>Processing:</b> %(hanzi)s<br>

@@ -34,7 +34,7 @@ from .util import (
     erase_fields,
     flatten,
     get_first,
-    has_field,
+    has_any_field,
     hide,
     set_all,
 )
@@ -43,7 +43,7 @@ from .util import (
 def get_classifier(hanzi, note):
     cs = dictionary.get_classifiers(hanzi)
     text = ', '.join(colorize_dict(c) for c in cs)
-    if text and not has_field(config['fields']['classifier'], note):
+    if text and not has_any_field(config['fields']['classifier'], note):
         return '<br>Cl: ' + text
     return ''
 
@@ -52,7 +52,7 @@ def fill_classifier(hanzi, note):
     cs = dictionary.get_classifiers(hanzi)
     text = ', '.join(colorize_dict(c) for c in cs)
     filled = False
-    if text and has_field(config['fields']['classifier'], note):
+    if text and has_any_field(config['fields']['classifier'], note):
         set_all(config['fields']['classifier'], note, to=text)
         filled = True
     return filled
@@ -62,7 +62,7 @@ def get_alt(hanzi, note):
     alts = dictionary.get_variants(hanzi)
     alt = ', '.join(colorize_dict(a) for a in alts)
     if alt:
-        if not has_field(config['fields']['alternative'], note):
+        if not has_any_field(config['fields']['alternative'], note):
             return '<br>Also written: ' + alt
         if get_first(config['fields']['alternative'], note) == '':
             set_all(config['fields']['alternative'], note, to=alt)
@@ -75,7 +75,7 @@ def fill_def(hanzi, note, lang):
     field = {'en': 'english', 'de': 'german', 'fr': 'french'}[lang]
     filled = False
 
-    if not has_field(config['fields'][field], note):
+    if not has_any_field(config['fields'][field], note):
         return filled
 
     definition = ''
@@ -230,7 +230,7 @@ def fill_ruby(hanzi, note, trans_group, ruby_group):
 
 def fill_all_rubies(hanzi, note):
     for trans_group in ['pinyin', 'pinyinTaiwan', 'cantonese', 'bopomofo']:
-        if has_field(config['fields'][trans_group], note):
+        if has_any_field(config['fields'][trans_group], note):
             fill_ruby(hanzi, note, trans_group, 'ruby')
             break
 
