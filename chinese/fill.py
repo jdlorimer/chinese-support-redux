@@ -144,7 +144,7 @@ def bulk_fill_transcript():
     )
 
     fields = config.get_fields(
-        ['transcription', 'pinyin', 'pinyinTaiwan', 'cantonese', 'bopomofo']
+        ['pinyin', 'pinyinTaiwan', 'cantonese', 'bopomofo']
     )
 
     if not askUser(prompt):
