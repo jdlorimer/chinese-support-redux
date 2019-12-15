@@ -55,6 +55,10 @@ class Sound(Base):
         with self.assertRaises(ValueError):
             sound('图书馆[foo bar baz]', 'foobar')
 
+    def test_disabled(self):
+        with patch('chinese.sound.config', {'speech': None}):
+            self.assertEqual(sound('图书馆'), '')
+
 
 class ExtractSoundTags(Base):
     def test_single_tag(self):

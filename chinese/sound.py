@@ -35,6 +35,9 @@ def sound(hanzi, source=None):
     if not source:
         source = config['speech']
 
+    if not source:
+        return ''
+
     if source.count('|') != 1:
         raise ValueError(source)
 
