@@ -1,4 +1,4 @@
-# Copyright 2017-2018 Joseph Lorimer <joseph@lorimer.me>
+# Copyright 2017-2019 Joseph Lorimer <joseph@lorimer.me>
 #
 # Permission to use, copy, modify, and distribute this software for any purpose
 # with or without fee is hereby granted, provided that the above copyright
@@ -12,16 +12,14 @@
 # OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
 # PERFORMANCE OF THIS SOFTWARE.
 
-export PYTHONPATH=.
 VERSION=`cat _version.py | grep __version__ | sed "s/.*'\(.*\)'.*/\1/"`
 PROJECT_SHORT=chinese
 PROJECT_LONG=chinese-support-redux
-PYTEST=pytest
 
 all: test prep pack clean
 
 test:
-	"$(PYTEST)" --cov="$(PROJECT_SHORT)" tests -v
+	pipenv run pytest --cov="$(PROJECT_SHORT)" tests -v
 
 prep:
 	rm -f $(PROJECT_LONG)-v*.zip
@@ -38,7 +36,7 @@ prep:
 
 pack:
 	(cd "$(PROJECT_SHORT)" && zip -r ../$(PROJECT_LONG)-v$(VERSION).zip *)
-	./convert-readme.py
+	pipenv run ./convert-readme.py
 
 clean:
 	rm "$(PROJECT_SHORT)/LICENSE.txt"
