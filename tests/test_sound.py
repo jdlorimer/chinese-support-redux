@@ -30,7 +30,7 @@ class Download(Base):
 class Sound(Base):
     def setUp(self):
         super().setUp()
-        self.patcher = patch('chinese.sound.download', Mock())
+        self.patcher = patch('chinese.sound.AudioDownloader', Mock())
         self.mock = self.patcher.start()
 
     def tearDown(self):
@@ -38,8 +38,10 @@ class Sound(Base):
         self.patcher.stop()
 
     def test_hanzi(self):
-        with patch('chinese.sound.download', Mock(return_value='foo.mp3')):
-            self.assertEqual(sound('图书馆', 'baidu|zh'), '[sound:foo.mp3]')
+        mock = Mock()
+        mock.download = Mock(return_value='foo.mp3')
+        self.mock.return_value = mock
+        self.assertEqual(sound('图书馆', 'baidu|zh'), '[sound:foo.mp3]')
 
     def test_no_hanzi(self):
         with patch('chinese.sound.has_hanzi', Mock(return_value=False)):

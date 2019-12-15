@@ -309,7 +309,7 @@ class UpdateFields(Base):
         self.assertEqual(expected, note)
 
     def test_no_sound(self):
-        with patch('chinese.sound.download') as m:
+        with patch('chinese.sound.AudioDownloader') as m:
             update_fields(
                 {'Hanzi': '床单', 'Pinyin': ''}, 'Hanzi', ('Pinyin', 'Hanzi')
             )
