@@ -3,9 +3,22 @@
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/6b99fcb30a2142d899f79c601a6aa291)](https://app.codacy.com/app/luoliyan/chinese-support-redux?utm_source=github.com&utm_medium=referral&utm_content=luoliyan/chinese-support-redux&utm_campaign=Badge_Grade_Dashboard)
 [![Build Status](https://travis-ci.org/luoliyan/chinese-support-redux.svg?branch=master)](https://travis-ci.org/luoliyan/chinese-support-redux) [![Coverage Status](https://coveralls.io/repos/github/luoliyan/chinese-support-redux/badge.svg?branch=master)](https://coveralls.io/github/luoliyan/chinese-support-redux?branch=master)
 
-Chinese Support Redux is a rewrite and port of the [original](https://github.com/ttempe/chinese-support-addon) Chinese Support add-on to Anki 2.1. It offers a number of features that streamline the process of creating flashcards for learning Chinese. The current focus of development effort is on improving the stability of the add-on and the accuracy of its output. Once the core functionality is sufficiently robust and reliable, additional features will be considered. While many of the changes will be structural in nature, I would encourage users to update the add-on whenever the version number increases and notify me of any problems. Your feedback is important.
+Chinese Support Redux is an Anki 2.1-compatible rewrite of the [original](https://github.com/ttempe/chinese-support-addon) Chinese Support add-on. It offers a number of features that streamline the process of creating flashcards for learning Chinese. The current focus of development effort is on improving the stability of the add-on and the accuracy of its output. Once the core functionality is sufficiently robust and reliable, additional features will be considered.
 
-**Important Note**: If you find that a field is not filling at all, please check [config.json](https://github.com/luoliyan/chinese-support-redux/blob/master/chinese/config.json) for the complete list of valid field names.
+Please note that the add-on is still in beta and is sometimes shipped in an unstable state. Please upgrade with each new release and report any issues on GitHub. The automated test suite is a work-in-progress, so I still rely heavily on user reports to supplement my own manual testing.
+
+**Important Notes**
+
+- If you find that a field is not filling at all, please check [config.json](https://github.com/luoliyan/chinese-support-redux/blob/master/chinese/config.json) for the complete list of valid field names. For those migrating from an older version of the add-on, you will need to rename any definition fields to `English`, `German` or `French`, depending on what you want.
+- If tone colours are not showing, ensure that the styling section of the template contains the following CSS:
+
+```css
+.tone1 {color: red;}
+.tone2 {color: orange;}
+.tone3 {color: green;}
+.tone4 {color: blue;}
+.tone5 {color: gray;}
+```
 
 ## Features
 
@@ -16,7 +29,7 @@ Chinese Support Redux is a rewrite and port of the [original](https://github.com
   - Traditional (繁體字) and simplified (簡體字) characters
   - [Bopomofo (ㄅㄆㄇㄈ)](https://en.wikipedia.org/wiki/Bopomofo), also known as Zhuyin (注音)
   - [Rubies](https://www.w3schools.com/tags/tag_ruby.asp) (small-print transcription placed above characters)
-  - Frequency (from “very basic” to “obscure”). Based on [anki-chinese-word-frequency](https://github.com/ernop/anki-chinese-word-frequency)
+  - Frequency (from “very basic” to “obscure”) - based on [anki-chinese-word-frequency](https://github.com/ernop/anki-chinese-word-frequency)
 - Tone colours (applied to characters, romanisation and Bopomofo)
 - Built-in note types (Basic and Advanced)
 
@@ -32,7 +45,7 @@ If you are new to the Chinese Support add-on, the wiki from the previous version
 
 ## Usage
 
-The core feature of the add-on is the automatic field filling. To take advantage of this, you need to have an Anki note type with the appropriate fields (e.g., `Hanzi`, `Meaning`, `Reading`, `Sound`). See `config.json` for a list of valid field names.
+The core feature of the add-on is the automatic field filling. To take advantage of this, you need to have an Anki note type with the appropriate fields (e.g., `Hanzi`, `English`, `Pinyin`, `Sound`). See `config.json` for a list of valid field names.
 
 If you don't already have such a note type, the easiest approach is to use one of the built-in models. Two types are installed automatically: Basic and Advanced. The only important difference is that the Advanced model shows more information.
 
