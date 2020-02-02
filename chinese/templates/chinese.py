@@ -9,9 +9,11 @@
 
 
 import re
-from anki.hooks import addHook
+#from anki.hooks import addHook
+from anki import hooks
 from anki.utils import stripHTML
-from anki.template.hint import hint
+#from anki.template.hint import hint
+from anki.template import TemplateRenderContext
 from .ruby import ruby_top, ruby_top_text, ruby_bottom_text, no_sound
 
 r = r' ?([^ >]+?)\[(.+?)\]'
@@ -27,7 +29,13 @@ tone_info= [
 ]
 
 
-def transcription_no_tones(txt, *args):
+#def transcription_no_tones(txt, *args):
+def transcription_no_tones(
+    txt: str, field_name: str, filter_name: str, context: TemplateRenderContext,
+) -> str:
+    if not filter_name.startswith("transcription_no_tones"):
+        # not our filter, return string unchanged
+        return txt
     '''Returns only the transcription, with tone information removed, whether
     it is in the form 'nǐ' or 'ni2'.
     '''
@@ -39,7 +47,13 @@ def transcription_no_tones(txt, *args):
     return txt
 
 
-def hanzi_silhouette(txt, *args):
+#def hanzi_silhouette(txt, *args):
+def hanzi_silhouette(
+    txt: str, field_name: str, filter_name: str, context: TemplateRenderContext,
+) -> str:
+    if not filter_name.startswith("hanzi_silhouette"):
+        # not our filter, return string unchanged
+        return txt
     ''' Hides the chinese characters, ruby annotations and tone colorization.
     Eg: '又[you4]A又B' returns '_ A _ B'.
     '''
@@ -49,7 +63,13 @@ def hanzi_silhouette(txt, *args):
         return ""
 
 
-def hanzi_context(txt, extra, context, tag, fullname):
+#def hanzi_context(txt, extra, context, tag, fullname):
+def hanzi_context(
+    txt: str, field_name: str, filter_name: str, context: TemplateRenderContext,
+) -> str:
+    if not filter_name.startswith("hanzi_context"):
+        # not our filter, return string unchanged
+        return txt
     '''
     For use on a Hanzi field.
     Return a list of all the other Hanzi synonyms, with the common characters hidden,
@@ -79,17 +99,52 @@ def hanzi_context(txt, extra, context, tag, fullname):
     return context_string
 
 
-def hint_transcription(txt, extra, context, tag, fullname):
-    return hint(ruby_top(txt), extra, context, 'Transcription', fullname)
+#legacy
+def hint_filter(txt: str, args, context, tag: str, fullname) -> str:
+    if not txt.strip():
+        return ""
+    # random id
+    domid = "hint%d" % id(txt)
+    return """
+<a class=hint href="#"
+onclick="this.style.display='none';document.getElementById('%s').style.display='block';return false;">
+%s</a><div id="%s" class=hint style="display: none">%s</div>
+""" % (
+        domid,
+        _("Show %s") % tag,
+        domid,
+        txt,
+    )
 
 
-def hint_transcription_no_tones(txt, extra, context, tag, fullname):
-    return hint(transcription_no_tones(txt), extra, context, 'Transcription', fullname)
+#def hint_transcription(txt, extra, context, tag, fullname):
+def hint_transcription(
+    txt: str, field_name: str, filter_name: str, context: TemplateRenderContext,
+) -> str:
+    if not filter_name.startswith("hint_transcription") or filter_name.startswith("hint_transcription_no_tones"):
+        # not our filter, return string unchanged
+        return txt
+    return hint_filter(ruby_top(txt), filter_name, context, 'Transcription', field_name)
+
+
+#def hint_transcription_no_tones(txt, extra, context, tag, fullname):
+def hint_transcription_no_tones(
+    txt: str, field_name: str, filter_name: str, context: TemplateRenderContext,
+) -> str:
+    if not filter_name.startswith("hint_transcription_no_tones"):
+        # not our filter, return string unchanged
+        return txt
+    return hint_filter(transcription_no_tones(txt), filter_name, context, 'Transcription', field_name)
 
 
 def install():
-    addHook('fmod_transcription_no_tones', transcription_no_tones)
-    addHook('fmod_hanzi_silhouette', hanzi_silhouette)
-    addHook('fmod_hanzi_context', hanzi_context)
-    addHook('fmod_hint_transcription', hint_transcription)
-    addHook('fmod_hint_transcription_no_tones', hint_transcription_no_tones)
+    #addHook('fmod_transcription_no_tones', transcription_no_tones)
+    #addHook('fmod_hanzi_silhouette', hanzi_silhouette)
+    #addHook('fmod_hanzi_context', hanzi_context)
+    #addHook('fmod_hint_transcription', hint_transcription)
+    #addHook('fmod_hint_transcription_no_tones', hint_transcription_no_tones)
+    hooks.field_filter.append(transcription_no_tones)
+    hooks.field_filter.append(hanzi_silhouette)
+    hooks.field_filter.append(hanzi_context)
+    hooks.field_filter.append(hint_transcription)
+    hooks.field_filter.append(hint_transcription_no_tones)
