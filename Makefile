@@ -1,4 +1,5 @@
-# Copyright 2017-2018 Joseph Lorimer <joseph@lorimer.me>
+# Copyright © 2019 Daniel Rich <https://github.com/danielrich>
+# Copyright © 2017-2020 Joseph Lorimer <joseph@lorimer.me>
 #
 # Permission to use, copy, modify, and distribute this software for any purpose
 # with or without fee is hereby granted, provided that the above copyright
@@ -12,35 +13,44 @@
 # OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
 # PERFORMANCE OF THIS SOFTWARE.
 
-export PYTHONPATH=.
-VERSION=`cat _version.py | grep __version__ | sed "s/.*'\(.*\)'.*/\1/"`
-PROJECT_SHORT=chinese
-PROJECT_LONG=chinese-support-redux
-PYTEST=pytest
+PROJECT_SHORT = chinese
+PROJECT_LONG = chinese-support-redux
+VERSION = 0.13.0-beta
+XDG_DATA_HOME ?= $(HOME)/.local/share
+ADDON_PATH = "$(XDG_DATA_HOME)/Anki2/addons21/$(PROJECT_LONG)"
+ZIP_NAME = $(PROJECT_LONG)-v$(VERSION).zip
 
 all: test prep pack clean
 
+install: prep pack extract clean
+
 test:
-	"$(PYTEST)" --cov="$(PROJECT_SHORT)" tests -v
+	pipenv run pytest --cov=$(PROJECT_SHORT) tests -v
 
 prep:
 	rm -f $(PROJECT_LONG)-v*.zip
-	find . -name '*.pyc' -type f -delete
-	find . -name '*~' -type f -delete
-	find . -name '.python-version' -type f -delete
+	find . -name .hypothesis -type d -exec rm -rf {} +
 	find . -name .mypy_cache -type d -exec rm -rf {} +
 	find . -name .ropeproject -type d -exec rm -rf {} +
 	find . -name __pycache__ -type d -exec rm -rf {} +
-	mv "$(PROJECT_SHORT)/meta.json" .
-	mv "$(PROJECT_SHORT)/config_saved.json" .
-	cp LICENSE "$(PROJECT_SHORT)/LICENSE.txt"
+	find . -name '*.pyc' -type f -delete
+	find . -name '*~' -type f -delete
+	find . -name '.python-version' -type f -delete
+	mv $(PROJECT_SHORT)/meta.json .
+	mv $(PROJECT_SHORT)/config_saved.json .
+	cp LICENSE $(PROJECT_SHORT)/LICENSE.txt
 	git checkout chinese/data/db/chinese.db
 
 pack:
-	(cd "$(PROJECT_SHORT)" && zip -r ../$(PROJECT_LONG)-v$(VERSION).zip *)
-	./convert-readme.py
+	(cd $(PROJECT_SHORT) && zip -r ../$(ZIP_NAME) *)
+	pipenv run ./convert-readme.py
+
+extract:
+	rm -rf $(ADDON_PATH)
+	unzip -d $(ADDON_PATH) $(ZIP_NAME)
 
 clean:
-	rm "$(PROJECT_SHORT)/LICENSE.txt"
-	mv meta.json "$(PROJECT_SHORT)/meta.json"
-	mv config_saved.json "$(PROJECT_SHORT)/config_saved.json"
+	rm $(PROJECT_SHORT)/LICENSE.txt
+	mv meta.json $(PROJECT_SHORT)/meta.json
+	mv config_saved.json $(PROJECT_SHORT)/config_saved.json
+	cat chinese/_version.py chinese/config.json Makefile | grep -i 'version[_" ].*[=:]' | tr -cd '[0-9\n]'
