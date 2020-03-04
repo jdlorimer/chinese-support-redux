@@ -1,5 +1,5 @@
 # Copyright © 2012 Thomas TEMPÉ <thomas.tempe@alysse.org>
-# Copyright © 2017-2019 Joseph Lorimer <joseph@lorimer.me>
+# Copyright © 2017-2020 Joseph Lorimer <joseph@lorimer.me>
 #
 # This file is part of Chinese Support Redux.
 #
@@ -26,12 +26,13 @@ from aqt.utils import openLink
 
 from .about import CSR_GITHUB_URL, showAbout
 from .fill import (
+    bulk_fill_all,
     bulk_fill_classifiers,
     bulk_fill_defs,
     bulk_fill_hanzi,
-    bulk_fill_transcript,
     bulk_fill_silhouette,
     bulk_fill_sound,
+    bulk_fill_transcript,
 )
 from .main import config
 
@@ -80,6 +81,7 @@ def load_menu():
     add_menu_item('Chinese::Bulk Fill', _('Classifiers'), bulk_fill_classifiers)
     add_menu_item('Chinese::Bulk Fill', _('Sound'), bulk_fill_sound)
     add_menu_item('Chinese::Bulk Fill', _('Silhouette'), bulk_fill_silhouette)
+    add_menu_item('Chinese::Bulk Fill', _('All'), bulk_fill_all)
 
     add_menu('Chinese::Help')
     add_menu_item(

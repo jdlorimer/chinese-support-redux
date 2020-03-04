@@ -1,4 +1,4 @@
-# Copyright © 2018-2019 Joseph Lorimer <joseph@lorimer.me>
+# Copyright © 2018-2020 Joseph Lorimer <joseph@lorimer.me>
 #
 # This file is part of Chinese Support Redux.
 #
@@ -307,6 +307,20 @@ class UpdateFields(Base):
         note['Hanzi'] = '床单'
         update_fields(note, 'Hanzi', fields)
         self.assertEqual(expected, note)
+
+    def test_hanzi_empty(self):
+        with patch('chinese.sound.AudioDownloader'):
+            result = update_fields(
+                {'Hanzi': '', 'Pinyin': ''}, 'Hanzi', ('Pinyin', 'Hanzi')
+            )
+            self.assertIs(result, False)
+
+    def test_hanzi_none(self):
+        with patch('chinese.sound.AudioDownloader'):
+            result = update_fields(
+                {'Hanzi': None, 'Pinyin': ''}, 'Hanzi', ('Pinyin', 'Hanzi')
+            )
+            self.assertIs(result, False)
 
     def test_no_sound(self):
         with patch('chinese.sound.AudioDownloader') as m:

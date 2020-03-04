@@ -1,5 +1,5 @@
 # Copyright © 2012-2015 Thomas TEMPÉ <thomas.tempe@alysse.org>
-# Copyright © 2017-2019 Joseph Lorimer <joseph@lorimer.me>
+# Copyright © 2017-2020 Joseph Lorimer <joseph@lorimer.me>
 #
 # This file is part of Chinese Support Redux.
 #
@@ -245,7 +245,10 @@ def fill_all_rubies(hanzi, note):
 
 def update_fields(note, focus_field, fields):
     copy = dict(note)
-    hanzi = cleanup(get_first(config['fields']['hanzi'], copy))
+    hanzi = get_first(config['fields']['hanzi'], copy)
+    if not hanzi:
+        return False
+    hanzi = cleanup(hanzi)
 
     transcript_fields = (
         config['fields']['pinyin']
