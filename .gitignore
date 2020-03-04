@@ -6,5 +6,6 @@
 .python-version
 .ropeproject/
 __pycache__
-chinese/meta.json
 chinese/config_saved.json
+chinese/meta.json
+Pipfile.lock
