@@ -8,7 +8,6 @@
 # chinese characters, with transcription formatted as in 吗[ma3].
 
 
-import re
 try:
     from anki.template.hint import hint
     from .chinese_old import *
