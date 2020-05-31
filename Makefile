@@ -25,6 +25,7 @@ all: test prep pack clean
 install: prep pack extract clean
 
 test:
+	pipenv install --dev
 	pipenv run pytest --cov=$(PROJECT_SHORT) tests -v
 
 prep:
@@ -42,6 +43,7 @@ prep:
 	git checkout chinese/data/db/chinese.db
 
 pack:
+	pipenv install --dev
 	(cd $(PROJECT_SHORT) && zip -r ../$(ZIP_NAME) *)
 	pipenv run ./convert-readme.py
 
