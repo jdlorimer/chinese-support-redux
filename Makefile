@@ -45,7 +45,7 @@ prep:
 pack:
 	pipenv install --dev
 	(cd $(PROJECT_SHORT) && zip -r ../$(ZIP_NAME) *)
-	pipenv run ./convert-readme.py
+	pipenv run ../misc/convert-readme.py
 
 extract:
 	rm -rf $(ADDON_PATH)
