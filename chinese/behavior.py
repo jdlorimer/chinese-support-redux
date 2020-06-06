@@ -149,7 +149,7 @@ def fill_color(hanzi, note):
         field_group = 'pinyin'
     elif config['target'] in 'jyutping':
         target = 'jyutping'
-        field_group = 'jyutping'
+        field_group = 'cantonese'
     else:
         raise NotImplementedError(config['target'])
 
