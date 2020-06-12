@@ -55,8 +55,6 @@ class EditManager:
         elif not self.buttonOn and mid in config['enabledModels']:
             config['enabledModels'].remove(mid)
 
-        config.save()
-
     def updateButton(self, editor):
         enabled = str(editor.note.model()['id']) in config['enabledModels']
 

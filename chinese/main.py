@@ -21,9 +21,10 @@ from anki.stats import CollectionStats
 from anki.stdmodels import models
 from aqt import mw
 
+from .config import ConfigManager
 from .database import Dictionary
 
-config = mw.addonManager.getConfig(__name__)
+config = ConfigManager()
 dictionary = Dictionary()
 
 from .edit import append_tone_styling, EditManager
