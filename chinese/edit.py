@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU General Public License along with
 # Chinese Support Redux.  If not, see <https://www.gnu.org/licenses/>.
 
-from anki.hooks import addHook, remHook
+from anki.hooks import addHook
 from aqt import mw
 
 from .behavior import update_fields
@@ -73,14 +73,7 @@ class EditManager:
 
         if update_fields(note, field, allFields):
             self.editor.loadNote()
-        
-        # if update_fields(note, field, allFields):
-        #     remHook('editFocusLost', self.onFocusLost)
-        #     if index == len(allFields) - 1:
-        #         self.editor.loadNote(focusTo=index)
-        #     else:
-        #         self.editor.loadNote(focusTo=index+1)
-        #     addHook('editFocusLost', self.onFocusLost)
+
         return False
 
 
