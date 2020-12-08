@@ -96,3 +96,46 @@ pip install -r requirements.txt
 make test
 ```
 
+
+# Debug with PyCharm
+## Without Anki Source
+
+1. Copy the repo root to the anki plugins folder. As of 2.1 this is : `C:\Users\<user>\AppData\Roaming\Anki2\addons21`
+2. Create py 3.8 venv in pycharm for addon folder. Make sure you are running 64 bit python. This can be done with
+```python
+import platform
+platform.architecture()
+```
+3. Run the following in the pycharm python console (these could be added to requirements.txt instead):
+
+``` python
+import subprocess
+subprocess.check_call(["pip3", "install", "mypy", "anki", "ankirspy", "aqt", "pyqt5", pyqtwebengine"])
+```
+4. Install the requirements.txt for the project venv
+
+5. Create a file for debugging in pycharm as:
+``` python
+import aqt
+
+aqt.run()
+```
+6. Start debugging. The first anki run will pick up the 'tests' folder as a plugin and error out. This is expected.
+7. Go to the Tools->Add-ons menu and disable 'tests'
+8. Enjoy coding!
+
+## With Anki Source
+1. Download and extract Anki source code somewhere on the hard drive.
+2. Create a folder such as `anki-addon-dev` on your hard drive and open it on PyCharm as a project. Then, open Anki source code folder as another project within the current project window by choosing Attach.
+3. On `Preferences -> Project -> Project Dependencies -> anki-addon-dev`: Check the box to approve the add-on depends on Anki source code.
+4. Under the run configurations beside run and debug buttons, edit configurations as follows:
+Script Path: `[YOUR_PATH_TO_ANKI_SOURCE_FOLDER]/anki-2.1.13/runanki`
+Parameters: `-b [YOUR_PATH_TO_ANKI_ADDON_PROJECT]/anki-addon-dev`
+5. Create your project files and do the development on this path:
+`anki-addon-dev/addons21/[YOUR_PROJECT_FOLDER]`
+6. Happy debugging while developing 
+
+## Additional Debugging Guidance
+- https://addon-docs.ankiweb.net/#/getting-started
+- https://github.com/ankitects/anki/blob/stable/README.development
+- https://chrisk91.me/2018/02/13/Setting-up-VSCode-for-Anki-addon-development.html
