@@ -1,13 +1,16 @@
 # -*- coding: utf-8 -*-
 from gtts.tokenizer import pre_processors, Tokenizer, tokenizer_cases
-from gtts.utils import _minimize, _len, _clean_tokens
+from gtts.utils import _minimize, _len, _clean_tokens, _translate_url
 from gtts.lang import tts_langs
 
-from gtts_token import gtts_token
 from six.moves import urllib
+from urllib.parse import quote
 import urllib3
 import requests
 import logging
+import json
+import re
+import base64
 
 __all__ = ['gTTS', 'gTTSError']
 
@@ -20,10 +23,11 @@ class Speed:
     """Read Speed
 
     The Google TTS Translate API supports two speeds:
-        'slow' <= 0.3 < 'normal'
+        Slow: True
+        Normal: None
     """
-    SLOW = 0.3
-    NORMAL = 1
+    SLOW = True
+    NORMAL = None
 
 
 class gTTS:
@@ -33,12 +37,19 @@ class gTTS:
 
     Args:
         text (string): The text to be read.
+        tld (string): Top-level domain for the Google Translate host,
+            i.e `https://translate.google.<tld>`. This is useful
+            when ``google.com`` might be blocked within a network but
+            a local or different Google host (e.g. ``google.cn``) is not.
+            Default is ``com``.
         lang (string, optional): The language (IETF language tag) to
-            read the text in. Defaults to 'en'.
+            read the text in. Default is ``en``.
         slow (bool, optional): Reads text more slowly. Defaults to ``False``.
         lang_check (bool, optional): Strictly enforce an existing ``lang``,
             to catch a language error early. If set to ``True``,
             a ``ValueError`` is raised if ``lang`` doesn't exist.
+            Setting ``lang_check`` to ``False`` skips Web requests
+            (to validate language) and therefore speeds up instanciation.
             Default is ``True``.
         pre_processor_funcs (list): A list of zero or more functions that are
             called to transform (pre-process) text before tokenizing. Those
@@ -69,23 +80,25 @@ class gTTS:
             left to speak after pre-precessing, tokenizing and cleaning.
         ValueError: When ``lang_check`` is ``True`` and ``lang`` is not supported.
         RuntimeError: When ``lang_check`` is ``True`` but there's an error loading
-            the languages dictionnary.
+            the languages dictionary.
 
     """
 
     GOOGLE_TTS_MAX_CHARS = 100  # Max characters the Google TTS API takes at a time
-    GOOGLE_TTS_URL = "https://translate.google.com/translate_tts"
     GOOGLE_TTS_HEADERS = {
         "Referer": "http://translate.google.com/",
         "User-Agent":
             "Mozilla/5.0 (Windows NT 10.0; WOW64) "
             "AppleWebKit/537.36 (KHTML, like Gecko) "
-            "Chrome/47.0.2526.106 Safari/537.36"
+            "Chrome/47.0.2526.106 Safari/537.36",
+        "Content-Type": "application/x-www-form-urlencoded;charset=utf-8"
     }
+    GOOGLE_TTS_RPC = "jQ1olc"
 
     def __init__(
             self,
             text,
+            tld='com',
             lang='en',
             slow=False,
             lang_check=True,
@@ -103,9 +116,18 @@ class gTTS:
             ]).run
     ):
 
+        # Debug
+        for k, v in dict(locals()).items():
+            if k == 'self':
+                continue
+            log.debug("%s: %s", k, v)
+
         # Text
         assert text, 'No text to speak'
         self.text = text
+
+        # Translate URL top-level domain
+        self.tld = tld
 
         # Language
         if lang_check:
@@ -130,9 +152,6 @@ class gTTS:
         self.pre_processor_funcs = pre_processor_funcs
         self.tokenizer_func = tokenizer_func
 
-        # Google Translate token
-        self.token = gtts_token.Token()
-
     def _tokenize(self, text):
         # Pre-clean
         text = text.strip()
@@ -156,10 +175,73 @@ class gTTS:
         min_tokens = []
         for t in tokens:
             min_tokens += _minimize(t, ' ', self.GOOGLE_TTS_MAX_CHARS)
+
+        # Filter empty tokens, post-minimize
+        tokens = [t for t in min_tokens if t]
+
         return min_tokens
 
+    def _prepare_requests(self):
+        """Created the TTS API the request(s) without sending them.
+
+        Returns:
+            list: ``requests.PreparedRequests_``. <https://2.python-requests.org/en/master/api/#requests.PreparedRequest>`_``.
+        """
+        # TTS API URL
+        translate_url = _translate_url(tld=self.tld, path="_/TranslateWebserverUi/data/batchexecute")
+
+        text_parts = self._tokenize(self.text)
+        log.debug("text_parts: %s", str(text_parts))
+        log.debug("text_parts: %i", len(text_parts))
+        assert text_parts, 'No text to send to TTS API'
+
+        prepared_requests = []
+        for idx, part in enumerate(text_parts):
+            data = self._package_rpc(part)
+
+            log.debug("data-%i: %s", idx, data)
+
+            # Request
+            r = requests.Request(method='POST',
+                                 url=translate_url,
+                                 data=data,
+                                 headers=self.GOOGLE_TTS_HEADERS)
+
+            # Prepare request
+            prepared_requests.append(r.prepare())
+
+        return prepared_requests
+
+    def _package_rpc(self, text):
+        parameter = [text, self.lang, self.speed, "null"]
+        escaped_parameter = json.dumps(parameter, separators=(',', ':'))
+
+        rpc = [[[self.GOOGLE_TTS_RPC, escaped_parameter, None, "generic"]]]
+        espaced_rpc = json.dumps(rpc, separators=(',', ':'))
+        return "f.req={}&".format(quote(espaced_rpc))
+
+    def get_urls(self):
+        """Get TTS API request URL(s) that would be sent to the TTS API.
+
+        Returns:
+            list: A list of TTS API request URLs to make.
+
+                This is particularly useful to get the list of URLs generated
+                by ``gTTS`` but not yet fullfilled,
+                for example to be used by an external program.
+        """
+        return [pr.url for pr in self._prepare_requests()]
+
+    def get_bodies(self):
+        """Get TTS API request bodies(s) that would be sent to the TTS API.
+
+        Returns:
+            list: A list of TTS API request bodiess to make.
+        """
+        return [pr.body for pr in self._prepare_requests()]
+
     def write_to_fp(self, fp):
-        """Do the TTS API request and write bytes to a file-like object.
+        """Do the TTS API request(s) and write bytes to a file-like object.
 
         Args:
             fp (file object): Any file-like object to write the ``mp3`` to.
@@ -173,56 +255,43 @@ class gTTS:
         # urllib3 prints an insecure warning on stdout. We disable that.
         urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
-        text_parts = self._tokenize(self.text)
-        log.debug("text_parts: %i", len(text_parts))
-        assert text_parts, 'No text to send to TTS API'
-
-        for idx, part in enumerate(text_parts):
+        prepared_requests = self._prepare_requests()
+        for idx, pr in enumerate(prepared_requests):
             try:
-                # Calculate token
-                part_tk = self.token.calculate_token(part)
-            except requests.exceptions.RequestException as e:  # pragma: no cover
-                log.debug(str(e), exc_info=True)
-                raise gTTSError(
-                    "Connection error during token calculation: %s" %
-                    str(e))
-
-            payload = {'ie': 'UTF-8',
-                       'q': part,
-                       'tl': self.lang,
-                       'ttsspeed': self.speed,
-                       'total': len(text_parts),
-                       'idx': idx,
-                       'client': 'tw-ob',
-                       'textlen': _len(part),
-                       'tk': part_tk}
-
-            log.debug("payload-%i: %s", idx, payload)
-
-            try:
-                # Request
-                r = requests.get(self.GOOGLE_TTS_URL,
-                                 params=payload,
-                                 headers=self.GOOGLE_TTS_HEADERS,
-                                 proxies=urllib.request.getproxies(),
-                                 verify=False)
+                with requests.Session() as s:
+                    # Send request
+                    r = s.send(request=pr,
+                               proxies=urllib.request.getproxies(),
+                               verify=False)
 
                 log.debug("headers-%i: %s", idx, r.request.headers)
                 log.debug("url-%i: %s", idx, r.request.url)
                 log.debug("status-%i: %s", idx, r.status_code)
 
                 r.raise_for_status()
-            except requests.exceptions.HTTPError:
+            except requests.exceptions.HTTPError as e:  # pragma: no cover
                 # Request successful, bad response
+                log.debug(str(e))
                 raise gTTSError(tts=self, response=r)
             except requests.exceptions.RequestException as e:  # pragma: no cover
                 # Request failed
-                raise gTTSError(str(e))
+                log.debug(str(e))
+                raise gTTSError(tts=self)
 
             try:
                 # Write
-                for chunk in r.iter_content(chunk_size=1024):
-                    fp.write(chunk)
+                for line in r.iter_lines(chunk_size=1024):
+                    decoded_line = line.decode('utf-8')
+                    if 'jQ1olc' in decoded_line:
+                        audio_search = re.search(r'jQ1olc","\[\\"(.*)\\"]', decoded_line)
+                        if audio_search:
+                            as_bytes = audio_search.group(1).encode('ascii')
+                            decoded = base64.b64decode(as_bytes)
+                            fp.write(decoded)
+                        else:
+                            # Request successful, good response,
+                            # no audio stream in response
+                            raise gTTSError(tts=self, response=r)
                 log.debug("part-%i written to %s", idx, fp)
             except (AttributeError, TypeError) as e:
                 raise TypeError(
@@ -252,29 +321,39 @@ class gTTSError(Exception):
         self.rsp = kwargs.pop('response', None)
         if msg:
             self.msg = msg
-        elif self.tts is not None and self.rsp is not None:
+        elif self.tts is not None:
             self.msg = self.infer_msg(self.tts, self.rsp)
         else:
             self.msg = None
         super(gTTSError, self).__init__(self.msg)
 
-    def infer_msg(self, tts, rsp):
+    def infer_msg(self, tts, rsp=None):
         """Attempt to guess what went wrong by using known
         information (e.g. http response) and observed behaviour
 
         """
-        # rsp should be <requests.Response>
-        # http://docs.python-requests.org/en/master/api/
-        status = rsp.status_code
-        reason = rsp.reason
-
         cause = "Unknown"
-        if status == 403:
-            cause = "Bad token or upstream API changes"
-        elif status == 404 and not tts.lang_check:
-            cause = "Unsupported language '%s'" % self.tts.lang
-        elif status >= 500:
-            cause = "Uptream API error. Try again later."
 
-        return "%i (%s) from TTS API. Probable cause: %s" % (
-            status, reason, cause)
+        if rsp is None:
+            premise = "Failed to connect"
+
+            if tts.tld != 'com':
+                host = _translate_url(tld=tts.tld)
+                cause = "Host '{}' is not reachable".format(host)
+
+        else:
+            # rsp should be <requests.Response>
+            # http://docs.python-requests.org/en/master/api/
+            status = rsp.status_code
+            reason = rsp.reason
+
+            premise = "{:d} ({}) from TTS API".format(status, reason)
+
+            if status == 403:
+                cause = "Bad token or upstream API changes"
+            elif status == 200 and not tts.lang_check:
+                cause = "No audio stream in response. Unsupported language '%s'" % self.tts.lang
+            elif status >= 500:
+                cause = "Uptream API error. Try again later."
+
+        return "{}. Probable cause: {}".format(premise, cause)
