@@ -2,6 +2,7 @@
 # Copyright © 2014 Thomas Tempe <thomas.tempe@alysse.org>
 # Copyright © 2019 Daniel Rich <https://github.com/danielrich>
 # Copyright © 2017-2020 Joseph Lorimer <joseph@lorimer.me>
+# Copyright © 2020 Joe Minicucci <https://joeminicucci.com>
 #
 # This file is part of Chinese Support Redux.
 #
@@ -23,7 +24,7 @@ from time import sleep
 
 from anki.find import Finder
 from aqt import mw
-from aqt.utils import askUser, showInfo
+from aqt.utils import askUser, showInfo, showText
 
 from .behavior import (
     fill_all_defs,
@@ -35,6 +36,7 @@ from .behavior import (
     fill_sound,
     fill_trad,
     fill_transcript,
+    fill_usage,
     update_fields,
 )
 from .hanzi import get_hanzi
@@ -258,27 +260,30 @@ def bulk_fill_defs():
     n_processed = 0
     n_updated = 0
     n_failed = 0
+    n_notfilled = 0
     failed_hanzi = []
 
     note_ids = Finder(mw.col).findNotes('deck:current')
     mw.progress.start(immediate=True, min=0, max=len(note_ids))
 
-    for i, nid in enumerate(note_ids):
-        note = mw.col.getNote(nid)
+    for i, note_id in enumerate(note_ids):
+        note = mw.col.getNote(note_id)
         copy = dict(note)
         hanzi = get_hanzi(copy)
 
         if has_any_field(copy, fields) and hanzi:
             n_processed += 1
 
-            if all_fields_empty(copy, fields):
-                result = fill_all_defs(hanzi, copy)
-                if result:
-                    n_updated += 1
-                else:
-                    n_failed += 1
-                    if n_failed < 20:
-                        failed_hanzi += [hanzi]
+            try:
+                if all_fields_empty(copy, fields):
+                    result = fill_all_defs(hanzi, copy)
+                    if result:
+                        n_updated += 1
+                    else:
+                        n_notfilled += 1
+            except:
+                n_failed += 1
+                failed_hanzi += [hanzi]
 
             msg = progress_msg_template % {
                 'hanzi': hanzi,
@@ -300,14 +305,14 @@ def bulk_fill_defs():
         'failed': n_failed,
     }
     if n_failed > 0:
-        msg += (
-            '<div>Translation failures may come either from connection issues '
+        failed_msg = (
+            'Translation failures may come either from connection issues '
             "(if you're using an online translation service), or because some "
-            'words are not it the dictionary (for local dictionaries).</div>'
-            '<div>The following notes failed: '
+            'words are not it the dictionary (for local dictionaries).\n'
+            'The following notes failed: \n\n'
             + ', '.join(failed_hanzi)
-            + '</div>'
         )
+        showText(failed_msg, copyBtn=True)
     mw.progress.finish()
     showInfo(msg)
 
@@ -443,5 +448,86 @@ def bulk_fill_silhouette():
         'hanzi': get_hanzi(copy),
         'filled': n_updated,
     }
+    mw.progress.finish()
+    showInfo(msg)
+
+
+def bulk_fill_usage():
+    prompt = PROMPT_TEMPLATE.format(
+        field_names='<i>usage</i>', extra_info=''
+    )
+
+    progress_msg_template = '''
+            <b>Processing:</b> %(hanzi)s<br>
+            <b>Chinese notes:</b> %(has_fields)d<br>
+            <b>Cards with Sentences added:</b> %(filled)d<br>
+            <b>Cards with no Sentences added:</b> %(not_filled)d<br>
+            <b>Failed:</b> %(failed)d'''
+
+    fields = config.get_fields(['usage'])
+
+    if not askUser(prompt):
+        return
+
+    n_processed = 0
+    n_updated = 0
+    n_failed = 0
+    n_notfilled = 0
+    failed_hanzi = []
+
+    note_ids = Finder(mw.col).findNotes('deck:current')
+    mw.progress.start(immediate=True, min=0, max=len(note_ids))
+
+    for i, note_id in enumerate(note_ids):
+        note = mw.col.getNote(note_id)
+        copy = dict(note)
+        hanzi = get_hanzi(copy)
+
+        if has_any_field(copy, fields) and hanzi:
+            n_processed += 1
+
+        try:
+            if all_fields_empty(copy, fields):
+                result = fill_usage(hanzi, copy)
+                if result:
+                    n_updated += 1
+                else:
+                    n_notfilled += 1
+                    n_failed += 1
+        except:
+            n_failed += 1
+            failed_hanzi += [hanzi]
+
+        msg = progress_msg_template % {
+            'hanzi': hanzi,
+            'has_fields': n_processed,
+            'filled': n_updated,
+            'not_filled': n_notfilled,
+            'failed': n_failed,
+        }
+        mw.progress.update(label=msg, value=i)
+
+        save_note(note, copy)
+
+    msg = '''
+    <b>Usage Additions Complete</b><br>
+    <b>Chinese Notes:</b> %(has_fields)d<br>
+    <b>Usage Fields Filled:</b> %(filled)d<br>
+    <b>Usage Fields Not Filled:</b> %(not_filled)d<br>
+    <b>Failed:</b> %(failed)d''' % {
+        'has_fields': n_processed,
+        'filled': n_updated,
+        'not_filled': n_notfilled,
+        'failed': n_failed,
+    }
+    if n_failed > 0:
+        failed_msg = (
+            'Usages may not be available in the database\'s data set. '
+            'Custom data can be added to the english_usage column in the'
+            'chinese.db database.\n'
+            'The following notes failed: \n\n'
+            + ', '.join(failed_hanzi)
+        )
+        showText(failed_msg, copyBtn=True)
     mw.progress.finish()
     showInfo(msg)

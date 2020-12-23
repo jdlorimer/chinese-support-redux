@@ -4,6 +4,7 @@
     "enabledModels": [],
     "speech": "google|zh-cn",
     "target": "pinyin",
+    "max_examples": 10,
     "fields": {
         "hanzi": [
             "Chinese",
@@ -139,6 +140,11 @@
         ],
         "frequency": [
             "Frequency"
+        ],
+        "usage": [
+            "Usage",
+            "English Usage",
+            "Examples"
         ]
     }
 }

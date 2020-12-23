@@ -1,5 +1,6 @@
 # Copyright © 2012-2014 Thomas TEMPÉ <thomas.tempe@alysse.org>
 # Copyright © 2017-2019 Joseph Lorimer <joseph@lorimer.me>
+# Copyright © 2020 Joe Minicucci <https://joeminicucci.com>
 #
 # This file is part of Chinese Support Redux.
 #
@@ -235,3 +236,16 @@ class Dictionary:
         )
         vars = list(filter(None, [a for (a,) in self.c.fetchall()]))
         return ','.join(vars).split(',') if vars else []
+
+    def get_sentences(self, word):
+        self.c.execute(
+            'SELECT DISTINCT english_usage '
+            'FROM cidian '
+            'WHERE (traditional = :word OR simplified = :word) '
+            'AND LENGTH(english_usage) > 0 ',
+            {'word': word},
+        )
+        try:
+            return self.c.fetchone()
+        except:
+            return []

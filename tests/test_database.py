@@ -1,4 +1,5 @@
 # Copyright © 2018-2019 Joseph Lorimer <joseph@lorimer.me>
+# Copyright © 2020 Joe Minicucci <https://joeminicucci.com>
 #
 # This file is part of Chinese Support Redux.
 #
@@ -37,7 +38,7 @@ class Dictionary(Base):
         )
 
     def test_variants(self):
-        self.assertEqual(D().get_variants('阿斯匹林'), ['阿司匹林'])
+        self.assertEqual(D().get_variants('陵夷'), ['凌夷'])
 
     def test_jyutping(self):
         self.assertEqual(D().get_cantonese('上海人', 'trad'), 'soeng6 hoi2 jan4')

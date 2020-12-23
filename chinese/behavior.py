@@ -1,5 +1,6 @@
 # Copyright © 2012-2015 Thomas TEMPÉ <thomas.tempe@alysse.org>
 # Copyright © 2017-2020 Joseph Lorimer <joseph@lorimer.me>
+# Copyright © 2020 Joe Minicucci <https://joeminicucci.com>
 #
 # This file is part of Chinese Support Redux.
 #
@@ -103,6 +104,26 @@ def fill_all_defs(hanzi, note):
 def fill_silhouette(hanzi, note):
     m = get_silhouette(hanzi)
     set_all(config['fields']['silhouette'], note, to=m)
+
+
+def fill_usage(hanzi, note):
+    filled = False
+
+    if not has_any_field(config['fields']['usage'], note):
+        return filled
+
+    if get_first(config['fields']['usage'], note) == '':
+        sentences = dictionary.get_sentences(hanzi)
+        if sentences:
+            numberOfSentences = config.get_config_scalar_value("max_examples")
+            sentenceList = [sentence.replace('\n', '\n<br>')
+                            for sentence in
+                            sentences[0].split('\n\n')[:numberOfSentences]]
+            sentences = str.join('\n<br>\n<br>', sentenceList)
+            set_all(config['fields']['usage'], note, to=sentences)
+            filled = True
+
+    return filled
 
 
 def fill_transcript(hanzi, note):
@@ -273,6 +294,7 @@ def update_fields(note, focus_field, fields):
             fill_frequency(hanzi, copy)
             fill_all_rubies(hanzi, copy)
             fill_silhouette(hanzi, copy)
+            fill_usage(hanzi, copy)
         else:
             erase_fields(copy, config.get_fields())
     elif focus_field in config['fields']['pinyin']:
