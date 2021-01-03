@@ -30,6 +30,7 @@ Please note that the add-on is still in beta and is sometimes shipped in an unst
   - [Bopomofo (ㄅㄆㄇㄈ)](https://en.wikipedia.org/wiki/Bopomofo), also known as Zhuyin (注音)
   - [Rubies](https://www.w3schools.com/tags/tag_ruby.asp) (small-print transcription placed above characters)
   - Frequency (from “very basic” to “obscure”) - based on [anki-chinese-word-frequency](https://github.com/ernop/anki-chinese-word-frequency)
+  - Usage Sentence Examples - Chinese/English sentence pairs from [Tatoeba](https://tatoeba.org/)
 - Tone colours (applied to characters, romanisation and Bopomofo)
 - Built-in note types (Basic and Advanced)
 

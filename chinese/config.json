@@ -4,7 +4,7 @@
     "enabledModels": [],
     "speech": "google|zh-cn",
     "target": "pinyin",
-    "max_examples": 10,
+    "max_examples": -1,
     "fields": {
         "hanzi": [
             "Chinese",
@@ -79,7 +79,8 @@
             "Sound (Mandarin)"
         ],
         "cantoneseSound": [
-            "Sound (Cantonese)"
+            "Sound (Cantonese)",
+            "CantoSound"
         ],
         "simplified": [
             "Simp",
@@ -119,6 +120,16 @@
             "Hanzi (Color)",
             "彩色"
         ],
+        "colorTraditional": [
+            "TradColor",
+            "Color Traditional",
+            "Traditional (Color)"
+        ],
+        "colorCantonese": [
+            "ColorCant",
+            "Color Cantonese",
+            "Cantonese (Color)"
+        ],
         "ruby": [
             "Ruby"
         ],
@@ -129,7 +140,8 @@
             "Ruby (Taiwan Pinyin)"
         ],
         "rubyCantonese": [
-            "Ruby (Cantonese)"
+            "Ruby (Cantonese)",
+            "RubyCant"
         ],
         "rubyBopomofo": [
             "Ruby (Bopomofo)",

@@ -116,9 +116,14 @@ def fill_usage(hanzi, note):
         sentences = dictionary.get_sentences(hanzi)
         if sentences:
             numberOfSentences = config.get_config_scalar_value("max_examples")
-            sentenceList = [sentence.replace('\n', '\n<br>')
-                            for sentence in
-                            sentences[0].split('\n\n')[:numberOfSentences]]
+            if numberOfSentences == -1:
+                sentenceList = [sentence.replace('\n', '\n<br>')
+                                for sentence in
+                                sentences[0].split('\n\n')]
+            else:
+                sentenceList = [sentence.replace('\n', '\n<br>')
+                                for sentence in
+                                sentences[0].split('\n\n')[:numberOfSentences]]
             sentences = str.join('\n<br>\n<br>', sentenceList)
             set_all(config['fields']['usage'], note, to=sentences)
             filled = True
@@ -174,12 +179,28 @@ def fill_color(hanzi, note):
     else:
         raise NotImplementedError(config['target'])
 
+    #hanziColor
     field = get_first(config['fields'][field_group], note)
     trans = sanitize_transcript(field, target, grouped=False)
     trans = split_transcript(' '.join(trans), target, grouped=False)
     hanzi = split_hanzi(cleanup(hanzi), grouped=False)
     colorized = colorize_fuse(hanzi, trans)
     set_all(config['fields']['colorHanzi'], note, to=colorized)
+
+    #traditional color
+    tradHanzi = get_first(config['fields']['traditional'], note)
+    if tradHanzi:
+        tradHanzi = split_hanzi(cleanup(tradHanzi), grouped=False)
+        colorized = colorize_fuse(tradHanzi, trans)
+        set_all(config['fields']['colorTraditional'], note, to=colorized)
+
+    #cantonese color
+    cantoField = get_first(config['fields']['cantonese'], note)
+    if cantoField:
+        hanzi = tradHanzi if tradHanzi else hanzi
+        cantoTrans = sanitize_transcript(cantoField, "jyutping", grouped=False)
+        colorized = colorize_fuse(hanzi, cantoTrans)
+        set_all(config['fields']['colorCantonese'], note, to=colorized)
 
 
 def fill_sound(hanzi, note):
@@ -287,10 +308,10 @@ def update_fields(note, focus_field, fields):
             fill_all_defs(hanzi, copy)
             fill_classifier(hanzi, copy)
             fill_transcript(hanzi, copy)
+            fill_trad(hanzi, copy)
             fill_color(hanzi, copy)
             fill_sound(hanzi, copy)
             fill_simp(hanzi, copy)
-            fill_trad(hanzi, copy)
             fill_frequency(hanzi, copy)
             fill_all_rubies(hanzi, copy)
             fill_silhouette(hanzi, copy)
