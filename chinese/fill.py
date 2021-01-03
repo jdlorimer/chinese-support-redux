@@ -486,28 +486,27 @@ def bulk_fill_usage():
         if has_any_field(copy, fields) and hanzi:
             n_processed += 1
 
-        try:
-            if all_fields_empty(copy, fields):
-                result = fill_usage(hanzi, copy)
-                if result:
-                    n_updated += 1
-                else:
-                    n_notfilled += 1
-                    n_failed += 1
-        except:
-            n_failed += 1
-            failed_hanzi += [hanzi]
+            try:
+                if all_fields_empty(copy, fields):
+                    result = fill_usage(hanzi, copy)
+                    if result:
+                        n_updated += 1
+                    else:
+                        n_notfilled += 1
+            except:
+                n_failed += 1
+                failed_hanzi.append(hanzi)
 
-        msg = progress_msg_template % {
-            'hanzi': hanzi,
-            'has_fields': n_processed,
-            'filled': n_updated,
-            'not_filled': n_notfilled,
-            'failed': n_failed,
-        }
-        mw.progress.update(label=msg, value=i)
+            msg = progress_msg_template % {
+                'hanzi': hanzi,
+                'has_fields': n_processed,
+                'filled': n_updated,
+                'not_filled': n_notfilled,
+                'failed': n_failed,
+            }
+            mw.progress.update(label=msg, value=i)
 
-        save_note(note, copy)
+            save_note(note, copy)
 
     msg = '''
     <b>Usage Additions Complete</b><br>
