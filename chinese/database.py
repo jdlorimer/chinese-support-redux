@@ -72,16 +72,23 @@ class Dictionary:
                 accentuate(list(map(str.lower, s.split())), 'pinyin')
             )
 
+
     def _get_word_jyutping(self, word, type_):
         if type_ == 'trad':
-            query = 'SELECT jyutping FROM cidian WHERE traditional=?'
+            #query = 'SELECT jyutping FROM cidian WHERE traditional=?'
+            query = 'SELECT kCantonese FROM hanzi WHERE cp=?'
+            #query2 = query.split(':')[0]
+            #query2 = query.split(" ")[0]
         elif type_ == 'simp':
-            query = 'SELECT jyutping FROM cidian WHERE simplified=?'
+            #query = 'SELECT jyutping FROM cidian WHERE simplified=?'
+            query = 'SELECT kCantonese FROM hanzi WHERE cp=?'
+            #query2 = query.split(" ")[0]
         self.c.execute(query, (word,))
         res = self.c.fetchone()
         if not res:
             return None
         return res[0]
+
 
     def get_pinyin(self, word, type_, prefer_tw=False, word_len=4):
         p = self._get_word_pinyin(word, type_, prefer_tw)
@@ -122,8 +129,47 @@ class Dictionary:
                 word = word[1:]
         return result
 
+
     def get_cantonese(self, word, type_):
-        return self._get_word_jyutping(word, type_)
+        #return self._get_word_jyutping(word, type_)
+        word_len=4;
+        p = self._get_word_jyutping(word, type_)
+        if p:
+            return p.split(" ")[0]          # # #
+        if len(word) == 1:
+            p = self._get_char(word, 'canto')
+            return p.split(" ")[0]
+
+        result = ''
+        word = word[:]
+        last_was_pinyin = False
+        while len(word) > 0:
+            word_was_found = False
+
+            while word_len > 1:
+                p = self._get_word_jyutping(word[:word_len], type_)
+                if p:
+                    result = add_with_space(result, p)
+                    word = word[word_len:]
+                    last_was_pinyin = True
+                    word_was_found = True
+                    break
+                word_len -= 1
+
+            if not word_was_found:
+                p = self._get_char(word[0], 'canto')
+                p = p.split(" ")[0]
+                if p:
+                    result = add_with_space(result, p)
+                    last_was_pinyin = True
+                else:
+                    if last_was_pinyin:
+                        result += ' '
+                    result += word[0]
+                    last_was_pinyin = False
+                word = word[1:]
+        return result
+
 
     def get_traditional(self, word, word_len=4):
         return self.get_word(word, word_len, type_='trad')
