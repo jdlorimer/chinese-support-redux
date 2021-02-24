@@ -1,3 +1,5 @@
+**_2021 Project Status: Active development will resume on Saturday the 27th of February._**
+
 # Chinese Support Redux
 
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/6b99fcb30a2142d899f79c601a6aa291)](https://app.codacy.com/app/luoliyan/chinese-support-redux?utm_source=github.com&utm_medium=referral&utm_content=luoliyan/chinese-support-redux&utm_campaign=Badge_Grade_Dashboard)
