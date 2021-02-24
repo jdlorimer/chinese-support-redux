@@ -177,6 +177,8 @@ class Dictionary:
         self.c.execute('SELECT %s FROM hanzi WHERE cp = ?' % to_col[type_], c)
         try:
             (k,) = self.c.fetchone()
+            if k is not None:
+                k = k.split()[0] # When returning two transcriptions just take the first.
             return k
         except:
             return None

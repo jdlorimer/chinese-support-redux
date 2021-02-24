@@ -34,18 +34,12 @@ from .models import advanced, basic
 from .templates import chinese, ruby
 
 
-if config['firstRun']:
-    dictionary.create_indices()
-    config['firstRun'] = False
-
-
 def load():
     ruby.install()
     chinese.install()
     addHook('profileLoaded', load_menu)
     addHook('profileLoaded', add_models)
     addHook('loadNote', append_tone_styling)
-    addHook('unloadProfile', config.save)
     addHook('unloadProfile', dictionary.conn.close)
     addHook('unloadProfile', unload_menu)
     CollectionStats.todayStats = wrap(

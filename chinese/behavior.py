@@ -39,7 +39,6 @@ from .util import (
     set_all,
 )
 
-
 def get_classifier(hanzi, note):
     cs = dictionary.get_classifiers(hanzi)
     text = ', '.join(colorize_dict(c) for c in cs)
