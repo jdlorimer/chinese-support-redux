@@ -17,8 +17,7 @@
 # You should have received a copy of the GNU General Public License along with
 # Chinese Support Redux.  If not, see <https://www.gnu.org/licenses/>.
 
-from anki.hooks import addHook
-from aqt import mw
+from aqt import mw, gui_hooks
 
 from .behavior import update_fields
 from .main import config
@@ -26,9 +25,9 @@ from .main import config
 
 class EditManager:
     def __init__(self):
-        addHook('setupEditorButtons', self.setupButton)
-        addHook('loadNote', self.updateButton)
-        addHook('editFocusLost', self.onFocusLost)
+        gui_hooks.editor_did_init_buttons.append(self.setupButton)
+        gui_hooks.editor_did_load_note.append(self.updateButton)
+        gui_hooks.editor_did_unfocus_field.append(self.onFocusLost)
 
     def setupButton(self, buttons, editor):
         self.editor = editor
@@ -43,7 +42,7 @@ class EditManager:
             id='chineseSupport',
             toggleable=True)
 
-        return buttons + [button]
+        buttons.append(button)
 
     def onToggle(self, editor):
         self.buttonOn = not self.buttonOn
