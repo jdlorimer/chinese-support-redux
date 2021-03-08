@@ -28,14 +28,15 @@ class EditManager:
         gui_hooks.editor_did_init_buttons.append(self.setupButton)
         gui_hooks.editor_did_load_note.append(self.updateButton)
         gui_hooks.editor_did_unfocus_field.append(self.onFocusLost)
+        self.editors = []
 
     def setupButton(self, buttons, editor):
-        self.editor = editor
+        self.editors.append(editor)
         self.buttonOn = False
-        editor._links['chineseSupport'] = self.onToggle
 
-        button = editor._addButton(
+        button = editor.addButton(
             icon=None,
+            func=self.onToggle,
             cmd='chineseSupport',
             tip='Chinese Support',
             label='<b>汉字</b>',
@@ -63,6 +64,10 @@ class EditManager:
             editor.web.eval('toggleEditorButton(chineseSupport);')
             self.buttonOn = not self.buttonOn
 
+    def _refreshAllEditors(self, focusTo):
+        for editor in self.editors:
+            editor.loadNote(focusTo=focusTo)
+
     def onFocusLost(self, _, note, index):
         if not self.buttonOn:
             return False
@@ -71,10 +76,8 @@ class EditManager:
         field = allFields[index]
 
         if update_fields(note, field, allFields):
-            if index == len(allFields) - 1:
-                self.editor.loadNote(focusTo=index)
-            else:
-                self.editor.loadNote(focusTo=index+1)
+            focusTo = (index + 1) % len(allFields)
+            self._refreshAllEditors(focusTo)
 
         return False
 
