@@ -9,3 +9,4 @@ __pycache__
 chinese/config_saved.json
 chinese/meta.json
 Pipfile.lock
+.vscode

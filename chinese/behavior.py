@@ -246,8 +246,10 @@ def fill_all_rubies(hanzi, note):
 def update_fields(note, focus_field, fields):
     copy = dict(note)
     hanzi = get_first(config['fields']['hanzi'], copy)
-    if not hanzi:
+    
+    if hanzi is None: # check if hanzi field exists
         return False
+    
     hanzi = cleanup(hanzi)
 
     transcript_fields = (
@@ -261,8 +263,8 @@ def update_fields(note, focus_field, fields):
         fill_color(hanzi, copy)
         fill_all_rubies(hanzi, copy)
 
-    if focus_field in config['fields']['hanzi']:
-        if copy[focus_field]:
+    if focus_field in config['fields']['hanzi']: #focus field is hanzi field
+        if copy[focus_field]: #hanzi field is not empty
             fill_all_defs(hanzi, copy)
             fill_classifier(hanzi, copy)
             fill_transcript(hanzi, copy)

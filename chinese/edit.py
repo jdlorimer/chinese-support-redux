@@ -72,10 +72,7 @@ class EditManager:
         field = allFields[index]
 
         if update_fields(note, field, allFields):
-            if index == len(allFields) - 1:
-                self.editor.loadNote(focusTo=index)
-            else:
-                self.editor.loadNote(focusTo=index+1)
+            self.editor.loadNote()
 
         return False
 
