@@ -1,4 +1,5 @@
 # Copyright © 2018-2020 Joseph Lorimer <joseph@lorimer.me>
+# Copyright © 2020 Joe Minicucci <https://joeminicucci.com>
 #
 # This file is part of Chinese Support Redux.
 #
@@ -292,7 +293,7 @@ class UpdateFields(Base):
             'Jyutping': '',
             # FIXME
             'English': ' \tbed sheet\n<br>',
-            'German': ' \tLaken, Bettlaken, Betttuch (u.E.) (S)\n<br>',
+            'German': ' \tLaken, Bettlaken, Betttuch (S)\n<br>',
             'French': ' \tdrap de lit\n<br>',
             'Ruby (Pinyin)': '<span class="tone2"><ruby>床<rt>chuáng</rt></ruby></span><span class="tone1"><ruby>单<rt>dān</rt></ruby></span>',
             'Ruby (Taiwan Pinyin)': '<span class="tone2"><ruby>床<rt>chuáng</rt></ruby></span><span class="tone1"><ruby>单<rt>dān</rt></ruby></span>',
