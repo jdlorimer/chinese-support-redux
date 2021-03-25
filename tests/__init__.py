@@ -21,6 +21,7 @@ from logging import getLogger
 from tempfile import mkdtemp
 from unittest import TestCase
 from unittest.mock import MagicMock, patch
+from os import path, pardir
 
 network_integration = False
 
@@ -51,8 +52,9 @@ else:
 
 patch.dict('sys.modules', modules).start()
 
-with open('chinese/config.json') as f:
-    config = load(f)
+configDir = path.join(path.abspath(path.join(path.dirname(path.abspath(__file__)), pardir)), "chinese")
+with open(path.join(configDir,"config.json"), encoding='utf-8') as config_fd:
+    config = load(config_fd)
 
 patch('aqt.mw.addonManager.getConfig', lambda a: config).start()
 patch('aqt.mw.col.media.dir', MagicMock(return_value=media_dir)).start()

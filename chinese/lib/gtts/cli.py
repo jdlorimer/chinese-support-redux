@@ -88,6 +88,7 @@ def print_languages(ctx, param, value):
     """
     if not value or ctx.resilient_parsing:
         return
+
     try:
         langs = tts_langs()
         langs_str_list = sorted("{}: {}".format(k, langs[k]) for k in langs)
@@ -137,6 +138,14 @@ def set_debug(ctx, param, debug):
     callback=validate_lang,
     help="IETF language tag. Language to speak in. List documented tags with --all.")
 @click.option(
+    '-t',
+    '--tld',
+    metavar='<tld>',
+    default='com',
+    show_default=True,
+    is_eager=True,  # Prioritize <tld> to ensure it gets set before <lang>
+    help="Top-level domain for the Google host, i.e https://translate.google.<tld>")
+@click.option(
     '--nocheck',
     default=False,
     is_flag=True,
@@ -159,7 +168,7 @@ def set_debug(ctx, param, debug):
     callback=set_debug,
     help="Show debug information.")
 @click.version_option(version=__version__)
-def tts_cli(text, file, output, slow, lang, nocheck):
+def tts_cli(text, file, output, slow, tld, lang, nocheck):
     """ Read <text> to mp3 format using Google Translate's Text-to-Speech API
     (set <text> or --file <file> to - for standard input)
     """
@@ -189,6 +198,7 @@ def tts_cli(text, file, output, slow, lang, nocheck):
             text=text,
             lang=lang,
             slow=slow,
+            tld=tld,
             lang_check=not nocheck)
         tts.write_to_fp(output)
     except (ValueError, AssertionError) as e:

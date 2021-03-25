@@ -1,5 +1,6 @@
 # Copyright © 2012 Thomas TEMPÉ <thomas.tempe@alysse.org>
 # Copyright © 2017-2020 Joseph Lorimer <joseph@lorimer.me>
+# Copyright © 2020 Joe Minicucci <https://joeminicucci.com>
 #
 # This file is part of Chinese Support Redux.
 #
@@ -33,6 +34,7 @@ from .fill import (
     bulk_fill_silhouette,
     bulk_fill_sound,
     bulk_fill_transcript,
+    bulk_fill_usage,
 )
 from .main import config
 
@@ -81,6 +83,7 @@ def load_menu():
     add_menu_item('Chinese::Bulk Fill', _('Classifiers'), bulk_fill_classifiers)
     add_menu_item('Chinese::Bulk Fill', _('Sound'), bulk_fill_sound)
     add_menu_item('Chinese::Bulk Fill', _('Silhouette'), bulk_fill_silhouette)
+    add_menu_item('Chinese::Bulk Fill', _('Usage'), bulk_fill_usage)
     add_menu_item('Chinese::Bulk Fill', _('All'), bulk_fill_all)
 
     add_menu('Chinese::Help')

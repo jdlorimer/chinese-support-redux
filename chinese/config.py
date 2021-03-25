@@ -1,6 +1,7 @@
 # Copyright © 2012 Roland Sieker <ospalh@gmail.com>
 # Copyright © 2012 Thomas TEMPÉ <thomas.tempe@alysse.org>
 # Copyright © 2017-2019 Joseph Lorimer <joseph@lorimer.me>
+# Copyright © 2020 Joe Minicucci <https://joeminicucci.com>
 #
 # This file is part of Chinese Support Redux.
 #
@@ -59,3 +60,6 @@ class ConfigManager:
             if g in self.config['fields']:
                 fields.extend(self.config['fields'][g])
         return fields
+
+    def get_config_scalar_value(self, keyName):
+        return self.config[keyName] if keyName in self.config else None
