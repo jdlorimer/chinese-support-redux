@@ -109,6 +109,9 @@ def fill_silhouette(hanzi, note):
 def fill_usage(hanzi, note):
     filled = False
 
+    if not 'usage' in config['fields']:
+        return filled
+
     if not has_any_field(config['fields']['usage'], note):
         return filled
 
