@@ -2,7 +2,7 @@
 # Copyright © 2012 Thomas TEMPÉ <thomas.tempe@alysse.org>
 # Copyright © 2017 Pu Anlai <https://github.com/InspectorMustache>
 # Copyright © 2019 Oliver Rice <orice@apple.com>
-# Copyright © 2017-2019 Joseph Lorimer <joseph@lorimer.me>
+# Copyright © 2017-2021 Joseph Lorimer <joseph@lorimer.me>
 # Inspiration: Tymon Warecki
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/copyleft/agpl.html
 
@@ -16,6 +16,7 @@ from urllib.request import Request, urlopen
 import requests
 from aqt import mw
 from gtts import gTTS
+from gtts.tts import gTTSError
 
 requests.packages.urllib3.disable_warnings()
 
@@ -53,7 +54,10 @@ class AudioDownloader:
 
     def get_google(self):
         tts = gTTS(self.text, lang=self.lang)
-        tts.save(self.path)
+        try:
+            tts.save(self.path)
+        except gTTSError as e:
+            print('gTTS Error: {}'.format(e))
 
     def get_baidu(self):
         query = {
