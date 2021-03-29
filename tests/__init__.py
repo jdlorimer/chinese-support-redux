@@ -48,6 +48,7 @@ if network_integration:
 else:
     media_dir = 'collection.media'
     modules['gtts'] = MagicMock()
+    modules['gtts.tts'] = MagicMock()
     modules['requests'] = MagicMock()
 
 patch.dict('sys.modules', modules).start()

@@ -1,8 +1,8 @@
 {
     "firstRun": true,
-    "version": "0.14.0",
+    "version": "0.14.2",
     "enabledModels": [],
-    "speech": "google|zh-cn",
+    "speech": "google|zh-CN",
     "target": "pinyin",
     "max_examples": -1,
     "fields": {

@@ -41,8 +41,8 @@ from .main import config
 
 SPEECH_ENGINES = {
     'Baidu Translate': 'baidu|zh',
-    'Google Mandarin (PRC)': 'google|zh-cn',
-    'Google Mandarin (Taiwan)': 'google|zh-tw',
+    'Google Mandarin (PRC)': 'google|zh-CN',
+    'Google Mandarin (Taiwan)': 'google|zh-TW',
     'Amazon Polly' : 'aws|Zhiyu',
     'Disabled': None,
 }

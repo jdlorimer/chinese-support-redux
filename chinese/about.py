@@ -33,6 +33,7 @@ def showAbout():
     contributors = [
         'Alex Griffin',
         'Chris Hatch',
+        'Joe Minicucci',
         'Roland Sieker',
         'Thomas TEMPÉ',
     ]

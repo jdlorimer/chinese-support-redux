@@ -1,11 +1,15 @@
 # -*- coding: utf-8 -*-
 from gtts.tokenizer import pre_processors, Tokenizer, tokenizer_cases
 from gtts.utils import _minimize, _len, _clean_tokens, _translate_url
-from gtts.lang import tts_langs
+from gtts.lang import tts_langs, _fallback_deprecated_lang
 
 from six.moves import urllib
-from urllib.parse import quote
-import urllib3
+try:
+    from urllib.parse import quote
+    import urllib3
+except ImportError:
+    from urllib import quote
+    import urllib2
 import requests
 import logging
 import json
@@ -38,10 +42,11 @@ class gTTS:
     Args:
         text (string): The text to be read.
         tld (string): Top-level domain for the Google Translate host,
-            i.e `https://translate.google.<tld>`. This is useful
-            when ``google.com`` might be blocked within a network but
-            a local or different Google host (e.g. ``google.cn``) is not.
-            Default is ``com``.
+            i.e `https://translate.google.<tld>`. Different Google domains
+            can produce different localized 'accents' for a given
+            language. This is also useful when ``google.com`` might be blocked
+            within a network but a local or different Google host
+            (e.g. ``google.cn``) is not. Default is ``com``.
         lang (string, optional): The language (IETF language tag) to
             read the text in. Default is ``en``.
         slow (bool, optional): Reads text more slowly. Defaults to ``False``.
@@ -130,17 +135,20 @@ class gTTS:
         self.tld = tld
 
         # Language
-        if lang_check:
+        self.lang_check = lang_check
+        self.lang = lang
+
+        if self.lang_check:
+            # Fallback lang in case it is deprecated
+            self.lang = _fallback_deprecated_lang(lang)
+
             try:
                 langs = tts_langs()
-                if lang.lower() not in langs:
-                    raise ValueError("Language not supported: %s" % lang)
+                if self.lang not in langs:
+                   raise ValueError("Language not supported: %s" % lang)
             except RuntimeError as e:
                 log.debug(str(e), exc_info=True)
                 log.warning(str(e))
-
-        self.lang_check = lang_check
-        self.lang = lang.lower()
 
         # Read speed
         if slow:
@@ -220,18 +228,6 @@ class gTTS:
         espaced_rpc = json.dumps(rpc, separators=(',', ':'))
         return "f.req={}&".format(quote(espaced_rpc))
 
-    def get_urls(self):
-        """Get TTS API request URL(s) that would be sent to the TTS API.
-
-        Returns:
-            list: A list of TTS API request URLs to make.
-
-                This is particularly useful to get the list of URLs generated
-                by ``gTTS`` but not yet fullfilled,
-                for example to be used by an external program.
-        """
-        return [pr.url for pr in self._prepare_requests()]
-
     def get_bodies(self):
         """Get TTS API request bodies(s) that would be sent to the TTS API.
 
@@ -253,7 +249,12 @@ class gTTS:
         """
         # When disabling ssl verify in requests (for proxies and firewalls),
         # urllib3 prints an insecure warning on stdout. We disable that.
-        urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+        try:
+            urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+        except:
+            pass
+ 
+
 
         prepared_requests = self._prepare_requests()
         for idx, pr in enumerate(prepared_requests):

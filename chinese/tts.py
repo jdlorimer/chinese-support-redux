@@ -22,7 +22,7 @@ requests.packages.urllib3.disable_warnings()
 
 
 class AudioDownloader:
-    def __init__(self, text, source='google|zh-cn'):
+    def __init__(self, text, source='google|zh-CN'):
         self.text = text
         self.service, self.lang = source.split('|')
         self.path = self.get_path()
@@ -53,7 +53,7 @@ class AudioDownloader:
         return basename(self.path)
 
     def get_google(self):
-        tts = gTTS(self.text, lang=self.lang)
+        tts = gTTS(self.text, lang=self.lang, tld='cn')
         try:
             tts.save(self.path)
         except gTTSError as e:

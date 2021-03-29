@@ -15,7 +15,7 @@
 
 PROJECT_SHORT = chinese
 PROJECT_LONG = chinese-support-redux
-VERSION = 0.14.0
+VERSION = 0.14.2
 XDG_DATA_HOME ?= $(HOME)/.local/share
 ADDON_PATH = "$(XDG_DATA_HOME)/Anki2/addons21/$(PROJECT_LONG)"
 ZIP_NAME = $(PROJECT_LONG)-v$(VERSION).zip
