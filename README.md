@@ -1,9 +1,9 @@
-**_2021 Project Status: Active development will resume on Saturday the 27th of February._**
-
 # Chinese Support Redux
 
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/6b99fcb30a2142d899f79c601a6aa291)](https://app.codacy.com/app/luoliyan/chinese-support-redux?utm_source=github.com&utm_medium=referral&utm_content=luoliyan/chinese-support-redux&utm_campaign=Badge_Grade_Dashboard)
 [![Build Status](https://travis-ci.org/luoliyan/chinese-support-redux.svg?branch=master)](https://travis-ci.org/luoliyan/chinese-support-redux) [![Coverage Status](https://coveralls.io/repos/github/luoliyan/chinese-support-redux/badge.svg?branch=master)](https://coveralls.io/github/luoliyan/chinese-support-redux?branch=master)
+
+[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/X8X01RVSD)
 
 Chinese Support Redux is an Anki 2.1-compatible rewrite of the [original](https://github.com/ttempe/chinese-support-addon) Chinese Support add-on. It offers a number of features that streamline the process of creating flashcards for learning Chinese. The current focus of development effort is on improving the stability of the add-on and the accuracy of its output. Once the core functionality is sufficiently robust and reliable, additional features will be considered.
 
@@ -73,7 +73,9 @@ If you encounter any issues, the best way to have these addressed is to [raise t
 
 I understand the documentation is sparse. Anyone who wishes to add content to [the wiki](https://github.com/luoliyan/chinese-support-redux/wiki) is more than welcome to.
 
-## Testing
+## Development
+
+### Testing
 
 For those who wish to run the tests locally, this is fairly straightforward.
 
@@ -99,46 +101,46 @@ pip install -r requirements.txt
 make test
 ```
 
+### Debugging with PyCharm
 
-## Debug with PyCharm
-### Without Anki Source
+#### (a) Without Anki Source
 
-1. Copy the repo root to the anki plugins folder. As of 2.1 this is : `C:\Users\<user>\AppData\Roaming\Anki2\addons21`
-2. Create py 3.8 venv in pycharm for addon folder. Make sure you are running 64 bit python. This can be done with
+1. Copy the repo root to the Anki add-ons folder. As of version 2.1, this is `%AppData%\Anki2\addons21`
+2. Create a Python 3.8 virtual environment in PyCharm for the add-on folder (make sure you are running 64-bit Python). This can be done with:
 ```python
 import platform
 platform.architecture()
 ```
-3. Run the following in the pycharm python console (these could be added to requirements.txt instead):
-
+3. Run the following in the PyCharm console (these could be added to `requirements.txt` instead):
 ``` python
 import subprocess
 subprocess.check_call(["pip3", "install", "mypy", "anki", "ankirspy", "aqt", "pyqt5", pyqtwebengine"])
 ```
-4. Install the requirements.txt for the project venv
-
-5. Create a file for debugging in pycharm as:
+4. Install the `requirements.txt` for the project venv
+5. Create a file for debugging in PyCharm as:
 ``` python
 import aqt
-
 aqt.run()
 ```
-6. Start debugging. The first anki run will pick up the 'tests' folder as a plugin and error out. This is expected.
-7. Go to the Tools->Add-ons menu and disable 'tests'
+6. Start debugging. The first Anki run will pick up the `tests` folder as a plugin and error out. This is expected.
+7. Go to the Tools → Add-ons menu and disable `tests`
 8. Enjoy coding!
 
-### With Anki Source
+#### (b) With Anki Source
+
 1. Download and extract Anki source code somewhere on the hard drive.
 2. Create a folder such as `anki-addon-dev` on your hard drive and open it on PyCharm as a project. Then, open Anki source code folder as another project within the current project window by choosing Attach.
-3. On `Preferences -> Project -> Project Dependencies -> anki-addon-dev`: Check the box to approve the add-on depends on Anki source code.
-4. Under the run configurations beside run and debug buttons, edit configurations as follows:
-Script Path: `[YOUR_PATH_TO_ANKI_SOURCE_FOLDER]/anki-2.1.13/runanki`
-Parameters: `-b [YOUR_PATH_TO_ANKI_ADDON_PROJECT]/anki-addon-dev`
+3. Under `Preferences → Project → Project Dependencies → anki-addon-dev`, check the box to approve the add-on depends on Anki source code.
+4. Under the run configurations beside run and debug buttons, edit the configuration as follows:
+- Script Path: `[PATH_TO_ANKI_SOURCE_FOLDER]/anki-2.1.13/runanki`
+- Parameters: `-b [PATH_TO_ANKI_ADDON_PROJECT]/anki-addon-dev`
 5. Create your project files and do the development on this path:
 `anki-addon-dev/addons21/[YOUR_PROJECT_FOLDER]`
 6. Happy debugging while developing 
 
-### Additional Debugging Guidance
-- https://addon-docs.ankiweb.net/#/getting-started
-- https://github.com/ankitects/anki/blob/stable/README.development
-- https://chrisk91.me/2018/02/13/Setting-up-VSCode-for-Anki-addon-development.html
+### Additional Guidance
+
+- [Writing Anki Add-ons - Getting Started](https://addon-docs.ankiweb.net/#/getting-started)
+- [Anki development README](https://github.com/ankitects/anki/blob/main/docs/development.md)
+- [Setting up VSCode for Anki add on development](https://chrisk91.me/2018/02/13/Setting-up-VSCode-for-Anki-addon-development.html)
+

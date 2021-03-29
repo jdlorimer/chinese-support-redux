@@ -300,7 +300,7 @@ class UpdateFields(Base):
             'Ruby (Bopomofo)': '<span class="tone2"><ruby>床<rt>ㄔㄨㄤˊ</rt></ruby></span><span class="tone1"><ruby>单<rt>ㄉㄢ</rt></ruby></span>',
             'Ruby (Jyutping)': '',
             'Silhouette': '_ _',
-            'Sound (Mandarin)': '[sound:床单_google_zh-cn.mp3]',
+            'Sound (Mandarin)': '[sound:床单_google_zh-CN.mp3]',
             'Sound (Cantonese)': '',
         }
         fields = expected.keys()

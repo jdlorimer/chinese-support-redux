@@ -1,13 +1,25 @@
 <a href="https://app.codacy.com/app/luoliyan/chinese-support-redux?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=luoliyan/chinese-support-redux&amp;utm_campaign=Badge_Grade_Dashboard"><img src="https://api.codacy.com/project/badge/Grade/6b99fcb30a2142d899f79c601a6aa291" alt="Codacy Badge" /></a><a href="https://travis-ci.org/luoliyan/chinese-support-redux"><img src="https://travis-ci.org/luoliyan/chinese-support-redux.svg?branch=master" alt="Build Status" /></a> <a href="https://coveralls.io/github/luoliyan/chinese-support-redux?branch=master"><img src="https://coveralls.io/repos/github/luoliyan/chinese-support-redux/badge.svg?branch=master" alt="Coverage Status" /></a>
 
+<a href="https://ko-fi.com/X8X01RVSD"><img src="https://ko-fi.com/img/githubbutton_sm.svg" alt="ko-fi" /></a>
 
-Chinese Support Redux is a rewrite and port of the <a href="https://github.com/ttempe/chinese-support-addon">original</a> Chinese Support add-on to Anki 2.1. It offers a number of features that streamline the process of creating flashcards for learning Chinese. The current focus of development effort is on improving the stability of the add-on and the accuracy of its output. Once the core functionality is sufficiently robust and reliable, additional features will be considered. While many of the changes will be structural in nature, I would encourage users to update the add-on whenever the version number increases and notify me of any problems. Your feedback is important.
+Chinese Support Redux is an Anki 2.1-compatible rewrite of the <a href="https://github.com/ttempe/chinese-support-addon">original</a> Chinese Support add-on. It offers a number of features that streamline the process of creating flashcards for learning Chinese. The current focus of development effort is on improving the stability of the add-on and the accuracy of its output. Once the core functionality is sufficiently robust and reliable, additional features will be considered.
 
-<b>Important Note</b>: If you find that a field is not filling at all, please check <a href="https://github.com/luoliyan/chinese-support-redux/blob/master/chinese/config.json">config.json</a> for the complete list of valid field names.
+Please note that the add-on is still in beta and is sometimes shipped in an unstable state. Please upgrade with each new release and report any issues on GitHub. The automated test suite is a work-in-progress, so I still rely heavily on user reports to supplement my own manual testing.
+
+<b>Important Notes</b>
+
+<ul><li>If you find that a field is not filling at all, please check <a href="https://github.com/luoliyan/chinese-support-redux/blob/master/chinese/config.json">config.json</a> for the complete list of valid field names. For those migrating from an older version of the add-on, you will need to rename any definition fields to <code>English</code>, <code>German</code> or <code>French</code>, depending on what you want.</li><li>If tone colours are not showing, ensure that the styling section of the template contains the following CSS:</li></ul>
+<code>
+.tone1 {color: red;}
+.tone2 {color: orange;}
+.tone3 {color: green;}
+.tone4 {color: blue;}
+.tone5 {color: gray;}
+</code>
 
 <b><i>Features</i></b>
 
-<ul><li>Automatic field filling<ul><li>Translation (from built-in dictionary; supports English, German and French)</li><li>Romanisation (supports <a href="https://en.wikipedia.org/wiki/Pinyin">Pīnyīn (拼音)</a> and Cantonese <a href="https://en.wikipedia.org/wiki/Jyutping">Jyutping (粵拼)</a>)</li><li>Mandarin Audio (fetched from Google or Baidu)</li><li>Traditional (繁體字) and simplified (簡體字) characters</li><li><a href="https://en.wikipedia.org/wiki/Bopomofo">Bopomofo (ㄅㄆㄇㄈ)</a>, also known as Zhuyin (注音)</li><li><a href="https://www.w3schools.com/tags/tag_ruby.asp">Rubies</a> (small-print transcription placed above characters)</li><li>Frequency (from “very basic” to “obscure”). Based on <a href="https://github.com/ernop/anki-chinese-word-frequency">anki-chinese-word-frequency</a></li></ul></li><li>Tone colours (applied to characters, romanisation and Bopomofo)</li><li>Built-in note types (Basic and Advanced)</li></ul>
+<ul><li>Automatic field filling<ul><li>Translation (from built-in dictionary; supports English, German and French)</li><li>Romanisation (supports <a href="https://en.wikipedia.org/wiki/Pinyin">Pīnyīn (拼音)</a> and Cantonese <a href="https://en.wikipedia.org/wiki/Jyutping">Jyutping (粵拼)</a>)</li><li>Mandarin Audio (fetched from Google or Baidu)</li><li>Traditional (繁體字) and simplified (簡體字) characters</li><li><a href="https://en.wikipedia.org/wiki/Bopomofo">Bopomofo (ㄅㄆㄇㄈ)</a>, also known as Zhuyin (注音)</li><li><a href="https://www.w3schools.com/tags/tag_ruby.asp">Rubies</a> (small-print transcription placed above characters)</li><li>Frequency (from “very basic” to “obscure”) - based on <a href="https://github.com/ernop/anki-chinese-word-frequency">anki-chinese-word-frequency</a></li><li>Usage Sentence Examples - Chinese/English sentence pairs from <a href="https://tatoeba.org/">Tatoeba</a></li></ul></li><li>Tone colours (applied to characters, romanisation and Bopomofo)</li><li>Built-in note types (Basic and Advanced)</li></ul>
 <b><i>Status</i></b>
 
 The vast majority of features have been successfully ported, and the add-on is in a usable state, albeit with some definite rough edges.
@@ -20,7 +32,7 @@ If you are new to the Chinese Support add-on, the wiki from the previous version
 
 <b><i>Usage</i></b>
 
-The core feature of the add-on is the automatic field filling. To take advantage of this, you need to have an Anki note type with the appropriate fields (e.g., <code>Hanzi</code>, <code>Meaning</code>, <code>Reading</code>, <code>Sound</code>). See <code>config.json</code> for a list of valid field names.
+The core feature of the add-on is the automatic field filling. To take advantage of this, you need to have an Anki note type with the appropriate fields (e.g., <code>Hanzi</code>, <code>English</code>, <code>Pinyin</code>, <code>Sound</code>). See <code>config.json</code> for a list of valid field names.
 
 If you don't already have such a note type, the easiest approach is to use one of the built-in models. Two types are installed automatically: Basic and Advanced. The only important difference is that the Advanced model shows more information.
 
@@ -39,7 +51,9 @@ If you encounter any issues, the best way to have these addressed is to <a href=
 
 I understand the documentation is sparse. Anyone who wishes to add content to <a href="https://github.com/luoliyan/chinese-support-redux/wiki">the wiki</a> is more than welcome to.
 
-<b><i>Testing</i></b>
+<b><i>Development</i></b>
+
+<b>Testing</b>
 
 For those who wish to run the tests locally, this is fairly straightforward.
 
@@ -64,3 +78,12 @@ Install dependencies and run the tests:
 pip install -r requirements.txt
 make test
 </code>
+
+<b>Debugging with PyCharm</b>
+
+<h4>(a) Without Anki Source</h4><ol><li>Copy the repo root to the Anki add-ons folder. As of version 2.1, this is <code>%AppData%\Anki2\addons21</code></li><li>Create a Python 3.8 virtual environment in PyCharm for the add-on folder (make sure you are running 64-bit Python). This can be done with:<code>pythonimport platformplatform.architecture()</code></li><li>Run the following in the PyCharm console (these could be added to <code>requirements.txt</code> instead):<code>pythonimport subprocesssubprocess.check_call(["pip3", "install", "mypy", "anki", "ankirspy", "aqt", "pyqt5", pyqtwebengine"])</code></li><li>Install the <code>requirements.txt</code> for the project venv</li><li>Create a file for debugging in PyCharm as:<code>pythonimport aqtaqt.run()</code></li><li>Start debugging. The first Anki run will pick up the <code>tests</code> folder as a plugin and error out. This is expected.</li><li>Go to the Tools → Add-ons menu and disable <code>tests</code></li><li>Enjoy coding!</li></ol>
+<h4>(b) With Anki Source</h4><ol><li>Download and extract Anki source code somewhere on the hard drive.</li><li>Create a folder such as <code>anki-addon-dev</code> on your hard drive and open it on PyCharm as a project. Then, open Anki source code folder as another project within the current project window by choosing Attach.</li><li>Under <code>Preferences → Project → Project Dependencies → anki-addon-dev</code>, check the box to approve the add-on depends on Anki source code.</li><li>Under the run configurations beside run and debug buttons, edit the configuration as follows:</li><li>Script Path: <code>[PATH_TO_ANKI_SOURCE_FOLDER]/anki-2.1.13/runanki</code></li><li>Parameters: <code>-b [PATH_TO_ANKI_ADDON_PROJECT]/anki-addon-dev</code></li><li>Create your project files and do the development on this path:<code>anki-addon-dev/addons21/[YOUR_PROJECT_FOLDER]</code></li><li>Happy debugging while developing </li></ol>
+<b>Additional Guidance</b>
+
+<ul><li><a href="https://addon-docs.ankiweb.net/#/getting-started">Writing Anki Add-ons - Getting Started</a></li><li><a href="https://github.com/ankitects/anki/blob/main/docs/development.md">Anki development README</a></li><li><a href="https://chrisk91.me/2018/02/13/Setting-up-VSCode-for-Anki-addon-development.html">Setting up VSCode for Anki add on development</a></li></ul>
+
