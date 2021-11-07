@@ -31,6 +31,7 @@ from .behavior import (
     fill_all_rubies,
     fill_classifier,
     fill_color,
+    fill_frequency,
     fill_silhouette,
     fill_simp,
     fill_sound,
@@ -526,6 +527,87 @@ def bulk_fill_usage():
             'chinese.db database.\n'
             'The following notes failed: \n\n'
             + ', '.join(failed_hanzi)
+        )
+        showText(failed_msg, copyBtn=True)
+    mw.progress.finish()
+    showInfo(msg)
+
+
+def bulk_fill_frequency():
+    prompt = PROMPT_TEMPLATE.format(field_names="<i>frequency</i>", extra_info="")
+
+    progress_msg_template = """
+            <b>Processing:</b> %(hanzi)s<br>
+            <b>Chinese notes:</b> %(has_fields)d<br>
+            <b>Cards with Frequency added:</b> %(filled)d<br>
+            <b>Cards with no Frequency added:</b> %(not_filled)d<br>
+            <b>Failed:</b> %(failed)d"""
+
+    target_fields = config.get_fields(["frequency"])
+    hanzi_fields = config.get_fields(["hanzi"])
+
+    if not askUser(prompt):
+        return
+
+    n_processed = 0
+    n_updated = 0
+    n_failed = 0
+    n_notfilled = 0
+    failed_hanzi = []
+
+    note_ids = mw.col.findNotes("deck:current")
+    mw.progress.start(immediate=True, min=0, max=len(note_ids))
+
+    for i, note_id in enumerate(note_ids):
+        note = mw.col.getNote(note_id)
+        copy = dict(note)
+
+        # Ensure note type has hanzi present
+        hanzi = None
+        if has_any_field(copy, hanzi_fields):
+            hanzi = get_hanzi(copy)
+
+        if has_any_field(copy, target_fields) and hanzi:
+            n_processed += 1
+
+            try:
+                if all_fields_empty(copy, target_fields):
+                    filled = fill_frequency(hanzi, copy)
+                    if filled:
+                        n_updated += 1
+                    else:
+                        n_notfilled += 1
+            except:
+                n_failed += 1
+                failed_hanzi.append(hanzi)
+
+            msg = progress_msg_template % {
+                "hanzi": hanzi,
+                "has_fields": n_processed,
+                "filled": n_updated,
+                "not_filled": n_notfilled,
+                "failed": n_failed,
+            }
+            mw.progress.update(label=msg, value=i)
+
+            save_note(note, copy)
+
+    msg = """
+    <b>Frequency Additions Complete</b><br>
+    <b>Chinese Notes:</b> %(has_fields)d<br>
+    <b>Frequency Fields Filled:</b> %(filled)d<br>
+    <b>Frequency Fields Not Filled:</b> %(not_filled)d<br>
+    <b>Failed:</b> %(failed)d""" % {
+        "has_fields": n_processed,
+        "filled": n_updated,
+        "not_filled": n_notfilled,
+        "failed": n_failed,
+    }
+    if n_failed > 0:
+        failed_msg = (
+            "Frequency may not be available in the database's data set. "
+            "Custom data can be added to the data/freq/internet-zh file."
+            "The following notes failed: \n\n" + ", ".join(failed_hanzi)
         )
         showText(failed_msg, copyBtn=True)
     mw.progress.finish()

@@ -242,13 +242,16 @@ def fill_trad(hanzi, note):
         set_all(config['fields']['traditional'], note, to='')
 
 
-def fill_frequency(hanzi, note):
+def fill_frequency(hanzi, note) -> bool:
     if get_first(config['fields']['frequency'], note) == '':
         set_all(
             config['fields']['frequency'],
             note,
             to=get_frequency(get_simp(hanzi)),
         )
+        return True
+
+    return False
 
 
 def fill_ruby(hanzi, note, trans_group, ruby_group):
