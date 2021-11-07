@@ -464,7 +464,8 @@ def bulk_fill_usage():
             <b>Cards with no Sentences added:</b> %(not_filled)d<br>
             <b>Failed:</b> %(failed)d'''
 
-    fields = config.get_fields(['usage'])
+    target_fields = config.get_fields(["usage"])
+    hanzi_fields = config.get_fields(["hanzi"])
 
     if not askUser(prompt):
         return
@@ -475,24 +476,30 @@ def bulk_fill_usage():
     n_notfilled = 0
     failed_hanzi = []
 
-    note_ids = Finder(mw.col).findNotes('deck:current')
+    note_ids = mw.col.findNotes("deck:current")
     mw.progress.start(immediate=True, min=0, max=len(note_ids))
 
     for i, note_id in enumerate(note_ids):
         note = mw.col.getNote(note_id)
         copy = dict(note)
-        hanzi = get_hanzi(copy)
 
-        if has_any_field(copy, fields) and hanzi:
+        # Ensure note type has hanzi present before trying to get
+        hanzi = None
+        if has_any_field(copy, hanzi_fields):
+            hanzi = get_hanzi(copy)
+
+        if hanzi and has_any_field(copy, target_fields):
             n_processed += 1
 
             try:
-                if all_fields_empty(copy, fields):
+                if all_fields_empty(copy, target_fields):
                     result = fill_usage(hanzi, copy)
                     if result:
                         n_updated += 1
                     else:
                         n_notfilled += 1
+                        n_failed += 1
+                        failed_hanzi.append(hanzi)
             except:
                 n_failed += 1
                 failed_hanzi.append(hanzi)
