@@ -17,55 +17,81 @@
 # You should have received a copy of the GNU General Public License along with
 # Chinese Support Redux.  If not, see <https://www.gnu.org/licenses/>.
 
-from anki.hooks import addHook
-from aqt import mw
+from aqt import mw, gui_hooks
+from aqt.theme import theme_manager
+from aqt.editor import Editor
 
 from .behavior import update_fields
 from .main import config
 
 
+def webviewDidInit(web_content, context):
+    if isinstance(context, Editor):            
+        web_content.head += """<script>
+        function chineseSupport_activateButton() {
+            jQuery('#chineseSupport').addClass('active');
+        }
+        function chineseSupport_deactivateButton() {
+            jQuery('#chineseSupport').removeClass('active');
+        }
+        </script>
+        """
+
 class EditManager:
     def __init__(self):
-        addHook('setupEditorButtons', self.setupButton)
-        addHook('loadNote', self.updateButton)
-        addHook('editFocusLost', self.onFocusLost)
+        gui_hooks.editor_did_init_buttons.append(self.setupButton)
+        gui_hooks.editor_did_load_note.append(self.updateButton)
+        gui_hooks.editor_did_unfocus_field.append(self.onFocusLost)
+        gui_hooks.webview_will_set_content.append(webviewDidInit)
+        self.editors = []
 
     def setupButton(self, buttons, editor):
-        self.editor = editor
-        self.buttonOn = False
-        editor._links['chineseSupport'] = self.onToggle
+        self.editors.append(editor)
 
-        button = editor._addButton(
+        # setting toggleable=False because this is currently broken in Anki 2.1.49.
+        # We implement our own toggleing mechanism here.
+        button = editor.addButton(
             icon=None,
             cmd='chineseSupport',
             tip='Chinese Support',
             label='<b>汉字</b>',
             id='chineseSupport',
-            toggleable=True)
+            toggleable=False)  
+        if theme_manager.night_mode:
+            btnclass = "btn-night"
+        else:
+            btnclass = "btn-day"
+        # this svelte-9lxpor class is required and was found by looking at the DOM
+        # for the other buttons in Anki 2.1.49. No idea how stable this class
+        # name is, though.
+        button = button.replace('class="', f'class="btn {btnclass} svelte-9lxpor ')
 
         return buttons + [button]
 
     def onToggle(self, editor):
-        self.buttonOn = not self.buttonOn
+        mid = str(editor.note.note_type()['id'])
+        enabled = mid in config['enabledModels']
 
-        mid = str(editor.note.model()['id'])
-
-        if self.buttonOn and mid not in config['enabledModels']:
+        enabled = not enabled
+        if enabled:
             config['enabledModels'].append(mid)
-        elif not self.buttonOn and mid in config['enabledModels']:
+            editor.web.eval("chineseSupport_activateButton()")
+        else:
             config['enabledModels'].remove(mid)
+            editor.web.eval("chineseSupport_deactivateButton()")
 
         config.save()
 
     def updateButton(self, editor):
-        enabled = str(editor.note.model()['id']) in config['enabledModels']
-
-        if (enabled and not self.buttonOn) or (not enabled and self.buttonOn):
-            editor.web.eval('toggleEditorButton(chineseSupport);')
-            self.buttonOn = not self.buttonOn
+        enabled = str(editor.note.note_type()['id']) in config['enabledModels']
+        if enabled:
+            editor.web.eval("chineseSupport_activateButton()")
+        else:
+            editor.web.eval("chineseSupport_deactivateButton()")
 
     def onFocusLost(self, _, note, index):
-        if not self.buttonOn:
+        enabled = str(note.note_type()['id']) in config['enabledModels']
+        if not enabled:
             return False
 
         allFields = mw.col.models.fieldNames(note.model())
