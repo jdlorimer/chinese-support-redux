@@ -28,6 +28,7 @@ from .transcribe import (
     sanitize_transcript,
     split_transcript,
     transcribe,
+    get_tone_number_pinyin,
 )
 from .translate import translate
 from .util import (
@@ -153,6 +154,19 @@ def fill_transcript(hanzi, note):
             reformat_transcript(note, key, target)
 
     return n_filled
+
+
+def fill_tone_numbers(hanzi, note):
+    filled = False
+    separated = split_hanzi(hanzi, grouped=False)
+
+    if get_first(config['fields']['toneNumbers'], note) == '':
+        trans = transcribe(separated, 'pinyin', 'simp')
+        tones = [get_tone_number_pinyin(t) for t in trans]
+        set_all(config['fields']['toneNumbers'], note, to=' '.join(tones))
+        filled = True
+
+    return filled
 
 
 def reformat_transcript(note, group, target):
@@ -311,6 +325,7 @@ def update_fields(note, focus_field, fields):
             fill_all_defs(hanzi, copy)
             fill_classifier(hanzi, copy)
             fill_transcript(hanzi, copy)
+            fill_tone_numbers(hanzi, copy)
             fill_trad(hanzi, copy)
             fill_color(hanzi, copy)
             fill_sound(hanzi, copy)
