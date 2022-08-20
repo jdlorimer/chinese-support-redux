@@ -19,6 +19,7 @@
 
 from os.path import dirname, join, realpath
 from sqlite3 import connect
+import csv
 
 from .util import add_with_space
 
@@ -28,6 +29,12 @@ class Dictionary:
         db_path = join(dirname(realpath(__file__)), 'data', 'db', 'chinese.db')
         self.conn = connect(db_path)
         self.c = self.conn.cursor()
+        polyphone_map_path = join(dirname(realpath(__file__)), 'data', 'db', 'polyphones.tsv')
+        self.polyphone_map = {}
+        with open(polyphone_map_path, encoding="utf-8") as file:
+            for line in csv.reader(file, delimiter="\t"):
+                if not line[0].startswith("#"):
+                    self.polyphone_map[line[0]] = line[1]
 
     def create_indices(self):
         self.c.execute(
@@ -41,6 +48,9 @@ class Dictionary:
 
     def _get_word_pinyin(self, word, type_, prefer_tw=False, no_variants=True):
         from .transcribe import accentuate
+
+        if type_ == 'simp' and word in self.polyphone_map:
+            return ' '.join(accentuate(list(map(str.lower, self.polyphone_map[word].split())), 'pinyin'))
 
         if type_ == 'trad':
             query = 'SELECT pinyin, pinyin_tw FROM cidian WHERE traditional=?'
