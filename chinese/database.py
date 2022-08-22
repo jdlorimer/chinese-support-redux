@@ -49,20 +49,25 @@ class Dictionary:
     def _get_word_pinyin(self, word, type_, prefer_tw=False, no_variants=True):
         from .transcribe import accentuate
 
+        # first check polyphones override map
         if type_ == 'simp' and word in self.polyphone_map:
             return ' '.join(accentuate(list(map(str.lower, self.polyphone_map[word].split())), 'pinyin'))
 
-        if type_ == 'trad':
-            query = 'SELECT pinyin, pinyin_tw FROM cidian WHERE traditional=?'
-        elif type_ == 'simp':
-            query = 'SELECT pinyin, pinyin_tw FROM cidian WHERE simplified=?'
+        # second use zidian for single characters instead of cidian
+        if len(word) == 1:
+            query = 'SELECT kMandarin, kMandarin FROM hanzi WHERE cp=?'
         else:
-            raise ValueError(type_)
+            if type_ == 'trad':
+                query = 'SELECT pinyin, pinyin_tw FROM cidian WHERE traditional=?'
+            elif type_ == 'simp':
+                query = 'SELECT pinyin, pinyin_tw FROM cidian WHERE simplified=?'
+            else:
+                raise ValueError(type_)
 
-        if no_variants:
-            query += """AND (english NOT LIKE '%variant%' OR english IS NULL)
-                        AND (german NOT LIKE '%variant%' OR german IS NULL)
-                        AND (french NOT LIKE '%variant%' OR french IS NULL)"""
+            if no_variants:
+                query += """AND (english NOT LIKE '%variant%' OR english IS NULL)
+                            AND (german NOT LIKE '%variant%' OR german IS NULL)
+                            AND (french NOT LIKE '%variant%' OR french IS NULL)"""
 
         self.c.execute(query, (word,))
         res = self.c.fetchone()
