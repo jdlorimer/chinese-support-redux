@@ -57,7 +57,7 @@ def load():
 def add_models():
     models.append(('Chinese (Advanced)', advanced.add_model))
     models.append(('Chinese (Basic)', basic.add_model))
-    if not mw.col.models.byName('Chinese (Advanced)'):
+    if not mw.col.models.by_name('Chinese (Advanced)'):
         advanced.add_model(mw.col)
-    if not mw.col.models.byName('Chinese (Basic)'):
+    if not mw.col.models.by_name('Chinese (Basic)'):
         basic.add_model(mw.col)

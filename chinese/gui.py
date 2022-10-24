@@ -75,24 +75,24 @@ def load_menu():
         )
 
     add_menu('Chinese::Bulk Fill')
-    add_menu_item('Chinese::Bulk Fill', _('Hanzi'), bulk_fill_hanzi)
+    add_menu_item('Chinese::Bulk Fill', 'Hanzi', bulk_fill_hanzi)
     add_menu_item(
-        'Chinese::Bulk Fill', _('Transcription'), bulk_fill_transcript
+        'Chinese::Bulk Fill', 'Transcription', bulk_fill_transcript
     )
-    add_menu_item('Chinese::Bulk Fill', _('Definitions'), bulk_fill_defs)
-    add_menu_item('Chinese::Bulk Fill', _('Classifiers'), bulk_fill_classifiers)
-    add_menu_item('Chinese::Bulk Fill', _('Sound'), bulk_fill_sound)
-    add_menu_item('Chinese::Bulk Fill', _('Silhouette'), bulk_fill_silhouette)
-    add_menu_item('Chinese::Bulk Fill', _('Usage'), bulk_fill_usage)
-    add_menu_item('Chinese::Bulk Fill', _('All'), bulk_fill_all)
+    add_menu_item('Chinese::Bulk Fill', 'Definitions', bulk_fill_defs)
+    add_menu_item('Chinese::Bulk Fill', 'Classifiers', bulk_fill_classifiers)
+    add_menu_item('Chinese::Bulk Fill', 'Sound', bulk_fill_sound)
+    add_menu_item('Chinese::Bulk Fill', 'Silhouette', bulk_fill_silhouette)
+    add_menu_item('Chinese::Bulk Fill', 'Usage', bulk_fill_usage)
+    add_menu_item('Chinese::Bulk Fill', 'All', bulk_fill_all)
 
     add_menu('Chinese::Help')
     add_menu_item(
         'Chinese::Help',
-        _('Report a bug or make a feature request'),
+        'Report a bug or make a feature request',
         lambda: openLink(CSR_GITHUB_URL + '/issues'),
     )
-    add_menu_item('Chinese::Help', _('About...'), showAbout)
+    add_menu_item('Chinese::Help', 'About...', showAbout)
 
 
 def unload_menu():
