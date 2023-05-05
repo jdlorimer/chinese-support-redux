@@ -238,6 +238,10 @@ def split_transcript(transcript, target, grouped=True):
 
     return list(filter(lambda s: s.strip(), separated))
 
+def tone_marks_to_numbers(s):
+    assert isinstance(s, str)
+    s2, *_ = replace_tone_marks([cleanup(s)])
+    return s2
 
 def tone_number(s):
     assert isinstance(s, str)

@@ -41,6 +41,9 @@
             "大陸拼音",
             "拼音"
         ],
+        "pinyinNum": [
+            "PinyinNum"
+        ],
         "pinyinTaiwan": [
             "Pinyin (Taiwan)",
             "台湾拼音",

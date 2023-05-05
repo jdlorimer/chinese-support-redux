@@ -28,6 +28,7 @@ from .transcribe import (
     sanitize_transcript,
     split_transcript,
     transcribe,
+    tone_marks_to_numbers,
 )
 from .translate import translate
 from .util import (
@@ -151,6 +152,12 @@ def fill_transcript(hanzi, note):
             n_filled += 1
         else:
             reformat_transcript(note, key, target)
+
+    if get_first(config['fields']['pinyinNum'], note) == '':
+        t = transcribe(separated, target, type_)
+        s = tone_marks_to_numbers(str.join(" ", t))
+        set_all(config['fields']['pinyinNum'], note, to=s)
+        n_filled += 1
 
     return n_filled
 
