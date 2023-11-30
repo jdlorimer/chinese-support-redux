@@ -1,7 +1,16 @@
+# Archived
+
+Due to “real life” getting in the way, this project has not been maintained for some time, and — from what I understand — does’t work with recent versions of Anki. Sadly, the time to archive the repo has arrived.
+
+Thanks to the community for all your support, from the bug reports to pull requests to the random friendly email. Damien has cultivated a really heathly culture around his product. Much appreciation to [Thomas Tempé](https://github.com/ttempe/chinese-support-addon) as well, for obvious reasons.
+
+For those looking for an alternative, I am reliably informed (thanks `3ter`) that [Chinese Support 3](https://github.com/Gustaf-C/anki-chinese-support-3) is functional, and is actively maintained.
+
+I may return to add-on development at some point, but currently I don’t develop in Python anymore, and haven’t updated Anki in over a year. That said, feel free to hit me up with an email if there’s anything I might be able to help with.
+
 # Chinese Support Redux
 
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/6b99fcb30a2142d899f79c601a6aa291)](https://app.codacy.com/app/luoliyan/chinese-support-redux?utm_source=github.com&utm_medium=referral&utm_content=luoliyan/chinese-support-redux&utm_campaign=Badge_Grade_Dashboard)
-[![Build Status](https://travis-ci.org/luoliyan/chinese-support-redux.svg?branch=master)](https://travis-ci.org/luoliyan/chinese-support-redux) [![Coverage Status](https://coveralls.io/repos/github/luoliyan/chinese-support-redux/badge.svg?branch=master)](https://coveralls.io/github/luoliyan/chinese-support-redux?branch=master)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/6b99fcb30a2142d899f79c601a6aa291)](https://app.codacy.com/app/luoliyan/chinese-support-redux?utm_source=github.com&utm_medium=referral&utm_content=luoliyan/chinese-support-redux&utm_campaign=Badge_Grade_Dashboard) [![Coverage Status](https://coveralls.io/repos/github/luoliyan/chinese-support-redux/badge.svg?branch=master)](https://coveralls.io/github/luoliyan/chinese-support-redux?branch=master)
 
 [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/X8X01RVSD)
 
