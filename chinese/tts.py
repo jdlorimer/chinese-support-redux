@@ -53,7 +53,7 @@ class AudioDownloader:
         return basename(self.path)
 
     def get_google(self):
-        tts = gTTS(self.text, lang=self.lang, tld='cn')
+        tts = gTTS(self.text, lang=self.lang, tld='com')
         try:
             tts.save(self.path)
         except gTTSError as e:
