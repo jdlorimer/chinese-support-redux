@@ -58,7 +58,7 @@ class EditManager:
         config.save()
 
     def updateButton(self, editor):
-        enabled = str(editor.note.model()['id']) in config['enabledModels']
+        enabled = str(editor.note.note_type()['id']) in config['enabledModels']
 
         if (enabled and not self.buttonOn) or (not enabled and self.buttonOn):
             editor.web.eval('toggleEditorButton(chineseSupport);')
@@ -68,7 +68,7 @@ class EditManager:
         if not self.buttonOn:
             return False
 
-        allFields = mw.col.models.fieldNames(note.model())
+        allFields = mw.col.models.field_names(note.note_type())
         field = allFields[index]
 
         if update_fields(note, field, allFields):
@@ -83,7 +83,7 @@ class EditManager:
 def append_tone_styling(editor):
     js = 'var css = document.styleSheets[0];'
 
-    for line in editor.note.model()['css'].split('\n'):
+    for line in editor.note.note_type()['css'].split('\n'):
         if line.startswith('.tone'):
             js += 'css.insertRule("{}", css.cssRules.length);'.format(
                 line.rstrip())

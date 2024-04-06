@@ -10,7 +10,7 @@
 
 import re
 from anki import hooks
-from anki.utils import stripHTML
+from anki.utils import strip_html as stripHTML
 from anki.template import TemplateRenderContext
 from .ruby import ruby_top, ruby_top_text, ruby_bottom_text, no_sound
 
