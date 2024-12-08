@@ -15,11 +15,10 @@
 # You should have received a copy of the GNU General Public License along with
 # Chinese Support Redux.  If not, see <https://www.gnu.org/licenses/>.
 
-from anki.hooks import addHook, wrap
-from anki.lang import _
+from anki.hooks import wrap
 from anki.stats import CollectionStats
 from anki.stdmodels import models
-from aqt import mw
+from aqt import mw, gui_hooks
 
 from .config import ConfigManager
 from .database import Dictionary
@@ -42,12 +41,12 @@ if config['firstRun']:
 def load():
     ruby.install()
     chinese.install()
-    addHook('profileLoaded', load_menu)
-    addHook('profileLoaded', add_models)
-    addHook('loadNote', append_tone_styling)
-    addHook('unloadProfile', config.save)
-    addHook('unloadProfile', dictionary.conn.close)
-    addHook('unloadProfile', unload_menu)
+    gui_hooks.profile_did_open.append(load_menu)
+    gui_hooks.profile_did_open.append(add_models)
+    gui_hooks.editor_did_load_note.append(append_tone_styling)
+    gui_hooks.profile_will_close.append(config.save)
+    gui_hooks.profile_will_close.append(dictionary.conn.close)
+    gui_hooks.profile_will_close.append(unload_menu)
     CollectionStats.todayStats = wrap(
         CollectionStats.todayStats, todayStats, 'around'
     )
