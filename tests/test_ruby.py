@@ -43,7 +43,7 @@ class Ruby(Base):
 
     def test_bopomofo(self):
         self.assertEqual(ruby(['機場'], 'bopomofo'), ['機[ㄐㄧ]場[ㄔㄤˇ]'])
-        self.assertEqual(ruby(['機', '場'], 'bopomofo'), ['機[ㄐㄧ]', '場[ㄔㄤˊ]'])
+        self.assertEqual(ruby(['機', '場'], 'bopomofo'), ['機[ㄐㄧ]', '場[ㄔㄤˇ]'])
         self.assertEqual(
             ruby(['加拿大人'], 'bopomofo'), ['加[ㄐㄧㄚ]拿[ㄋㄚˊ]大[ㄉㄚˋ]人[ㄖㄣˊ]']
         )
@@ -51,7 +51,7 @@ class Ruby(Base):
     def test_bopomofo_punc(self):
         self.assertEqual(ruby(['機場。'], 'bopomofo'), ['機[ㄐㄧ]場[ㄔㄤˇ]。'])
         self.assertEqual(
-            ruby(['機', '場', '。'], 'bopomofo'), ['機[ㄐㄧ]', '場[ㄔㄤˊ]', '。']
+            ruby(['機', '場', '。'], 'bopomofo'), ['機[ㄐㄧ]', '場[ㄔㄤˇ]', '。']
         )
 
     def test_jyutping_available(self):

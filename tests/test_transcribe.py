@@ -109,6 +109,22 @@ class Transcribe(Base):
             transcribe(['图书', '馆'], 'pinyin', 'simp'), ['tú shū', 'guǎn']
         )
 
+    def test_single_polyphone(self):
+        self.assertEqual(transcribe(['说'], 'pinyin', 'simp'), ['shuō'])
+
+    def test_single_zici_polyphone(self):
+        self.assertEqual(transcribe(['分子'], 'pinyin', 'simp'), ['fēn zǐ'])
+
+    def test_multiple_polyphones(self):
+        self.assertEqual(
+            transcribe(['你', '要', '说', '什么'], 'pinyin', 'simp'), ['nǐ', 'yào', 'shuō', 'shén me']
+        )
+
+    def test_multiple_zici_polyphones(self):
+        self.assertEqual(
+            transcribe(['重点', '分子', '便宜'], 'pinyin', 'simp'), ['zhòng diǎn', 'fēn zǐ', 'pián yi']
+        )
+
     def test_no_chinese(self):
         self.assertEqual(transcribe(['foo'], 'pinyin', 'simp'), [])
 
